@@ -334,6 +334,7 @@ public class ApproveService {
 		return mDto;
 	}
 	
+	// 보고서 상세
 	public Map<String , Object> getDocuDetail(Long approNo){
 		Map<String, Object> detailMap = new HashMap<>();
 
@@ -498,6 +499,41 @@ public class ApproveService {
 	    detailMap.put("aDto", aDto);
 
 	    return detailMap;
+	}
+	
+	// 보고서 수정
+	
+	@Transactional
+	public int docuUpdate(ApproveDto approveDto, List<ApproveLineDto> approveLineDtos, ApproFileDto approFileDto, MultipartFile file) {
+		Employee employee = employeeRepository.findByempId(approveDto.getEmp_id());
+	    Department department = departmentRepository.findByDeptCode(approveDto.getDept_code());
+	    Job job = jobRepository.findByJobCode(approveDto.getJob_code());
+		TempEdit tempEdit = tempEditRepository.findByTempNo(approveDto.getTemp_no());
+	    
+		    Approve approve = approveDto.toEntity(employee, department, job, tempEdit);
+		    approve = approveRepository.save(approve);
+		    
+		    approveLineRepository.deleteByApprove(approve);
+            for (ApproveLineDto lineDto : approveLineDtos) {
+                lineDto.setAppro_no(approve.getApproNo());
+
+                // 각 ApproveLine에 맞는 Employee 객체를 가져옵니다.
+                Employee lineEmployee = employeeRepository.findByempId(lineDto.getEmp_id());
+                if (lineEmployee == null) {
+                    continue; // 또는 오류를 처리합니다.
+                }
+
+                ApproveLine approveLine = lineDto.toEntity(approve, lineEmployee);
+                approveLineRepository.save(approveLine);
+            }
+            
+            if (approFileDto != null && approFileDto.getOri_file() != null && !approFileDto.getOri_file().isEmpty()) { 
+                approFileDto.setAppro_no(approveDto.getAppro_no());
+                ApproFile approFile = approFileDto.toEntity(approve);
+                approFileRepository.save(approFile);
+            }
+            
+            return 1;
 	}
 	
 	// 결재 수정

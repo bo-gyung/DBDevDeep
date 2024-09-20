@@ -186,6 +186,10 @@ public class ApproveViewController {
 	@GetMapping("/docuUpdate/{appro_no}")
 	public String updateDocuOne(Model model, @PathVariable("appro_no") Long approNo) {
 		Map<String, Object> detailMap = approveService.getDocuDetail(approNo);
+		
+		List<TempEditDto> tempList = tempEditService.callTemp();
+		
+		model.addAttribute("tempList",tempList);
 		model.addAllAttributes(detailMap);
 		return "approve/docuUpdate";
 	}
