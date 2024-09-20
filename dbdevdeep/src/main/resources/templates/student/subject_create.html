@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+     layout:decorate="~{include/student_layout}">
+<th:block layout:fragment="content">
+<body>
+		<div class="page-wrapper">
+			<div class="page-breadcrumb">
+				<div class="row">
+					<div id="content">
+			            <form id="subject_create_form" method="post">
+			            <h3>과목 정보 등록</h3>
+			            <div class="form-section">
+			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+			                <div class="form-group">
+			                    <label for="name">과목명</label>
+			                    <input type="text" id="name" name="subject_name" placeholder="과목명을 입력하세요.">
+			                </div>
+			                <div>
+			                	<label for="subject_semester">학기:</label>
+			                	<select id="subject_semester" name="subject_semester">
+			                		<option value="" disabled selected>학기를 선택하세요</option>
+			                		<option value="1">1학기</option>
+			                		<option value="2">2학기</option>
+			                	</select>
+			                </div>
+			                
+			                
+			                <!-- 수업 시간 정보 -->
+					        <div>
+					            <h3>수업 시간</h3>
+					            <div id="class-time-container">
+					                <!-- 첫 번째 수업 시간 필드 (초기 필드) -->
+					                <div class="class-time-row">
+					                    <label>요일:</label>
+					                    <select name="timeTable[0].day">
+			                				<option value="" disabled selected>요일을 선택하세요.</option>
+					                        <option value="월">월</option>
+					                        <option value="화">화</option>
+					                        <option value="수">수</option>
+					                        <option value="목">목</option>
+					                        <option value="금">금</option>
+					                    </select>
+					                    <label>교시:</label>
+					                    <select name="timeTable[0].period">
+					                    	<option value="" disabled selected>교시를 선택하세요.</option>
+					                    	<option value="1">1교시</option>
+					                    	<option value="2">2교시</option>
+					                    	<option value="3">3교시</option>
+					                    	<option value="4">4교시</option>
+					                    	<option value="5">5교시</option>
+					                    	<option value="6">6교시</option>
+					                    </select>
+					                </div>
+					            </div>
+					            <!-- 수업 시간 추가 버튼 -->
+					            <button type="button" onclick="addClassTime()" style="margin-left: 10px;">+</button>
+					        </div>
+					        
+					         <!-- 평가 과정 정보 -->
+					        <div>
+					            <h3>평가 과정 :</h3>
+					            <div id="evaluation-container">
+					                <!-- 첫 번째 평가 항목 필드 (초기 필드) -->
+					                <div class="evaluation-row">
+					                    <label>평가 과정:</label>
+					                    <input type="text" name="curriculum[0].curriculum_content" placeholder="1차 수행평가"/>
+					                    <label>반영 비율:</label>
+					                    <input type="text" name="curriculum[0].curriculum_ratio" placeholder="%"/>
+					                    <label>만점:</label>
+					                    <input type="text" name="curriculum[0].curriculum_max_score"/>
+					                </div>
+					            </div>
+					            <button type="button" onclick="addEvaluation()" style="margin-left: 10px;">+</button>
+					        </div>
+			                <div class="form-group" style="text-align: right;">
+				                <input type="button" value="취소" th:onclick="|location.href='@{/student/subject}'|">
+				                <input type="submit" value="등록">
+				            </div>
+				            </div>
+	            		</form>
+					</div>
+            
+				</div>
+			<div class="container-fluid">
+			</div>
+		</div>
+	</div>
+	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="/dist/js/app-style-switcher.js"></script>
+	<script src="/dist/js/feather.min.js"></script>
+	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+	<script src="/dist/js/sidebarmenu.js"></script>
+	<script src="/dist/js/custom.min.js"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+        // 수업 시간 필드 추가
+        function addClassTime() {
+            const classTimeContainer = document.getElementById("class-time-container");
+            const classTimeIndex = document.querySelectorAll(".class-time-row").length;
+
+            const newClassTime = `
+                <div class="class-time-row">
+            	<label>요일:</label>
+	                <select name="timeTable[${classTimeIndex}].day">
+	    				<option value="" disabled selected>요일을 선택하세요.</option>
+	                    <option value="월">월</option>
+	                    <option value="화">화</option>
+	                    <option value="수">수</option>
+	                    <option value="목">목</option>
+	                    <option value="금">금</option>
+	                </select>
+	                <label>교시:</label>
+	                <select name="timeTable[${classTimeIndex}].period">
+	                	<option value="" disabled selected>교시를 선택하세요.</option>
+	                	<option value="1">1교시</option>
+	                	<option value="2">2교시</option>
+	                	<option value="3">3교시</option>
+	                	<option value="4">4교시</option>
+	                	<option value="5">5교시</option>
+	                	<option value="6">6교시</option>
+	                </select>
+                    <button type="button" onclick="removeElement(this)">삭제</button>
+                </div>
+            `;
+
+            classTimeContainer.insertAdjacentHTML('beforeend', newClassTime);
+        }
+
+        // 평가 항목 필드 추가
+        function addEvaluation() {
+            const evaluationContainer = document.getElementById("evaluation-container");
+            const evaluationIndex = document.querySelectorAll(".evaluation-row").length;
+
+            const newEvaluation = `
+                <div class="evaluation-row">
+	            	<label>평가 과정:</label>
+	                <input type="text" name="curriculum[${evaluationIndex}].curriculum_content" placeholder="평가 과정명">
+	                <label>반영 비율:</label>
+	                <input type="text" name="curriculum[${evaluationIndex}].curriculum_ratio" placeholder="%">
+	                <label>만점:</label>
+	                <input type="text" name="curriculum[${evaluationIndex}].curriculum_max_score">
+                    <button type="button" onclick="removeElement(this)">삭제</button>
+                </div>
+            `;
+
+            evaluationContainer.insertAdjacentHTML('beforeend', newEvaluation);
+        }
+
+        // 삭제 버튼 기능
+        function removeElement(button) {
+            button.parentElement.remove();
+        }
+    </script>
+	<script>
+	    const form = document.getElementById("subject_create_form");
+	    form.addEventListener('submit', (e) => {
+	        e.preventDefault();
+	
+	        // 과목명 및 학기 데이터 가져오기
+	        const subjectName = document.getElementById("name").value;
+	        const subjectSemester = document.getElementById("subject_semester").value;
+	
+	        // 수업 시간 데이터 가져오기
+	        const timeTable = [];
+	        document.querySelectorAll('.class-time-row').forEach((row, index) => {
+	            const day = row.querySelector(`select[name="timeTable[${index}].day"]`).value;
+	            const period = row.querySelector(`select[name="timeTable[${index}].period"]`).value;
+	            timeTable.push({ day, period });
+	        });
+	
+	        // 평가 과정 데이터 가져오기
+	        const curriculum = [];
+	        document.querySelectorAll('.evaluation-row').forEach((row, index) => {
+	            const curriculum_content = row.querySelector(`input[name="curriculum[${index}].curriculum_content"]`).value;
+	            const curriculum_ratio = row.querySelector(`input[name="curriculum[${index}].curriculum_ratio"]`).value.replace('%', '');
+	            const curriculum_max_score = row.querySelector(`input[name="curriculum[${index}].curriculum_max_score"]`).value;
+	            curriculum.push({ curriculum_content, curriculum_ratio, curriculum_max_score });
+	        });
+	        // JSON 형식으로 데이터 구성
+	        const requestData = {
+	            sdto: {
+	                subject_name: subjectName,
+	                subject_semester: subjectSemester
+	            },
+	            cdtoList: curriculum,
+	            tdtoList: timeTable
+	        };
+	        const csrfToken = document.getElementById('csrf_token').value;
+	
+	        // JSON 데이터를 사용하여 fetch 요청 보내기
+	        fetch('/subject', {
+	            method: 'post',
+	            headers: {
+	                'Content-Type': 'application/json',
+	                'X-CSRF-TOKEN': csrfToken
+	            },
+	            body: JSON.stringify(requestData)  // JSON으로 변환
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.res_code === '200') {
+	                Swal.fire({
+	                    icon: 'success',
+	                    title: '성공',
+	                    text: data.res_msg
+	                }).then((result) => {
+	                    location.href = "/student/subject";
+	                });
+	            } else {
+	                Swal.fire({
+	                    icon: 'error',
+	                    title: '실패',
+	                    text: data.res_msg
+	                });
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Error:', error);
+	        });
+	    });
+	</script>
+</body>
+
+</html>

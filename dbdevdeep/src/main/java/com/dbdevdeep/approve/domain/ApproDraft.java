@@ -76,9 +76,13 @@ public class ApproDraft {
     @Column(name = "end_time")
     private LocalDateTime endTime;
     
-    @OneToMany(mappedBy = "approDraft")
-    private List<LineDraft> lineDrafts;
-
-    @OneToMany(mappedBy = "approDraft")
-    private List<ReferenceDraft> referenceDrafts;
+    @Column(name = "consult_draft_root")
+    private String consultDraftRoot;
+    
+    @Column(name = "approval_draft_root")
+    private String approvalDraftRoot;
+    
+    @Column(name = "ref_draft_root")
+    private String refDraftRoot;
+    
 }

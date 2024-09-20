@@ -1,6 +1,7 @@
 package com.dbdevdeep.chat.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.dbdevdeep.employee.domain.Employee;
 
@@ -11,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -60,5 +62,9 @@ public class ChatMsg {
 	
 	@Column(name="new_pic_name")
 	private String newPicName;
+	
+	// 채팅읽음확인
+	@OneToMany(mappedBy = "chatMsg")
+	private List<ChatReadCheck> chatReadCheck;
 	
 }

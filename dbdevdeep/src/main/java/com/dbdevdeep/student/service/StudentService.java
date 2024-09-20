@@ -1,22 +1,33 @@
 package com.dbdevdeep.student.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dbdevdeep.employee.domain.TeacherHistory;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
+import com.dbdevdeep.student.domain.Curriculum;
+import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.Parent;
 import com.dbdevdeep.student.domain.ParentDto;
 import com.dbdevdeep.student.domain.Student;
 import com.dbdevdeep.student.domain.StudentClass;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
+import com.dbdevdeep.student.domain.Subject;
+import com.dbdevdeep.student.domain.SubjectDto;
+import com.dbdevdeep.student.domain.TimeTable;
+import com.dbdevdeep.student.domain.TimeTableDto;
+import com.dbdevdeep.student.repository.CurriculumRepository;
 import com.dbdevdeep.student.repository.ParentRepository;
 import com.dbdevdeep.student.repository.StudentClassRepository;
 import com.dbdevdeep.student.repository.StudentRepository;
+import com.dbdevdeep.student.repository.SubjectRepository;
+import com.dbdevdeep.student.repository.TimeTableRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -28,13 +39,19 @@ public class StudentService {
 	private final TeacherHistoryRepository teacherHistoryRepository;
 	private final StudentClassRepository studentClassRepository;
 	private final ParentRepository parentRepository;
+	private final SubjectRepository subjectRepository;
+	private final CurriculumRepository curriculumRepository;
+	private final TimeTableRepository timeTableRepository;
 	
 	@Autowired
-	public StudentService(StudentRepository studentRepository, TeacherHistoryRepository teacherHistoryRepository, StudentClassRepository studentClassRepository, ParentRepository parentRepository) {
+	public StudentService(StudentRepository studentRepository, TeacherHistoryRepository teacherHistoryRepository, StudentClassRepository studentClassRepository, ParentRepository parentRepository,SubjectRepository subjectRepository,CurriculumRepository curriculumRepository, TimeTableRepository timeTableRepository) {
 		this.studentRepository = studentRepository;
 		this.teacherHistoryRepository = teacherHistoryRepository;
 		this.studentClassRepository = studentClassRepository;
 		this.parentRepository = parentRepository;
+		this.subjectRepository = subjectRepository;
+		this.curriculumRepository = curriculumRepository;
+		this.timeTableRepository = timeTableRepository;
 	}
 	
 	// 입력 form에서 받아온 dto data를 Student로 바꿔서 저장하는 절차
@@ -51,9 +68,7 @@ public class StudentService {
 				.studentNewPic(dto.getStudent_new_pic())
 				.studentStatus(dto.getStudent_status())
 				.build();
-		
 		return studentRepository.save(student);
-				
 	}
 	
 	// 학생리스트를 옮겨주기 위해 dto로 변환하여 담아주는 절차
@@ -70,7 +85,6 @@ public class StudentService {
 	        dto.setStudent_no(student.getStudentNo());
 	        dto.setStudent(student);
 	        dto.setStudent_id(studentClass != null ? studentClass.getStudentId() : null);
-	        
 	        if (studentClass != null) {
 	            dto.setTeacher_history(studentClass.getTeacherHistory()); // teacher_history 설정
 	        } else {
@@ -200,4 +214,102 @@ public class StudentService {
 		return parentRepository.save(parent); 
 	 }
 	
+	// 과목 리스트 페이지에서 목록 조회
+	public List<SubjectDto> mySubjectList(){
+		List<Subject> subjectList = subjectRepository.findAll();
+		List<SubjectDto> subjectDtoList = new ArrayList<SubjectDto>();
+		for(Subject s : subjectList) {
+			SubjectDto dto = new SubjectDto().toDto(s);
+			subjectDtoList.add(dto);
+		}
+		return subjectDtoList;
+	}
+	
+	// 과목 정보 상세 조회시 과목 정보 조회
+		public SubjectDto selectSubjectOne(Long subject_no) {
+			Subject subjectDetail = subjectRepository.findBySubjectNo(subject_no);
+			SubjectDto dto = new SubjectDto().toDto(subjectDetail);
+			return dto;
+		}
+	// 과목 정보 상세 조회 시 교육과정 조회
+		public List<CurriculumDto> selectCurriOne(Long subject_no) {
+			List<Curriculum> curriDetail = curriculumRepository.findBySubject_SubjectNo(subject_no);
+			List<CurriculumDto> curriDetaildto = new ArrayList<CurriculumDto>();
+			for(Curriculum c : curriDetail) {
+				CurriculumDto dto = new CurriculumDto().toDto(c);
+				curriDetaildto.add(dto);
+			}
+			return curriDetaildto;
+		}
+		
+	// 과목 정보 상세 조회 시 시간표 조회
+		public List<TimeTableDto> selectTimeTableOne(Long subject_no){
+			List<TimeTable> timeDetail = timeTableRepository.findBySubject_SubjectNo(subject_no);
+			List<TimeTableDto> timeDetaildto = new ArrayList<TimeTableDto>();
+			for(TimeTable t : timeDetail) {
+				TimeTableDto dto = new TimeTableDto().toDto(t);
+				timeDetaildto.add(dto);
+			}
+			return timeDetaildto;
+		}
+	
+	// 과목 정보 등록 시에 과목 정보, 시간표 정보, 평가 과정 정보 동시에 저장
+		@Transactional
+		public Map<String,String> saveSubjectWithDetail(SubjectDto sdto, List<CurriculumDto> cdtoList, List<TimeTableDto> tdtoList){
+			Map<String, String> resultMap = new HashMap<>();
+			try {
+	            // 1. Subject 저장
+	            Subject subject = sdto.toEntity();
+	            subjectRepository.save(subject);
+
+	            // 2. Curriculum 저장
+	            if(cdtoList != null && !cdtoList.isEmpty()){
+		            for (CurriculumDto cdto : cdtoList) {
+		            	if (cdto.getCurriculum_content() != null && !cdto.getCurriculum_content().trim().isEmpty() &&
+		                        cdto.getCurriculum_ratio() != null && cdto.getCurriculum_max_score() != null) {
+
+		                        Curriculum curriculum = cdto.toEntity();
+		                        curriculum.setSubject(subject);
+		                        curriculumRepository.save(curriculum);
+		                    }
+		            }
+	            }
+	            // 3. TimeTable 저장
+	            if (tdtoList != null && !tdtoList.isEmpty()) {
+	                for (TimeTableDto tdto : tdtoList) {
+	                    if (tdto.getDay() != null && !tdto.getDay().trim().isEmpty() && tdto.getPeriod() != null) {
+
+	                        TimeTable timeTable = tdto.toEntity();
+	                        timeTable.setSubject(subject);
+	                        timeTableRepository.save(timeTable);
+	                    }
+	                }
+	            }
+
+	            resultMap.put("res_code", "200");
+	            resultMap.put("res_msg", "과목이 성공적으로 등록되었습니다.");
+
+	        } catch (Exception e) {
+	            // 에러 발생 시 오류 메시지와 코드 반환
+	            resultMap.put("res_code", "500");
+	            resultMap.put("res_msg", "과목 등록 중 오류가 발생했습니다.");
+	            e.printStackTrace();
+	        }
+
+	        return resultMap;
+		}
+		
+		// 과목 정보 전부 삭제
+		public int deleteSubject(Long subject_no) {
+			int result = 0;
+			try {
+				subjectRepository.deleteById(subject_no);
+				curriculumRepository.deleteById(subject_no);
+				timeTableRepository.deleteById(subject_no);
+				result = 1;
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return result;
+		}
 }

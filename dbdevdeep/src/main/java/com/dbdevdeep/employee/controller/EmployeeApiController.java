@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dbdevdeep.FileService;
+import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
 import com.dbdevdeep.employee.domain.EmployeeStatus;
@@ -321,12 +322,26 @@ public class EmployeeApiController {
 	@ResponseBody
 	@PostMapping("/employee/edit")
 	public Map<String, String> employeeInfoEdit(EmployeeDto dto,
-			@RequestParam(name = "file", required = false) MultipartFile file) {
+			@RequestParam(name = "file", required = false) MultipartFile file,
+			@RequestParam(name = "admin_id") String admin_id) {
 		Map<String, String> resultMap = new HashMap<String, String>();
 
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "정보 수정 중 오류가 발생하였습니다.");
-
+		
+		EmployeeDto oriData = employeeService.selectEmployeeOne(dto.getEmp_id());
+		
+		String oriDataJson = employeeService.convertDtoToJson(oriData);
+		String newDataJson = employeeService.convertDtoToJson(dto);
+				
+		AuditLogDto alDto = new AuditLogDto();
+		alDto.setAdmin_id(admin_id);
+		alDto.setEmp_id(dto.getEmp_id());
+		alDto.setNew_data(newDataJson);
+		alDto.setOri_data(oriDataJson);
+		alDto.setAudit_type("U");
+		alDto.setChanged_item("emp_info");
+		
 		if (file != null && "".equals(file.getOriginalFilename()) == false) {
 			String savedFileName = fileService.employeePicUpload(file);
 
@@ -342,7 +357,7 @@ public class EmployeeApiController {
 			}
 		}
 
-		Employee e = employeeService.employeeInfoEdit(dto);
+		Employee e = employeeService.employeeInfoEdit(dto, alDto);
 
 		if (e != null) {
 			resultMap.put("res_code", "200");
@@ -438,7 +453,7 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 
-	// 휴직 등록 및 직원 status 변경
+	// 복직 등록 및 직원 status 변경
 	@ResponseBody
 	@PostMapping("/employee/return")
 	public Map<String, String> employeeReturn(EmployeeStatusDto dto) {
@@ -448,7 +463,7 @@ public class EmployeeApiController {
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "복직 등록 중 오류가 발생하였습니다.");
 
-		EmployeeStatus employeeStatus = employeeService.employeeRest(dto);
+		EmployeeStatus employeeStatus = employeeService.employeeReturn(dto);
 
 		if (employeeStatus != null) {
 			resultMap.put("res_code", "200");
@@ -459,4 +474,6 @@ public class EmployeeApiController {
 
 		return resultMap;
 	}
+	
+	
 }

@@ -123,7 +123,7 @@
                             <div class="card-body" style="padding:50px 80px">
 		                        <div class="row mb-2">
 		                        	<div class="col-6 d-flex justify-content-start" style="padding-top:10px; padding-left:0px;">
-			                            <div style="font-size:36px; font-weight:bolder">학생목록</div>
+			                            <div style="font-size:36px; font-weight:bolder">학생 목록</div>
 		                        	</div>
                                 <div class="table-responsive" style="margin-top:20px;">
                                     <table id="student_list" class="table table-hover table-bordered no-wrap" style="width:100%">
@@ -140,7 +140,7 @@
                                         <tbody>
                                         <th:block th:if="${#lists.isEmpty(resultList)}">
 												<tr>
-													<td colspan="6">주소록이 없습니다.</td>
+													<td colspan="6">존재하는 학생 정보가 없습니다.</td>
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(resultList)}">
@@ -152,10 +152,10 @@
 									                    <td th:text="${studentClass.student_id} + '번'"></td>
 									                </th:block>
 									                <th:block th:if="${studentClass.teacher_history == null}">
-									                    <td colspan="3">학급 이력이 없습니다.</td>
+									                    <td colspan="3">존재하는 학급 이력이 없습니다.</td>
 									                </th:block>
 													<td th:text="${studentClass.student.studentName}"></td>
-													<td><a th:text="${studentClass.student.studentBirth}"></a></td>
+													<td th:text="${studentClass.student.studentBirth}"></td>
 											        <td th:text="${studentClass.student.studentStatus}"></td>
 											    </tr>
 											    </th:block>

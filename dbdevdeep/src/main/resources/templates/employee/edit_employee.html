@@ -83,6 +83,7 @@
 							<hr>
 							<form id="employeeAddFrm">
 								<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+								<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 								<div class="form-body">
 									<div class="row">
 										<div class="col-md-1 "></div>

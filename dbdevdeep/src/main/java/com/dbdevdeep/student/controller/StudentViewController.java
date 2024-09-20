@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
+import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.ParentDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
+import com.dbdevdeep.student.domain.SubjectDto;
+import com.dbdevdeep.student.domain.TimeTableDto;
 import com.dbdevdeep.student.service.StudentService;
 
 @Controller
@@ -99,4 +102,34 @@ public class StudentViewController {
 		return "student/student_parent";
 	}
 	
+	// 과목 리스트 조회 페이지로 이동
+	@GetMapping("/student/subject")
+	public String listSubjectPage(Model model, SubjectDto dto) {
+		/*
+		 * Authentication authentication =
+		 * SecurityContextHolder.getContext().getAuthentication(); User user = (User)authentication.getPrincipal();
+		 * 
+		 */		
+		List<SubjectDto> subjectList = studentService.mySubjectList();
+		model.addAttribute("subjectList",subjectList);
+		return "student/subject_list";
+	}
+
+	// 과목 정보 상세 페이지로 이동
+		@GetMapping("/subject/{subject_no}")
+		public String selectSubjectOne(Model model, @PathVariable("subject_no") Long subject_no) {
+			SubjectDto dto = studentService.selectSubjectOne(subject_no);
+			List<CurriculumDto> cdto = studentService.selectCurriOne(subject_no);
+			List<TimeTableDto> tdto = studentService.selectTimeTableOne(subject_no);
+			model.addAttribute("timetableDetail",tdto);
+			model.addAttribute("subjectDetail",dto);
+			model.addAttribute("curriDetail",cdto);
+			return "student/subject_detail";
+		}
+
+	// 과목 등록 페이지로 이동
+		@GetMapping("/subject/create")
+		public String createSubjectPage() {
+			return "student/subject_create";
+		}
 }

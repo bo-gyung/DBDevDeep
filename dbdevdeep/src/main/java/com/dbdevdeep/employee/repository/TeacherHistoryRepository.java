@@ -39,4 +39,7 @@ public interface TeacherHistoryRepository extends JpaRepository<TeacherHistory, 
 	List<TeacherHistory> findByYearAndGrade(@Param("tYear") String tYear, @Param("grade") String grade);
 	
 	TeacherHistory findByteacherNo(Long teacher_no);
+	
+	@Query("SELECT t FROM TeacherHistory t WHERE t.employee.empId = :empId AND t.tYear = (SELECT MAX(th.tYear) FROM TeacherHistory th WHERE th.employee.empId = :empId)")
+	TeacherHistory selectLatestTeacherHistoryByEmployee(@Param("empId") String empId);
 }
