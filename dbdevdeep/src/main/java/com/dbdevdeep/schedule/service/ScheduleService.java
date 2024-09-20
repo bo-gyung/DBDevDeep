@@ -42,16 +42,25 @@ public class ScheduleService {
 		this.categoryRepository = categoryRepository;
 	}
 	
-	public List<ScheduleDto> selectTotalScheduleList(){
-		List<Schedule> scheduleList = scheduleRepository.findAll();
-		
-		List<ScheduleDto> scheduleDtoList = new ArrayList<ScheduleDto>();
-		for(Schedule s : scheduleList) {
-			ScheduleDto dto = new ScheduleDto().toDto(s);
-			scheduleDtoList.add(dto);
-		}
-		
-		return scheduleDtoList;
+	public List<ScheduleDto> selectTotalScheduleList(String empId){
+		// 공용 일정 가져오기
+	    List<Schedule> publicScheduleList = scheduleRepository.findByCalendarType(0);
+	    
+	    // 개인 일정 가져오기
+	    List<Schedule> privateScheduleList = scheduleRepository.findByCalendarTypeAndEmployee_EmpId(1, empId);
+	    
+	    // 공용 일정과 개인 일정을 합침
+	    List<Schedule> totalScheduleList = new ArrayList<>(publicScheduleList);  // 공용 일정을 추가
+	    totalScheduleList.addAll(privateScheduleList);  // 개인 일정 추가
+
+	    // DTO 리스트로 변환
+	    List<ScheduleDto> scheduleDtoList = new ArrayList<>();
+	    for (Schedule s : totalScheduleList) {
+	        ScheduleDto dto = new ScheduleDto().toDto(s);
+	        scheduleDtoList.add(dto);
+	    }
+
+	    return scheduleDtoList;
 	}
 	
 	public List<ScheduleDto> selectPublicScheduleList() {
