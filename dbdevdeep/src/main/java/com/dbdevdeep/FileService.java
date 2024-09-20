@@ -1,8 +1,6 @@
 package com.dbdevdeep;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.UUID;
@@ -17,7 +15,9 @@ import com.dbdevdeep.approve.repository.ApproFileRepository;
 import com.dbdevdeep.approve.repository.ApproveRepository;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
+import com.dbdevdeep.place.domain.Item;
 import com.dbdevdeep.place.domain.Place;
+import com.dbdevdeep.place.repository.ItemRepository;
 import com.dbdevdeep.place.repository.PlaceRepository;
 
 @Service
@@ -30,14 +30,15 @@ public class FileService {
 	private final ApproFileRepository approFileRepository;
 	private final ApproveRepository approveRepository;
 	private final PlaceRepository placeRepository;
-	
+	private final ItemRepository itemRepository;
 	@Autowired
 	public FileService(EmployeeRepository employeeRepository, ApproFileRepository approFileRepository,
-			ApproveRepository approveRepository, PlaceRepository placeRepository) {
+			ApproveRepository approveRepository, PlaceRepository placeRepository, ItemRepository itemRepository) {
 		this.employeeRepository = employeeRepository;
 		this.approFileRepository = approFileRepository;
 		this.approveRepository = approveRepository;
 		this.placeRepository = placeRepository;
+		this.itemRepository = itemRepository;
 	}
 
 	public int employeePicDelete(String emp_id) {
@@ -280,9 +281,9 @@ public class FileService {
 			int result = -1;
 			
 			try {
-				Place p = placeRepository.findByplaceNo(item_no);
+				Item i = itemRepository.findByitemNo(item_no);
 				
-				String newPicName = p.getNewPicName();
+				String newPicName = i.getNewPicName();
 				String resultDir = fileDir + "place\\item\\" + URLDecoder.decode(newPicName,"UTF-8");
 				
 				

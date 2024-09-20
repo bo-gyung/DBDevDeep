@@ -58,35 +58,12 @@ public class ItemApiController {
 		resultMap.put("res_msg", "기자재 수정중 오류가 발생하였습니다.");
 		
 		try {
-	        // 파일이 존재하는 경우 처리
-	        if (file != null && !file.isEmpty()) {
-	            String originalFilename = file.getOriginalFilename();
-
-	            if (originalFilename != null && !originalFilename.isEmpty()) {
-	                // 새로운 파일 업로드
-	                String savedFileName = fileService.placeUpload(file);
-
-	                if (savedFileName != null) {
-	                    // 기존 파일 삭제 (기존 파일이 있을 경우)
-	                    if (dto.getNew_pic_name() != null && !dto.getNew_pic_name().isEmpty()) {
-	                        fileService.placeDelete(dto.getPlace_no());
-	                    }
-
-	                    // 새로운 파일 정보 DTO에 설정
-	                    dto.setOri_pic_name(originalFilename);
-	                    dto.setNew_pic_name(savedFileName);
-	                } else {
-	                    resultMap.put("res_msg", "파일 업로드 중 오류가 발생했습니다.");
-	                    return resultMap;
-	                }
-	            }
-	        }
-
-	        // 기자재 정보 수정
-	        if (itemService.updateItem(dto, file) > 0) {
-	            resultMap.put("res_code", "200");
-	            resultMap.put("res_msg", "게시글이 성공적으로 수정되었습니다.");
-	        }
+	       // 기자재 정보 수정 처리
+			if(itemService.updateItem(dto, file) > 0) {
+				resultMap.put("res_code", "200");
+				resultMap.put("res_msg", "기자재가 성공적으로 수정되었습니다.");
+			}
+	        
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	        resultMap.put("res_msg", "수정 중 오류가 발생했습니다.");
