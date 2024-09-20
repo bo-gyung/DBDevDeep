@@ -40,7 +40,7 @@ public class ScheduleViewController {
 	}
 	
 	@GetMapping("/schedule")
-	public String selectscheduleList(Model model) {
+	public String selectScheduleList(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User)authentication.getPrincipal();
 		String empId = user.getUsername();

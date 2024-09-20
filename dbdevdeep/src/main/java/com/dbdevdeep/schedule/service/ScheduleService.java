@@ -8,11 +8,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import com.dbdevdeep.employee.domain.Employee;
@@ -223,14 +227,18 @@ public class ScheduleService {
                 alertData.put("title", "일정");
                 alertData.put("message", "\'" + s.getScheduleTitle() + "\' 일정이 " + msg); // 단일 따옴표 이스케이프
                 alertData.put("time", startDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                alertData.put("emp_id", s.getEmployee().getEmpId());
                 alertDataList.add(alertData);
             }
         }
     }
     
     // 클라이언트 요청 시 알림 데이터를 반환하는 메서드
-    public List<Map<String, Object>> getAlerts() {
-        return new ArrayList<>(alertDataList); // 알림 데이터 반환
+    public List<Map<String, Object>> getAlerts(String empId) {
+    	
+        return alertDataList.stream()
+            .filter(alert -> empId.equals(alert.get("emp_id")))
+            .collect(Collectors.toList());
     }
 
 }
