@@ -44,6 +44,8 @@ public class WebSecurityConfig {
             		 .logoutSuccessHandler(customLogoutSuccessHandler)
             		.permitAll()
             ); // 로그아웃 접근 허용
+        
+        
 
         return http.build();
     }

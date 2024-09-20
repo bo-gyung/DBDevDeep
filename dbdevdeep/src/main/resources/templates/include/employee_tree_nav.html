@@ -3,14 +3,20 @@
 
 <th:block th:fragment="employeeTreeNavLayout">
 	
-	<style>
-		
-	</style>
-	
 	<aside class="left-sidebar" data-sidebarbg="skin6">
+		<!-- Sidebar scroll-->
 		<div class="scroll-sidebar" data-sidebarbg="skin6">
+			<!-- Sidebar navigation-->
+
 			<nav class="sidebar-nav">
-				<ul id="sidebarnav"></ul>
+				<ul id="sidebarnav">
+					<!-- 공지사항 Nav -->
+					<li class="sidebar-item selected">
+						<a class="sidebar-link" th:href="@{/addressbook}" aria-expanded="false"> 
+							<span class="hide-menu">주소록</span>
+						</a>
+					</li>
+				</ul>
 			</nav>
 		</div>
 	</aside>

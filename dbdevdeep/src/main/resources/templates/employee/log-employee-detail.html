@@ -2,80 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
-.preview-container {
-	border-radius: 50%;
-	overflow: hidden;
-	width: 100%;
-	aspect-ratio: 1/1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-#imagePreview {
-	width: 80%;
-	aspect-ratio: 1/1;
-	object-fit: cover;
-}
-
-.hidden {
-	display: none;
-}
-
-.centered-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-input:read-only {
-	border: none;
-}
-
-.tooltip-container {
-	position: relative;
-	display: inline-block;
-}
-
-.tooltip-trigger {
-	padding: 10px;
-	font-size: 16px;
-}
-
-.tooltip {
-	visibility: hidden;
-	width: 350px;
-	border: 2px solid lightgray;
-	color: black;
-	text-align: center;
-	border-radius: 6px;
-	padding: 5px 10px;
-	position: absolute;
-	z-index: 1;
-	bottom: 125%; /* 위치 조정 */
-	left: 50%;
-	margin-left: -120px; /* 툴팁의 중앙 정렬을 위한 조정 */
-	opacity: 0;
-	transition: opacity 0.3s;
-	color: black
-}
-
-.tooltip::after {
-	content: "";
-	position: absolute;
-	top: 100%; /* 위치 조정 */
-	left: 50%;
-	margin-left: -5px;
-	border-width: 5px;
-	border-style: solid;
-	border-color: lightgray transparent transparent transparent;
-}
-
-.tooltip-container:hover .tooltip {
-	visibility: visible;
-	opacity: 1;
-}
-</style>
+		th {
+			text-align: center;
+		}
+		.needCenter td {
+			text-align: center;
+		}
+		.bg-lilghtblue {
+			background-color: #001e6946;
+		}
+	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
@@ -92,13 +28,135 @@ input:read-only {
 
 						<div class="tab-content">
 							<div class="tab-pane show active" id="employee_info">
-								<div class="form-body">
-									<div class="row">
-										<ul>
-									        <!-- JSON 데이터를 반복하여 출력 -->
-									        <li th:text="${oriData.emp_id}"></li>
-									    </ul>
-									</div>
+								<div class="form-body col-md-10">
+									<table class="table needCenter">
+										<thead>
+											<tr class="bg-lilghtblue text-dark">
+												<th colspan="6" class="font-weight-bolder">기록</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<th>직원번호</th>
+												<th>직원성명</th>
+												<th>행정직원번호</th>
+												<th>행정직원성명</th>
+												<th>기록유형</th>
+												<th>기록시간</th>
+												
+											</tr>
+											<tr>
+												<td th:text="${logDto.emp_id}"></td>
+												<td th:text="${logDto.emp_name}"></td>
+												<td th:text="${logDto.admin_id}"></td>
+												<td th:text="${logDto.admin_id}"></td>
+												<td th:text="${logDto.audit_type == 'U' ? '수정' : '등록'}"></td>
+												<td th:text="${#temporals.format(logDto.reg_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
+											</tr>
+										</tbody>
+									</table>
+									<table class="table">
+										<colgroup>
+											<col style="width: 10%;">
+											<col style="width: 40%;">
+											<col style="width: 10%;">
+											<col style="width: 40%;">
+										</colgroup>
+										<thead>
+											<tr class="bg-lilghtblue text-dark">
+												<th colspan="4" class="font-weight-bolder">수정내용</th>
+											</tr>
+										</thead>
+										<th:block th:if="${newData.emp_phone != null && newData.emp_phone != oriData.emp_phone}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">전화번호</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_phone}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_phone}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.ori_pic_name != null && newData.ori_pic_name != oriData.ori_pic_name}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">사진</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td><img th:src="@{'/UploadImg/employee/' + ${oriData.new_pic_name}}" width="100px"></td>
+												<td>수정 후</td>
+												<td><img th:src="@{'/UploadImg/employee/' + ${newData.new_pic_name}}" width="100px"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_post_code != null && newData.emp_post_code != oriData.emp_post_code}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">우편번호</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_post_code}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_post_code}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_addr != null && newData.emp_addr != oriData.emp_addr}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">주소</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_addr}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_addr}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_detail_addr != null && newData.emp_detail_addr != oriData.emp_detail_addr}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">상세 주소</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_detail_addr}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_detail_addr}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.dept_code != null && newData.dept_code != oriData.dept_code}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">부서</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.dept_name}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.dept_name}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.job_code != null && newData.job_code != oriData.job_code}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">직급</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.job_name}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.job_name}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_internal_phone != null && newData.emp_internal_phone != oriData.emp_internal_phone}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">전화번호</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_internal_phone}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_internal_phone}"></td>
+											</tr>
+										</th:block>
+
+									</table>
 								</div>
 							</div>
 						</div>

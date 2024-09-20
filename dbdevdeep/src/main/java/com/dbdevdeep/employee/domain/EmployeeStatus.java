@@ -47,4 +47,8 @@ public class EmployeeStatus {
 	
 	@Column(name="status_type")
 	private String statusType;
+	
+	@ManyToOne
+	@JoinColumn(name="admin_id")
+	private Employee admin;
 }

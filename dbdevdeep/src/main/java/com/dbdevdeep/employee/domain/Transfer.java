@@ -41,4 +41,8 @@ public class Transfer {
 	
 	@Column(name="trans_type")
 	private String transType;
+	
+	@ManyToOne
+	@JoinColumn(name="admin_id")
+	private Employee admin;
 }

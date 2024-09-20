@@ -407,13 +407,18 @@ input:read-only {
 					</div>
 					<hr>
 					<form class="pl-3 pr-3" id="transFrm">
-						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> <input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> <input type="hidden" name="trans_type" value="T">
+						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="trans_type" value="T">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<div class="form-group">
-							<label for="trans_date">전근일 <span style="color: red;">*</span></label> <input type="date" class="form-control" id="trans_date" name="trans_date">
+							<label for="trans_date">전근일 <span style="color: red;">*</span></label> 
+							<input type="date" class="form-control" id="trans_date" name="trans_date">
 							<div id="trans_date_feedback" class="mt-2"></div>
 						</div>
 						<div class="form-group">
-							<label for="trans_school_id">전근 학교 코드 <span style="color: red;">*</span></label> <input type="text" class="form-control" placeholder="전근갈 학교의 코드를 입력하세요." id="trans_school_id" name="trans_school_id" maxlength="7">
+							<label for="trans_school_id">전근 학교 코드 <span style="color: red;">*</span></label> 
+							<input type="text" class="form-control" placeholder="전근갈 학교의 코드를 입력하세요." id="trans_school_id" name="trans_school_id" maxlength="7">
 							<div id="trans_school_id_feedback" class="mt-2"></div>
 						</div>
 						<div class="col-12 d-flex justify-content-end">
@@ -481,6 +486,7 @@ input:read-only {
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
 						<input type="hidden" name="status_type" th:value="${'R'}">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 
 						<div class="form-group">
 							<label for="stop_date">휴직일 <span style="color: red;">*</span></label> 
@@ -563,7 +569,8 @@ input:read-only {
 					<form class="pl-3 pr-3" id="returnFrm">
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="status_no" id="status_no"> 
-						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<input type="hidden" name="status_type" th:value="${'R'}">
 						
 						<div class="form-group">
@@ -655,6 +662,7 @@ input:read-only {
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
 						<input type="hidden" name="status_type" value="N">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<div class="form-group">
 							<label for="stop_date_L">퇴직일 <span style="color: red;">*</span></label> 
 							<input type="date" class="form-control" id="stop_date_L" name="stop_date">

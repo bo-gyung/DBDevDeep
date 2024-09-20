@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dbdevdeep.attendance.domain.AttendanceDto;
+import com.dbdevdeep.attendance.service.AttendanceService;
 import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.EmployeeDto;
 import com.dbdevdeep.employee.domain.EmployeeStatusDto;
@@ -33,6 +35,7 @@ public class EmployeeViewController {
 	private final EmployeeService employeeService;
 	private final TeacherHistoryService teacherHistoryService;
 	private final ObjectMapper objectMapper;
+	private final AttendanceService attendanceService;
 
 	@GetMapping("/login")
 	public String loginPage() {
@@ -48,8 +51,12 @@ public class EmployeeViewController {
 	public String selectAddressbookList(Model model, EmployeeDto dto) {
 		
 		List<EmployeeDto> resultList = employeeService.selectYEmployeeList();
+		List<String> attendDtoList = attendanceService.selectByToDayList();
+		List<TeacherHistoryDto> historyList = teacherHistoryService.selectClassByOrderLastesList();
 		
+		model.addAttribute("attendDtoList", attendDtoList);
 		model.addAttribute("resultList", resultList);
+		model.addAttribute("historyList", historyList);
 		
 		return "employee/address_book";
 	}
@@ -174,7 +181,7 @@ public class EmployeeViewController {
 		
         try {
 			EmployeeDto oriData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
-			EmployeeDto newData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
+			EmployeeDto newData = objectMapper.readValue(logDto.getNew_data(), EmployeeDto.class);
 			
 			model.addAttribute("oriData", oriData);
 			model.addAttribute("newData", newData);
@@ -182,6 +189,8 @@ public class EmployeeViewController {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
+		
+		model.addAttribute("logDto", logDto);
 		
 		return "employee/log-employee-detail";
 	}

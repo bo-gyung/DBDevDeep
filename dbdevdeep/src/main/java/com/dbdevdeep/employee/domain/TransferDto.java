@@ -26,6 +26,9 @@ public class TransferDto {
 	private String trans_school_id; // 이전/이후 학교 아이디
 	private String trans_type; // 전입: F, 전출: T
 	
+	private String admin_id;
+	private String admin_name;
+	
 	public Transfer toEntity() {
 		return Transfer.builder()
 				.transNo(trans_no)
@@ -35,13 +38,14 @@ public class TransferDto {
 				.build();
 	}
 	
-	public Transfer toEntityWithJoin(Employee employee) {
+	public Transfer toEntityWithJoin(Employee employee, Employee admin) {
 		return Transfer.builder()
 				.employee(employee)
 				.transNo(trans_no)
 				.transDate(trans_date)
 				.transSchoolId(trans_school_id)
 				.transType(trans_type)
+				.admin(admin)
 				.build();
 	}
 	
@@ -53,6 +57,8 @@ public class TransferDto {
 				.trans_date(t.getTransDate())
 				.trans_school_id(t.getTransSchoolId())
 				.trans_type(t.getTransType())
+				.admin_id(t.getAdmin().getEmpId())
+				.admin_name(t.getAdmin().getEmpName())
 				.build();
 	}
 

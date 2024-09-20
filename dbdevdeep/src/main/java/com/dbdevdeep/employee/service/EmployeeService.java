@@ -417,10 +417,11 @@ public class EmployeeService {
 		Transfer transfer = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 재직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("Y")) {
-			transfer = transferRepository.save(dto.toEntityWithJoin(employee)); // transfer 테이블에 전근 데이터 저장
+			transfer = transferRepository.save(dto.toEntityWithJoin(employee, admin)); // transfer 테이블에 전근 데이터 저장
 		}
 
 		return transfer;
@@ -461,12 +462,13 @@ public class EmployeeService {
 		EmployeeStatus employeeStatus = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 재직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("R");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee)); // employee_status 테이블에 전근
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
 																							// 데이터 저장
 		}
 
@@ -508,12 +510,13 @@ public class EmployeeService {
 		EmployeeStatus employeeStatus = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 휴직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("R")) {
 			dto.setStatus_type("Y");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee)); // employee_status 테이블에 전근
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
 																							// // 데이터 저장
 		}
 
@@ -525,12 +528,13 @@ public class EmployeeService {
 		EmployeeStatus employeeStatus = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 재직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("N");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee)); // employee_status 테이블에 전근
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
 																							// // 데이터 저장
 		}
 
@@ -694,6 +698,7 @@ public class EmployeeService {
 		}
 	}
 
+	// 사원 정보 변경 기록 전부
 	public List<AuditLogDto> selectAuditLogDtoList() {
 		List<AuditLogDto> logDtoList = new ArrayList<>();
 
@@ -708,11 +713,23 @@ public class EmployeeService {
 		return logDtoList;
 	}
 	
+	// 사원정보 변경 기록 하나
 	public AuditLogDto selectAuditLogDto(Long audit_no) {
 		AuditLog log = auditLogRepository.selectByAuditNoOne(audit_no);
 		
 		AuditLogDto logDto = new AuditLogDto().toDto(log);
 
 		return logDto;
+	}
+	
+	// 사원 정보 변경 기록 등록
+	public void insertAuditLog(Employee employee, AuditLogDto alDto) {	
+		
+		System.out.println("alDtoService: " + alDto.getAdmin_id());
+		
+		Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
+		AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
+		
+		auditLogRepository.save(auditLog);
 	}
 }
