@@ -73,13 +73,36 @@ public class ApproveApiController {
 		this.employeeRepository =employeeRepository;
 	}
 	
+	// 보고서 삭제
+	@ResponseBody
+	@DeleteMapping("/docuAppro/{appro_no}")
+	public Map<String, String> deleteDocuAppro(@PathVariable("appro_no") Long appro_no){
+		Map<String, String> map = new HashMap<>();
+		map.put("res_code", "404");
+		map.put("res_msg", "삭제중 오류가 발생하였습니다.");
+		
+		int fileDeleteResult = fileService.approFileDelete(appro_no);
+		
+		if(fileDeleteResult >=0 ) {
+			if(approveService.deleteDocuApprove(appro_no) > 0) {
+				map.put("res_code", "200");
+				map.put("res_msg", "삭제되었습니다.");
+			}else {
+				map.put("res_msg", "삭제중 오류 발생 하였습니다.");
+			}
+		} else {
+			map.put("res_msg", "파일 삭제중 오류가 발생하였습니다.");
+		}
+		return map;
+	}
+	
 	// 결재 삭제
 	@ResponseBody
 	@DeleteMapping("/appro/{appro_no}")
 	public Map<String, String> deleteAppro(@PathVariable("appro_no") Long appro_no) {
 	    Map<String, String> map = new HashMap<>();
 	    map.put("res_code", "404");
-	    map.put("res_msg", "삭제 중 오류가 발생하였습니다.");
+	    map.put("res_msg", "삭제중 오류가 발생하였습니다.");
 
 	    int fileDeleteResult = fileService.approFileDelete(appro_no);
 
@@ -88,7 +111,7 @@ public class ApproveApiController {
 	            map.put("res_code", "200");
 	            map.put("res_msg", "정상적으로 삭제되었습니다.");
 	        } else {
-	            map.put("res_msg", "승인 정보 삭제에 실패하였습니다.");
+	            map.put("res_msg", "삭제중 오류 발생 하였습니다.");
 	        }
 	    } else {
 	        map.put("res_msg", "파일 삭제 중 오류가 발생하였습니다.");

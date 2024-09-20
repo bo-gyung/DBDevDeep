@@ -86,6 +86,23 @@ public class ApproveService {
         this.mySignRepository = mySignRepository;
 	}
 	
+	// 보고서 삭제
+	@Transactional
+	public int deleteDocuApprove(Long appro_no) {
+		int result = 0;
+		try {
+			Approve approve = approveRepository.findByApproNo(appro_no);
+			approveLineRepository.deleteByApprove(approve);
+	        approveRepository.deleteById(appro_no);
+			result = 1;
+		}catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return result;
+	}
+	
+	
+	
 	// 휴가 삭제
 	@Transactional
 	public int deleteApprove(Long appro_no) {

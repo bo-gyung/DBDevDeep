@@ -207,7 +207,7 @@
                                         <div class="text-center mt-3" 
 										     th:if="${aDto.appro_status == 0} and (${aDto.emp_id} == ${#authentication.principal.dto.emp_id})">
 										    <button type="button" class="btn btn-danger delete_board_button"
-										            th:onclick="|approDelete(${aDto.appro_no})|">삭제</button>	
+										            th:onclick="|docuDelete(${aDto.appro_no})|">삭제</button>	
 										    <button type="button" class="btn btn-primary update_board_button"
 										            th:onclick="|location.href='/docuUpdate/' + ${aDto.appro_no}|">수정</button>
 										</div>
@@ -457,11 +457,21 @@
 	
     
     // 문서 삭제 
-    const approDelete = function(approNo) {
-        if (confirm("정말 삭제하시겠습니까?")) {
+    const docuDelete = function(approNo) {
+    // 삭제 여부를 Swal로 물어봄
+    Swal.fire({
+        title: '정말 삭제하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+    }).then((result) => {
+        if (result.isConfirmed) {
             const csrfToken = document.getElementById("csrf_token").value; // CSRF 토큰 가져오기
 
-            fetch('/appro/' + approNo, {
+            fetch('/docuAppro/' + approNo, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken // CSRF 토큰을 헤더에 추가
@@ -469,16 +479,17 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
                 if (data.res_code == '200') {
+                    // 삭제 성공 시 Swal로 성공 메시지 띄움
                     Swal.fire({
                         icon: 'success',
-                        title: '성공',
+                        title: '삭제 완료',
                         text: data.res_msg
                     }).then((result) => {
-                        location.href = "/approve";
+                        location.href = "/approveDocu"; // 삭제 후 리디렉션
                     });
                 } else {
+                    // 삭제 실패 시 Swal로 오류 메시지 띄움
                     Swal.fire({
                         icon: 'error',
                         title: '오류',
@@ -488,9 +499,17 @@
                 }
             }).catch(error => {
                 console.error('Error during fetch:', error); // 오류 로그 추가
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류',
+                    text: '삭제 중 문제가 발생했습니다.',
+                    confirmButtonText: '닫기'
+                });
             });
         }
-    }
+    });
+}
+
 
 	</script>
     	
