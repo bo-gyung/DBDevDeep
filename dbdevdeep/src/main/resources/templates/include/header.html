@@ -145,7 +145,7 @@
               </a>
             </li>
             <li class="nav-item left-nav">
-              <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+              <a class="nav-link" th:href="@{/folder}" role="button"
                 aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text">문서관리</span>
               </a>
@@ -238,8 +238,6 @@
 	                alerts.forEach(alert => {
 	                    addScheduleNotification(alert.title, alert.message, alert.time);
 	                });
-	            } else {
-	                console.log("현재 알림이 없습니다.");
 	            }
 	        })
 	        .catch(error => console.error('Error fetching alerts:', error));
@@ -384,8 +382,6 @@
 	window.onload = function() {
 	    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
 	}
-</script>
-
 </script>
 
     </th:block>
