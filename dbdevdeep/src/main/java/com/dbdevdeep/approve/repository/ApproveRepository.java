@@ -29,7 +29,8 @@ public interface ApproveRepository extends JpaRepository<Approve, Long> {
             "JOIN approve_line al ON a.appro_no = al.appro_no " +
             "LEFT JOIN vacation_request vr ON a.appro_no = vr.appro_no " +
             "WHERE al.emp_id = :loggedInUserEmpId " +
-            "AND al.appro_line_status IN (1, 2, 3)", 
+            "AND al.appro_line_status IN (1, 2, 3) " +
+            "AND a.appro_type = 0", 
     nativeQuery = true)
 	List<Object[]> findApprovalRequestsForUser(@Param("loggedInUserEmpId") String loggedInUserEmpId);
 	

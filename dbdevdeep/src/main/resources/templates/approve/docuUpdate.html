@@ -338,7 +338,7 @@
 				                </tr>
 				                <tr>
 				                	<td>제목</td>
-				                    <td><input type="text" id="appro_title" name="appro_title" class="form-control" th:value="${aDto.appro_title}"></td>
+				                    <td><input type="text" id="appro_title" name="appro_title" class="form-control"></td>
 				                    <td>종류</td>
 				                    <td>
 				                    <select id="templateSelect" name="tempNo" class="form-control">
@@ -539,10 +539,7 @@
             .then(editor => {
                 editorInstance = editor;  // CKEditor 인스턴스 저장
                 editorInitialized = true;  // CKEditor 초기화 완료 플래그
-                const approContent = /*[[${aDto.appro_content}]]*/ '';  // Thymeleaf를 사용하여 서버에서 전달된 데이터 주입
-                if (approContent) {
-                    editor.setData(approContent);  // 에디터에 HTML 데이터를 설정
-                }
+                console.log("CKEditor initialized:", editorInstance);
             })
             .catch(error => {
                 console.error('CKEditor 초기화 중 오류 발생:', error);
@@ -615,6 +612,8 @@
         const formData = new FormData(form); 
         const csrfToken = document.getElementById("csrf_token").value;
 		const editorValue = document.getElementById("editor").value;
+		console.log('에디터벨류 : ' + editorValue);
+        // 에디터에서 HTML 데이터를 가져와 textarea에 설정
         if (editorInitialized && editorInstance) {
         const editorContent = editorInstance.getData();
         document.getElementById('approContent').value = editorContent; 
