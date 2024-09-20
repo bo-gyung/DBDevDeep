@@ -103,10 +103,10 @@ public class ItemViewController {
 		model.addAttribute("resultList",resultList);
 		
 		// 다른 동적으로 계산된 값도 전달 가능
-				for (ItemDto dto : resultList) {
-					int availableQuantity = dto.getItem_quantity() - dto.getUnuseable_quantity();
-					model.addAttribute("availableQuantity_" + dto.getItem_no(), availableQuantity);
-				}
+		for (ItemDto dto : resultList) {
+			int availableQuantity = (dto.getItem_quantity() - dto.getUnuseable_quantity());
+			model.addAttribute("availableQuantity_" + dto.getItem_no(), availableQuantity);
+		}
 		
 		return "place/item_list";
 	}

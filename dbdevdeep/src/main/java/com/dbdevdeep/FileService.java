@@ -183,7 +183,7 @@ public class FileService {
 		return result;
 	}
 	
-	
+	// 장소이미지 삭제
 	public int placeDelete(Long place_no) {
 		int result = -1;
 		
@@ -215,7 +215,7 @@ public class FileService {
 	}
 	
 	
-	
+	// 장소 이미지등록
 	public String placeUpload(MultipartFile file) {
 		
 		String newPicName = null;
@@ -245,8 +245,66 @@ public class FileService {
 			return newPicName;
 		}
 
+		// 기자재 이미지등록
+		public String itemUpload(MultipartFile file) {
+		
+		String newPicName = null;
+		
+		try {
+			// 1. 파일 원래 이름
+			String oriPicName = file.getOriginalFilename();
+			// 2. 파일 자르기 (자료형 떼서 UUID로 바꾸기 위해)
+			String fileExt = oriPicName.substring(oriPicName.lastIndexOf("."),oriPicName.length());
+			// 3. 파일 명칭 바꾸기
+			UUID uuid = UUID.randomUUID();
+			// 4. 8자리마다 포함되는 하이픈 제거
+			String uniqueName = uuid.toString().replaceAll("-", "");
+			// 5. 새로운 파일명
+			newPicName = uniqueName + fileExt;
+			// 7. 파일 껍데기 생성
+			File saveFile = new File(fileDir  +"place\\item\\" + newPicName);
+			// 8. 경로 존재 여부 확인
+			if (!saveFile.exists()) {
+				saveFile.mkdirs();
+			}
+			// 9. 껍데기에 파일 정보 복제
+			file.transferTo(saveFile);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return newPicName;
+		}
 	
-	
+		// 기자재 이미지 삭제
+		public int itemDelete(Long item_no) {
+			int result = -1;
+			
+			try {
+				Place p = placeRepository.findByplaceNo(item_no);
+				
+				String newPicName = p.getNewPicName();
+				String resultDir = fileDir + "place\\item\\" + URLDecoder.decode(newPicName,"UTF-8");
+				
+				
+				if(newPicName == null || newPicName.isEmpty()) {
+					// 파일명이 비어있거나, null일때
+					return 1;
+				}
+				
+				
+				if(resultDir != null && resultDir.isEmpty() == false) {
+					File file = new File(resultDir);
+					
+					if(file.exists()) {
+						file.delete();
+						result = 1;
+					}
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return result;
+		}
 	
 	
 	

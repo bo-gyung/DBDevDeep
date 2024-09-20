@@ -39,11 +39,11 @@ public class ItemApiController {
 		Map<String, String> resultMap = new HashMap<String, String>();
 		
 		resultMap.put("res_code", "404");
-		resultMap.put("res_msg", "게시글 삭제중 오류가 발생하였습니다.");
+		resultMap.put("res_msg", "기가재 삭제중 오류가 발생하였습니다.");
 		
 		if(itemService.deleteItem(item_no) > 0) {
 			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "게시글 삭제에 성공했습니다.");
+			resultMap.put("res_msg", "기자재 삭제에 성공했습니다.");
 		}
 		return resultMap;
 	}
@@ -82,7 +82,7 @@ public class ItemApiController {
 	            }
 	        }
 
-	        // 장소 정보 수정
+	        // 기자재 정보 수정
 	        if (itemService.updateItem(dto, file) > 0) {
 	            resultMap.put("res_code", "200");
 	            resultMap.put("res_msg", "게시글이 성공적으로 수정되었습니다.");
@@ -132,26 +132,36 @@ public class ItemApiController {
 	//등록 
 	@ResponseBody
 	@PostMapping("/item")
-	public Map<String, String> createPlace(@RequestBody ItemDto dto) {
+	public Map<String, String> createPlace(@ModelAttribute ItemDto dto, @RequestParam("file") MultipartFile file) {
 	    Map<String, String> resultMap = new HashMap<String, String>();
 	    
 	    resultMap.put("res_code", "404");
 	    resultMap.put("res_msg", "기자재 등록 중 오류가 발생하였습니다.");
 	    
-	    // 일련번호 중복 체크 추가
-	    boolean exists = itemService.checkSerialExists(dto.getPlace_no(), dto.getItem_serial_no());
-	    if (exists) {
-	        resultMap.put("res_code", "409");
-	        resultMap.put("res_msg", "이미 존재하는 일련번호입니다.");
-	        return resultMap;
+	    try {
+	        // 일련번호 중복 체크
+	        boolean exists = itemService.checkSerialExists(dto.getPlace_no(), dto.getItem_serial_no());
+	        if (exists) {
+	            resultMap.put("res_code", "409");
+	            resultMap.put("res_msg", "이미 존재하는 일련번호입니다.");
+	            return resultMap;
+	        }
+
+	        // 기자재 등록 (파일 처리는 서비스에서 수행)
+	        if (itemService.createItem(dto, file) > 0) {
+	            resultMap.put("res_code", "200");
+	            resultMap.put("res_msg", "기자재 등록에 성공하였습니다.");
+	        } else {
+	            resultMap.put("res_msg", "기자재 등록에 실패하였습니다.");
+	        }
+
+	    } catch (Exception e) {
+	        // 예외 처리
+	        e.printStackTrace();
+	        resultMap.put("res_msg", "서버 오류로 인해 기자재 등록에 실패하였습니다.");
 	    }
 	    
-	    if(itemService.createItem(dto) > 0) {
-	        resultMap.put("res_code", "200");
-	        resultMap.put("res_msg", "기자재 등록에 성공하였습니다.");
-	    }
-	    return resultMap;
-	}
+	    return resultMap;	}
 	
 	
 }

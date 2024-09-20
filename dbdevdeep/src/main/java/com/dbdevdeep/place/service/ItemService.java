@@ -46,7 +46,7 @@ public class ItemService {
 		try {
 			  Item item = itemRepository.findByitemNo(item_no);
 	            if (item.getNewPicName() != null) {
-	                fileService.placeDelete(item_no);  // 파일 삭제
+	                fileService.itemDelete(item_no);  // 파일 삭제
 	            }
 	            itemRepository.deleteById(item_no);  // 기자재 삭제
 	            result = 1;
@@ -62,6 +62,7 @@ public class ItemService {
 	    int result = -1;
 
 	    try {
+	    	Item i = itemRepository.findByitemNo(dto.getItem_no());
 	        Place p = placeRepository.findByplaceNo(dto.getPlace_no());
 	        if (dto.getItem_content() == null || dto.getItem_content().isEmpty()) {
 	            throw new IllegalArgumentException("item_content 값이 null이거나 비어있습니다.");
@@ -74,10 +75,10 @@ public class ItemService {
 
 	        // 새 파일이 업로드되면 기존 파일 삭제
 	        if (file != null && !file.isEmpty()) {
-	            if (p.getNewPicName() != null) {
-	                fileService.placeDelete(p.getPlaceNo());  // 기존 파일 삭제
+	            if (i.getNewPicName() != null) {
+	                fileService.itemDelete(i.getItemNo());  // 기존 파일 삭제
 	            }
-	            String newPicName = fileService.placeUpload(file);  // 새 파일 업로드
+	            String newPicName = fileService.itemUpload(file);  // 새 파일 업로드
 	            dto.setNew_pic_name(newPicName);
 	            dto.setOri_pic_name(file.getOriginalFilename());
 	        }
@@ -110,7 +111,7 @@ public class ItemService {
 	            }
 	        }
 
-	        Item i = Item.builder()
+	        Item updateItem = Item.builder()
 	                .itemNo(dto.getItem_no())
 	                .place(p)
 	                .itemName(dto.getItem_name())
@@ -199,14 +200,27 @@ public class ItemService {
 	
 	// 등록
 	
-	public int createItem(ItemDto dto) {
+	public int createItem(ItemDto dto, MultipartFile file) {
 			int result = -1;
 		try {
 			
 			Place p = placeRepository.findByplaceNo(dto.getPlace_no());
+			// 파일 업로드 처리
+			String newPicName = null;
+			String oriPicName = null;
+			
+			if (file != null && !file.isEmpty()) {
+                // 파일이 존재하는 경우
+                oriPicName = file.getOriginalFilename();  // 원본 파일 이름
+                newPicName = fileService.itemUpload(file);  // 파일 업로드 후 새로운 파일 이름 반환
+            } else {
+                // 파일이 없는 경우 기본값 설정
+                oriPicName = "Default oriPicName";
+                newPicName = "Default newPicName";
+            }
 			
 			Item i = Item.builder()
-					
+			
 					.place(p)
 					.itemSerialNo(dto.getItem_serial_no())
 					.itemName(dto.getItem_name())
@@ -217,8 +231,8 @@ public class ItemService {
 					.unuseableQuantity(dto.getUnuseable_quantity())
 					.unuseableStartDate(dto.getUnuseable_start_date())
 					.unuseableEndDate(dto.getUnuseable_end_date())
-					.oriPicName(dto.getOri_pic_name() != null ? dto.getOri_pic_name() : "Default oriPicname")
-	                .newPicName(dto.getNew_pic_name() != null ? dto.getNew_pic_name() : "Default newPicname")
+					.oriPicName(oriPicName)
+	                .newPicName(newPicName)
 					.regDate(dto.getReg_date())
 					.modDate(dto.getMod_date())
 					.build();
