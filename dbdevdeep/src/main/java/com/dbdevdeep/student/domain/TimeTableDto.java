@@ -18,14 +18,12 @@ public class TimeTableDto {
 	private Long subject_no;
 	private String period;
 	private String day;
-	private String timetable_class;
 	
 	public TimeTable toEntity() {
 		return TimeTable.builder()
 				.timetableNo(timetable_no)
 				.period(period)
 				.day(day)
-				.timetableClass(timetable_class)
 				.build();
 	}
 	
@@ -34,7 +32,6 @@ public class TimeTableDto {
 				.timetable_no(tt.getTimetableNo())
 				.period(tt.getPeriod())
 				.day(tt.getDay())
-				.timetable_class(tt.getTimetableClass())
 				.build();
 	}
 }

@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/place_layout}">
+<th:block layout:fragment="content">
+
+  <!-- 부트스트랩 CSS 추가 -->
+  
+  <style>
+ 	
+ 	input[type="text"] {
+    		width : 485px;
+    	}
+    
+ 
+ 
+  body {
+        background-color: #f7f7f7;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+         max-width: 100%;
+       width: 90%; /* 더 넓게 화면에 꽉 차게 */
+    	margin: 40px auto;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    input, select, textarea {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 15px;
+    }
+	
+
+    .form-check {
+    	display : inline-block;
+    	margin-right: 15px; 
+        margin-bottom: 10px;
+    }
+
+
+
+    .form-check-label {
+   	   margin-left: 60px;
+        font-weight: normal;
+    }
+    
+    .btn-secondary {
+    padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+ 
+    /* 사용 불가능한 사유와 기간을 숨기는 초기 상태 */
+    .unusable-fields {
+      display: none;
+    }
+ 
+  </style>
+
+<body>
+<!-- 등록폼 -->
+<!-- ============================================================== -->
+<!-- Page wrapper  -->
+<!-- ============================================================== -->
+<div class="page-wrapper">
+    <!-- ============================================================== -->
+    <!-- Container fluid  -->
+    <!-- ============================================================== -->
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title">기자재 등록</h3>
+                        <hr>
+                        <form id="item_createForm" th:action="@{/item}" enctype="multipart/form-data" method = "post">
+                            <!-- CSRF 토큰 추가 -->
+                            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                            <!-- 장소 선택 -->
+                            <div class="row mb-3">
+                                <label for="placeName" class="col-sm-2 col-form-label">장소명</label>
+                                <div class="col-sm-4">
+                                    <select id="placeName" name="place_no" class="form-control" required>
+                                        <option value="" disabled selected>장소를 선택하세요</option>
+                                        <option th:each="place : ${placeList}" th:value="${place.placeNo}" th:text="${place.placeName}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- 일련번호 -->
+                            <div class="row mb-3">
+							    <label for="item_serial_no" class="col-sm-2 col-form-label">일련번호</label>
+							    <div class="col-sm-10">
+							        <input type="text" class="form-control" id="item_serial_no" name="item_serial_no" placeholder="A01부터 입력하세요." required>
+							        <span id="serialError" style="color: red; display: none;">잘못된 일련번호 형식입니다. 예: A01, B02</span>
+							        <span id="duplicateError" style="color: red; display: none;">이미 존재하는 일련번호입니다.</span>
+							    </div>
+							</div>
+
+                            <!-- 기자재명 -->
+                            <div class="row mb-3">
+                                <label for="item_name" class="col-sm-2 col-form-label">기자재명</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="item_name" name="item_name" required>
+                                </div>
+                            </div>
+
+							<!-- 기자재 내용 -->
+                            <div class="row mb-3">
+                                <label for="item_content" class="col-sm-2 col-form-label">내용</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" id="item_content" name="item_content" style="width: 100%; height: 120px; resize : none;"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 기자재 갯수 -->
+                            <div class="row mb-3">
+                                <label for="item_quantity" class="col-sm-2 col-form-label">기자재 갯수</label>
+                                <div class="col-sm-4">
+                                    <input type="number" class="form-control" id="item_quantity" name="item_quantity" required>
+                                </div>
+                            </div>
+
+                            <!-- 사용 가능 여부 -->
+                            <div class="row mb-3">
+                                <label for="item_status" class="col-sm-2 col-form-label">사용 가능 여부</label>
+                                <div class="col-sm-10">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="usable" name="item_status" value="Y" checked onchange="toggleUnusableFields()">
+                                        <label class="form-check-label" for="usable">사용 가능</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="unusable" name="item_status" value="N" onchange="toggleUnusableFields()">
+                                        <label class="form-check-label" for="unusable">사용 불가능</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                           <!-- 숨겨진 필드 (사유와 기간, 갯수) -->
+							<div id="unusableFields" style="display: none;">
+							
+							    <!-- 사용 불가능한 갯수 -->
+							    <div class="row mb-3">
+							        <label for="unuseable_quantity" class="col-sm-2 col-form-label">사용 불가능한 갯수</label>
+							        <div class="col-sm-4">
+							            <input type="number" class="form-control" id="unuseable_quantity" name="unuseable_quantity" min="0" placeholder="사용 불가능한 갯수를 입력하세요.">
+							        </div>
+							    </div>
+							
+							    <!-- 사용 불가능한 사유 -->
+							    <div class="row mb-3">
+							        <label for="unuseable_reason" class="col-sm-2 col-form-label">사유</label>
+							        <div class="col-sm-10">
+							            <textarea class="form-control" id="unuseable_reason" name="unuseable_reason" style="width: 100%; height: 120px; resize: none;"></textarea>
+							        </div>
+							    </div>
+							
+							    <!-- 사용 불가 기간 -->
+							    <div class="row mb-3">
+							        <label for="unuseable_date_range" class="col-sm-2 col-form-label">사용 불가 기간</label>
+							        <div class="col-sm-4">
+							            <input type="date" class="form-control" id="unuseable_start_date" name="unuseable_start_date" placeholder="시작일">
+							        </div>
+							        <label class="col-sm-1 col-form-label text-center">~</label>
+							        <div class="col-sm-4">
+							            <input type="date" class="form-control" id="unuseable_end_date" name="unuseable_end_date" placeholder="종료일">
+							        </div>
+							    </div>
+							
+							</div>
+
+
+
+                            <!-- 이미지 업로드 -->
+                            <div class="row mb-3">
+                                <label for="file" class="col-sm-2 col-form-label">이미지</label>
+                                <div class="col-sm-10">
+                                    <input type="file" class="form-control" id="file" name="file" accept="image/*">
+                                </div>
+                            </div>
+
+                            
+                            <div class="row mb-3">
+                            	 <!-- 취소 버튼 -->
+						            <div class="col-sm-6 text-left">
+						                <button type="button" class="btn btn-secondary" onclick = "location.href='/item'">취소</button>
+						            </div>
+						            
+                            	<!-- 등록 버튼 -->
+                                <div class="col-sm-6 text-right">
+                                    <button type="submit" class="btn btn-primary">등록</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+
+<script>
+//중복 검사 결과를 저장하는 변수
+let isSerialValid = false;
+
+// 일련번호 입력 필드에서 'blur' 이벤트 시 중복 검사 수행
+document.getElementById('item_serial_no').addEventListener('blur', function() {
+    const serialNoInput = document.getElementById('item_serial_no');
+    const serialNo = serialNoInput.value.trim(); // 입력값의 앞뒤 공백 제거
+    const placeNo = document.getElementById('placeName').value;
+
+    // 일련번호 형식 검사
+    const regex = /^[A-Z][0-9]{2,3}$/;  // 정규식: 첫 글자는 대문자, 그 뒤로 숫자 두 개 또는 세 개
+
+    if (!regex.test(serialNo)) {
+        document.getElementById('serialError').style.display = 'block';
+        isSerialValid = false;
+        return;
+    } else {
+        document.getElementById('serialError').style.display = 'none';
+    }
+
+    // 서버로 중복 검사 요청
+    fetch('/item/check-serial', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.getElementById('csrf_token').value
+        },
+        body: JSON.stringify({
+            place_no: placeNo,
+            item_serial_no: serialNo
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists) {
+            document.getElementById('duplicateError').style.display = 'block';
+            isSerialValid = false;
+        } else {
+            document.getElementById('duplicateError').style.display = 'none';
+            isSerialValid = true;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        isSerialValid = false;
+    });
+});
+
+// 폼 제출 시 이벤트 핸들러
+document.getElementById('item_createForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // 폼의 기본 제출 동작 방지
+
+    const serialNoInput = document.getElementById('item_serial_no');
+    const serialNo = serialNoInput.value.trim();
+    const placeNo = document.getElementById('placeName').value;
+
+    // 일련번호 형식 검사
+    const regex = /^[A-Z][0-9]{2,3}$/;
+
+    if (!regex.test(serialNo)) {
+        alert('일련번호 형식이 올바르지 않습니다.');
+        serialNoInput.focus();
+        return;
+    }
+
+    // 서버로 중복 검사 요청
+    fetch('/item/check-serial', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.getElementById('csrf_token').value
+        },
+        body: JSON.stringify({
+            place_no: placeNo,
+            item_serial_no: serialNo
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists) {
+            alert('이미 존재하는 일련번호입니다.');
+            serialNoInput.focus();
+            return;
+        } else {
+            // 일련번호가 99로 끝나는 경우 자동으로 다음 알파벳으로 변경
+            if (serialNo.endsWith('99')) {
+                serialNoInput.value = getNextSerial(serialNo);
+            }
+            // 폼 데이터를 서버로 제출
+            submitForm();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('서버와 통신 중 오류가 발생했습니다.');
+    });
+});
+
+function getNextSerial(serial) {
+    const letter = serial.charAt(0);
+    const number = parseInt(serial.slice(1), 10);
+
+    if (number === 99) {
+        const nextLetter = String.fromCharCode(letter.charCodeAt(0) + 1);
+        return nextLetter + '01';
+    }
+    return letter + String(number + 1).padStart(2, '0');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    toggleUnusableFields(); // 초기 상태 설정
+});
+
+function toggleUnusableFields() {
+    const isUnusable = document.getElementById('unusable').checked; // '사용 불가능' 선택 여부 확인
+
+    // 사용 불가능일 때만 사유, 기간, 갯수 필드 표시
+    const unusableFields = document.getElementById('unusableFields');
+    if (isUnusable) {
+        unusableFields.style.display = 'block';
+        document.getElementById('unuseable_quantity').required = true;
+        document.getElementById('unuseable_reason').required = true;
+        document.getElementById('unuseable_start_date').required = true;
+        document.getElementById('unuseable_end_date').required = true;
+    } else {
+        unusableFields.style.display = 'none';
+        document.getElementById('unuseable_quantity').required = false;
+        document.getElementById('unuseable_reason').required = false;
+        document.getElementById('unuseable_start_date').required = false;
+        document.getElementById('unuseable_end_date').required = false;
+    }
+}
+
+const form = document.getElementById('item_createForm');
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    let obj = {};
+    const formData = new FormData(form);
+    // 날짜 필드에서 가져온 값
+    let startDate = formData.get("unuseable_start_date");
+    let endDate = formData.get("unuseable_end_date");
+    
+    // 날짜 형식 확인 후 변환
+    if (startDate) {
+        formData.set("unuseable_start_date", formatDate(startDate));
+    }
+    if (endDate) {
+        formData.set("unuseable_end_date", formatDate(endDate));
+    }
+    
+    formData.forEach(function(value, key) {
+        obj[key] = value;  // FormData 값을 JSON 객체로 변환
+    });
+
+    const jsonData = JSON.stringify(obj);  // JSON 객체로 변환
+
+    // CSRF 토큰 추가
+    const csrfToken = document.getElementById('csrf_token').value;
+
+    fetch('/item', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',  // JSON 형식으로 전송
+            'X-CSRF-TOKEN': csrfToken  // CSRF 토큰 헤더 추가
+        },
+        body: jsonData  // JSON 형식의 데이터를 전송
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.res_code === '200') {
+            Swal.fire({
+                icon: 'success',
+                title: '성공',
+                text: data.res_msg,
+                confirmButtonText: '닫기'
+            }).then(() => {
+                location.href = "/item";
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: '실패',
+                text: data.res_msg,
+                confirmButtonText: "닫기"
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: '실패',
+            text: '서버와 통신 중 오류가 발생했습니다.',
+            confirmButtonText: "닫기"
+        });
+        console.error('Error:', error);
+    });
+});
+
+//날짜 형식을 yyyy-MM-dd에서 yyyy.MM.dd로 변환하는 함수
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}.${month}.${day}`;
+}
+</script>
+
+
+
+				<!-- ============================================================== -->
+				<!-- End PAge Content -->
+				<!-- ============================================================== -->
+				<!-- ============================================================== -->
+				<!-- Right sidebar -->
+				<!-- ============================================================== -->
+				<!-- .right-sidebar -->
+				<!-- ============================================================== -->
+				<!-- End Right sidebar -->
+				<!-- ============================================================== -->
+			</div>
+			<!-- ============================================================== -->
+			<!-- End Container fluid  -->
+			<!-- ============================================================== -->
+			<!-- ============================================================== -->
+			<!-- footer -->
+			<!-- ============================================================== -->
+			<footer class="footer text-center text-muted">
+				All Rights Reserved by Adminmart. Designed and Developed by <a
+					href="https://wrappixel.com">WrapPixel</a>.
+			</footer>
+			<!-- ============================================================== -->
+			<!-- End footer -->
+			<!-- ============================================================== -->
+		</div>
+		<!-- ============================================================== -->
+		<!-- End Page wrapper  -->
+		<!-- ============================================================== -->
+
+
+<!-- 부트스트랩 JS 및 의존성 추가 -->
+<!-- ============================================================== -->
+    <!-- All Jquery -->
+    <!-- ============================================================== -->
+    <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- apps -->
+    <!-- apps -->
+    <script src="/dist/js/app-style-switcher.js"></script>
+    <script src="/dist/js/feather.min.js"></script>
+    <!-- slimscrollbar scrollbar JavaScript -->
+    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+    <!--Wave Effects -->
+    <!-- themejs -->
+    <!--Menu sidebar -->
+    <script src="/dist/js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="/dist/js/custom.min.js"></script>
+    <!--This page plugins -->
+    <script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+</body>
+
+
+
+</html>

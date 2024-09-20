@@ -13,8 +13,13 @@ import com.dbdevdeep.approve.domain.Approve;
 
 public interface ApproveRepository extends JpaRepository<Approve, Long> {
 
+	// 결재요청 휴가 목록 조회
 	@Query("SELECT a FROM Approve a LEFT JOIN a.vacationRequests v WHERE a.approType = 0 AND a.employee.empId = :empId")
 	List<Approve> findByTypeAndEmpId(@Param("empId") String empId);
+	
+	// 결재요청 보고서 목록 조회
+	@Query("SELECT a FROM Approve a WHERE a.approType = 1 AND a.employee.empId = :empId ")
+	List<Approve> findByAnotherTypeAndEmpId(@Param("empId") String empId);
 	
 	// 결재 요청받은 쿼리
 	@Query(value = "SELECT a.appro_no AS approNo, a.appro_title AS approTitle, a.appro_time AS approTime, " +

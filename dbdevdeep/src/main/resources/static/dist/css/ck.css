@@ -1,36 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
-/* 인쇄 스타일을 설정합니다 */
 @media print {
-    body {
-        margin: 0 !important;
-    }
+	body {
+		margin: 0 !important;
+	}
 }
 
 .main-container {
-    font-family: 'Lato';
-    width: 100%; /* 전체 폭을 차지하도록 설정 */
-    margin-left: auto;
-    margin-right: auto;
+	font-family: 'Lato';
+	width: fit-content;
+	margin-left: auto;
+	margin-right: auto;
 }
 
-/* CKEditor 컨텐츠 스타일 */
 .ck-content {
-    font-family: 'Lato';
-    line-height: 1.6;
-    word-break: break-word;
-    min-height: 300px; /* 최소 높이 설정 */
-    max-height: 600px; /* 최대 높이 설정 */
-    width: 100%; /* 전체 폭을 차지하도록 설정 */
+	font-family: 'Lato';
+	line-height: 1.6;
+	word-break: break-word;
 }
 
-/* CKEditor 편집기 컨테이너 스타일 */
 .editor-container_classic-editor .editor-container__editor {
-    min-width: 100%; /* 편집기 최소 너비 설정 */
-    max-width: 100%; /* 편집기 최대 너비 설정 */
-    height: auto; /* 자동 높이 조정 */
-}
-
-.editor-container_include-block-toolbar {
-    margin-left: 42px;
+	min-width: 795px;
+	max-width: 795px;
 }

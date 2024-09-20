@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/place_layout}">
+<th:block layout:fragment="content">
+
+  <!-- 부트스트랩 CSS 추가 -->
+  
+  <style>
+ 	input[type="text"] {
+    		width : 485px;
+    	}
+
+ 	body {
+        background-color: #f7f7f7;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        max-width: 100%;
+        width: 90%; /* 더 넓게 화면에 꽉 차게 */
+    	margin: 40px auto;
+    }
+
+    label {
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    input, select, textarea {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 16px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 15px;
+    }
+
+    .form-check {
+    	display : inline-block;
+    	margin-right: 15px; 
+        margin-bottom: 10px;
+    }
+
+    .form-check-label {
+   	   margin-left: 60px;
+        font-weight: normal;
+    }
+    
+    .btn-outline-secondary {
+			 padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+		}
+
+    .btn-secondary {
+    padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+  </style>
+
+<body>
+<!-- 장소 상세조회 -->
+    <div class="page-wrapper">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">기자재 상세조회</h3>
+                            <hr>
+                            <form id="item_detailForm">
+                                  
+                                <!-- CSRF Token -->
+                                <div class="row mb-3">
+                                    <div class="col-sm-4">
+                                        <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                                        <input type="hidden" id="place_no" name="place_no" th:value="${dto.place_no}">
+                                        <input type="hidden" id="place_name" name="place_name" th:value="${dto.place_name}">
+                                        <input type = "hidden" id="item_no" name = "item_no" th:value="${dto.item_no}">
+                                    </div>
+                                </div>
+
+                                <!-- 일련번호 -->
+                                <div class="row mb-3">
+                                    <label for="item_serial_no" class="col-sm-2 col-form-label">일련번호</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="item_serial_no" name="item_serial_no"
+                                               th:value="${dto.item_serial_no != null ? dto.item_serial_no : ''}" readonly>
+                                    </div>
+                                </div>
+
+                                <!-- 기자재명 -->
+                                <div class="row mb-3">
+                                    <label for="item_name" class="col-sm-2 col-form-label">기자재명</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="item_name" name="item_name" th:value="${dto.item_name}" readonly>
+                                    </div>
+                                </div>
+
+                                <!-- 기자재 내용 -->
+                                <div class="row mb-3">
+                                    <label for="item_content" class="col-sm-2 col-form-label">내용</label>
+                                    <div class="col-sm-10">
+                                        <textarea class="form-control" id="item_content" name="item_content" style="width: 100%; height: 120px; resize : none;" readonly th:text="${dto.item_content}"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- 기자재 갯수 -->
+                                <div class="row mb-3">
+                                    <label for="item_quantity" class="col-sm-2 col-form-label">기자재 갯수</label>
+                                    <div class="col-sm-4">
+                                        <input type="text" class="form-control" id="item_quantity" name="item_quantity" th:value="${dto.item_quantity}" readonly>
+                                    </div>
+                                </div>
+
+                                <!-- 사용 가능 여부 -->
+                                <div class="row mb-3">
+                                    <label for="item_status" class="col-sm-2 col-form-label">사용 가능 여부</label>
+                                    <div class="col-sm-10">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="usable" name="item_status" value="Y" 
+                                                   th:checked="${dto.item_status == 'Y'}" onchange="toggleUnusableFields()" disabled>
+                                            <label class="form-check-label" for="usable">사용 가능</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" id="unusable" name="item_status" value="N" 
+                                                   th:checked="${dto.item_status == 'N'}" onchange="toggleUnusableFields()" disabled>
+                                            <label class="form-check-label" for="unusable">사용 불가능</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- 사용 불가능한 경우에만 보여주는 필드들 -->
+                                <div id="unusableFields" style="display: none;">
+                                    <!-- 사용 불가능한 갯수 -->
+                                    <div class="row mb-3">
+                                        <label for="unuseable_quantity" class="col-sm-2 col-form-label">사용 불가능한 갯수</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="unuseable_quantity" name="unuseable_quantity" th:value="${dto.unuseable_quantity}">
+                                        </div>
+                                    </div>
+
+                                    <!-- 사용 불가능한 사유 -->
+                                    <div class="row mb-3">
+                                        <label for="unuseable_reason" class="col-sm-2 col-form-label">사유</label>
+                                        <div class="col-sm-10">
+                                            <textarea class="form-control" id="unuseable_reason" name="unuseable_reason" style="width: 100%; height: 120px; resize : none;"  readonly  th:text="${dto.unuseable_reason}"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- 사용 불가 기간 -->
+								<div class="row mb-3">
+								    <label for="unuseable_date" class="col-sm-2 col-form-label">사용 불가 기간</label>
+								    <div class="col-sm-4">
+								        <input type="text" class="form-control" id="unuseable_start_date" th:value="${dto.unuseable_start_date}" readonly>
+								    </div>
+								    <label class="col-sm-1 col-form-label text-center">~</label>
+								    <div class="col-sm-4">
+								        <input type="text" class="form-control" id="unuseable_end_date" th:value="${dto.unuseable_end_date}" readonly>
+								    </div>
+								</div>
+                              </div>
+
+                                <!-- 수정 버튼 -->
+                                <div class="row mb-3">
+                                    <div class="col-sm-6 text-left">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/item'">목록</button>
+                                    </div>
+                                    <div class="col-sm-6 text-right">
+                                        <button type="button" class="btn btn-secondary" onclick="deleteItem()" sec:authorize="hasAnyAuthority('D3')">삭제</button>
+                                        <button type="button" class="btn btn-primary" onclick="updateItem()" sec:authorize="hasAnyAuthority('D3')">수정</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+<script>
+    // 사용 여부에 따른 필드 숨기기/보이기
+    function toggleUnusableFields() {
+        const isUsable = document.getElementById('usable').checked; // "사용 가능" 라디오 버튼이 체크되었는지 확인
+        const unusableFields = document.getElementById('unusableFields');
+        
+        // "사용 가능"일 경우 숨기고, "사용 불가능"일 경우 보이기
+        if (isUsable) {
+            unusableFields.style.display = 'none'; // 사용 가능: 숨기기
+        } else {
+            unusableFields.style.display = 'block'; // 사용 불가능: 보이기
+        }
+    }
+
+    // 페이지 로딩 시 초기 상태 설정
+    document.addEventListener('DOMContentLoaded', function () {
+        toggleUnusableFields(); // 로딩 시에도 라디오 버튼에 따라 초기 상태 설정
+    });
+    
+    // 수정하기
+    
+    const updateItem = function() {
+    	const itemNo = document.getElementById('item_no').value;
+    	const url = '/item/update/' + encodeURIComponent(itemNo);
+    	window.location.href = url;
+    }
+    
+    // 삭제하기
+    
+    const deleteItem = function(){
+    	const itemNo = document.getElementById('item_no').value;
+    	const csrfToken = document.getElementById('csrf_token').value;
+    	
+    	Swal.fire({
+        	title : '삭제하시겠습니까?',
+        	icon : 'warning',
+        	showCancelButton : true,
+        	confirmButtonColor : '#007bff',
+        	cancelButtonColor : '#6c757d',
+        	confirmButtonText : '확인',
+        	cancelButtonText : '취소'
+        })
+        .then((result) => {
+        	if(result.isConfirmed){
+        		fetch('/item/' + itemNo, {
+                    method: 'delete',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.res_code == '200') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '성공',
+                            text: data.res_msg,
+                            confirmButtonText: '닫기'
+                        }).then(() => {
+                            location.href = '/item';
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '오류',
+                            text: data.res_msg,
+                            confirmButtonText: '닫기'
+                        });
+                    }
+                });
+        	}
+        	
+         
+            
+                
+        } )
+    }
+    	
+    
+    
+</script>
+     <!-- ============================================================== -->
+            <!-- End Page Content -->
+            <!-- ============================================================== -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Container fluid  -->
+        <!-- ============================================================== -->
+
+        <footer class="footer text-center text-muted">
+            All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
+        </footer>
+        <!-- ============================================================== -->
+        <!-- End footer -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Page wrapper  -->
+    <!-- ============================================================== -->
+
+    <!-- 부트스트랩 JS 및 의존성 추가 -->
+    <!-- ============================================================== -->
+    <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/dist/js/app-style-switcher.js"></script>
+    <script src="/dist/js/feather.min.js"></script>
+    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+    <script src="/dist/js/sidebarmenu.js"></script>
+    <script src="/dist/js/custom.min.js"></script>
+    <script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+
+</body>
+</html>

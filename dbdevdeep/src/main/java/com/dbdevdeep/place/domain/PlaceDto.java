@@ -53,8 +53,8 @@ public class PlaceDto {
 				.unuseableReason(unuseable_reason)
 				.unuseableStartDate(unuseable_start_date)
 				.unuseableEndDate(unuseable_end_date)
-				.oriPicname(ori_pic_name)
-				.newPicname(new_pic_name)
+				.oriPicName(ori_pic_name)
+				.newPicName(new_pic_name)
 				.regDate(reg_date)
 				.modDate(mod_date)
 				.build();
@@ -77,8 +77,8 @@ public class PlaceDto {
 				.unuseable_reason(place.getUnuseableReason())
 				.unuseable_start_date(place.getUnuseableStartDate())
 				.unuseable_end_date(place.getUnuseableEndDate())
-				.ori_pic_name(place.getOriPicname())
-				.new_pic_name(place.getNewPicname())
+				.ori_pic_name(place.getOriPicName())
+				.new_pic_name(place.getNewPicName())
 				.reg_date(place.getRegDate())
 				.mod_date(place.getModDate())
 				.build();

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{include/student_layout}">
+<th:block layout:fragment="content">
+<style>
+div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+	margin: 2px 0;
+	white-space: nowrap;
+	justify-content: center;
+}
+</style>
+	<body>
+		<div class="page-wrapper">
+			<div class="page-breadcrumb">
+				<div class="row">
+					<div class="col-7 align-self-center">
+						<h4
+							class="page-title text-truncate text-dark font-weight-medium mb-1">Basic
+							Table</h4>
+						<div class="d-flex align-items-center">
+							<nav aria-label="breadcrumb">
+								<ol class="breadcrumb m-0 p-0">
+									<li class="breadcrumb-item"><a href="index.html"
+										class="text-muted">Home</a></li>
+									<li class="breadcrumb-item text-muted active"
+										aria-current="page">Library</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+					<div class="col-5 align-self-center">
+						<div class="customize-input float-right">
+							<select
+								class="custom-select custom-select-set form-control bg-white border-0 custom-shadow custom-radius">
+								<option selected>Aug 19</option>
+								<option value="1">July 19</option>
+								<option value="2">Jun 19</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<h4 class="card-title">과목 정보</h4>
+								<div class="student-info">
+									<div class="student-details">
+										<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+										<ul>
+											<li>
+												<p th:text="${subjectDetail.teacher_history.getTYear} + '학년도 ' + ${subjectDetail.subject_semester} + '학기 ' + ${subjectDetail.teacher_history.grade} + '학년 ' +${subjectDetail.teacher_history.getGradeClass} + '반 '"></p>
+												<p th:text="'담당 교사 : '+${subjectDetail.teacher_history.getEmployee().getEmpName()}"></p>
+												<p th:text="'과목명 : '+${subjectDetail.subject_name}"></p>
+			 									<p>
+												    <span th:if="${#lists.isEmpty(timetableDetail)}">
+												        등록된 수업 시간 정보가 없습니다.
+												    </span>
+												    <span th:if="${!#lists.isEmpty(timetableDetail)}">
+												        수업 시간 :
+												        <span th:each="timetableDetailItem, iterStat : ${timetableDetail}" 
+												              th:text="${timetableDetailItem.day} + '요일 ' + ${timetableDetailItem.period} + '교시' + (iterStat.hasNext ? ', ' : '')">
+												        </span>
+												    </span>
+												</p>
+											</li>
+											<li>
+												<div class="academic-info">
+													<h3>평가 과정</h3>
+													<table>
+														<thead>
+															<tr>
+																<th>평가 항목</th>
+																<th>만점</th>
+																<th>반영 비율</th>
+															</tr>
+														</thead>
+														<tbody>
+															<th:block th:if="${#lists.isEmpty(curriDetail)}">
+																<tr>
+																	<td colspan="3">평가 과정 정보가 존재하지 않습니다.</td>
+																</tr>
+															</th:block>
+															<th:block th:if="${!#lists.isEmpty(curriDetail)}">
+																<tr th:each="curri, curriStat : ${curriDetail}">
+																	<td th:text="${curri.curriculum_content}"></td>
+																	<td th:text="${curri.curriculum_max_score}+'점'"></td>
+																	<td th:text="${curri.curriculum_ratio}+'%'"></td>
+																</tr>
+															</th:block>
+														</tbody>
+													</table>
+												</div>
+											</li>
+										</ul>
+									</div>
+									<a th:href="@{/student/subject}">목록으로</a><br>
+									<a>수정</a><br>
+									<a th:onclick="subjectDelete([[${subjectDetail.subject_no}]])">삭제</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="/dist/js/app-style-switcher.js"></script>
+		<script src="/dist/js/feather.min.js"></script>
+		<script
+			src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+		<script src="/dist/js/sidebarmenu.js"></script>
+		<script src="/dist/js/custom.min.js"></script>
+		<script
+			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+		<script>
+			const subjectDelete = function(subjectNo){
+				if(confirm("정말 삭제하시겠습니까?")){
+					const csrfToken = document.getElementById('csrf_token').value;
+					 fetch('/subject/'+subjectNo,{
+						 method : 'delete',
+						 headers : {
+								'X-CSRF-TOKEN':csrfToken}
+					 })
+					 .then(response => response.json())
+					 .then(data => {
+						 if(data.res_code == '200'){
+								Swal.fire({
+									icon :'success',
+									title:'성공',
+									text : data.res_msg ,
+									confirmButtonText:"닫기"
+								}).then((result)=>{
+									location.href="/student/subject";
+								});
+							} else{
+								Swal.fire({
+									icon:'error',
+									title:'실패',
+									text: data.res_msg,
+									confirmButtonText:"닫기"
+						 		});
+							}
+						})
+				}}
+		</script>
+	</body>
+</html>

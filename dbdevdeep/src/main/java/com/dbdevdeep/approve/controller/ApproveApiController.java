@@ -292,6 +292,121 @@ public class ApproveApiController {
 	}
 		
 	
+	// 보고서 결재 요청
+	@ResponseBody
+	@PostMapping("/docuApproUp")
+	public Map<String,String> docuApproUp(
+			@RequestParam("emp_name") String approName,
+			@RequestParam("emp_id") String empId,
+		    @RequestParam("dept_code") String deptCode,
+		    @RequestParam("job_code") String jobCode,
+		    @RequestParam("appro_title") String approTitle,
+		    @RequestParam("tempNo") String tempNo,
+		    @RequestParam("appro_content") String approContent,
+			@RequestParam("consult") String consult,
+		    @RequestParam("approval") String approval,
+		    @RequestParam("file_name") MultipartFile file){
+		
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "404");
+		resultMap.put("res_msg", "결재 요청 중 오류가 발생하였습니다.");
+		
+		try {
+	        Long templateNo = null;
+	        if (tempNo != null && !tempNo.trim().isEmpty()) {
+	            templateNo = Long.parseLong(tempNo);
+	        }
+			
+			ApproveDto approveDto = new ApproveDto();
+			approveDto.setEmp_id(empId);
+			approveDto.setTemp_no(templateNo);
+			approveDto.setDept_code(deptCode);
+			approveDto.setJob_code(jobCode);
+			approveDto.setAppro_name(approName);
+			approveDto.setAppro_type(1);
+			approveDto.setAppro_title(approTitle);
+			approveDto.setAppro_content(approContent);
+			
+			
+			// approve_line 설정 
+	        List<ApproveLineDto> approveLineDtos = new ArrayList<>();
+	        LocalDateTime currentTime = LocalDateTime.now();
+	        int order = 1;
+	        boolean firstSet = false;
+
+	        // 협의자 처리
+	        if (consult != null && !consult.isEmpty()) {
+	            String[] consults = consult.split(">");
+	            for (String c : consults) {
+	                String consultId = pullId(c); // 협의자 ID 추출
+	                String consultName = pullName(c); // 협의자 이름 추출
+	                int status = firstSet ? 0 : 1;
+	                firstSet = true;
+
+	                ApproveLineDto approveLineDto = new ApproveLineDto();
+	                approveLineDto.setEmp_id(consultId); // 올바르게 협의자 ID 설정
+	                approveLineDto.setAppro_line_name(consultName); // 협의자 이름 설정
+	                approveLineDto.setAppro_line_order(order++);
+	                approveLineDto.setAppro_line_status(status);
+	                approveLineDto.setAppro_permit_time(currentTime);
+	                approveLineDto.setConsult_yn("Y"); // 협의 여부 설정
+
+	                approveLineDtos.add(approveLineDto);
+	            }
+	        }
+
+	        // 결재자 처리
+	        if (approval != null && !approval.isEmpty()) {
+	            String[] approvals = approval.split(">");
+	            for (String a : approvals) {
+	                String approvalId = pullId(a); // 결재자 ID 추출
+	                String approvalName = pullName(a); // 결재자 이름 추출
+	                int status = firstSet ? 0 : 1;
+	                firstSet = true;
+
+	                ApproveLineDto approveLineDto = new ApproveLineDto();
+	                approveLineDto.setEmp_id(approvalId); // 올바르게 결재자 ID 설정
+	                approveLineDto.setAppro_line_name(approvalName); // 결재자 이름 설정
+	                approveLineDto.setAppro_line_order(order++);
+	                approveLineDto.setAppro_line_status(status);
+	                approveLineDto.setAppro_permit_time(currentTime);
+	                approveLineDto.setConsult_yn("N"); // 결재 여부 설정
+
+	                approveLineDtos.add(approveLineDto);
+	            }
+	        }
+	        
+	     // 파일 업로드 설정
+	     			ApproFileDto approFileDto = null; // 파일이 없는 경우 null로 설정 
+	     			if (file != null && !file.isEmpty()) {
+	     			    // 파일 저장 및 정보 설정
+	     			    String savedFileName = fileService.approveUpload(file);
+	     			    if (savedFileName != null) {
+	     			        approFileDto = new ApproFileDto(); // 파일이 있을 경우에만 객체 생성
+	     			        approFileDto.setNew_file(savedFileName);
+	     			        approFileDto.setOri_file(file.getOriginalFilename());
+	     			    } else {
+	     			        resultMap.put("res_msg", "파일 업로드가 실패하였습니다.");
+	     			        return resultMap; 
+	     			    }
+	     			}
+	     			
+	     			int result = approveService.docuApproUp(approveDto, approveLineDtos, approFileDto);
+	    			
+	    			if(result > 0) {
+	    				resultMap.put("res_code", "200");
+	    				resultMap.put("res_msg", "결재요청 하였습니다.");
+	    			}
+			
+			
+		}catch (Exception e) {
+	        e.printStackTrace();
+	        resultMap.put("res_msg", "서버 내부 오류: " + e.getMessage());
+	    }
+		
+		return resultMap;
+	}
+		    
 	// 결재 요청
 	@ResponseBody
 	@PostMapping("/approUp")

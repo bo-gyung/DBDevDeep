@@ -16,7 +16,7 @@ import lombok.ToString;
 public class CurriculumDto {
 	private Long curriculum_no;
 	
-	private Long subject_no;
+	private Subject subject;
 	
 	private String curriculum_content;
 	private String curriculum_ratio;
@@ -37,6 +37,7 @@ public class CurriculumDto {
 				.curriculum_content(curri.getCurriculumContent())
 				.curriculum_ratio(curri.getCurriculumRatio())
 				.curriculum_max_score(curri.getCurriculumMaxScore())
+				.subject(curri.getSubject())
 				.build();
 	}
 	

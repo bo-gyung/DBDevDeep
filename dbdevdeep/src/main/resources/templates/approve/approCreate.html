@@ -414,8 +414,8 @@
 						        </div>
 						   
 						        <div class="text-center mt-3">
-						            <button type="button" class="btn btn-primary">임시 저장</button>
-									<button type="submit" class="btn btn-success" >결재 요청</button>
+						            <button type="button" id="saveBtn" class="btn btn-primary">임시 저장</button>
+									<button type="submit" id="submitBtn" class="btn btn-success" >결재 요청</button>
 						        </div>
 					        </div>
 					        </form>
@@ -594,108 +594,149 @@
 	    
 	<!-- 유효성검사 -->
     <script>
+	    // 임시저장
+    	document.getElementById('saveBtn').addEventListener('click', function () {
+	        handleSave();  
+	    });
+	
+	    // 승인 요청
+	    document.getElementById('submitBtn').addEventListener('click', function (event) {
+	        event.preventDefault(); 
+	        handleSubmit();
+	    });
     
-    	let valiCount = 0;
     
-	    const form = document.getElementById('approCreateFrm');
+	    function handleSave(){
+	    	const form = document.getElementById('approCreateFrm');
+	    	const formData = new FormData(form);
+	    	const csrfToken = document.getElementById("csrf_token").value;
+	    	
+	    	if(form.appro_title.value == ""){
+	    		Swal.fire({
+	    			icon: 'error',
+	    			title: '제목을 입력해주세요',
+	    			confirmButtonText: '닫기'
+	    		});
+	    		return; 
+	    	}
+	    	fetch('/draftApprove',{
+	    		method: 'POST',
+	    		headers:{
+	    			'X-CSRF-TOKEN':csrfToken
+	    		},
+	    		body: formData
+	    	})
+	    	.then(response => response.json())
+	    	.then(data => {
+	    		if(data.res_code == '200'){
+	    			Swal.fire({
+	    				icon: 'success',
+	    				title: '성공',
+	    				text: 'data.res_msg',
+	    				confirmButtonText: "닫기"
+	    			});
+	    		}else{
+	    			Swal.fire({
+	    				icon: 'error',
+	    				title: '실패',
+	    				text: data.res_msg,
+	    				confirmButtonText: "닫기"
+	    			});
+	    		}
+	    	})
+	    	.catch(error => {
+	    		console.error('Error:',error);
+	    	});
+	    	
+	    }
+	    
+	 // 결재 요청 유효성 검사 및 처리 함수
+	    function handleSubmit() {
+	        const form = document.getElementById('approCreateFrm'); 
+	        const formData = new FormData(form); 
+	        const csrfToken = document.getElementById("csrf_token").value; 
 
-	    form.addEventListener('submit', (e) => {
-	        e.preventDefault();  
-	
-	        let vali_check = false;
-	        let vali_text='';
-	
+	        // 유효성 검사
 	        if (form.appro_title.value == "") {
-	        	Swal.fire({
-					icon:'error',
-					title:'제목을 입력해주세요',
-					confirmButtonText:"닫기"
-				});
-	        } else if (!document.querySelector('input[name="vac_type"]:checked')){
-	        	Swal.fire({
-					icon:'error',
-					title:'종류를 선택해주세요',
-					confirmButtonText:"닫기"
-				});
-	        	form.vac_type.focus()
-	        } else if (document.querySelector('input[name="vac_type"]:checked').value === "8" && 
-	                 !document.getElementById("half_one").checked && 
-	                 !document.getElementById("half_two").checked) {
-	        	Swal.fire({
-					icon:'error',
-					title:'오전/오후를 선택해주세요',
-					confirmButtonText:"닫기"
-				});
-	        	document.getElementById("half_one").focus();
-	            
-	        } else if (form.start_date.value == ""){
-	        	Swal.fire({
-					icon:'error',
-					title:'일정시작일을 입력해주세요',
-					confirmButtonText:"닫기"
-				});
-	        	form.start_date.focus()
-	        } else if (form.end_date.value == ""){
-	        	Swal.fire({
-					icon:'error',
-					title:'일정종료일을 입력해주세요',
-					confirmButtonText:"닫기"
-				});
-	        	form.end_date.focus()
-	        } else if (form.appro_content.value == ""){
-	        	Swal.fire({
-					icon:'error',
-					title:'신청사유를 입력해주세요',
-					confirmButtonText:"닫기"
-				});
-	        	form.appro_context.focus()
-	        } else if (form.approval.value == ""){
-	        	Swal.fire({
-					icon:'error',
-					title:'결재자를 선택해주세요',
-					confirmButtonText:"닫기"
-				});
-	        	form.approval.focus()
-	        	
-	        } else {
-	        	vali_check = true;
+	            Swal.fire({
+	                icon: 'error',
+	                title: '제목을 입력해주세요',
+	                confirmButtonText: "닫기"
+	            });
+	            return;
+	        } else if (!document.querySelector('input[name="vac_type"]:checked')) {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '종류를 선택해주세요',
+	                confirmButtonText: "닫기"
+	            });
+	            form.vac_type.focus();
+	            return;
+	        }  else if (form.start_date.value == "") {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '일정시작일을 입력해주세요',
+	                confirmButtonText: "닫기"
+	            });
+	            form.start_date.focus();
+	            return;
+	        } else if (form.end_date.value == "") {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '일정종료일을 입력해주세요',
+	                confirmButtonText: "닫기"
+	            });
+	            form.end_date.focus();
+	            return;
+	        } else if (form.appro_content.value == "") {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '신청사유를 입력해주세요',
+	                confirmButtonText: "닫기"
+	            });
+	            form.appro_context.focus();
+	            return;
+	        } else if (form.approval.value == "") {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '결재자를 선택해주세요',
+	                confirmButtonText: "닫기"
+	            });
+	            form.approval.focus();
+	            return;
 	        }
-	        
-	        if(vali_check) {
-	        	const payload = new FormData(form);
-				const csrfToken = document.getElementById("csrf_token").value;
-				fetch('/approUp',{
-					method:'POST',
-					headers : {
-						'X-CSRF-TOKEN': csrfToken
-					},
-					body:payload
-				})
-				.then(response => response.json())
-				.then(data=>{
-					console.log('data:', data);
-					if(data.res_code == '200'){
-						Swal.fire({
-							icon :'success',
-							title:'성공',
-							text : data.res_msg,
-							confirmButtonText:"닫기"
-						}).then((result)=>{
-							location.href="/";
-						});
-					} else{
-						Swal.fire({
-							icon:'error',
-							title:'실패',
-							text: data.res_msg,
-							confirmButtonText:"닫기"
-						});
-					}
-				}).catch(error => {
-			        console.error('Error:', error);
-			  });
-			}
-		})
+
+	        fetch('/approUp', {
+	            method: 'POST',
+	            headers: {
+	                'X-CSRF-TOKEN': csrfToken 
+	            },
+	            body: formData
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	            if (data.res_code == '200') {
+	                Swal.fire({
+	                    icon: 'success',
+	                    title: '성공',
+	                    text: data.res_msg,
+	                    confirmButtonText: "닫기"
+	                }).then(() => {
+	                    location.href = "/";
+	                });
+	            } else {
+	                Swal.fire({
+	                    icon: 'error',
+	                    title: '실패',
+	                    text: data.res_msg,
+	                    confirmButtonText: "닫기"
+	                });
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Error:', error); 
+	        });
+	    }
 	</script>
 
 </th:block>

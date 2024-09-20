@@ -11,7 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.dbdevdeep.FileService;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.place.domain.Place;
@@ -25,28 +27,41 @@ public class PlaceService {
 	
 	private final PlaceRepository placeRepository;
 	private final EmployeeRepository employeeRepository;
+	private final FileService fileService;
 	
 	@Autowired
-	public PlaceService(PlaceRepository placeRepository, EmployeeRepository employeeRepository) {
+	public PlaceService(PlaceRepository placeRepository, EmployeeRepository employeeRepository,
+			FileService fileService) {
 		this.placeRepository = placeRepository;
 		this.employeeRepository = employeeRepository;
+		this.fileService = fileService;
 	}
+	
+	// 모든 Place 엔티티를 조회하는 기본 메서드,(select용)
+    public List<Place> getAllPlaces() {
+        return placeRepository.findAll();
+    }
 	
 	
 	// 삭제하기
 	public int deletePlace(Long place_no) {
 		int result = -1;
 		try {
-			placeRepository.deleteById(place_no);
-			result = 1;
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return result;
+		  Place place = placeRepository.findByplaceNo(place_no);
+            if (place.getNewPicName() != null) {
+                fileService.placeDelete(place_no);  // 파일 삭제
+            }
+            placeRepository.deleteById(place_no);  // 장소 삭제
+            result = 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;	
+        
 	}
 	
 	// 수정하기
-	public int updatePlace(PlaceDto dto) {
+	public int updatePlace(PlaceDto dto, MultipartFile file) {
 		int result = -1;
 		
 		// 필수 값 검증
@@ -59,35 +74,70 @@ public class PlaceService {
 		
 		try {
 
-	         Employee e = employeeRepository.findByempId(dto.getEmp_id());
-	    		
-	    		Place p = Place.builder()
-	    				.placeNo(dto.getPlace_no())
-	    				.employee(e)
-	    				.placeName(dto.getPlace_name())
-	    				.placeLocation(dto.getPlace_location()) // 위치
-	    				.placeContent(dto.getPlace_content())  // 설명이 null일 경우 처리
-	                  .placeStatus(dto.getPlace_status())    // 상태
-	                  .placeStarttime(dto.getPlace_start_time()) // 사용 가능 시작 시간
-	                  .placeEndtime(dto.getPlace_end_time())    // 사용 가능 종료 시간
-	                  .unuseableReason(dto.getUnuseable_reason()) // 사용 불가 사유
-	                  .unuseableStartDate(dto.getUnuseable_start_date()) // 사용 불가 시작 날짜
-	                  .unuseableEndDate(dto.getUnuseable_end_date())   // 사용 불가 종료 날짜
-	                  .oriPicname(dto.getOri_pic_name() != null ? dto.getOri_pic_name() : "Default oriPicname")
-	                  .newPicname(dto.getNew_pic_name() != null ? dto.getNew_pic_name() : "Default newPicname")
-	                  .regDate(dto.getReg_date())        // 등록일
-	                  .modDate(LocalDateTime.now())        // 수정일
-	                  .build();
-	    		
-	    		placeRepository.save(p);
-	    		result = 1;
-			
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
+			  Employee e = employeeRepository.findByempId(dto.getEmp_id());
+	            Place existingPlace = placeRepository.findByplaceNo(dto.getPlace_no());
+
+	            // 파일이 있을 경우 처리
+	            if (file != null && !file.isEmpty()) {
+	                String originalFilename = file.getOriginalFilename();
+	                if (originalFilename != null && !originalFilename.isEmpty()) {
+	                    // 새로운 파일 업로드
+	                    String savedFileName = fileService.placeUpload(file);
+	                    if (savedFileName != null) {
+	                        // 기존 파일이 있으면 삭제
+	                        if (existingPlace.getNewPicName() != null && !existingPlace.getNewPicName().isEmpty()) {
+	                            fileService.placeDelete(existingPlace.getPlaceNo());
+	                        }
+	                        // 새로운 파일 정보 업데이트
+	                        dto.setOri_pic_name(originalFilename);
+	                        dto.setNew_pic_name(savedFileName);
+	                    } else {
+	                        throw new RuntimeException("파일 업로드 중 오류 발생");
+	                    }
+	                }
+	            } else {
+	                // 파일이 없으면 기존 파일 정보 유지
+	                dto.setOri_pic_name(existingPlace.getOriPicName());
+	                dto.setNew_pic_name(existingPlace.getNewPicName());
+	            }
+
+	            // 상태가 "사용 가능"이면 사용 불가 관련 필드 초기화
+	            if ("Y".equals(dto.getPlace_status())) {
+	                dto.setUnuseable_start_date(null);
+	                dto.setUnuseable_end_date(null);
+	                dto.setUnuseable_reason(null);
+	            }
+
+	            // Place 객체를 빌드하여 수정
+	            Place p = Place.builder()
+	                    .placeNo(dto.getPlace_no())
+	                    .employee(e)
+	                    .placeName(dto.getPlace_name())
+	                    .placeLocation(dto.getPlace_location())
+	                    .placeContent(dto.getPlace_content())
+	                    .placeStatus(dto.getPlace_status())
+	                    .placeStarttime(dto.getPlace_start_time())
+	                    .placeEndtime(dto.getPlace_end_time())
+	                    .unuseableReason(dto.getUnuseable_reason())
+	                    .unuseableStartDate(dto.getUnuseable_start_date())
+	                    .unuseableEndDate(dto.getUnuseable_end_date())
+	                    .oriPicName(dto.getOri_pic_name())
+	                    .newPicName(dto.getNew_pic_name())
+	                    .regDate(dto.getReg_date())
+	                    .modDate(LocalDateTime.now())
+	                    .build();
+
+	            placeRepository.save(p);
+	            result = 1;
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            throw new RuntimeException("게시글 수정 중 오류 발생", e);
+	        }
+
+	        return result;
+	    }
+	
 	
 	
 	
@@ -99,6 +149,7 @@ public class PlaceService {
 		if(p == null) {
 			throw new EntityNotFoundException("Place not found for place_no: " + place_no);
 		}
+		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 		
 		PlaceDto dto = PlaceDto.builder()
 				.place_name(p.getPlaceName())
@@ -107,10 +158,11 @@ public class PlaceService {
 				.place_start_time(p.getPlaceStarttime())
 				.place_end_time(p.getPlaceEndtime())
 				.unuseable_reason(p.getUnuseableReason())
+				   // 날짜 포맷 적용: null이 아닌 경우에만 포맷을 적용 ==> yyyy-MM-dd , yyyy.MM.dd
 				.unuseable_start_date(p.getUnuseableStartDate())
-				.unuseable_end_date(p.getUnuseableEndDate())
-				.ori_pic_name(p.getOriPicname() != null ? p.getOriPicname() : "Default oriPicname")
-                .new_pic_name(p.getNewPicname() != null ? p.getNewPicname() : "Default newPicname")			
+                .unuseable_end_date(p.getUnuseableEndDate())
+				.ori_pic_name(p.getOriPicName() != null ? p.getOriPicName() : "Default oriPicname")
+                .new_pic_name(p.getNewPicName() != null ? p.getNewPicName() : "Default newPicname")			
 				.place_content(p.getPlaceContent())
 				.place_location(p.getPlaceLocation())
 				.build();
@@ -131,7 +183,7 @@ public class PlaceService {
     }
 
  // 장소 등록
-    public int createPlace(PlaceDto dto) {
+    public int createPlace(PlaceDto dto, MultipartFile file) {
     	int result = -1;
     	
         // 필수 값 검증
@@ -142,36 +194,51 @@ public class PlaceService {
             throw new IllegalArgumentException("장소 상태는 필수 입력 항목입니다.");
         }
     	try {
-    		// 가장 큰 placeNo 값을 찾아서, 없으면 0을 할당하고, 있으면 +1
-          Long maxPlaceNo = placeRepository.findMaxPlaceNo();  // 가장 큰 placeNo 값 찾기
-          Long nextPlaceNo = (maxPlaceNo == null) ? 0L : maxPlaceNo + 1;  // 없으면 0, 있으면 +1
-    		Employee e = employeeRepository.findByempId(dto.getEmp_id());
-    		
-    		dto.getMod_date();
-			Place p = Place.builder()
-    				.placeNo(nextPlaceNo)
-    				.employee(e)
-    				.placeName(dto.getPlace_name())
-    				.placeLocation(dto.getPlace_location()) // 위치
-    				.placeContent(dto.getPlace_content())  // 설명이 null일 경우 처리
-                  .placeStatus(dto.getPlace_status())    // 상태
-                  .placeStarttime(dto.getPlace_start_time()) // 사용 가능 시작 시간
-                  .placeEndtime(dto.getPlace_end_time())    // 사용 가능 종료 시간
-                  .unuseableReason(dto.getUnuseable_reason()) // 사용 불가 사유
-                  .unuseableStartDate(dto.getUnuseable_start_date()) // 사용 불가 시작 날짜
-                  .unuseableEndDate(dto.getUnuseable_end_date())   // 사용 불가 종료 날짜
-                  .oriPicname(dto.getOri_pic_name() != null ? dto.getOri_pic_name() : "Default oriPicname")
-                  .newPicname(dto.getNew_pic_name() != null ? dto.getNew_pic_name() : "Default newPicname")
-                  .regDate(dto.getReg_date())        // 등록일
-                  .modDate(dto.getMod_date())        // 수정일
-                  .build();
-    		
-    		placeRepository.save(p);
-    		result = 1;
-    	}catch(Exception e){
-    		e.printStackTrace();
-    	}
-		return result;
+    		  // 가장 큰 placeNo 값을 찾아서, 없으면 0을 할당하고, 있으면 +1
+            Long maxPlaceNo = placeRepository.findMaxPlaceNo();  
+            Long nextPlaceNo = (maxPlaceNo == null) ? 0L : maxPlaceNo + 1;
+            Employee e = employeeRepository.findByempId(dto.getEmp_id());
+            
+            // 파일 업로드 처리
+            String newPicName = null;
+            String oriPicName = null;
+            
+            if (file != null && !file.isEmpty()) {
+                // 파일이 존재하는 경우
+                oriPicName = file.getOriginalFilename();  // 원본 파일 이름
+                newPicName = fileService.placeUpload(file);  // 파일 업로드 후 새로운 파일 이름 반환
+            } else {
+                // 파일이 없는 경우 기본값 설정
+                oriPicName = "Default oriPicName";
+                newPicName = "Default newPicName";
+            }
+            
+            // Place 엔티티 빌드
+            Place p = Place.builder()
+                    .placeNo(nextPlaceNo)
+                    .employee(e)
+                    .placeName(dto.getPlace_name())
+                    .placeLocation(dto.getPlace_location())
+                    .placeContent(dto.getPlace_content())
+                    .placeStatus(dto.getPlace_status())
+                    .placeStarttime(dto.getPlace_start_time())
+                    .placeEndtime(dto.getPlace_end_time())
+                    .unuseableReason(dto.getUnuseable_reason())
+                    .unuseableStartDate(dto.getUnuseable_start_date())
+                    .unuseableEndDate(dto.getUnuseable_end_date())
+                    .oriPicName(oriPicName)  // 파일 업로드가 성공한 경우 파일 이름 저장
+                    .newPicName(newPicName)  // 파일이 없을 경우 기본값 사용
+                    .regDate(dto.getReg_date())
+                    .modDate(dto.getMod_date())
+                    .build();
+
+            // 데이터베이스 저장
+            placeRepository.save(p);
+            result = 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
     
 	

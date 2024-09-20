@@ -41,6 +41,7 @@ public class PlaceViewController {
 	    model.addAttribute("e_dto", e_dto);
 	    
 	    PlaceDto dto = placeService.selectPlaceOne(place_no);
+
 	    model.addAttribute("dto", dto);
 	    
 	    return "place/update";
@@ -59,11 +60,18 @@ public class PlaceViewController {
 	    EmployeeDto e_dto = employeeService.selectEmployeeOne(emp_id);
 	    
 	    model.addAttribute("e_dto", e_dto);
-		// 게시글 조회
+		
+	    // 2. 게시글 조회
 	    PlaceDto dto = placeService.selectPlaceOne(place_no);
-	    
-
 	    model.addAttribute("dto",dto);
+	    
+	    // 3. 이미지 경로 추가
+	    if(dto.getNew_pic_name() != null && !dto.getNew_pic_name().isEmpty()) {
+	    	String imageUrl = "/UploadImg/place/" + dto.getNew_pic_name();
+	    	model.addAttribute("imageUrl", imageUrl);
+	    } else {
+	    	model.addAttribute("imageUrl", null);
+	    }
 	    
 	    return "place/detail";
 	}

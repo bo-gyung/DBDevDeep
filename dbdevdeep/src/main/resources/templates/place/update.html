@@ -7,6 +7,13 @@
   
   <style>
  
+ input[type="text"] {
+    		width : 485px;
+    	}
+    
+ 
+ 
+ 
 body {
     background-color: #f7f7f7;
     font-family: 'Arial', sans-serif;
@@ -85,8 +92,13 @@ input, select, textarea {
                 <!-- ============================================================== -->
                 <!-- Start Page Content -->
                 <!-- ============================================================== -->
-<div class="container mt-5">
-    <form id="updateForm">
+  				<div class="row">
+                	<div class="col-sm-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title">장소 수정</h3>
+                                <hr>
+    <form id="updateForm"  th:action="@{/place/update/{place_no}(place_no=${dto.place_no})}" enctype="multipart/form-data">
       <!-- CSRF 토큰 추가 -->
         <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
         <div class="row mb-3">
@@ -98,66 +110,29 @@ input, select, textarea {
             </div>
         </div>
 
-        <div class="row mb-3">
-            <!-- 2. 사용 가능 여부 -->
-            <label for="usable" class="col-sm-2 col-form-label">사용 가능 여부</label>
-            <div class="col-sm-10">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" id="usable" name="place_status" value="Y" th:checked="${dto.place_status == 'Y'}" onchange="toggleUnusableFields()">
-                    <label class="form-check-label" for="usable">사용 가능</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" id="unusable" name="place_status" value="N" th:checked="${dto.place_status == 'N'}" onchange="toggleUnusableFields()">
-                    <label class="form-check-label" for="unusable">사용 불가능</label>
-                </div>
-            </div>
-        </div>
 
-        <!-- 3. 사용 가능 시간 -->
-        <div class="row mb-3">
-            <label for="startTime" class="col-sm-2 col-form-label">사용 가능 시간</label>
-            <div class="col-sm-5">
-                <input type="time" class="form-control" id="startTime" name="place_start_time" th:value="${dto.place_start_time}" required>
-            </div>
-            <label class="col-sm-1 col-form-label text-center">~</label>
-            <div class="col-sm-4">
-                <input type="time" class="form-control" id="endTime" name="place_end_time" th:value="${dto.place_end_time}" required>
-            </div>
-        </div>
-
-        <!-- 숨겨진 필드: 사용 불가능한 사유 및 기간 -->
-        <div class="unusable-fields" id="unusableFields">
-            <!-- 4. 사유 (사용 불가능한 사유) -->
-            <div class="row mb-3">
-                <label for="reason" class="col-sm-2 col-form-label">사유</label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" id="reason" name="unuseable_reason" th:value="${dto.unuseable_reason}">
-                </div>
-            </div>
-
-            <!-- 5. 사용 불가 기간 -->
-            <div class="row mb-3">
-                <label for="startDate" class="col-sm-2 col-form-label">사용 불가 기간</label>
-                <div class="col-sm-5">
-                    <input type="date" class="form-control" id="startDate" name="unuseable_start_date" th:value="${dto.unuseable_start_date}">
-                </div>
-                <label class="col-sm-1 col-form-label text-center">~</label>
-                <div class="col-sm-4">
-                    <input type="date" class="form-control" id="endDate" name="unuseable_end_date" th:value="${dto.unuseable_end_date}">
-                </div>
-            </div>
-        </div>
-
-        <div class="row mb-3">
-            <!-- 6. 내용 (장소에 대한 내용) -->
+		<!-- 2. 사용 가능 시간 -->
+		    <div class="row mb-3">
+		        <label for="startTime" class="col-sm-2 col-form-label">사용 가능 시간</label>
+		        <div class="col-sm-4">
+		            <input type="time" class="form-control" id="startTime" name="place_start_time" th:value="${dto.place_start_time}" required>
+		        </div>
+		        <label class="col-sm-1 col-form-label text-center">~</label>
+		        <div class="col-sm-4">
+		            <input type="time" class="form-control" id="endTime" name="place_end_time" th:value="${dto.place_end_time}" required>
+		        </div>
+		    </div>
+		    
+		     <div class="row mb-3">
+            <!-- 3. 내용 (장소에 대한 내용) -->
             <label for="content" class="col-sm-2 col-form-label">내용</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="content" name="place_content" th:value="${dto.place_content}">
+               <textarea class="form-control" id="content" name="place_content" th:text="${dto.place_content}" style="width: 100%; height: 120px; resize: none;" required></textarea>
             </div>
         </div>
-
+        
         <div class="row mb-3">
-            <!-- 7. 위치 선택 -->
+            <!-- 4. 위치 선택 -->
             <label for="location" class="col-sm-2 col-form-label">위치</label>
             <div class="col-sm-10">
                 <div class="form-check">
@@ -178,6 +153,52 @@ input, select, textarea {
                 </div>
             </div>
         </div>
+        
+        
+        
+        <div class="row mb-3">
+            <!-- 5. 사용 가능 여부 -->
+            <label for="usable" class="col-sm-2 col-form-label">사용 가능 여부</label>
+            <div class="col-sm-10">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="usable" name="place_status" value="Y" th:checked="${dto.place_status == 'Y'}" onchange="toggleUnusableFields()">
+                    <label class="form-check-label" for="usable">사용 가능</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" id="unusable" name="place_status" value="N" th:checked="${dto.place_status == 'N'}" onchange="toggleUnusableFields()">
+                    <label class="form-check-label" for="unusable">사용 불가능</label>
+                </div>
+            </div>
+        </div>
+
+       
+
+        <!-- 숨겨진 필드: 사용 불가능한 사유 및 기간 -->
+        <div class="unusable-fields" id="unusableFields">
+            <!-- 6. 사유 (사용 불가능한 사유) -->
+            <div class="row mb-3">
+                <label for="reason" class="col-sm-2 col-form-label">사유</label>
+                <div class="col-sm-10">
+                    <textarea class="form-control" id="reason" name="unuseable_reason" style="width: 100%; height: 120px; resize:none;" th:text="${dto.unuseable_reason}"></textarea>
+                </div>
+            </div>
+
+            <!-- 7. 사용 불가 기간 -->
+            <div class="row mb-3">
+                <label for="startDate" class="col-sm-2 col-form-label">사용 불가 기간</label>
+                <div class="col-sm-4">
+                    <input type="date" class="form-control" id="startDate" name="unuseable_start_date" th:value="${dto.unuseable_start_date}">
+                </div>
+                <label class="col-sm-1 col-form-label text-center">~</label>
+                <div class="col-sm-4">
+                    <input type="date" class="form-control" id="endDate" name="unuseable_end_date" th:value="${dto.unuseable_end_date}">
+                </div>
+            </div>
+        </div>
+
+       
+
+        
 
         <div class="row mb-3">
             <!-- 8. 파일 업로드 -->
@@ -203,7 +224,9 @@ input, select, textarea {
         <input type="hidden" class="form-control" id="place_no" name="place_no" th:value="${dto.place_no}">
     </form>
 </div>
-
+</div>
+</div>
+</div>
 <script>
 	function toggleUnusableFields(){
 		// 사용 가능 여부 라디오 버튼의 값
@@ -233,12 +256,22 @@ input, select, textarea {
 		// 선택된 라디오 버튼 값 확인
 	    const selectedLocation = document.querySelector('input[name="place_location"]:checked').value;
 		
-		const isUsable = document.getElementById('unusable').checked; // 사용 불가능 선택 여부 확인
+		const isUsable = document.getElementById('usable').checked; // 사용 불가능 선택 여부 확인
 	    
 		
 		  let vali_check = false; // 유효성 검사 플래그
 		  let vali_text = ""; 
-		    
+		   
+			// 시작시간과 종료시간 가져오기
+			const startTime = form.place_start_time.value;
+			const endTime = form.place_end_time.value;
+
+			// 시작일과 종료일 가져오기
+			const startDate = form.unuseable_start_date.value;
+			const endDate = form.unuseable_end_date.value;
+
+			// 사유 입력 여부 확인
+			const unusableReason = form.unuseable_reason.value;
 
 			// 유효성검사 장소명
 			if (form.place_name.value === '') {
@@ -248,24 +281,33 @@ input, select, textarea {
 			} else if(form.place_content.value === ''){
 				vali_text += '장소 설명을 입력하세요.';
 				form.place_content.focus();
-			} else if(form.place_start_time.value === '' || form.place_end_time.value == ''){
+			} else if (startTime === '' || endTime === '') {
 				vali_text += '사용 가능 시간을 입력하세요.';
 				form.place_start_time.focus();
-			} else if(form.place_status === '') {
-				if(form.unuseable_reason.value === ''){
+			} else if (startTime >= endTime) {
+				vali_text += '종료 시간은 시작 시간보다 이후여야 합니다.';
+			} else if (!isUsable) {
+				if (unusableReason === '') {
 					vali_text += '사유를 입력하세요.';
 					form.unuseable_reason.focus();
-				} else if(form.unuseable_start_date.value === '' || form.unuseable_end_date.value === ''){
-					vali_text = '사용 불가 기간을 입력하세요.';
+				} else if (startDate === '' || endDate === '') {
+					vali_text += '사용 불가 기간을 입력하세요.';
 					form.unuseable_start_date.focus();
+				} else {
+					const start = new Date(startDate);
+					const end = new Date(endDate);
+
+					if (start > end) {
+						vali_text += '종료일은 시작일보다 이후여야 합니다.';
+					} else {
+						vali_check = true;
+					}
 				}
-			} else if(!document.querySelector('input[name="place_location"]:checked')){
+			} else if (!document.querySelector('input[name="place_location"]:checked')) {
 				vali_text += '위치를 선택하세요.';
-				
-			} else{
+			} else {
 				vali_check = true;
 			}
-
 
 			// 유효성 검사가 실패하면 경고 메시지 표시
 			if (vali_check == false) {
@@ -277,50 +319,43 @@ input, select, textarea {
 					confirmButtonText : "닫기"
 				});
 			} else {
-				let obj = {};
-				const payload = new FormData(form);
-				payload.forEach(function(value,key){
-					obj[key] = value;
-				});
-				const jsonData = JSON.stringify(obj);
+				 // FormData로 파일을 포함한 데이터를 서버로 전송
+	            const formData = new FormData(form);
+	            const csrfToken = document.getElementById('csrf_token').value;
+	            const placeNo = document.getElementById('place_no').value;
 
-		        // CSRF 토큰 추가
-		        const csrfToken = document.getElementById('csrf_token').value;
-				const placeNo = document.getElementById('place_no').value;
-		        fetch('/place/update/${placeNo}', {
-		            method: 'POST',
-		            headers: {
-		            	"Content-Type" : "application/json;charset=utf-8",
-		            	"Accept" : "application/json",
-		                'X-CSRF-TOKEN': csrfToken 
-		            },
-		            body: jsonData
-		        })
-		        .then(response => response.json())
-		        .then(data => {
-		            
-		            if (data.res_code === '200') {
-		                Swal.fire({
-		                    icon: 'success',
-		                    title: '성공',
-		                    text: data.res_msg,
-		                    confirmButtonText : '닫기'
-		                }).then((result) => {
-		                    location.href = "/place";
-		                });
-		            } else {
-		                Swal.fire({
-		                    icon: 'error',
-		                    title: '실패',
-		                    text: data.res_msg,
-		                    confirmButtonText : "닫기"
-		                });
-		            }
-		        })
-		       
-		        
-		    }
-		});
+	            fetch(`/place/update/${placeNo}`, {
+	                method: 'POST',
+	                headers: {
+	                    'X-CSRF-TOKEN': csrfToken
+	                },
+	                body: formData // FormData를 사용해 파일 포함 데이터 전송
+	            })
+	            .then(response => response.json())
+	            .then(data => {
+	                if (data.res_code === '200') {
+	                    Swal.fire({
+	                        icon: 'success',
+	                        title: '성공',
+	                        text: data.res_msg,
+	                        confirmButtonText: '닫기'
+	                    }).then(() => {
+	                        location.href = "/place";
+	                    });
+	                } else {
+	                    Swal.fire({
+	                        icon: 'error',
+	                        title: '실패',
+	                        text: data.res_msg,
+	                        confirmButtonText: "닫기"
+	                    });
+	                }
+	            })
+	            .catch(error => {
+	                console.error('Error:', error);
+	            });
+	        }
+	    });
 </script>
 				<!-- ============================================================== -->
 				<!-- End PAge Content -->

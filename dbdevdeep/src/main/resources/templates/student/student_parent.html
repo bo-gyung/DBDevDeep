@@ -51,7 +51,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									<img src="https://via.placeholder.com/150" alt="학생 사진">
 									<div class="student-details">
 										<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-										<input type="hidden" name="parent_no" th:value="${resultList.parent_no}"> 
 										<input type="hidden" name="student_no"
 											th:value="${sdto.student_no}">
 										<ul>
@@ -81,12 +80,13 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 														</th:block>
 														<th:block th:if="${!#lists.isEmpty(resultList)}">
 															<tr th:each="parent, parentStat : ${resultList}">
+																<td><input type="hidden" name="parent_no" th:value="${parent.parent_no}"></td> 
 																<td th:text="${parent.parent_relation}"></td>
 																<td th:text="${parent.parent_name}"></td>
 																<td th:text="${parent.parent_phone}"></td>
 																<td th:text="${parent.parent_birth}"></td>
 																<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#parent_update_primary-header-modal">수정</button></td>
-																<td><a th:onclick="studentParnetDelete([[${parent.parent_no}]])">삭제</a><br></td>
+																<td><a th:onclick="studentParentDelete([[${parent.parent_no}]])">삭제</a><br></td>
 															</tr>
 														</th:block>
 													</tbody>

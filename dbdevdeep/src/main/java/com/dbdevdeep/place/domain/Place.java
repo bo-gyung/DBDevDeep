@@ -1,6 +1,7 @@
 package com.dbdevdeep.place.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -9,11 +10,10 @@ import com.dbdevdeep.employee.domain.Employee;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -75,10 +75,10 @@ public class Place {
 	private String unuseableEndDate;
 	// 원본사진명
 	@Column(name = "ori_pic_name")
-	private String oriPicname;
+	private String oriPicName;
 	// 수정사진명
 	@Column(name = "new_pic_name")
-	private String newPicname;
+	private String newPicName;
 	
 	// 등록일
 	@Column(name = "reg_date")
@@ -88,4 +88,9 @@ public class Place {
 	@Column(name = "mod_date")
 	@UpdateTimestamp
 	private LocalDateTime modDate;
+	
+	@OneToMany(mappedBy = "place")
+	private List<Item> items;
+	
+	
 }

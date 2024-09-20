@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/place_layout}">
+<th:block layout:fragment="content">
+
+  <!-- 부트스트랩 CSS 추가 -->
+  
+  <style>
+ 
+ input[type="text"] {
+    		width : 485px;
+    	}
+    
+ 
+ 
+ 
+body {
+    background-color: #f7f7f7;
+    font-family: 'Arial', sans-serif;
+}
+
+.container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 100%;
+    width: 90%; /* 더 넓게 화면에 꽉 차게 */
+    margin: 40px auto;
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+input, select, textarea {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+}
+
+.form-check {
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 10px;
+}
+
+.form-check-label {
+    margin-left: 60px;
+    font-weight: normal;
+}
+
+.btn-secondary, .btn-primary {
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.unusable-fields {
+    display: none;
+}
+ 
+  </style>
+  
+  <body>
+
+<!-- 수정폼 -->
+<!-- ============================================================== -->
+		<!-- Page wrapper  -->
+		<!-- ============================================================== -->
+		<div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                <!-- ============================================================== -->
+                <!-- Start Page Content -->
+                <!-- ============================================================== -->
+  				<div class="row">
+                	<div class="col-sm-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title">기자재 수정</h3>
+                                <hr>
+					        <form id="item_updateForm"  th:action="@{/item/update/{item_no}(item_no=${dto.item_no})}" method="post" enctype="multipart/form-data">
+					         <!-- CSRF 토큰 추가 -->
+                            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                             <!-- Hidden Fields for Item and Place -->
+					        <input type="hidden" id="place_no" name="place_no" th:value="${dto.place_no}">
+					        <input type="hidden" id="item_no" name="item_no" th:value="${dto.item_no}">
+                            <!-- 장소 선택 -->
+                            <div class="row mb-3">
+							    <label for="placeName" class="col-sm-2 col-form-label">장소명</label>
+							    <div class="col-sm-4">
+							        
+							        <select id="placeName" name="place_no_disabled" class="form-control" disabled>
+							            <option th:value="${dto.place_no}" th:text="${dto.place_name}"></option>
+							        </select>
+							        <!-- 실제 서버로 전송되는 히든 필드 -->
+							        <input type="hidden" name="place_no" th:value="${dto.place_no}">
+							    </div>
+							</div>
+                            <!-- 일련번호 -->
+                            <div class="row mb-3">
+							    <label for="item_serial_no" class="col-sm-2 col-form-label">일련번호</label>
+							    <div class="col-sm-10">
+							        <input type="text" class="form-control" id="item_serial_no" name="item_serial_no"
+                                           th:value="${dto.item_serial_no}" placeholder="A01부터 입력하세요." required>
+                                           <!-- 실제 서버로 전송되는 히든 필드 -->
+											<input type="hidden" name="item_serial_no" th:value="${dto.item_serial_no}">
+							        <span id="serialError" style="color: red; display: none;">잘못된 일련번호 형식입니다. 예: A01, B02</span>
+							        <span id="duplicateError" style="color: red; display: none;">이미 존재하는 일련번호입니다.</span>
+							    </div>
+							</div>
+
+                            <!-- 기자재명 -->
+                            <div class="row mb-3">
+                                <label for="item_name" class="col-sm-2 col-form-label">기자재명</label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="item_name" name="item_name" th:value="${dto.item_name}" required>
+                                </div>
+                            </div>
+
+							<!-- 기자재 내용 -->
+                            <div class="row mb-3">
+                                <label for="item_content" class="col-sm-2 col-form-label">내용</label>
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" id="item_content" name="item_content" style="width: 100%; height: 120px; resize : none;" th:text="${dto.item_content}"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 기자재 갯수 -->
+                            <div class="row mb-3">
+                                <label for="item_quantity" class="col-sm-2 col-form-label">기자재 갯수</label>
+                                <div class="col-sm-4">
+                                    <input type="number" class="form-control" id="item_quantity" name="item_quantity" th:value="${dto.item_quantity}" required>
+                                </div>
+                            </div>
+
+                            <!-- 사용 가능 여부 -->
+                            <div class="row mb-3">
+                                <label for="item_status" class="col-sm-2 col-form-label">사용 가능 여부</label>
+                                <div class="col-sm-10">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="usable" name="item_status" value="Y" th:checked="${dto.item_status == 'Y'}" onchange="toggleUnusableFields()">
+                                        <label class="form-check-label" for="usable">사용 가능</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="unusable" name="item_status" value="N" th:checked="${dto.item_status == 'N'}" onchange="toggleUnusableFields()">
+                                        <label class="form-check-label" for="unusable">사용 불가능</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 숨겨진 필드 (사유와 기간, 갯수) -->
+							<div id="unusableFields" style="display:none;">
+							    <!-- 사용 불가능한 갯수 -->
+							    <div class="row mb-3">
+							        <label for="unuseable_quantity" class="col-sm-2 col-form-label">사용 불가능한 갯수</label>
+							        <div class="col-sm-4">
+							            <input type="number" class="form-control" id="unuseable_quantity" name="unuseable_quantity" th:value="${dto.unuseable_quantity}" min="0">
+							        </div>
+							    </div>
+							
+							    <!-- 사용 불가능한 사유 -->
+							    <div class="row mb-3">
+							        <label for="unuseable_reason" class="col-sm-2 col-form-label">사유</label>
+							        <div class="col-sm-10">
+							            <textarea class="form-control" id="unuseable_reason" name="unuseable_reason" style="width: 100%; height: 120px; resize : none;" th:text="${dto.unuseable_reason}"></textarea>
+							        </div>
+							    </div>
+							
+							    <!-- 사용 불가 기간 -->
+							    <div class="row mb-3">
+							        <label for="unuseable_date_range" class="col-sm-2 col-form-label">사용 불가 기간</label>
+							        <div class="col-sm-4">
+							            <input type="date" class="form-control" id="unuseable_start_date" name="unuseable_start_date" th:value="${dto.unuseable_start_date}">
+							        </div>
+							        <label class="col-sm-1 col-form-label text-center">~</label>
+							        <div class="col-sm-4">
+							            <input type="date" class="form-control" id="unuseable_end_date" name="unuseable_end_date" th:value="${dto.unuseable_end_date}">
+							        </div>
+							    </div>
+							</div>
+                            <!-- 이미지 업로드 -->
+                            <div class="row mb-3">
+                                <label for="item_image" class="col-sm-2 col-form-label">이미지</label>
+                                <div class="col-sm-10">
+                                    <input type="file" class="form-control" id="item_image" name="file" accept="image/*">
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                            	 <!-- 취소 버튼 -->
+						            <div class="col-sm-6 text-left">
+						                <button type="button" class="btn btn-secondary" onclick="location.href='/item'">취소</button>
+						            </div>
+                            	<!-- 수정 버튼 -->
+                                <div class="col-sm-6 text-right">
+                                    <button type="submit" class="btn btn-primary">수정</button>
+                                </div>
+                            </div>
+        
+        
+         </form>
+</div>
+</div>
+</div>
+</div>
+<script>
+//사용 여부에 따른 필드 숨기기/보이기
+function toggleUnusableFields(){
+    const isUsable = document.getElementById('usable').checked;
+    const unusableFields = document.getElementById('unusableFields');
+
+    if (isUsable) {
+        unusableFields.style.display = 'none'; // 사용 가능일 경우 숨기기
+    } else {
+        unusableFields.style.display = 'block'; // 사용 불가능일 경우 보이기
+    }
+}
+
+// 페이지 로드시 초기상태 설정
+document.addEventListener('DOMContentLoaded', function () {
+    const usableRadio = document.getElementById('usable');
+    const unusableFields = document.getElementById('unusableFields');
+
+    
+    
+    
+    if (usableRadio && unusableFields) {
+        toggleUnusableFields(); // 초기 상태 설정
+        document.getElementById('usable').addEventListener('change', toggleUnusableFields);
+        document.getElementById('unusable').addEventListener('change', toggleUnusableFields);
+    } else {
+        console.error('usableRadio 또는 unusableFields 요소를 찾을 수 없습니다.');
+    }
+});
+
+
+// 수정 버튼 클릭 시 폼 제출 처리
+const form = document.getElementById("item_updateForm");
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault(); // 기본 폼 제출 방지
+
+    let vali_check = false; // 유효성 검사 플래그
+    let vali_text = ""; 
+
+    // 유효성 검사
+    if(form.item_name.value === ''){
+    	vali_text += '기자재명을 입력하세요.';
+    	form.item_name.focus();
+    }else if(form.item_content.value === ''){
+    	vali_text += '내용을 입력하세요.';
+    	form.item_content.focus();
+    }else if (form.item_quantity.value.trim() === '' || form.item_quantity.value <= 0) {
+        vali_text += '기자재 갯수를 올바르게 입력하세요.\n';
+        form.item_quantity.focus();
+    } else if (document.getElementById('unusable').checked) {
+        // 사용 불가능 상태일 때 추가 유효성 검사
+        const unusableReason = document.getElementById('unuseable_reason').value;
+        const unusableStartDate = document.getElementById('unuseable_start_date').value;
+        const unusableEndDate = document.getElementById('unuseable_end_date').value;
+		const unusableQuantity = document.getElementById('unuseable_quantity').value;
+        if (unusableReason.trim() === '') {
+            vali_text += '사용 불가능한 사유를 입력하세요.\n';
+            document.getElementById('unuseable_reason').focus();
+        } else if (unusableStartDate === '') {
+            vali_text += '사용 불가 시작 날짜를 입력하세요.\n';
+            document.getElementById('unuseable_start_date').focus();
+        } else if (unusableEndDate === '') {
+            vali_text += '사용 불가 종료 날짜를 입력하세요.\n';
+            document.getElementById('unuseable_end_date').focus();
+        } else if(unusableQuantity === ''){
+        	vali_text += '사용불가 갯수를 입력하세요.';
+        	document.getElementById('unuseable_quantity').focus();
+        } else {
+            vali_check = true; // 모든 유효성 검사를 통과한 경우
+        }
+    } else {
+        vali_check = true; // 사용 가능 상태일 때는 추가 유효성 검사 없이 통과
+    }
+    // 유효성 검사가 실패하면 경고 메시지 표시
+    if (!vali_check) {
+        Swal.fire({
+            icon: 'error',
+            title: '실패',
+            text: vali_text,
+            confirmButtonText: '닫기'
+        });
+    } else {
+        // FormData로 파일을 포함한 데이터를 서버로 전송
+        const payload = new FormData(form);
+        const csrfToken = document.getElementById('csrf_token').value;
+        const itemNo = document.getElementById('item_no').value;
+
+        fetch(`/item/update/${itemNo}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: payload
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.res_code === '200') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '성공',
+                    text: data.res_msg,
+                    confirmButtonText: '닫기'
+                }).then(() => {
+                    location.href = "/item";
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '실패',
+                    text: data.res_msg,
+                    confirmButtonText: '닫기'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+});
+    
+    </script>
+
+				<!-- ============================================================== -->
+				<!-- End PAge Content -->
+				<!-- ============================================================== -->
+				<!-- ============================================================== -->
+				<!-- Right sidebar -->
+				<!-- ============================================================== -->
+				<!-- .right-sidebar -->
+				<!-- ============================================================== -->
+				<!-- End Right sidebar -->
+				<!-- ============================================================== -->
+			</div>
+			<!-- ============================================================== -->
+			<!-- End Container fluid  -->
+			<!-- ============================================================== -->
+			<!-- ============================================================== -->
+			<!-- footer -->
+			<!-- ============================================================== -->
+			<footer class="footer text-center text-muted">
+				All Rights Reserved by Adminmart. Designed and Developed by <a
+					href="https://wrappixel.com">WrapPixel</a>.
+			</footer>
+			<!-- ============================================================== -->
+			<!-- End footer -->
+			<!-- ============================================================== -->
+		</div>
+		<!-- ============================================================== -->
+		<!-- End Page wrapper  -->
+		<!-- ============================================================== -->
+
+
+<!-- 부트스트랩 JS 및 의존성 추가 -->
+<!-- ============================================================== -->
+    <!-- All Jquery -->
+    <!-- ============================================================== -->
+    <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- apps -->
+    <!-- apps -->
+    <script src="/dist/js/app-style-switcher.js"></script>
+    <script src="/dist/js/feather.min.js"></script>
+    <!-- slimscrollbar scrollbar JavaScript -->
+    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+    <!--Wave Effects -->
+    <!-- themejs -->
+    <!--Menu sidebar -->
+    <script src="/dist/js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="/dist/js/custom.min.js"></script>
+    <!--This page plugins -->
+    <script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+</body>
+
+</html>

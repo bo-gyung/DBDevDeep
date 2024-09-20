@@ -234,6 +234,16 @@ public class ApproveService {
 	}
 
 
+	// 내가 결재 요청한 보고서 목록 조회
+	public List<ApproveDto> selectApproveDocuList(String empId){
+		List<Approve> approDocuList = approveRepository.findByAnotherTypeAndEmpId(empId);
+		List<ApproveDto> approDocuListDto = new ArrayList<ApproveDto>();
+		for(Approve a : approDocuList) {
+			ApproveDto dto = new ApproveDto().toDto(a);
+			approDocuListDto.add(dto);
+		}
+		return approDocuListDto;
+	}
 	
 	// 내가 결재 요청한 목록 조회
 	public List<ApproveDto> selectApproveList(String empId){
@@ -322,6 +332,80 @@ public class ApproveService {
 			mDto.add(mySignDto);
 		}
 		return mDto;
+	}
+	
+	public Map<String , Object> getDocuDetail(Long approNo){
+		Map<String, Object> detailMap = new HashMap<>();
+
+	    // Approve 객체 가져오기
+	    Approve approve = approveRepository.findByApproNo(approNo);
+
+	    // ApproveLine 가져오기
+	    List<ApproveLine> approLineList = approveLineRepository.findByApprove(approve);
+
+	    // 결재자와 협의자를 구분하여 리스트로 할당
+	    List<ApproveLineDto> approveLineList = approLineList.stream()
+	        .filter(a -> "N".equals(a.getConsultYn())) // 결재자만 필터링
+	        .map(a -> ApproveLineDto.builder()
+	            .emp_id(a.getEmployee().getEmpId())
+	            .appro_line_name(a.getApproLineName())
+	            .appro_line_order(a.getApproLineOrder())
+	            .appro_line_status(a.getApproLineStatus())
+	            .appro_permit_time(a.getApproPermitTime())
+	            .reason_back(a.getReasonBack())
+	            .consult_yn(a.getConsultYn()) 
+	            .appro_line_sign(a.getApproLineSign())
+	            .build())
+	        .collect(Collectors.toList());
+
+	    List<ApproveLineDto> consultLineList = approLineList.stream()
+	        .filter(a -> "Y".equals(a.getConsultYn())) // 협의자만 필터링
+	        .map(a -> ApproveLineDto.builder()
+	            .emp_id(a.getEmployee().getEmpId())
+	            .appro_line_name(a.getApproLineName())
+	            .appro_line_order(a.getApproLineOrder())
+	            .appro_line_status(a.getApproLineStatus())
+	            .appro_permit_time(a.getApproPermitTime())
+	            .reason_back(a.getReasonBack())
+	            .consult_yn(a.getConsultYn())
+	            .appro_line_sign(a.getApproLineSign())
+	            .build())
+	        .collect(Collectors.toList());
+
+	    detailMap.put("lDto", approveLineList); // 결재자 리스트
+	    detailMap.put("cDto", consultLineList); // 협의자 리스트
+	    
+	    // ApproFile 조회
+	    ApproFile aFile = approFileRepository.findByApprove(approve);
+	    ApproFileDto fileDto = null;
+	    if(aFile != null) {
+	    	fileDto = new ApproFileDto().toDto(aFile);
+	    }
+	    detailMap.put("fDto", fileDto);
+	    
+	    // 6. Approve DTO 변환
+	    ApproveDto aDto = new ApproveDto().toDto(approve);
+	    // TempEdit이 null인지 확인하고, null이 아닌 경우에만 ApproveDto 변환을 시도
+	    if (approve.getTempEdit() != null) {
+	        aDto.setTemp_no(approve.getTempEdit().getTempNo());
+	    } else {
+	        aDto.setTemp_no(null); // TempEdit이 null일 경우
+	    }
+
+	    aDto.setAppro_no(approve.getApproNo());
+	    aDto.setEmp_id(approve.getEmployee().getEmpId());
+	    aDto.setDept_code(approve.getDepartment().getDeptCode());
+	    aDto.setJob_code(approve.getJob().getJobCode());
+	    aDto.setAppro_name(approve.getApproName());
+	    aDto.setAppro_time(approve.getApproTime());
+	    aDto.setAppro_type(approve.getApproType());
+	    aDto.setAppro_status(approve.getApproStatus());
+	    aDto.setAppro_title(approve.getApproTitle());
+	    aDto.setAppro_content(approve.getApproContent());
+	    
+	    detailMap.put("aDto", aDto);
+
+	    return detailMap;
 	}
 	
 	public Map<String, Object> getApproveDetail(Long approNo) {
@@ -524,6 +608,45 @@ public class ApproveService {
             
 	}
 	
+	// 보고서 결재 요청
+	@Transactional
+	public int docuApproUp(ApproveDto approveDto, List<ApproveLineDto> approveLineDtos, ApproFileDto approFileDto) {
+		Employee employee = employeeRepository.findByempId(approveDto.getEmp_id());
+		Department department = departmentRepository.findByDeptCode(approveDto.getDept_code());
+	    Job job = jobRepository.findByJobCode(approveDto.getJob_code());
+	    
+	    TempEdit tempEdit = null;
+	    if (approveDto.getTemp_no() != null) {
+	        tempEdit = tempEditRepository.findById(approveDto.getTemp_no()).orElse(null);
+	    }
+	    
+	    Approve approve = approveDto.toEntity(employee, department, job, tempEdit);
+	    approve = approveRepository.save(approve);
+	    Long approNo = approve.getApproNo();
+	    
+	    for (ApproveLineDto lineDto : approveLineDtos) {
+	        lineDto.setAppro_no(approNo); // Approve의 appro_no 설정
+	        
+	        // 각 ApproveLine에 맞는 Employee 객체를 가져옵니다.
+	        Employee lineEmployee = employeeRepository.findByempId(lineDto.getEmp_id());
+	        if (lineEmployee == null) {
+	            continue; // 또는 오류를 처리합니다.
+	        }
+
+	        ApproveLine approveLine = lineDto.toEntity(approve, lineEmployee);
+	        approveLineRepository.save(approveLine);
+	    }
+	    
+	    if (approFileDto != null) { // approFileDto가 null이 아닐 때만 저장
+	        approFileDto.setAppro_no(approNo); // Approve의 appro_no 설정
+	        ApproFile approFile = approFileDto.toEntity(approve);
+	        approFileRepository.save(approFile);
+	    }
+	    
+	    return 1;
+		
+	}
+	
 	// 결재 요청 
 	@Transactional
 	public int approUp(ApproveDto approveDto, VacationRequestDto vacationRequestDto, List<ApproveLineDto> approveLineDtos,
@@ -543,10 +666,6 @@ public class ApproveService {
 	        tempEdit = tempEditRepository.findById(approveDto.getTemp_no()).orElse(null);
 	    }
 
-	    if (employee == null || department == null || job == null) {
-	        // 필요한 엔티티가 없는 경우 오류 반환
-	        return 0;
-	    }
 
 	    // 1. approve 테이블에 저장
 	    Approve approve = approveDto.toEntity(employee, department, job, tempEdit);

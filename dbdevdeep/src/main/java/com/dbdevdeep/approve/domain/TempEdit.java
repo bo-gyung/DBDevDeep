@@ -36,9 +36,6 @@ public class TempEdit {
     @Column(name = "temp_content")
     private String tempContent;
 
-    @Column(name = "temp_type")
-    private int tempType;
-	
     @OneToMany(mappedBy = "tempEdit")
     private List<Approve> approves;
 

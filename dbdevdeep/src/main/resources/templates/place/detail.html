@@ -1,316 +1,324 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{include/place_layout}">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{include/place_layout}">
 <th:block layout:fragment="content">
-	<style>
-/* 전체적인 스타일 */
-body {
-    background-color: #f5f5f5;
-    font-family: 'Arial', sans-serif;
-}
 
-.input-group-text {
-    background-color: #ffffff; /* 하얀 배경색 */
-    color: #000; /* 텍스트 색상 */
-    border: 1px solid #ced4da; /* input 필드와 일관된 테두리 */
-    border-radius: 5px; /* 모서리를 둥글게 */
-    padding: 5px 10px; /* 적당한 여백 */
-}
-
-.card {
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-control {
-    border-radius: 5px;
-    padding: 10px;
-    border: 1px solid #ced4da;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-label {
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* 라디오 버튼 스타일 */
-.form-check-inline {
-    display: inline-flex;
-    align-items: center;
-}
-
-.form-check-input {
-    margin-right: 10px;
-}
-
-.form-check-label {
-    margin-right: 30px;
-    font-weight: normal;
-}
-
-/* 버튼 스타일 */
-.btn-secondary, .btn-primary {
-    padding: 10px 20px;
-    border-radius: 5px;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
-
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-}
-
-.row {
-    display: flex;
-    justify-content: space-between;
-}
-
-input[type="file"] {
-    border: none;
-}
-
-textarea {
-    resize: none;
-    border-radius: 5px;
-    padding: 10px;
-}
-</style>
-	<body>
-		<!-- ============================================================== -->
-		<!-- Page wrapper  -->
-		<!-- ============================================================== -->
-		<div class="page-wrapper">
-			<!-- ============================================================== -->
-			<!-- Container fluid  -->
-			<!-- ============================================================== -->
-			<div class="container-fluid">
-				<!-- ============================================================== -->
-				<!-- Start Page Content -->
-				<!-- ============================================================== -->
-				<div class="row">
-					<div class="col-sm-12">
-						<div class="card">
-							<div class="card-body">
-								<h3 class="card-title">장소 상세조회</h3>
-								<hr>
-								<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-								<form id="placeDetailForm" method="post" action="#">
-                                	
-                                    <div class="form-group">
-                                    	<label for="placeName">장소명</label>
-                                    	<input type="text" class="form-control" id="placeName" th:value="${dto.place_name}" disabled>
-                                    </div>
-                                    
-                                    <div class="form-group">
-                                    	<label for="placeNo">장소번호</label>
-                                    	<input type="text" class="form-control" id="placeNo" th:value="${dto.place_no}" disabled>
-                                    </div>
-
-                                    <div class="form-group">
-                                    	<label>사용 가능 여부</label>
-										    <div class="form-check form-check-inline">
-										        <input class="form-check-input" type="radio" name="place_status" id="usable" value="Y" th:checked="${dto.place_status == 'Y'}" onchange="toggleUnusableFields()" disabled>
-										    	 <label class="form-check-label" for="usable">사용 가능</label>
-										        <input class="form-check-input" type="radio" name="place_status" id="unusable" value="N" th:checked="${dto.place_status == 'N'}" onchange="toggleUnusableFields()" disabled>
-										         <label class="form-check-label" for="unusable">사용 불가</label>
-										    </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                    	<label for="placeTime">사용 가능 시간</label>
-                                    	<input type="text" class="form-control" id="placeTime" th:value="${dto.place_start_time} + ' - ' + ${dto.place_end_time}" disabled>
-                                    </div>
-								<div id= "unusableFields" style ="display: none;">
-                                    <div class="form-group">
-                                    	<label for="unusableReason">사용 불가 사유</label>
-                                    	<input type="text" class="form-control" id="unusableReason" th:value="${dto.unuseable_reason}" disabled>
-                                    </div>
-
-                                    <div class="form-group">
-                                    	 <label for="unuseable_date">사용 불가 기간</label>
-										    <div class="input-group">
-										        <input type="text" class="form-control" id="unuseable_start_date" th:value="${dto.unuseable_start_date}" disabled>
-										        <span class="input-group-text">~</span>
-										        <input type="text" class="form-control" id="unuseable_end_date" th:value="${dto.unuseable_end_date}" disabled>
-										    </div>
-										</div>
-									</div>
-                                    <div class="form-group">
-                                    	<label for="placeContent">내용</label>
-                                    	<textarea class="form-control" th:text="${dto.place_content}" id="placeContent" rows="4" disabled style ="resize:none;"></textarea>
-                                    </div>
-
-                                    <div class="form-group">
-                                    	<label for="placeLocation">위치</label>
-                                    	<input type="text" class="form-control" id="placeLocation" th:value="${dto.place_location}" disabled>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="placeFile">이미지</label>
-                                        <input type="file" class="custom-file-input" id="placeFile" disabled>
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-6 text-left">
-                                            <button type="button" class="btn btn-secondary" onclick="location.href='/place'">목록</button>
-                                        </div>
-                                        <div class="col-6 text-right">
-                                        	<button type="button" class="btn btn-secondary" onclick="deletePlace()" sec:authorize="hasAnyAuthority('D3')">삭제</button>
-                                            <button type="button" class="btn btn-primary" onclick="updatePlace()" sec:authorize="hasAnyAuthority('D3')">수정</button>
-                                        </div>
-                                    </div>
-                                    
-                                </form>
-				</div>
-			</div>
-		</div>
-</div>
-<script>
-	// 사용 불가능 상태일때만 보여지는 script
-
-    function toggleUnusableFields() {
-        const isUsable = document.getElementById('usable').checked; // 사용 가능
-        const unusableFields = document.getElementById('unusableFields'); 
-
-        // 사용 가능 상태일 때 사유 및 기간 필드를 숨김
-        if (isUsable) {
-            unusableFields.style.display = 'none';
-        } else {
-            unusableFields.style.display = 'block';
-        }
-    }
-
-    // 페이지 로드 시 초기 상태 설정
-    document.addEventListener('DOMContentLoaded', function () {
-        toggleUnusableFields(); // 페이지 로드 시 필드 초기 상태 설정
-    });
+    <style>
     
-    // 수정하기로 이동
-    const updatePlace = function(){
-    	const placeNo = document.getElementById('placeNo').value;
-    	const url = '/place/update/' + encodeURIComponent(placeNo);
-    	window.location.href = url;
-    }
-    
-    // 삭제는 fetch
-    const deletePlace = function(){
-    	const placeNo = document.getElementById('placeNo').value;
-    	const csrfToken = document.getElementById('csrf_token').value;
-    	console.log(placeNo);
-    	
-    	if(confirm("정말 삭제 하시겠습니까?")){
-    		fetch('/place/'+ placeNo,{
-    			method : 'delete',
-    			headers : {
-    				'X-CSRF-TOKEN' : csrfToken
-    			}
-    		})
-    		.then(response => response.json())
-			.then(data => {
-					if(data.res_code == '200'){
-						Swal.fire({
-							icon : 'success',
-							title : '성공',
-							text : data.res_msg,
-							confirmButtonText : '닫기'
-						}).then((result) =>{
-							location.href='/place';
-						});
-					}else{
-						Swal.fire({
-							icon : 'error',
-							title : '오류',
-							text : data.res_msg,
-							confirmButtonText : '닫기'
-						});
-					}
-	
-				})
+    	input[type="text"] {
+    		width : 485px;
     	}
-    	
-    }
     
     
-</script>
-				<!-- ============================================================== -->
-				<!-- End PAge Content -->
-				<!-- ============================================================== -->
-				<!-- ============================================================== -->
-				<!-- Right sidebar -->
-				<!-- ============================================================== -->
-				<!-- .right-sidebar -->
-				<!-- ============================================================== -->
-				<!-- End Right sidebar -->
-				<!-- ============================================================== -->
-			</div>
-			<!-- ============================================================== -->
-			<!-- End Container fluid  -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- footer -->
-			<!-- ============================================================== -->
-			<footer class="footer text-center text-muted">
-				All Rights Reserved by Adminmart. Designed and Developed by <a
-					href="https://wrappixel.com">WrapPixel</a>.
-			</footer>
-			<!-- ============================================================== -->
-			<!-- End footer -->
-			<!-- ============================================================== -->
-		</div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
+        body {
+            background-color: #f7f7f7;
+            font-family: 'Arial', sans-serif;
+        }
 
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 100%;
+            width: 90%; /* 더 넓게 화면에 꽉 차게 */
+            margin: 40px auto;
+        }
 
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-		<!-- ============================================================== -->
-		<!-- All Jquery -->
-		<!-- ============================================================== -->
-		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
-		<!-- Bootstrap tether Core JavaScript -->
-		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
-		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-		<!-- apps -->
-		<!-- apps -->
-		<script src="/dist/js/app-style-switcher.js"></script>
-		<script src="/dist/js/feather.min.js"></script>
-		<!-- slimscrollbar scrollbar JavaScript -->
-		<script
-			src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
-		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
-		<!--Wave Effects -->
-		<!-- themejs -->
-		<!--Menu sidebar -->
-		<script src="/dist/js/sidebarmenu.js"></script>
-		<!--Custom JavaScript -->
-		<script src="/dist/js/custom.min.js"></script>
-		<!--This page plugins -->
-		<script
-			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
-		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
-	</body>
+        input, select, textarea {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+
+        .form-check {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+
+        .form-check-label {
+            margin-left: 60px;
+            font-weight: normal;
+        }
+
+		.btn-outline-secondary {
+			 padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+		}
+
+        .btn-secondary {
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            padding: 10px 20px;
+            font-size: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        .unusable-fields {
+            display: none;
+        }
+
+    </style>
+
+<body>
+
+<!-- 장소 상세조회 -->
+<!-- ============================================================== -->
+    <div class="page-wrapper">
+        <!-- ============================================================== -->
+        <!-- Container fluid  -->
+        <!-- ============================================================== -->
+        <div class="container-fluid">
+            <!-- ============================================================== -->
+            <!-- Start Page Content -->
+            <!-- ============================================================== -->
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">장소 상세조회</h3>
+                            <hr>
+                            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                            <form id="placeDetailForm" method="post" action="#">
+                                <div class="row mb-3">
+                                    <label for="placeName" class="col-sm-2 col-form-label">장소명</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="placeName" th:value="${dto.place_name}" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label for="placeNo" class="col-sm-2 col-form-label">장소번호</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="placeNo" th:value="${dto.place_no}" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label for="placeTime" class="col-sm-2 col-form-label">사용 가능 시간</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="placeTime"
+                                               th:value="${dto.place_start_time} + ' - ' + ${dto.place_end_time}" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label for="placeContent" class="col-sm-2 col-form-label">내용</label>
+                                    <div class="col-sm-10">
+                                        <textarea class="form-control" id="placeContent"
+                                                  th:text="${dto.place_content}" style= "width: 100%; height: 120px; resize:none;" readonly></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label for="placeLocation" class="col-sm-2 col-form-label">위치</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="placeLocation" th:value="${dto.place_location}" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <label class="col-sm-2 col-form-label">사용 가능 여부</label>
+                                    <div class="col-sm-10">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="place_status" id="usable"
+                                                   value="Y" th:checked="${dto.place_status == 'Y'}" disabled>
+                                            <label class="form-check-label" for="usable">사용 가능</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="radio" name="place_status" id="unusable"
+                                                   value="N" th:checked="${dto.place_status == 'N'}" disabled>
+                                            <label class="form-check-label" for="unusable">사용 불가</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="unusableFields" style="display: none;">
+                                    <div class="row mb-3">
+                                        <label for="unusableReason" class="col-sm-2 col-form-label">사용 불가 사유</label>
+                                        <div class="col-sm-10">
+                                            <textarea class="form-control" id="unusableReason" readonly style="width: 100%; height: 120px; resize:none" th:text="${dto.unuseable_reason}"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <label for="unuseable_date" class="col-sm-2 col-form-label">사용 불가 기간</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="unuseable_start_date" th:value="${dto.unuseable_start_date}" readonly>
+                                        </div>
+                                        <label class="col-sm-1 col-form-label text-center">~</label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="unuseable_end_date" th:value="${dto.unuseable_end_date}" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+								    <label for="placeImage" class="col-sm-2 col-form-label">이미지</label>
+									    <div class="col-sm-10">
+									        <!-- 이미지 파일을 업로드하는 대신, 이미지를 표시합니다. -->
+									        <img id="placeImage"
+									             th:if="${imageUrl != null}"
+									             th:src="@{${imageUrl}}" 
+									             alt="장소 이미지" style="max-width: 500px; height: auto;" />
+									    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-sm-6 text-left">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/place'">목록</button>
+                                    </div>
+                                    <div class="col-sm-6 text-right">
+                                        <button type="button" class="btn btn-secondary" onclick="deletePlace()" sec:authorize="hasAnyAuthority('D3')">삭제</button>
+                                        <button type="button" class="btn btn-primary" onclick="updatePlace()" sec:authorize="hasAnyAuthority('D3')">수정</button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+            	// 사용 불가능 체크시
+                function toggleUnusableFields() {
+                    const isUsable = document.getElementById('usable').checked; // 사용 가능
+                    const unusableFields = document.getElementById('unusableFields');
+                    if (isUsable) {
+                        unusableFields.style.display = 'none';
+                    } else {
+                        unusableFields.style.display = 'block';
+                    }
+                }
+				// 로딩시 초기화
+                document.addEventListener('DOMContentLoaded', function () {
+                    toggleUnusableFields();
+                });
+				
+                
+                // 수정하기
+                const updatePlace = function () {
+                    const placeNo = document.getElementById('placeNo').value;
+                    const url = '/place/update/' + encodeURIComponent(placeNo);
+                    window.location.href = url;
+                }
+				// 삭제하기
+                const deletePlace = function () {
+                    const placeNo = document.getElementById('placeNo').value;
+                    const csrfToken = document.getElementById('csrf_token').value;
+                    
+                    
+                    Swal.fire({
+                    	title : '삭제하시겠습니까?',
+                    	icon : 'warning',
+                    	showCancelButton : true,
+                    	confirmButtonColor : '#007bff',
+                    	cancelButtonColor : '#6c757d',
+                    	confirmButtonText : '확인',
+                    	cancelButtonText : '취소'
+                    })
+                    .then((result) => {
+                    	if(result.isConfirmed){
+                    		fetch('/place/' + placeNo, {
+                                method: 'delete',
+                                headers: {
+                                    'X-CSRF-TOKEN': csrfToken
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.res_code == '200') {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: '성공',
+                                        text: data.res_msg,
+                                        confirmButtonText: '닫기'
+                                    }).then(() => {
+                                        location.href = '/place';
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: '오류',
+                                        text: data.res_msg,
+                                        confirmButtonText: '닫기'
+                                    });
+                                }
+                            });
+                    	}
+                    	
+                     
+                        
+                            
+                    } )
+                }
+				
+            </script>
+
+            <!-- ============================================================== -->
+            <!-- End Page Content -->
+            <!-- ============================================================== -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Container fluid  -->
+        <!-- ============================================================== -->
+
+        <footer class="footer text-center text-muted">
+            All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
+        </footer>
+        <!-- ============================================================== -->
+        <!-- End footer -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Page wrapper  -->
+    <!-- ============================================================== -->
+
+    <!-- 부트스트랩 JS 및 의존성 추가 -->
+    <!-- ============================================================== -->
+    <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/dist/js/app-style-switcher.js"></script>
+    <script src="/dist/js/feather.min.js"></script>
+    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+    <script src="/dist/js/sidebarmenu.js"></script>
+    <script src="/dist/js/custom.min.js"></script>
+    <script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+</body>
+
 </html>

@@ -13,11 +13,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="timetable")
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 @Getter
 @Builder
 public class TimeTable {
@@ -36,6 +38,4 @@ public class TimeTable {
 	@Column(name="day")
 	private String day;
 	
-	@Column(name="timetable_class")
-	private String timetableClass;
 }
