@@ -26,6 +26,7 @@ public class EmployeeStatusDto {
 	private LocalDate stop_date;
 	private LocalDate excepted_date;
 	private LocalDate return_date;
+	private String changed_item;
 	private String status_type;
 	
 	public EmployeeStatus toEntityWithJoin(Employee employee) {

@@ -3,7 +3,9 @@ package com.dbdevdeep.employee.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dbdevdeep.employee.domain.AuditLog;
+import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.Department;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
@@ -23,6 +27,7 @@ import com.dbdevdeep.employee.domain.MySignDto;
 import com.dbdevdeep.employee.domain.Transfer;
 import com.dbdevdeep.employee.domain.TransferDto;
 import com.dbdevdeep.employee.mybatis.mapper.EmployeeVoMapper;
+import com.dbdevdeep.employee.repository.AuditLogRepository;
 import com.dbdevdeep.employee.repository.DepartmentRepository;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.EmployeeStatusRepository;
@@ -30,6 +35,8 @@ import com.dbdevdeep.employee.repository.JobRepository;
 import com.dbdevdeep.employee.repository.MySignRepository;
 import com.dbdevdeep.employee.repository.TransferRepository;
 import com.dbdevdeep.employee.vo.EmployeeVo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +52,8 @@ public class EmployeeService {
 	private final MySignRepository mySignRepository;
 	private final TransferRepository transferRepository;
 	private final EmployeeStatusRepository employeeStatusRepository;
+	private final ObjectMapper objectMapper;
+	private final AuditLogRepository auditLogRepository;
 
 	// 교육청관리번호 중복 확인
 	public int govIdCheck(String govId) {
@@ -370,7 +379,8 @@ public class EmployeeService {
 	}
 
 	// 직원 정보 수정
-	public Employee employeeInfoEdit(EmployeeDto dto) {
+	@Transactional
+	public Employee employeeInfoEdit(EmployeeDto dto, AuditLogDto alDto) {
 
 		EmployeeDto temp = selectEmployeeOne(dto.getEmp_id());
 
@@ -392,6 +402,12 @@ public class EmployeeService {
 				.chatStatusMsg(temp.getChat_status_msg()).job(job).department(dept).build();
 
 		Employee result = employeeRepository.save(emp);
+
+		if (result != null) {
+			Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
+			AuditLog auditLog = alDto.toEntityWithJoin(result, admin);
+			auditLogRepository.save(auditLog);
+		}
 
 		return result;
 	}
@@ -487,7 +503,7 @@ public class EmployeeService {
 		return esDtoList;
 	}
 
-	// 휴직 등록
+	// 복직 등록
 	public EmployeeStatus employeeReturn(EmployeeStatusDto dto) {
 		EmployeeStatus employeeStatus = null;
 
@@ -498,7 +514,7 @@ public class EmployeeService {
 			dto.setStatus_type("Y");
 
 			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee)); // employee_status 테이블에 전근
-																							// 데이터 저장
+																							// // 데이터 저장
 		}
 
 		return employeeStatus;
@@ -640,5 +656,63 @@ public class EmployeeService {
 		vo.setEmp_id(dto.getEmp_id());
 		vo.setEnt_status("Y");
 		employeeVoMapper.updateEntStatus(vo);
+	}
+
+	// Dto를 Json 형태로 변환
+	public String convertDtoToJson(EmployeeDto employeeDto) {
+		try {
+			return objectMapper.writeValueAsString(employeeDto);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public String compareJson(String oriDataJson, String newDataJson) {
+		try {
+			Map<String, Object> oriMap = objectMapper.readValue(oriDataJson, Map.class);
+			Map<String, Object> newMap = objectMapper.readValue(newDataJson, Map.class);
+
+			Map<String, Object> differences = new HashMap<>();
+
+			for (String key : oriMap.keySet()) {
+				if (!oriMap.get(key).equals(newMap.get(key))) {
+					differences.put(key, newMap.get(key));
+				}
+			}
+
+			for (String key : newMap.keySet()) {
+				if (!oriMap.containsKey(key)) {
+					differences.put(key, newMap.get(key));
+				}
+			}
+
+			return objectMapper.writeValueAsString(differences);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public List<AuditLogDto> selectAuditLogDtoList() {
+		List<AuditLogDto> logDtoList = new ArrayList<>();
+
+		List<AuditLog> logList = auditLogRepository.findAll();
+
+		for (AuditLog log : logList) {
+			AuditLogDto dto = new AuditLogDto().toDto(log);
+
+			logDtoList.add(dto);
+		}
+
+		return logDtoList;
+	}
+	
+	public AuditLogDto selectAuditLogDto(Long audit_no) {
+		AuditLog log = auditLogRepository.selectByAuditNoOne(audit_no);
+		
+		AuditLogDto logDto = new AuditLogDto().toDto(log);
+
+		return logDto;
 	}
 }

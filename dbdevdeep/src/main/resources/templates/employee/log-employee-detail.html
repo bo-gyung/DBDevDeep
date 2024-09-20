@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
+<th:block layout:fragment="content">
+	<style>
+.preview-container {
+	border-radius: 50%;
+	overflow: hidden;
+	width: 100%;
+	aspect-ratio: 1/1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#imagePreview {
+	width: 80%;
+	aspect-ratio: 1/1;
+	object-fit: cover;
+}
+
+.hidden {
+	display: none;
+}
+
+.centered-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+input:read-only {
+	border: none;
+}
+
+.tooltip-container {
+	position: relative;
+	display: inline-block;
+}
+
+.tooltip-trigger {
+	padding: 10px;
+	font-size: 16px;
+}
+
+.tooltip {
+	visibility: hidden;
+	width: 350px;
+	border: 2px solid lightgray;
+	color: black;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 10px;
+	position: absolute;
+	z-index: 1;
+	bottom: 125%; /* 위치 조정 */
+	left: 50%;
+	margin-left: -120px; /* 툴팁의 중앙 정렬을 위한 조정 */
+	opacity: 0;
+	transition: opacity 0.3s;
+	color: black
+}
+
+.tooltip::after {
+	content: "";
+	position: absolute;
+	top: 100%; /* 위치 조정 */
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: lightgray transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip {
+	visibility: visible;
+	opacity: 1;
+}
+</style>
+	<div class="page-wrapper">
+		<div class="container-fluid">
+			<div class="col-sm-12 col-md-12">
+				<div class="card">
+					<div class="card-body" style="padding: 50px 80px;">
+						<div class="row" style="margin-left: 0px !important; margin-right: 0px !important; margin-bottom: 20px;">
+							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+								<div style="font-size: 30px;">직원 정보 변경 기록</div>
+							</div>
+							<div class="col d-flex justify-content-end">
+								<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/log/employee';">목록</button>
+							</div>
+						</div>
+
+						<div class="tab-content">
+							<div class="tab-pane show active" id="employee_info">
+								<div class="form-body">
+									<div class="row">
+										<ul>
+									        <!-- JSON 데이터를 반복하여 출력 -->
+									        <li th:text="${oriData.emp_id}"></li>
+									    </ul>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<footer class="footer text-center text-muted">
+				All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
+			</footer>
+		</div>
+	</div>
+	</body>
+</th:block>
+</html>

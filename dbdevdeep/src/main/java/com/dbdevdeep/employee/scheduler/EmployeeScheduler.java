@@ -40,8 +40,8 @@ public class EmployeeScheduler {
             employeeService.processLeave(dto);
         }
         
-        // 휴직 처리
-        List<EmployeeStatusDto> returnsToProcess = employeeService.findRestsToProcess(now);
+        // 복직 처리
+        List<EmployeeStatusDto> returnsToProcess = employeeService.findReturnsToProcess(now);
         for (EmployeeStatusDto dto : returnsToProcess) {
             employeeService.processReturn(dto);
         }

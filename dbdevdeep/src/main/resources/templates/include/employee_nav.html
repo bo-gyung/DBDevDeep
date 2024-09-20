@@ -74,18 +74,23 @@
 						</a>
 						<ul aria-expanded="false" class="collapse  first-level base-level-line">
 							<li class="sidebar-item">
-								<a href="#" class="sidebar-link">
-									<span class="hide-menu"> 결재 요청함 </span>
+								<a th:href="@{/log/employee}" class="sidebar-link">
+									<span class="hide-menu"> 사원정보 변경 기록 </span>
 								</a>
 							</li>
 							<li class="sidebar-item">
-								<a href="#" class="sidebar-link">
-									<span class="hide-menu"> 결재 대기함 </span>
+								<a th:href="@{/log/transfer}" class="sidebar-link">
+									<span class="hide-menu"> 전근 기록 </span>
 								</a>
 							</li>
 							<li class="sidebar-item">
-								<a href="#" class="sidebar-link">
-									<span class="hide-menu"> 임시 보관함 </span>
+								<a th:href="@{/log/rest}" class="sidebar-link">
+									<span class="hide-menu"> 휴직 기록 </span>
+								</a>
+							</li>
+							<li class="sidebar-item">
+								<a th:href="@{/log/end}" class="sidebar-link">
+									<span class="hide-menu"> 퇴직 기록 </span>
 								</a>
 							</li>
 						</ul>

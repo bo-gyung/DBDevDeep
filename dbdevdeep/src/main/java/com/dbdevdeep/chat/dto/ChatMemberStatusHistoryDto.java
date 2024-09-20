@@ -28,14 +28,14 @@ public class ChatMemberStatusHistoryDto {
 	private LocalDateTime change_time;
 	private String change_by_id;
 	
-	public ChatMemberStatusHistory toEntity(Employee m, ChatRoom cr, Employee cb) {
+	public ChatMemberStatusHistory toEntity(Employee member, ChatRoom cr, Employee changeBy) {
 		return ChatMemberStatusHistory.builder()
 				.historyNo(history_no)
 				.chatRoom(cr)
-				.member(m)
+				.member(member)
 				.memberStatus(member_status)
 				.changeTime(change_time)
-				.changeBy(cb)
+				.changeBy(changeBy)
 				.build();
 	}
 	

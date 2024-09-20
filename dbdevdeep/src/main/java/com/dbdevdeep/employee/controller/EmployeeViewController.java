@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.EmployeeDto;
 import com.dbdevdeep.employee.domain.EmployeeStatusDto;
 import com.dbdevdeep.employee.domain.MySignDto;
@@ -20,6 +21,8 @@ import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.domain.TransferDto;
 import com.dbdevdeep.employee.service.EmployeeService;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +32,7 @@ public class EmployeeViewController {
 	
 	private final EmployeeService employeeService;
 	private final TeacherHistoryService teacherHistoryService;
+	private final ObjectMapper objectMapper;
 
 	@GetMapping("/login")
 	public String loginPage() {
@@ -151,6 +155,35 @@ public class EmployeeViewController {
 		model.addAttribute("empDto", empDto);
 		
 		return "employee/edit_employee";
+	}
+	
+	@GetMapping("/log/employee")
+	public String employeeAuditLog(Model model) {
+		
+		List<AuditLogDto> logDtoList = employeeService.selectAuditLogDtoList();
+		
+		model.addAttribute("logDtoList", logDtoList);
+		
+		return "employee/log-employee";
+	}
+	
+	@GetMapping("/log/employee/{audit_no}")
+	public String employeeAuditLogDetail(Model model, @PathVariable("audit_no") Long audit_no) {
+		
+		AuditLogDto logDto = employeeService.selectAuditLogDto(audit_no);
+		
+        try {
+			EmployeeDto oriData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
+			EmployeeDto newData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
+			
+			model.addAttribute("oriData", oriData);
+			model.addAttribute("newData", newData);
+			
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return "employee/log-employee-detail";
 	}
 
 }
