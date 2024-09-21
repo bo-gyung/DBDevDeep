@@ -152,7 +152,47 @@ public class ApproveApiController {
 	    return resultMap;
 	}
 	
-	// 반려 처리
+	// 보고서 반려 처리 
+		@ResponseBody
+		@PostMapping("/backDocu")
+		public Map<String, String> backDocu(@RequestBody Map<String, Object> requestData) {
+		    Map<String, String> resultMap = new HashMap<>();
+		    resultMap.put("res_code", "404");
+		    resultMap.put("res_msg", "반려 처리 중 오류가 발생했습니다.");
+
+		    try {
+		        // 요청 데이터 파싱
+		        Long approNo = Long.valueOf((String) requestData.get("approNo"));
+		        String empId = (String) requestData.get("empId");
+		        String principalId = (String) requestData.get("principalId");
+		        String deptCode = (String) requestData.get("deptCode");
+		        String jobCode = (String) requestData.get("jobCode");
+		        String reasonBack = (String) requestData.get("reasonBack");
+
+		        // ApproveLineDto 생성
+		        ApproveLineDto approveLineDto = new ApproveLineDto();
+		        approveLineDto.setAppro_no(approNo);
+		        approveLineDto.setEmp_id(principalId);
+		        approveLineDto.setReason_back(reasonBack);
+
+		        // 서비스 호출
+		        int result = approveService.backDocuLine(approveLineDto, empId, deptCode, jobCode);
+
+		        if (result > 0) {
+		            resultMap.put("res_code", "200");
+		            resultMap.put("res_msg", "반려 처리되었습니다.");
+		        } else {
+		            resultMap.put("res_msg", "반려 처리가 실패하였습니다.");
+		        }
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        resultMap.put("res_msg", "처리 중 오류가 발생했습니다.");
+		    }
+
+		    return resultMap;
+		}
+	
+	// 휴가 반려 처리
 	@ResponseBody
 	@PostMapping("/backApprove")
 	public Map<String, String> backApprove(@RequestBody Map<String, Object> requestData) {

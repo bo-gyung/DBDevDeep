@@ -201,7 +201,37 @@ public class ApproveService {
 	    return 1;
 	}
 	
-	// 반려 처리
+	// 보고서 반려 처리
+	@Transactional
+	public int backDocuLine(ApproveLineDto approveLineDto, String empId, String deptCode, String jobCode) {
+		Approve approve = approveRepository.findByApproNo(approveLineDto.getAppro_no());
+	    Employee employee = employeeRepository.findByempId(empId); // 문서 직원
+	    Employee principalEmployee = employeeRepository.findByempId(approveLineDto.getEmp_id()); // 결재를 하는 직원
+	    Department department = departmentRepository.findByDeptCode(deptCode);
+	    Job job = jobRepository.findByJobCode(jobCode);
+	    ApproveLine approveLine = approveLineRepository.findByApproveIdAndEmpId(approveLineDto.getAppro_no(), approveLineDto.getEmp_id());
+
+	    // Approve 엔티티 업데이트
+	    ApproveDto approveDto = new ApproveDto().toDto(approve); // 기존 Approve를 DTO로 변환
+	    approveDto.setAppro_status(2); // 반려 상태로 설정
+	    Approve updatedApprove = approveDto.toEntity(employee, department, job, null); // DTO를 다시 엔티티로 변환
+	    approveRepository.save(updatedApprove); // 업데이트된 엔티티 저장
+
+	    String backSign = "반려";
+	    
+	    // ApproveLine 엔티티 업데이트
+	    ApproveLineDto alDto = new ApproveLineDto().toDto(approveLine);
+	    alDto.setAppro_line_no(approveLine.getApproLineNo());
+	    alDto.setAppro_line_status(3); // 반려 상태
+	    alDto.setReason_back(approveLineDto.getReason_back()); // 반려 사유 설정
+	    alDto.setAppro_line_sign(backSign);
+	    ApproveLine updateAl = alDto.toEntity(approve, principalEmployee);
+	    approveLineRepository.save(updateAl); // 업데이트된 엔티티 저장
+	    
+	    return 1;
+	}
+	
+	// 류가 반려 처리
 	@Transactional
 	public int backApproveLine(ApproveLineDto approveLineDto, String empId, int vacType, LocalDateTime startDate, LocalDateTime endDate, String deptCode, String jobCode) {
 	    // 1. 필수 엔티티 조회
@@ -262,6 +292,17 @@ public class ApproveService {
 		return approDocuListDto;
 	}
 	
+	public List<ApproveDto> completeDocuList(){
+		List<Approve> approveList = approveRepository.findCompleteDocu();
+		List<ApproveDto> approveDtoList = new ArrayList<ApproveDto>();
+		
+		for(Approve a : approveList) {
+			ApproveDto dto = new ApproveDto().toDto(a);
+			approveDtoList.add(dto);
+		}
+		return approveDtoList;
+	}
+	
 	// 내가 결재 요청한 목록 조회
 	public List<ApproveDto> selectApproveList(String empId){
 		List<Approve> approveList = approveRepository.findByTypeAndEmpId(empId);
@@ -288,6 +329,26 @@ public class ApproveService {
 		return approveDtoList;
 	}
 	
+	// 요청 받은 보고서 내역
+	public List<ApproveDto> comeDocuRequestList(String empId){
+		List<Object[]> results = approveRepository.findDocuRequestsForUser(empId);
+		
+		List<ApproveDto> approvalList = new ArrayList<>();
+		for (Object[] result : results) {
+	        // 결과 배열에서 데이터 추출
+	        LocalDateTime approTime = (LocalDateTime) result[2];
+	        
+	        ApproveDto dto = ApproveDto.builder()
+	                .appro_no(((Number) result[0]).longValue())  
+	                .appro_title((String) result[1])             
+	                .appro_time(approTime)                      
+	                .appro_name((String) result[3])             
+	                .appro_status((Integer) result[4])          
+	                .build();
+	        		approvalList.add(dto);
+		}
+		return approvalList;
+	}
 	// 요청 받은 결재 내역
 	// native 를 사용했을 경우 Timestamp 를 변환하는 과정
 	public List<ApproveDto> comeApproveRequestList(String username) {

@@ -38,7 +38,7 @@
 				<div class="col-sm-12 col-md-12">
 					<div class="card">
 						<div class="card-body">
-							<h3 class="card-title">보낸 결재함</h3>
+							<h3 class="card-title">받은 결재함</h3>
 							<hr>
 							
 							
@@ -51,17 +51,14 @@
                         <div class="card">
                             <div class="card-body">
 		                        <div class="row mb-2">
-		                        	
-		                        	<div class="col-12 d-flex justify-content-end">
-			                            <button type="button" class="btn waves-effect waves-light btn-primary m-1" th:onclick="|location.href='@{/docuCreate}'|">작성</button>
-		                        	</div>
 	                            </div>
                                 <div class="table-responsive">
-                                    <table id="approveDocu_config" class="table table-hover table-bordered no-wrap" style="width:100%">
+                                    <table id="approve_config" class="table table-hover table-bordered no-wrap" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>제목</th>
                                                 <th>기안일</th>
+                                                <th>기안자</th>
                                                 <th>진행상황</th>
                                             </tr>
                                         </thead>
@@ -81,8 +78,9 @@
                                         		</td>
                                         		<!-- <td th:text="${approve.appro_time}"></td> -->
                                         		<td th:text="${approve.appro_time}"></td>
+                                        		<td th:text="${approve.appro_name}"></td>
                                         		<td th:switch="${approve.appro_status}">
-												    <span th:case="0">결재대기중</span>
+												    <span th:case="0">대기중</span>
 												    <span th:case="1">완료</span>
 												    <span th:case="2">반려</span>
 												</td>

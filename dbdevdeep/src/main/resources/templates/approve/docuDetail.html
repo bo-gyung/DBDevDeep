@@ -414,14 +414,14 @@
         const jobCode = document.getElementById('jobCode').value;
         const approNo =  document.getElementById('approNoHidden').value;
 
-        if (reason.trim() === "") {
+        if (reasonBack.trim() === "") {
             alert("반려 사유를 입력해주세요.");
             return;
         }
 
         const csrfToken = document.getElementById("csrf_token").value; 
 
-        fetch('/backApprove', {
+        fetch('/backDocu', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

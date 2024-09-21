@@ -50,6 +50,14 @@ public class ApproveViewController {
 		return "approve/approList";
 	}
 	
+	// 완료 보고서 조회
+	@GetMapping("/completeDocu")
+	public String completeDocuList(Model model) {
+		List<ApproveDto> resultList = approveService.completeDocuList();
+		model.addAttribute("resultList",resultList);
+		return "approve/completeDocu"; 
+	}
+	
 	// 보고서 목록 조회
 	@GetMapping("/approveDocu")
 	public String selectApproveDocuList(Model model) {
@@ -62,7 +70,18 @@ public class ApproveViewController {
 		return "approve/approDocuList";
 	}
 	
-	// 결재 받은 목록 조회
+	// 결재 요청 받은 보고서 목록 조회
+	@GetMapping("/comeDocu")
+	public String ComeDocuList(Model model) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		
+		List<ApproveDto> resultList = approveService.comeDocuRequestList(username);
+		model.addAttribute("resultList", resultList);
+		return "approve/comeDocu";
+	}
+	
+	// 결재 요청 받은 휴가 목록 조회
 		@GetMapping("/comeApprove")
 		public String selectComeApproveList(Model model) {
 			

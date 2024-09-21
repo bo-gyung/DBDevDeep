@@ -21,6 +21,10 @@ public interface ApproveRepository extends JpaRepository<Approve, Long> {
 	@Query("SELECT a FROM Approve a WHERE a.approType = 1 AND a.employee.empId = :empId ")
 	List<Approve> findByAnotherTypeAndEmpId(@Param("empId") String empId);
 	
+	// 완료한 보고서 목록 조회
+	@Query("SELECT a FROM Approve a WHERE a.approType = 1 AND a.approStatus = 1 ")
+	List<Approve> findCompleteDocu();
+	
 	// 결재 요청받은 쿼리
 	@Query(value = "SELECT a.appro_no AS approNo, a.appro_title AS approTitle, a.appro_time AS approTime, " +
             "a.appro_name AS approName, a.appro_status AS approStatus, " +
@@ -43,4 +47,12 @@ public interface ApproveRepository extends JpaRepository<Approve, Long> {
 		       "LEFT JOIN a.references r " +       // 엔티티 필드를 사용하여 조인
 		       "WHERE r.employee.empId = :empId")
 		List<Object[]> refRequests(@Param("empId") String empId);
+		
+	// 요청 받은 보고서 목록
+	@Query("SELECT a.approNo, a.approTitle, a.approTime, a.approName, a.approStatus " +
+		       "FROM Approve a " +
+		       "LEFT JOIN a.approveLines al " +
+		       "WHERE al.employee.empId = :empId AND al.approLineStatus IN (1, 2, 3) AND a.approType = 1")
+	List<Object[]> findDocuRequestsForUser(@Param("empId") String empId);
+
 }
