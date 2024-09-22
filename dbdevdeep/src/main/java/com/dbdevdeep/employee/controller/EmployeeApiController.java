@@ -72,7 +72,7 @@ public class EmployeeApiController {
 	public Map<String, String> signup(EmployeeDto dto, @RequestParam("file") MultipartFile file,
 			@RequestParam(name = "trans_school_id", required = false) String trans_school_id,
 			@RequestParam(name = "admin_id") String admin_id) {
-		
+				
 		Map<String, String> resultMap = new HashMap<String, String>();
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "계정 등록 중 오류가 발생하였습니다.");
@@ -82,6 +82,7 @@ public class EmployeeApiController {
 		if (savedFileName != null) {
 			dto.setOri_pic_name(file.getOriginalFilename());
 			dto.setNew_pic_name(savedFileName);
+			
 
 			Employee employee = employeeService.addEmployee(dto);
 
@@ -94,6 +95,7 @@ public class EmployeeApiController {
 				transferDto.setTrans_date(employeeDto.getHire_date());
 				transferDto.setTrans_school_id(trans_school_id);
 				transferDto.setTrans_type("F");
+				transferDto.setAdmin_id(admin_id);
 
 				Transfer transferResult = employeeService.employeeTransfer(transferDto);
 				
@@ -105,8 +107,6 @@ public class EmployeeApiController {
 				alDto.setNew_data(newDataJson);
 				alDto.setAudit_type("I");
 				alDto.setChanged_item("emp_info");
-				
-				System.out.println("api: " + alDto.getAdmin_id());
 				
 				employeeService.insertAuditLog(employee, alDto);
 

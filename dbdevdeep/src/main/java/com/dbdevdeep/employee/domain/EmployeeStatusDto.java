@@ -1,6 +1,7 @@
 package com.dbdevdeep.employee.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +33,8 @@ public class EmployeeStatusDto {
 	private String admin_id;
 	private String admin_name;
 	
+	private LocalDateTime log_time;
+	
 	public EmployeeStatus toEntityWithJoin(Employee employee, Employee admin) {
 		return EmployeeStatus.builder()
 				.employee(employee)
@@ -42,6 +45,7 @@ public class EmployeeStatusDto {
 				.exceptedDate(excepted_date)
 				.returnDate(return_date)
 				.statusType(status_type)
+				.logTime(log_time)
 				.build();
 	}
 	
@@ -53,6 +57,7 @@ public class EmployeeStatusDto {
 				.exceptedDate(excepted_date)
 				.returnDate(return_date)
 				.statusType(status_type)
+				.logTime(log_time)
 				.build();
 	}
 	
@@ -68,6 +73,7 @@ public class EmployeeStatusDto {
 				.excepted_date(es.getExceptedDate())
 				.return_date(es.getReturnDate())
 				.status_type(es.getStatusType())
+				.log_time(es.getLogTime())
 				.build();
 	}
 }

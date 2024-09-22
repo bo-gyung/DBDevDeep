@@ -19,12 +19,7 @@ label[for="remember-id"] {
 }
 
 #eye_icon_login {
-	display: flex;
-	position: absolute;
-	z-index: 999;
-	left: 320px;
-	bottom: 27px;
-	cursor: pointer;
+	display: flex; position: absolute; z-index: 999; left: 320px; bottom: 27px; cursor: pointer;
 }
 
 a {
@@ -42,8 +37,7 @@ a {
 		</div>
 		<div class="auth-wrapper d-flex no-block justify-content-center align-items-center position-relative" id="div_box">
 			<div class="auth-box row">
-				<div class="col-lg-6 col-md-5 modal-bg-img" 
-					style="background-image: url(assets/images/MulMang_C_Logo.png); background-repeat: no-repeat; background-size: contain;"></div>
+				<div class="col-lg-6 col-md-5 modal-bg-img" style="background-image: url(assets/images/MulMang_C_Logo.png); background-repeat: no-repeat; background-size: contain;"></div>
 				<div class="col-lg-6 col-md-7 bg-white">
 					<div class="p-3">
 						<h2 class="mt-3 text-center">로그인</h2>
@@ -52,32 +46,25 @@ a {
 							<div class="row">
 								<div class="col-lg-12">
 									<div class="form-group">
-										<label class="text-dark" for="uname">아이디</label> 
-										<input class="form-control" id="uname" type="text" name="emp_id" placeholder="아이디를 입력하세요" required>
+										<label class="text-dark" for="uname">아이디</label> <input class="form-control" id="uname" type="text" name="emp_id" placeholder="아이디를 입력하세요" required>
 									</div>
 								</div>
 								<div class="col-lg-12">
 									<div class="form-group">
-										<label class="text-dark" for="pwd">비밀번호</label> 
-										<i class="fa fa-eye-slash text-left" id="eye_icon_login"></i> 
-										<input class="form-control" id="pwd" name="emp_pw" type="password" 
-											onfocus="labelUp(this)" onblur="labelDown(this)" placeholder="비밀번호를 입력하세요" required>
+										<label class="text-dark" for="pwd">비밀번호</label> <i class="fa fa-eye-slash text-left" id="eye_icon_login"></i> <input class="form-control" id="pwd" name="emp_pw" type="password" onfocus="labelUp(this)" onblur="labelDown(this)" placeholder="비밀번호를 입력하세요" required>
 									</div>
 								</div>
 								<div class="col-lg-5">
-									<input type="checkbox" id="remember-id" name="remember-id"> 
-									<label for="remember-id">아이디 저장</label>
+									<input type="checkbox" id="remember-id" name="remember-id"> <label for="remember-id">아이디 저장</label>
 								</div>
-								
+
 								<div class="col-lg-7 text-right">
 									<a data-toggle="modal" data-target="#info-header-modal">아이디/비밀번호 찾기</a>
 								</div>
-								
+
 								<div class="col-lg-5">
-									<input type="checkbox" id="remember-pw" name="remember-pw"> 
-									<label for="remember-pw">비밀번호 저장</label>
+									<input type="checkbox" id="remember-pw" name="remember-pw"> <label for="remember-pw">비밀번호 저장</label>
 								</div>
-								
 								<div class="col-lg-12 text-center">
 									<button type="submit" class="btn btn-block btn-dark">로그인</button>
 								</div>
@@ -107,39 +94,55 @@ a {
 	</div>
 
 	<script>
-		document.addEventListener("DOMContentLoaded", function() {
-			// localStorage에 저장
-			const savedUsername = localStorage.getItem('savedUsername');
-			if (savedUsername) { // localStorage에 값이 저장되어 있는 경우
-				document.getElementById('uname').value = savedUsername;
-				document.getElementById('remember-id').checked = true;
-			}
-			
-			const savedPwd = localStorage.getItem('savedPwd');
-			if (savedPwd) {
-				document.getElementById('pwd').value = savedPwd;
-				document.getElementById('remember-pw').checked = true;
-			}
+		document
+				.addEventListener(
+						"DOMContentLoaded",
+						function() {
+							// localStorage에 저장
+							const savedUsername = localStorage
+									.getItem('savedUsername');
+							if (savedUsername) { // localStorage에 값이 저장되어 있는 경우
+								document.getElementById('uname').value = savedUsername;
+								document.getElementById('remember-id').checked = true;
+							}
 
-			document.querySelector('form[name="login_form"]').addEventListener('submit', function() {
-				const username = document.getElementById('uname').value;
-				const rememberId = document.getElementById('remember-id').checked;
-				const pwd = document.getElementById('pwd').value;
-				const rememberPw = document.getElementById('remember-pw').checked;
-				if (rememberId) {
-					localStorage.setItem('savedUsername',
-							username); // remember-id 체크 시 localStorage에 저장
-				} else {
-					localStorage.removeItem('savedUsername'); // rememeber-id 체크 해제 시 localStorage 값 삭제
-				}
-				
-				if(rememberPw) {
-					localStorage.setItem('savedPwd', pwd);
-				} else {
-					localStorage.removeItem('savedPwd');
-				}
-			});
-		});
+							const savedPwd = localStorage.getItem('savedPwd');
+							if (savedPwd) {
+								document.getElementById('pwd').value = savedPwd;
+								document.getElementById('remember-pw').checked = true;
+							}
+
+							document
+									.querySelector('form[name="login_form"]')
+									.addEventListener(
+											'submit',
+											function() {
+												const username = document
+														.getElementById('uname').value;
+												const rememberId = document
+														.getElementById('remember-id').checked;
+												const pwd = document
+														.getElementById('pwd').value;
+												const rememberPw = document
+														.getElementById('remember-pw').checked;
+												if (rememberId) {
+													localStorage.setItem(
+															'savedUsername',
+															username); // remember-id 체크 시 localStorage에 저장
+												} else {
+													localStorage
+															.removeItem('savedUsername'); // rememeber-id 체크 해제 시 localStorage 값 삭제
+												}
+
+												if (rememberPw) {
+													localStorage.setItem(
+															'savedPwd', pwd);
+												} else {
+													localStorage
+															.removeItem('savedPwd');
+												}
+											});
+						});
 	</script>
 
 	<script th:src="@{/assets/libs/jquery/dist/jquery.min.js}"></script>

@@ -2,16 +2,27 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
-		th {
+		th, td {
 			text-align: center;
 		}
+		
 		.needCenter td {
 			text-align: center;
 		}
+		
 		.bg-lilghtblue {
 			background-color: #001e6946;
 		}
-	</style>
+		
+		.centered-container {
+			display: flex; justify-content: center; align-items: center;
+		}
+		
+		input:read-only {
+			border: none;
+		}
+		
+</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
@@ -43,7 +54,7 @@
 												<th>행정직원성명</th>
 												<th>기록유형</th>
 												<th>기록시간</th>
-												
+
 											</tr>
 											<tr>
 												<td th:text="${logDto.emp_id}"></td>
@@ -55,7 +66,7 @@
 											</tr>
 										</tbody>
 									</table>
-									<table class="table">
+									<table class="table" th:if="${logDto.audit_type == 'U'}">
 										<colgroup>
 											<col style="width: 10%;">
 											<col style="width: 40%;">
@@ -155,8 +166,60 @@
 												<td th:text="${newData.emp_internal_phone}"></td>
 											</tr>
 										</th:block>
-
 									</table>
+
+									<!-- 등록기록 -->
+									<table th:if="${logDto.audit_type == 'I'}" class="table">
+										<tbody>
+											<tr class="bg-lilghtblue text-dark">
+												<th colspan="4" class="font-weight-bolder">등록기록</th>
+											</tr>
+											<tr>
+												<th rowspan="8">
+													<img id="imagePreview" th:src="@{'/UploadImg/employee/' + ${newData.new_pic_name}}" width="100px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1/1">
+												</th>
+												<th>직원성명</th>
+												<th>직원번호</th>
+												<th>교육청관리번호</th>
+											</tr>
+											<tr>
+												<td th:text="${newData.emp_name}"></td>
+												<td th:text="${newData.emp_id}"></td>
+												<td th:text="${'N - ' + newData.gov_id}"></td>
+											</tr>
+											<tr>
+												<th>주민등록번호</th>
+												<th>부서</th>
+												<th>직급</th>
+											</tr>
+											<tr>
+												<td th:text="${#strings.substring(newData.emp_rrn, 0, 8) + '******'}"></td>
+												<td th:text="${newData.dept_name}"></td>
+												<td th:text="${newData.job_name}"></td>
+											</tr>
+											<tr>
+												<th>비밀번호</th>
+												<th>내선전화번호</th>
+												<th>전화번호</th>
+											</tr>
+											<tr>
+												<td>****</td>
+												<td th:text="${newData.emp_internal_phone}"></td>
+												<td th:text="${newData.emp_phone}"></td>
+											</tr>
+											<tr>
+												<th>우편번호</th>
+												<th>집주소</th>
+												<th>입사일</th>
+											</tr>
+											<tr>
+												<td th:text="${newData.emp_post_code}"></td>
+												<td th:text="${newData.emp_addr + ' ' + newData.emp_detail_addr}"></td>
+												<td th:text="${newData.hire_date}"></td>
+											</tr>
+										</tbody>
+									</table>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -167,7 +230,6 @@
 				All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
 			</footer>
 		</div>
-	</div>
 	</body>
 </th:block>
 </html>

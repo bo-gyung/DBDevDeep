@@ -1,6 +1,7 @@
 package com.dbdevdeep.employee.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,8 +27,10 @@ public class TransferDto {
 	private String trans_school_id; // 이전/이후 학교 아이디
 	private String trans_type; // 전입: F, 전출: T
 	
-	private String admin_id;
-	private String admin_name;
+	private String admin_id; // 기록자
+	private String admin_name; //
+	
+	private LocalDateTime log_time; // 기록일시
 	
 	public Transfer toEntity() {
 		return Transfer.builder()
@@ -35,6 +38,7 @@ public class TransferDto {
 				.transDate(trans_date)
 				.transSchoolId(trans_school_id)
 				.transType(trans_type)
+				.logTime(log_time)
 				.build();
 	}
 	
@@ -46,6 +50,7 @@ public class TransferDto {
 				.transSchoolId(trans_school_id)
 				.transType(trans_type)
 				.admin(admin)
+				.logTime(log_time)
 				.build();
 	}
 	
@@ -59,6 +64,7 @@ public class TransferDto {
 				.trans_type(t.getTransType())
 				.admin_id(t.getAdmin().getEmpId())
 				.admin_name(t.getAdmin().getEmpName())
+				.log_time(t.getLogTime())
 				.build();
 	}
 
