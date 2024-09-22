@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dbdevdeep.FileService;
 import com.dbdevdeep.employee.domain.TeacherHistory;
 import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
@@ -28,24 +29,23 @@ import com.dbdevdeep.student.domain.ParentDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
 import com.dbdevdeep.student.domain.SubjectDetailsDto;
-import com.dbdevdeep.student.service.StudentFileService;
 import com.dbdevdeep.student.service.StudentService;
 
 @Controller
 public class StudentApiController {
 	
 	// 의존성 주입
-	private final StudentFileService studentFileService;
 	private final StudentService studentService;
 	private final TeacherHistoryService teacherHistoryService;
 	private final TeacherHistoryRepository teacherHistoryRepository;
+	private final FileService fileService;
 	
 	@Autowired
-	public StudentApiController(StudentService studentService, StudentFileService studentFileService, TeacherHistoryService teacherHistoryService,TeacherHistoryRepository teacherHistoryRepository) {
+	public StudentApiController(StudentService studentService, TeacherHistoryService teacherHistoryService,TeacherHistoryRepository teacherHistoryRepository, FileService fileService) {
 		this.studentService = studentService;
-		this.studentFileService = studentFileService;
 		this.teacherHistoryService = teacherHistoryService;
 		this.teacherHistoryRepository = teacherHistoryRepository;
+		this.fileService = fileService;
 	}
 	
 	// 학생 등록
@@ -64,7 +64,7 @@ public class StudentApiController {
 	            
 	            // 파일 이름이 비어있거나 null인지 확인
 	            if (originalFilename != null && !originalFilename.isEmpty()) {
-	                String savedFileName = studentFileService.upload(file);
+	                String savedFileName = fileService.studentPicUpload(file);
 	                
 	                if(savedFileName != null) {
 	                    dto.setStudent_ori_pic(originalFilename);
@@ -100,12 +100,12 @@ public class StudentApiController {
 		resultMap.put("res_msg", "학생 정보 수정 중 오류가 발생했습니다.");
 		
 		if(file != null && "".equals(file.getOriginalFilename()) == false) {
-			String savedFileName = studentFileService.upload(file);
+			String savedFileName = fileService.studentPicUpload(file);
 			if(savedFileName != null) {
 				dto.setStudent_ori_pic(file.getOriginalFilename());
 				dto.setStudent_new_pic(savedFileName);
 				
-				if(studentFileService.delete(dto.getStudent_no()) > 0){
+				if(fileService.studentPicDelete(dto.getStudent_no()) > 0){
 					resultMap.put("res_msg", "학생 정보 중 파일이 정상적으로 삭제되었습니다");
 				}
 				
@@ -129,16 +129,47 @@ public class StudentApiController {
 		Map<String,String> map = new HashMap<String,String>();
 		map.put("res_code", "404");
 		map.put("res_msg", "학생 정보 삭제 중 오류가 발생했습니다");
-		
-		if(studentFileService.delete(student_no) > 0) {
-			map.put("res_msg","학생 정보 중 파일이 정상적으로 삭제되었습니다.");
-			if(studentService.deleteStudent(student_no)>0) {				
-				map.put("res_code", "200");
-				map.put("res_msg","정상적으로 학생 정보가 삭제되었습니다.");
-			}
+	    try {
+	        // 파일이 존재하면 삭제하고, 그렇지 않으면 건너뛰기
+	        int fileDeleteResult = fileService.studentPicDelete(student_no); 
+
+	        if (fileDeleteResult > 0) {
+	            map.put("res_msg", "학생 정보 중 파일이 정상적으로 삭제되었습니다.");
+	        } else {
+	            map.put("res_msg", "학생 파일이 존재하지 않거나 삭제할 파일이 없습니다.");
+	        }
+
+	        // 파일 여부와 관계없이 학생 정보 삭제
+	        if (studentService.deleteStudent(student_no) > 0) {  
+	            map.put("res_code", "200");
+	            map.put("res_msg", "정상적으로 학생 정보가 삭제되었습니다.");
+	        } else {
+	            map.put("res_msg", "학생 정보 삭제 중 오류가 발생했습니다.");
+	        }
+
+	    } catch (Exception e) {
+	        // 에러 발생 시
+	        map.put("res_msg", "삭제 중 오류가 발생했습니다: " + e.getMessage());
+	        e.printStackTrace();
+	    }
+		return map;
+	}
+	
+	// 학생 부모 정보 삭제 처리
+	@ResponseBody
+	@DeleteMapping("/student/parent/{parent_no}")
+	public Map<String,String> deleteParent(@PathVariable("parent_no") Long parent_no){
+		Map<String,String> map = new HashMap<String,String>();
+		map.put("res_code", "404");
+		map.put("res_msg", "부모 정보 삭제 중 오류가 발생했습니다");
+		if(studentService.deleteParent(parent_no) > 0) {
+			map.put("res_code", "200");
+			map.put("res_msg","정상적으로 부모 정보가 삭제되었습니다.");
 		}
 		return map;
 	}
+	
+	
 	
 	// 반배정시 학년도에 따른 학년 데이터 가져오기
 	@GetMapping("/student/student_class/selectByYear/{t_year}")
@@ -190,8 +221,7 @@ public class StudentApiController {
 			map.put("res_msg","정상적으로 학급 이력이 삭제되었습니다.");
 		}			
 		return map;
-	}
-		
+	}	
 	
 	 // 부모 정보 등록
 	 @ResponseBody
@@ -236,7 +266,8 @@ public class StudentApiController {
 		 }
 		return resultMap;
 	 }
-	// 학생 삭제 처리
+	 
+	// 과목(과목 정보, 시간표 정보, 교육과정 정보) 전부 삭제 처리
 		@ResponseBody
 		@DeleteMapping("/subject/{subject_no}")
 		public Map<String,String> deleteSubject(@PathVariable("subject_no") Long subject_no){

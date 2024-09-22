@@ -139,11 +139,23 @@ public class StudentService {
 		return result;
 	}
 	
-	// 학생정보 삭제
+	// 학생 정보 삭제
 	public int deleteStudent(Long student_no) {
 		int result = 0;
 		try {
 			studentRepository.deleteById(student_no);
+			result = 1;
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+	// 부모 정보 삭제
+	public int deleteParent(Long parent_no) {
+		int result = 0;
+		try {
+			parentRepository.deleteById(parent_no);
 			result = 1;
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -186,6 +198,7 @@ public class StudentService {
 		}
 		return result;
 	}
+
 	
 	// 학생의 부모 리스트 조회
 	public List<ParentDto> selectStudentParentList(Long student_no) {

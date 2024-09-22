@@ -14,6 +14,7 @@ import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
 import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.ParentDto;
+import com.dbdevdeep.student.domain.ScoreDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
 import com.dbdevdeep.student.domain.SubjectDto;
@@ -58,7 +59,9 @@ public class StudentViewController {
 			@PathVariable("student_no") Long student_no) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
 		List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
+		List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
 		model.addAttribute("dto",dto);
+		model.addAttribute("pdto",resultList);
 		model.addAttribute("cdto",studentClassResultList);
 		return "student/student_detail";
 	}
@@ -131,5 +134,15 @@ public class StudentViewController {
 		@GetMapping("/subject/create")
 		public String createSubjectPage() {
 			return "student/subject_create";
+		}
+		
+	// 성적 등록 페이지로 이동
+		@GetMapping("/student/score")
+		public String listScorePage(Model model, SubjectDto sdto, StudentClassDto cdto) {
+			List<StudentClassDto> resultList = studentService.selectStudentList(cdto);
+			List<SubjectDto> subjectList = studentService.mySubjectList();
+			model.addAttribute("subjectList",subjectList);
+			model.addAttribute("resultList",resultList);
+			return "student/score_list";
 		}
 }
