@@ -16,13 +16,15 @@
 		}	
 		
 		h6 {
-    margin-left: 50px; /* 문자와 숫자 간의 간격을 줄이기 위해 오른쪽 마진 조정 */
+    margin-left: 50px;
 		}
 
 		h2 {
-    margin-right: 50px; /* 문자와 숫자 간의 간격을 줄이기 위해 왼쪽 마진 조정 */
+    margin-right: 20px;
 		}
-		
+		.dt-center {
+    text-align: center;
+		}
 	</style>
 
 </head>
@@ -65,11 +67,12 @@
                                 <div class="table-responsive">
                                     <table id="attendance_config" class="table table-hover table-bordered no-wrap" style="width:100%">
                                         <thead>
-                                        <div><span th:text="${result.vacation_hour}"></span></div>
-                                        
-										    <div class="col-md-4">
+                                       	<div style="display: flex; justify-content: space-evenly; align-items: center;">
+										    <div class="col-md-3">
 										        <input type="month" id="searchYandM" name="searchYandM" class="form-control" value="">
 										    </div>
+                                        	<div th:utext="${#authentication.principal.dto.emp_name} +'님의 잔여 연차는 <strong style=&quot;color:black;&quot;>' + ${result.vacation_hour} + '</strong> 시간 입니다.'"></div>
+										</div>
 										    <br>
 										    <div class="card-group">
 											    <div class="card border-right">
@@ -78,6 +81,7 @@
 											                <div style="display: flex; justify-content: space-evenly; align-items: center; width: 100%;">
 											                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">출근</h6>
 											                    <h2 id="attendanceCount" class="text-dark mb-1 font-weight-medium"></h2>
+											                    <h5 class="text-dark mb-1 font-weight-medium">일</h5>
 											                </div>
 											            </div>
 											        </div>
@@ -88,6 +92,7 @@
 											                <div style="display: flex; justify-content: space-evenly; align-items: center; width: 100%;">
 											                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">결근</h6>
 											                    <h2 id="absenceCount" class="text-dark mb-1 font-weight-medium"></h2>
+											                    <h5 class="text-dark mb-1 font-weight-medium">일</h5>
 											                </div>
 											            </div>
 											        </div>
@@ -98,6 +103,7 @@
 											                <div style="display: flex; justify-content: space-evenly; align-items: center; width: 100%;">
 											                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">지각</h6>
 											                    <h2 id="lateCount" class="text-dark mb-1 font-weight-medium"></h2>
+											                    <h5 class="text-dark mb-1 font-weight-medium">일</h5>
 											                </div>
 											            </div>
 											        </div>
@@ -108,6 +114,7 @@
 											                <div style="display: flex; justify-content: space-evenly; align-items: center; width: 100%;">
 											                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">초과근무</h6>
 											                    <h2 class="text-dark mb-1 font-weight-medium"></h2>
+											                    <h5 class="text-dark mb-1 font-weight-medium">시간</h5>
 											                </div>
 											            </div>
 											        </div>
@@ -201,76 +208,5 @@
 	<script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
     
-    <script>
-		const empId = document.getElementById("enterUser").value;
-		$(document).ready(function(){
-			let today = new Date();
-			let year = today.getFullYear();
-			let month = ('0' + (today.getMonth()+1)).slice(-2);
-			$('#searchYandM').val(`${year}-${month}`);
-			
-			loadAttendanceData(year, month);
-			
-			$('#searchYandM').on('change', function(){
-				let changeDate = $(this).val();
-				let changeYear = changeDate.split('-')[0];
-				let changeMonth = changeDate.split('-')[1];
-				
-				loadAttendanceData(changeYear , changeMonth);
-			});
-		});
-		
-		function loadAttendanceData(year, month){
-			$('#attendanceCount').text(0);
-		    $('#absenceCount').text(0);
-		    $('#lateCount').text(0);
-			
-			$.ajax({
-				url: '/changeAttendance',
-				method: 'GET',
-				data: {empId: empId, year: year, month: month},
-				success: function(response){
-					let attendanceData = $('#attendanceData');
-					attendanceData.empty();
-					
-					let attendanceCount = 0;
-					let absenceCount = 0; 
-					let lateCount = 0;
-					
-					if (response.length === 0) {
-						attendanceData.append('<tr><td colspan="4">출퇴근 기록 정보가 없습니다.</td></tr>');
-		            } else {
-		                $.each(response, function(index, item) {
-		                	attendanceData.append(`
-		                        <tr>
-		                            <td>${item.attend_date}</td>
-		                            <td>${item.check_in_time}</td>
-		                            <td>${item.check_out_time}</td>
-		                            <td>${item.work_status}</td>
-		                        </tr>
-		                    `);
-		                	if(item.work_status === 1 || item.work_status === 2){
-		                		attendanceCount++;
-		                	}
-		                	if(item.work_status === 3){
-		                		absenceCount++;
-		                	}
-		                	if (item.late_status == "Y") {
-		                        lateCount++;
-		                    }
-		                });
-
-		                $('#attendanceCount').text(attendanceCount);
-		                $('#absenceCount').text(absenceCount);
-		                $('#lateCount').text(lateCount);
-		            }
-		        },
-		        error: function() {
-		            alert('데이터를 불러오는 중 오류가 발생했습니다.');
-		        }
-		    });
-		}
-	</script>
-    	
 </th:block>
 </html>
