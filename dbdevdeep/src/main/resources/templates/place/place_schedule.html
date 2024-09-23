@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+     layout:decorate="~{include/place_layout}">
+<head>
+	<!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
+    <!-- FullCalendar JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <!-- Google API Client Library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <!-- Custom CSS -->
+    <link href="/dist/css/style.min.css" rel="stylesheet">
+    <style>
+    
+    	/* 일요일과 토요일 스타일 */
+	    .fc-day-sun .fc-daygrid-day-number,
+	    .fc-day-sun .fc-col-header-cell-cushion {
+	        color: red !important; /* 일요일 빨간색 */
+	    }
+
+	    .fc-day-sat .fc-daygrid-day-number,
+	    .fc-day-sat .fc-col-header-cell-cushion {
+	        color: blue !important; /* 토요일 남색 */
+	    }
+    
+        /* 스타일 관련 내용은 그대로 유지 */
+        .public-btn {
+			width:72px;
+			font-size:16px;
+			height:45px;
+		}
+
+        .fc-prev-button,
+		.fc-next-button,
+		.fc-today-button{
+		    color: white !important;
+		    background-color: #5f76e8 !important;
+		    border: 1px solid white !important;
+		    padding: 10px 20px !important;
+		    font-size: 16px !important;
+		    line-height: 1.5 !important;
+		    border-radius: 2px !important;
+		    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out !important;
+		}
+		.fc-prev-button:hover,
+		.fc-next-button:hover,
+		.fc-today-button:hover,
+		.fc-button-active:hover {
+			background-color: #3e59e3 !important;
+		}
+    </style>
+</head>
+
+<th:block layout:fragment="content">
+
+<body>
+    <div class="page-wrapper">
+        <div class="container-fluid" style="margin-bottom:-10px;">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body" style="padding:50px 80px">
+                            <!-- 타이틀, 등록버튼 -->
+                            <div class="row" style="margin-left:0px !important; margin-right:0px !important; border-bottom: 1px solid gray; padding-bottom: 20px; display:flex; align-items: center;">
+                                <div class="col d-flex justify-content-start align-items-center" style="padding:0px; max-width:140px;">
+                                    <div style="font-size:30px;">캘린더</div>
+                                </div>
+                                <div class="col d-flex justify-content-end align-items-center" style="padding:0px;">
+                                    <button type="button" class="btn btn-outline-secondary public-btn" id="register-button">등록</button>
+                                </div>
+                            </div>
+
+                            <!-- 월간/주간/일간 버튼을 추가할 곳 -->
+                            <div class="row" style="margin-top: 20px; text-align: right;">
+                                <div class="col">
+                                    <div class="btn-group" role="group" aria-label="View Options">
+                                        <button type="button" class="btn btn-outline-primary" id="month-view-button">월간</button>
+                                        <button type="button" class="btn btn-outline-primary" id="week-view-button">주간</button>
+                                        <button type="button" class="btn btn-outline-primary" id="day-view-button">일간</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 캘린더 콘텐츠 -->
+                            <div class="row mt-4" style="margin-left:0px !important; margin-right:0px !important;">
+                                <div class="col" style="padding-right: 0;">
+                                    <div id="calendar"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- 등록 모달 HTML -->
+<div class="modal fade" id="scheduleCreateModal" tabindex="-1" role="dialog" aria-labelledby="scheduleCreateModalLabel">
+    <div class="modal-dialog modal-dialog-centered custom-modal-size" style="max-width:54%; width: 54%; height:72%;">
+        <div class="modal-content" style="height:72%;">
+            <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
+                <div class="modal-title" id="scheduleCreateModalLabel">
+                    <i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
+                    일정 등록
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
+                </button>
+            </div>
+            <form id="scheduleCreateFrm">
+                <div class="modal-body" style="padding:0px;">
+                    <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                    <table style="border-bottom:none; border-top:none;" class="table bordered">
+                        <tbody id="scheduleCreateContent">
+                            <!-- 날짜 선택 -->
+                            <tr>
+                                <td class="align-center" style="width: 20%;">
+                                    <span class="required-indicator"></span> <!-- 필수 입력 표시 -->
+                                    <label>기간</label>
+                                </td>
+                                <td style="width: 80%;">
+                                    <div class="form-inline">
+                                        <input type="date" class="form-control" id="create_start_date" name="start_date" placeholder="시작일" style="max-width:170px; width:170px;">
+                                        <input type="time" class="form-control" id="create_start_time" name="start_time" placeholder="시작시간" style="margin-left:5px !important; max-width:150px; width:150px;">
+                                        <span class="ml-3 mr-3"> ~ </span>
+                                        <input type="date" class="form-control" id="create_end_date" name="end_date" placeholder="종료일" style="max-width:170px; width:170px;">
+                                        <input type="time" class="form-control" id="create_end_time" name="end_time" placeholder="종료시간" style="margin-left:5px !important; max-width:150px; width:150px;">
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- 제목 입력 -->
+                            <tr>
+                                <td class="align-center" style="width: 20%;">
+                                    <span class="required-indicator"></span> <!-- 필수 입력 표시 -->
+                                    <label>제목</label>
+                                </td>
+                                <td style="width: 80%;">
+                                    <input type="text" class="form-control" name="schedule_title" id="create_schedule_title" placeholder="제목을 입력해주세요." style="width:100%;">
+                                </td>
+                            </tr>
+
+                            <!-- 장소 선택 -->
+                            <tr>
+                                <td class="align-center" style="width: 20%;">
+                                    <label>장소</label>
+                                </td>
+                                <td style="width: 80%;">
+                                    <select class="form-control" id="create_place_no" name="place_no">
+                                        <option value="1">회의실 1</option>
+                                        <option value="2">회의실 2</option>
+                                        <!-- 여기에 DB에서 가져온 장소 데이터를 추가합니다 -->
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <!-- 기자재 선택 -->
+                            <tr>
+                                <td class="align-center" style="width: 20%;">
+                                    <label>기자재</label>
+                                </td>
+                                <td style="width: 80%;">
+                                    <div class="form-inline">
+                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="1"> 빔프로젝터</label>
+                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="2"> 마이크</label>
+                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="3"> 스피커</label>
+                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="4"> 화이트보드</label>
+                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="5"> 노트북</label>
+                                        <!-- 여기에 필요한 기자재 데이터를 추가합니다 -->
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- 신청인 선택 -->
+                            <tr>
+                                <td class="align-center" style="width: 20%;">
+                                    <label>신청인</label>
+                                </td>
+                                <td style="width: 80%;">
+                                    <select class="form-control" id="create_emp_id" name="emp_id">
+                                        <option value="1">홍길동</option>
+                                        <option value="2">김철수</option>
+                                        <!-- 여기에 DB에서 가져온 신청인 데이터를 추가합니다 -->
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <!-- 내용 입력 -->
+                            <tr>
+                                <td class="align-center" style="width: 20%;">
+                                    <label>내용</label>
+                                </td>
+                                <td style="width: 80%;">
+                                    <textarea class="form-control" rows="3" name="schedule_content" id="create_schedule_content" placeholder="내용을 입력해주세요."></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer" style="margin-top:-16px;">
+                    <button type="button" class="btn waves-effect waves-light btn-outline-secondary public-btn" data-dismiss="modal">취소</button>
+                    <button type="submit" class="btn waves-effect waves-light btn-primary public-btn">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+        <!-- 상세정보 모달 HTML -->
+        <div class="modal fade" id="scheduleDetailModal" tabindex="-1" role="dialog" aria-labelledby="scheduleDetailModalLabel">
+            <div class="modal-dialog modal-dialog-centered custom-modal-size" style="max-width:54%; width: 54%; height:72%;">
+                <div class="modal-content" style="height:72%;" id="scheduleDetailContent"></div>
+            </div>
+        </div>
+
+        <!-- 수정 모달 HTML -->
+        <div class="modal fade" id="scheduleEditModal" tabindex="-1" role="dialog" aria-labelledby="scheduleEditModalLabel">
+            <div class="modal-dialog modal-dialog-centered custom-modal-size" style="max-width:54%; width: 54%; height:72%;">
+                <div class="modal-content" style="height:72%;">
+                    <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
+                        <div class="modal-title" id="scheduleEditModalLabel">일정 수정</div>
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    </div>
+                    <form id="scheduleEditFrm">
+                        <div class="modal-body" style="padding:0px;">
+                            <table style="border-bottom:none; border-top:none;" class="table bordered">
+                                <tbody id="scheduleEditContent"></tbody>
+                            </table>
+                        </div>
+                        <div class="modal-footer" style="margin-top:-16px;">
+                            <button type="button" class="btn waves-effect waves-light btn-outline-secondary public-btn" data-dismiss="modal">취소</button>
+                            <button type="button" class="btn waves-effect waves-light btn-primary public-btn" id="editSubmitButton">등록</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+
+$(document).ready(function () {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',  // 기본 월간 뷰
+        headerToolbar: {
+            left: 'prev,next today',  // 왼쪽에 이전, 다음, 오늘 버튼
+            center: 'title',          // 가운데 날짜 타이틀
+            right: ''                 // FullCalendar 내장 버튼 비활성화 (HTML로 관리)
+        },
+        locale: 'ko',
+        buttonText: {  // 버튼 텍스트를 한국어로 설정
+            today: '오늘',
+            month: '월간',
+            week: '주간',
+            day: '일간',
+            prev: '이전',
+            next: '다음'
+        },
+        dayHeaderClassNames: function(arg) {
+            // 요일 헤더에 클래스 추가
+            if (arg.date.getDay() === 0) {
+                return ['fc-day-sun'];
+            }
+            if (arg.date.getDay() === 6) {
+                return ['fc-day-sat'];
+            }
+        },
+        dayCellClassNames: function(arg) {
+            // 날짜 셀에 클래스 추가
+            if (arg.date.getDay() === 0) {
+                return ['fc-day-sun'];
+            }
+            if (arg.date.getDay() === 6) {
+                return ['fc-day-sat'];
+            }
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            $.ajax({
+                url: '/totalSchedule',  // 데이터 조회 URL
+                type: 'GET',
+                success: function(data) {
+                    successCallback(data);
+                },
+                error: function() {
+                    failureCallback();
+                }
+            });
+        }
+    });
+
+    calendar.render();
+
+    //모달 열기
+    $('#register-button').on('click', function() {
+        $('#scheduleCreateModal').modal('show');
+    });
+    
+    
+ 
+        
+
+    // HTML에서 클릭 이벤트 추가
+    $('#month-view-button').on('click', function() {
+        calendar.changeView('dayGridMonth');
+    });
+
+    $('#week-view-button').on('click', function() {
+        calendar.changeView('timeGridWeek');
+    });
+
+    $('#day-view-button').on('click', function() {
+        calendar.changeView('timeGridDay');
+    });
+});
+</script>
+
+
+
+
+	<!-- JavaScript 파일 로딩 -->
+	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/dist/js/app-style-switcher.js"></script>
+    <script src="/dist/js/feather.min.js"></script>
+    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+    <script src="/dist/js/sidebarmenu.js"></script>
+    <script src="/dist/js/custom.min.js"></script>
+</th:block>
+</body>
+</html>

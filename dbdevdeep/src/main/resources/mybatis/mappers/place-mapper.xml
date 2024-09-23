@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+"-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dbdevdeep.place.mybatis.mapper.PlaceScheduleVoMapper">
+
+<!-- 전체 일정 조회 -->
+     <!-- 전체 일정 조회 -->
+    <select id="getTotalScheduleList"
+            resultType="com.dbdevdeep.place.vo.PlaceItemScheduleVo">
+           SELECT
+            s.place_schedule_no AS place_schedule_no,
+            s.place_no AS place_no,
+            p.place_name AS place_name,
+            s.item_no AS item_no,
+            i.item_name AS item_name,
+            i.item_quantity AS item_quantity,
+            i.item_serial_no AS item_serial_no,
+            s.teacher_no AS teacher_no,
+            th.grade AS grade,
+            th.grade_class AS gradeClass,
+            e.emp_id AS emp_id,
+            e.emp_name AS emp_name,
+            s.place_schedule_title AS place_schedule_title,
+            s.place_schedule_content AS place_schedule_content,
+            s.start_date AS start_date,
+            s.end_date AS end_date,
+            s.management_no AS management_no,
+            s.start_time AS start_time,
+            s.end_time AS end_time,
+            s.reg_date AS reg_date,
+            s.mod_date AS mod_date
+        FROM
+            place_item_schedule s
+        JOIN
+            place p ON s.place_no = p.place_no
+        JOIN
+            item i ON s.item_no = i.item_no
+        JOIN
+            employee e ON s.emp_id = e.emp_id
+        JOIN
+            teacher_history th ON s.teacher_no = th.teacher_no
+
+
+	
+</select>
+</mapper>
