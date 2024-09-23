@@ -1030,3 +1030,23 @@ $('#custom_config').DataTable({
 	// 필요 옵션 입력
 	// 없으면 기본 설정된 값으로 생성됩니다.
 });
+
+/******************************************
+ * 			Attendance Table
+ * ****************************************/
+
+// 근태 테이블 
+$('#attendance_config').DataTable({
+    "responsive": true,
+    "columnDefs": [
+        { "width": "10%", "targets": 0 },
+        { "width": "40%", "targets": 1 },
+        { "width": "40%", "targets": 2 },
+        { "width": "10%", "targets": 3 }
+    ],
+    "info": false,
+    "sDom": '<"row view-filter"<"col-sm-12"<"clearfix">>>t<"row view-pager"<"col-sm-12"<ip>>>',
+    "paging": false,
+    "lengthChange": false,
+    "ordering": false  // 전체 정렬 비활성화
+});
