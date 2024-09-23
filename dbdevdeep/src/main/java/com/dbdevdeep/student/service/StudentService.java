@@ -325,4 +325,15 @@ public class StudentService {
 			}
 			return result;
 		}
+		
+		// 모든 과목의 모든 교육과정 조회
+		public List<CurriculumDto> selectCurriAll(){
+			List<Curriculum> curriculum = curriculumRepository.findAll();
+			List<CurriculumDto> curriculumdto = new ArrayList<CurriculumDto>();
+			for(Curriculum c : curriculum) {
+				CurriculumDto dto = new CurriculumDto().toDto(c);
+				curriculumdto.add(dto);
+			}
+			return curriculumdto;
+		}
 }

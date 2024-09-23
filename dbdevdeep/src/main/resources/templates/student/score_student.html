@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+     layout:decorate="~{include/student_layout}">
+<th:block layout:fragment="content">
+<style>
+    /* 테이블 스타일 */
+    table {
+        width: 100%;
+        border-collapse: collapse; /* 테두리가 겹치지 않도록 설정 */
+    }
+
+    th, td {
+        border: 2px solid black; /* 테두리 두께 및 색상 */
+        padding: 8px;
+        text-align: center;
+    }
+
+</style>
+<body>
+		<div class="page-wrapper">
+			<div class="page-breadcrumb">
+				<div class="row">
+				<div class="card">
+					<div id="content" class="card-body">
+			            <form id="student_create_form" method="post">
+			            <h3>학생 성적 관리</h3>
+			            
+			            <!-- 각 과목별로 테이블을 생성 -->
+			            <div th:each="subject : ${subjectList}">
+						    <!-- 첫 번째 과목이 아닐 때 <br> 추가 -->
+						    <br>
+						    <h3 th:text="${subject.subject_name}"></h3> <!-- 과목명 표시 -->
+						    
+						    <table>
+							    <thead>
+							        <tr>
+							            <th rowspan="2">과목</th>
+							            <!-- 해당 과목에 해당하는 교육과정 내용만 필터링 -->
+							            <th th:each="curri : ${curriList}" 
+							                th:if="${curri.subject.subjectNo == subject.subject_no}" 
+							                th:text="${curri.curriculum_content}" colspan="3"></th> <!-- 교육과정 내용 -->
+							        </tr>
+							        <tr>
+							            <!-- 해당 과목의 교육과정 정보만 필터링해서 반복 -->
+							            <th:block th:each="curri : ${curriList}" 
+							                      th:if="${curri.subject.subjectNo == subject.subject_no}">
+							                <th>반영비율(%)</th>
+							                <th>과목만점</th>
+							                <th>점수</th>
+							            </th:block>
+							        </tr>
+							    </thead>
+							    <tbody>
+							        <!-- 과목 별로 하나의 row를 생성 -->
+							        <tr>
+							            <td th:text="${subject.subject_name}"></td>
+							            <!-- 해당 과목의 curriculum만 필터링해서 반복 -->
+							            <th:block th:each="curri : ${curriList}" 
+							                      th:if="${curri.subject.subjectNo == subject.subject_no}">
+							                <td th:text="${curri.curriculum_ratio}"></td> <!-- 반영비율 -->
+							                <td th:text="${curri.curriculum_max_score}"></td> <!-- 과목만점 -->
+							                <input type="hidden" name="curriculum_no" th:value="${curri.curriculum_no}" />
+                    						<input type="hidden" name="student_no" th:value="${resultList.student_no}" />
+							                <td><input type="text" name="score" /></td>
+							            </th:block>
+							        </tr>
+							    </tbody>
+							</table>
+
+						</div>
+	            		</form>
+					</div>
+            	</div>
+				</div>
+			<div class="container-fluid">
+			</div>
+		</div>
+	</div>
+	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="/dist/js/app-style-switcher.js"></script>
+	<script src="/dist/js/feather.min.js"></script>
+	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+	<script src="/dist/js/sidebarmenu.js"></script>
+	<script src="/dist/js/custom.min.js"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+	const form=document.getElementById("score_register_form");
+	form.addEventListener('submit',(e)=>{
+		e.preventDefault();
+		// 유효성 검사 성공 가정
+		let vali_check = true;
+
+		
+	    const phone1 = document.getElementById('sp1').value;
+	    const phone2 = document.getElementById('sp2').value;
+	    const phone3 = document.getElementById('sp3').value;
+	    const fullPhoneNumber = `${phone1}-${phone2}-${phone3}`;
+	    document.getElementById('student_phone').value = fullPhoneNumber;
+	    
+		if(vali_check == false){
+			alert('유효성 검사 중 문제가 발생하였습니다.');
+		}else{
+			const payload = new FormData(form);
+			const csrfToken = document.getElementById('csrf_token').value;
+			fetch('/student',{
+				method:'post',
+				headers : {
+					'X-CSRF-TOKEN':csrfToken
+				},
+				body:payload
+			})
+			.then(response => response.json())
+			.then(data=>{
+				if(data.res_code == '200'){
+					Swal.fire({
+						icon : 'success',
+						title : '성공',
+						text : data.res_msg
+					}).then((result)=>{
+						location.href = "/student/score";
+					});
+				}else{
+					Swal.fire({
+						icon : 'error',
+						title : '실패',
+						text : data.res_msg
+					});
+				}
+				
+			})
+		}
+		
+	});
+	</script>
+</body>
+
+</html>

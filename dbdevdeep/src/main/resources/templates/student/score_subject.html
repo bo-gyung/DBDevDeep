@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+     layout:decorate="~{include/student_layout}">
+<th:block layout:fragment="content">
+<style>
+    /* 테이블 스타일 */
+    table {
+        width: 100%;
+        border-collapse: collapse; /* 테두리가 겹치지 않도록 설정 */
+    }
+
+    th, td {
+        border: 2px solid black; /* 테두리 두께 및 색상 */
+        padding: 8px;
+        text-align: center;
+    }
+
+</style>
+<body>
+		<div class="page-wrapper">
+			<div class="page-breadcrumb">
+				<div class="row">
+					<div id="content" class="card">
+					<div class="card-body">
+			            <form id="score_register_form" method="post">
+			            <h3>과목 성적 등록</h3>
+			            	<table>
+						        <thead>
+								    <!-- 교육과정 정보가 없을 때 -->
+								    <th:block th:if="${#lists.isEmpty(cdto)}">
+								        <tr>
+								            <th rowspan="2">번호</th>
+								            <th rowspan="2">이름</th>
+								            <td colspan="3">교육과정 정보가 없습니다.</td>
+								        </tr>
+								    </th:block>
+								
+								    <!-- 교육과정 정보가 있을 때 -->
+								    <th:block th:if="${!#lists.isEmpty(cdto)}">
+								        <tr>
+								            <th rowspan="2">번호</th>
+								            <th rowspan="2">이름</th>
+								            <!-- curriculumList의 content 반복 -->
+								            <th th:each="curriculum : ${cdto}" th:text="${curriculum.curriculum_content}" colspan="3"></th>
+								        </tr>
+								        <tr>
+								            <!-- 반영비율, 과목만점, 점수 반복해서 생성 -->
+								            <th:block th:each="curriculum : ${cdto}">
+								                <th>반영비율(%)</th>
+								                <th>과목만점</th>
+								                <th>점수</th>
+								            </th:block>
+								        </tr>
+								    </th:block>
+								</thead>
+						        <tbody>
+								   <tr th:each="studentClass, stat : ${resultList}">
+							            <td th:text="${studentClass.student_id}"></td> <!-- 번호 -->
+							            <td th:text="${studentClass.student.studentName}"></td> <!-- 이름 -->
+									<th:block th:each="curriculum : ${cdto}">
+								        <td th:text="${curriculum.curriculum_ratio}+'%'"></td>
+								        <td th:text="${curriculum.curriculum_max_score}+'점'"></td>
+								        <td>
+								        	<input type="hidden" th:value="${curriculum.curriculum_no}" name="curriculum_no">
+						                    <input type="hidden" th:value="${studentClass.student_id}" name="student_no">
+						                    <input type="text" style="width: 100px;" name="score">
+								        </td>
+								    </th:block>
+					
+								</tbody>
+						    </table>
+						    <input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
+				            <input type="submit" value="등록">
+	            		</form>
+					</div>
+            	</div>
+				</div>
+			<div class="container-fluid">
+			</div>
+		</div>
+	</div>
+	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="/dist/js/app-style-switcher.js"></script>
+	<script src="/dist/js/feather.min.js"></script>
+	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+	<script src="/dist/js/sidebarmenu.js"></script>
+	<script src="/dist/js/custom.min.js"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	
+	<script>
+	const form=document.getElementById("score_register_form");
+	form.addEventListener('submit',(e)=>{
+		e.preventDefault();
+		// 유효성 검사 성공 가정
+		let vali_check = true;
+	    
+		if(vali_check == false){
+			alert('유효성 검사 중 문제가 발생하였습니다.');
+		}else{
+			const payload = new FormData(form);
+			const csrfToken = document.getElementById('csrf_token').value;
+			fetch('/score/subject',{
+				method:'post',
+				headers : {
+					'X-CSRF-TOKEN':csrfToken
+				},
+				body:payload
+			})
+			.then(response => response.json())
+			.then(data=>{
+				if(data.res_code == '200'){
+					Swal.fire({
+						icon : 'success',
+						title : '성공',
+						text : data.res_msg
+					}).then((result)=>{
+						location.href = "/student/score";
+					});
+				}else{
+					Swal.fire({
+						icon : 'error',
+						title : '실패',
+						text : data.res_msg
+					});
+				}
+				
+			})
+		}
+		
+	});
+	</script>
+</body>
+
+</html>
