@@ -2,9 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
-		.table-responsive {
-			overflow: hidden;
-		}
 		/* datatable css */
 		div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			margin: 2px 0; white-space: nowrap; justify-content: center; margin-top: 8px;
@@ -84,51 +81,38 @@
 						<div class="card">
 							<div class="card-body" style="padding: 50px;">
 								<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
-									<div style="font-size: 30px;">직원정보 변경 기록</div>
+									<div style="font-size: 30px;">직원 퇴직 기록</div>
 								</div>
 								<div class="table-responsive">
-									<div class=" mt-4">
-										<div class="row">
-											<div class="col-8"></div>
-											<div class="col-4">
-												<table class="filter">
-													<tr>
-														<th><strong>작업유형</strong></th>
-														<td><label><input type="checkbox" class="filter-status" value="전체"> 전체</label></td>
-														<td><label><input type="checkbox" class="filter-status" value="등록"> 등록</label></td>
-														<td><label><input type="checkbox" class="filter-status" value="수정"> 수정</label></td>
-													</tr>
-												</table>
-											</div>
-										</div>
-									</div>
-									<table id="log-employee" class="table table-hover table-bordered no-wrap" style="width: 100%">
+									<table id="log-leave" class="table table-bordered no-wrap" style="width: 100%">
 										<thead>
 											<tr>
 												<th scope="col">번호</th>
 												<th scope="col">직원번호</th>
 												<!-- <th scope="col">직원성명</th> -->
-												<th scope="col">작업유형</th>
+												<th scope="col">퇴직일</th>
+												<th scope="col">퇴직사유</th>
 												<th scope="col">행정직원번호</th>
 												<!-- <th scope="col">행정직원성명</th> -->
-												<th scope="col">작업시간</th>
+												<th scope="col">기록일시</th>
 											</tr>
 										</thead>
 										<tbody>
 											<th:block th:if="${#lists.isEmpty(logDtoList)}">
 												<tr>
-													<td colspan="5">기록이 없습니다.</td>
+													<td colspan="6">기록이 없습니다.</td>
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(logDtoList)}">
-												<tr th:each="log, logStat : ${logDtoList}" th:data-audit_no="${log.audit_no}" class="log-employee" style="cursor: pointer;">
+												<tr th:each="log, logStat : ${logDtoList}">
 													<td scope="row" th:text="${logStat.count}"></td>
 													<td th:text="${log.emp_id}"></td>
 													<!-- <td th:text="${log.emp_name}"></td> -->
-													<td th:text="${log.audit_type == 'U' ? '수정' : '등록'}"></td>
+													<td th:text="${log.stop_date}"></td>
+													<td th:text="${log.stop_reason}"></td>
 													<td th:text="${log.admin_id}"></td>
 													<!-- <td th:text="${log.admin_name}"></td> -->
-													<td th:text="${#temporals.format(log.reg_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
+													<td th:text="${#temporals.format(log.log_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
 												</tr>
 											</th:block>
 										</tbody>
@@ -143,44 +127,6 @@
 				All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
 			</footer>
 
-			<script>
-				$(document).ready(function() {
-					var table = $('#log-employee').DataTable();
-
-					// 필터링 함수
-					function filterTable() {
-						var statusFilters = [];
-						var jobFilters = [];
-
-						$('.filter-status:checked').each(
-								function() {
-									statusFilters.push($(this)
-											.val());
-								});
-
-						table.column(5).search(
-								statusFilters.join('|'), true,
-								false).draw();
-					}
-
-					// 체크박스 변경 이벤트
-					$('.filter-status').on('change', function() {
-						if ($(this).hasClass('filter-status')&& $(this).val() === '전체') {
-							if ($(this).is(':checked')) {
-								$('.filter-status').not('.filter-status[value="전체"]').prop('checked', true);
-							} else {
-								$('.filter-status').not('.filter-status[value="전체"]').prop('checked', false);
-							}
-						}					
-						
-						// 필터 적용
-						filterTable();
-					});
-
-					// 초기 필터링
-					filterTable();
-				});
-			</script>
 
 		</div>
 	</body>

@@ -203,7 +203,7 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false">
-                <img th:src="@{'/UploadImg/employee/' + ${#authentication.principal.dto.new_pic_name}}" alt="user" class="rounded-circle" style="margin-top:-3px; width: 40px; height: 40px; object-fit: cover;">
+                <img th:src="@{'/UploadImg/employee/' + ${#authentication.principal.dto.new_pic_name}}" alt="user" class="rounded-circle" style="margin-top:-3px; width: 40px; height: 40px; object-fit: cover;"  onerror="this.onerror=null; this.src='/assets/images/users/user-profile.png';">
 
                 <span class="ml-2 d-none d-lg-inline-block">
                 	<span>안녕하세요, </span>
@@ -232,7 +232,8 @@
         </div>
       </nav>
     </header>
-    
+    <!-- 웹소켓 연결 설정 js -->
+    <script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
 <script>
 	// 서버에서 주기적으로 알림을 가져오는 함수
 	function fetchAlerts() {
@@ -388,6 +389,7 @@
 	    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
 	}
 </script>
+
 
     </th:block>
 </html>
