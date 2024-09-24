@@ -104,7 +104,7 @@ $('#notice_config').DataTable({
 });
 
 /****************************************
- * 2. holiday_config : 각자의 테이블 옵션 설정하기 *
+ * 2. holiday_config
  ****************************************/
 $('#holiday_config').DataTable({
 	// 화면 크기에 따라 컬럼 width 자동 조절
@@ -1022,6 +1022,8 @@ $('.dataTables_paginate').after(searchBoxContainer);
 $('div.dataTables_filter').hide();
 }
 });
+
+
 /******************************************
  * 			Custom Table
  * ****************************************/

@@ -25,16 +25,6 @@ public class ScheduleAlertController {
         // 현재 로그인한 사용자 정보 가져오기
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         
-        if (authentication == null) {
-            System.out.println("Authentication is null");
-            return null;  // 오류 처리
-        }
-        
-        if (!(authentication.getPrincipal() instanceof User)) {
-            System.out.println("Principal is not an instance of User");
-            return null;  // 오류 처리
-        }
-        
         User user = (User) authentication.getPrincipal();
         String empId = user.getUsername(); // empId 가져오기
     	

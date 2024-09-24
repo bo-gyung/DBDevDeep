@@ -27,6 +27,7 @@ public class FolderDto {
 	private LocalDateTime mod_time;
 	
 	private String emp_id;
+	private String emp_name;
 	private Long parent_folder_no;
 	
 	public Folder toEntity(EmployeeRepository employeeRepository, FolderRepository folderRepository) {
@@ -54,6 +55,7 @@ public class FolderDto {
 				.reg_time(folder.getRegTime())
 				.mod_time(folder.getModTime())
 				.emp_id(folder.getEmployee().getEmpId())
+				.emp_name(folder.getEmployee().getEmpName())
 				.parent_folder_no(folder.getParentFolder().getFolderNo())
 				.build();
 	}
