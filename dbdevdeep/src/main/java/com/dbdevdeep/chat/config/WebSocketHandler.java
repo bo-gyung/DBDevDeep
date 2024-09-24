@@ -8,15 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import com.dbdevdeep.alert.config.AlertMessageHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Component
@@ -25,11 +23,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
 
     private final ChatMessageHandler chatMessageHandler;
+    private final AlertMessageHandler alertMessageHandler;
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet(); // 세션 관리
 
     @Autowired
-    public WebSocketHandler(ChatMessageHandler chatMessageHandler) {
+    public WebSocketHandler(ChatMessageHandler chatMessageHandler, 
+    		AlertMessageHandler alertMessageHandler) {
         this.chatMessageHandler = chatMessageHandler;
+        this.alertMessageHandler = alertMessageHandler;
     }
 
     // 클라이언트가 연결되었을 때 동작
@@ -73,9 +74,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
             case "CHAT":
                 chatMessageHandler.handleChatMessage(session, messageMap);
                 break;
-//          case "ALERT":
-//              alertMessageHandler.handleAlertMessage(session, messageMap);
-//              break;
+//            case "ALERT":
+//            	alertMessageHandler.handleAlertMessage(session, messageMap);
+//            	break;
             default:
                 logger.warn("Unhandled message type: " + type);
                 break;
