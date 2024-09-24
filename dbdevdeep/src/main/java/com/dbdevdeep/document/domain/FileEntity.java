@@ -1,15 +1,12 @@
 package com.dbdevdeep.document.domain;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.dbdevdeep.employee.domain.Employee;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,7 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -27,24 +23,30 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "folder")
+@Table(name = "file")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
 @Builder
-public class Folder {
+public class FileEntity {
 	
 	@Id
-	@Column(name = "folder_no")
+	@Column(name = "file_no")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long folderNo;
+	private Long fileNo;
 	
-	@Column(name = "folder_type")
-	private int folderType;
+	@Column(name = "ori_file_name")
+	private String oriFileName;
 	
-	@Column(name = "folder_name")
-	private String folderName;
+	@Column(name = "new_file_name")
+	private String newFileName;
+	
+	@Column(name = "file_extension")
+	private String fileExtension;
+	
+	@Column(name = "file_size")
+	private Long fileSize;
 	
 	@Column(name = "reg_time")
     @CreationTimestamp
@@ -58,12 +60,7 @@ public class Folder {
     @JoinColumn(name = "emp_id")
     private Employee employee;
     
-    // 부모 폴더를 참조하는 필드
     @ManyToOne
-    @JoinColumn(name = "parent_folder_no")
-    private Folder parentFolder;
-    
-    // 자식 폴더들을 참조하는 필드 (양방향 관계를 위해 추가 가능)
-    @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL)
-    private List<Folder> childFolders = new ArrayList<>();
+    @JoinColumn(name = "folder_no")
+    private Folder folder;
 }
