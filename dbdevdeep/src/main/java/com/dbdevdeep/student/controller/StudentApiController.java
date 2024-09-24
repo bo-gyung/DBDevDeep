@@ -313,14 +313,10 @@ public class StudentApiController {
 		            if (dto.getScore().trim().isEmpty()) {
 		                // 빈 값이 들어오면 성적을 삭제할 리스트에 추가
 		                deleteScores.add(dto);
-		                System.out.println("기존 성적이 삭제됩니다: student_no=" + dto.getStudent_no() 
-		                                   + ", curriculum_no=" + dto.getCurriculum_no());
 		            } else {
 		                // 기존 성적이 존재하는 경우 점수 업데이트
 		                existingScore.setScore(dto.getScore());  // 새로운 점수로 업데이트
 		                updatedScores.add(dto);
-		                System.out.println("기존 성적이 업데이트됩니다: student_no=" + dto.getStudent_no() 
-		                                   + ", curriculum_no=" + dto.getCurriculum_no());
 		            }
 		        } else {
 		            if (!dto.getScore().trim().isEmpty()) {

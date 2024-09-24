@@ -155,12 +155,25 @@ public class StudentViewController {
 			SubjectDto subjectDto = studentService.selectSubjectOne(subject_no);
 			List<CurriculumDto> curriDto = studentService.selectCurriOne(subject_no);
 			List<ScoreDto> scoreList = studentService.selectScoreBySubject(subject_no);
-			
-			
-			
-			model.addAttribute("sdto",subjectDto);
+			Map<Long, Map<Long, String>> scoreMap = new HashMap<>();
+
+			for (ScoreDto score : scoreList) {
+			    Long studentNo = score.getStudent_no(); // 각 ScoreDto에서 student_no를 가져옴
+			    Long curriculumNo = score.getCurriculum_no(); // 각 ScoreDto에서 curriculum_no를 가져옴
+			    String scoreValue = score.getScore(); // 각 ScoreDto에서 점수를 가져옴
+			    
+			    // studentNo에 해당하는 Map이 없으면 새로 생성
+			    scoreMap.putIfAbsent(studentNo, new HashMap<>());
+			    
+			    // studentNo에 해당하는 curriculumNo와 score를 저장
+			    scoreMap.get(studentNo).put(curriculumNo, scoreValue);
+			}
+
+			// 모델에 scoreMap을 추가
+			model.addAttribute("scoreList", scoreMap);
+			model.addAttribute("subject",subjectDto);
 			model.addAttribute("resultList",resultList);
-			model.addAttribute("cdto",curriDto);
+			model.addAttribute("curriList",curriDto);
 			return "student/score_subject";
 		}
 		
@@ -176,8 +189,7 @@ public class StudentViewController {
 		    for (ScoreDto score : scoreList) {
 		        scoreMap.put(score.getCurriculum_no(), score.getScore());
 		    }
-		    System.out.println("1"+scoreList);
-			System.out.println("2"+scoreMap);
+
 			model.addAttribute("scoreList",scoreMap);
 			model.addAttribute("subjectList",subjectList);
 			model.addAttribute("resultList",studentDto);

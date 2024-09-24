@@ -23,12 +23,13 @@
 				<div class="row">
 					<div id="content" class="card">
 					<div class="card-body">
-			            <form id="score_register_form" method="post">
+			            <form id="score_register_subject_form" method="post">
 			            <h3>과목 성적 등록</h3>
+			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 			            	<table>
 						        <thead>
 								    <!-- 교육과정 정보가 없을 때 -->
-								    <th:block th:if="${#lists.isEmpty(cdto)}">
+								    <th:block th:if="${#lists.isEmpty(curriList)}">
 								        <tr>
 								            <th rowspan="2">번호</th>
 								            <th rowspan="2">이름</th>
@@ -37,16 +38,16 @@
 								    </th:block>
 								
 								    <!-- 교육과정 정보가 있을 때 -->
-								    <th:block th:if="${!#lists.isEmpty(cdto)}">
+								    <th:block th:if="${!#lists.isEmpty(curriList)}">
 								        <tr>
 								            <th rowspan="2">번호</th>
 								            <th rowspan="2">이름</th>
 								            <!-- curriculumList의 content 반복 -->
-								            <th th:each="curriculum : ${cdto}" th:text="${curriculum.curriculum_content}" colspan="3"></th>
+								            <th th:each="curri : ${curriList}" th:text="${curri.curriculum_content}" colspan="3"></th>
 								        </tr>
 								        <tr>
 								            <!-- 반영비율, 과목만점, 점수 반복해서 생성 -->
-								            <th:block th:each="curriculum : ${cdto}">
+								            <th:block th:each="curri : ${curriList}">
 								                <th>반영비율(%)</th>
 								                <th>과목만점</th>
 								                <th>점수</th>
@@ -58,13 +59,16 @@
 								   <tr th:each="studentClass, stat : ${resultList}">
 							            <td th:text="${studentClass.student_id}"></td> <!-- 번호 -->
 							            <td th:text="${studentClass.student.studentName}"></td> <!-- 이름 -->
-									<th:block th:each="curriculum : ${cdto}">
-								        <td th:text="${curriculum.curriculum_ratio}+'%'"></td>
-								        <td th:text="${curriculum.curriculum_max_score}+'점'"></td>
+									<th:block th:each="curri : ${curriList}">
+								        <td th:text="${curri.curriculum_ratio}+'%'"></td>
+								        <td th:text="${curri.curriculum_max_score}+'점'"></td>
 								        <td>
-								        	<input type="hidden" th:value="${curriculum.curriculum_no}" name="curriculum_no">
+								        	<input type="hidden" th:value="${curri.curriculum_no}" name="curriculum_no">
 						                    <input type="hidden" th:value="${studentClass.student_no}" name="student_no">
-						                    <input type="text" style="width: 100px;" name="score" id="score">
+						                    <input type="text" style="width: 100px;" name="score" id="score" 
+                   th:value="${(scoreList != null && scoreList.get(studentClass.student_no) != null) ? 
+                     (scoreList.get(studentClass.student_no).get(curri.getCurriculum_no) != null ? 
+                     scoreList.get(studentClass.student_no).get(curri.getCurriculum_no) : '') : ''}">
 								        </td>
 								    </th:block>
 					
@@ -92,23 +96,43 @@
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	
 	<script>
-	const form=document.getElementById("score_register_form");
+	const form=document.getElementById("score_register_subject_form");
 	form.addEventListener('submit',(e)=>{
 		e.preventDefault();
-		// 유효성 검사 성공 가정
-		let vali_check = true;
-	    
-		if(vali_check == false){
-			alert('유효성 검사 중 문제가 발생하였습니다.');
-		}else{
-			const payload = new FormData(form);
-			const csrfToken = document.getElementById('csrf_token').value;
+		// 새로운 FormData 생성
+	    const formData = new FormData(form);
+	 	// scoreDtoList를 담을 배열 생성
+	    let scoreDtoList = [];
+	 	
+	 	// FormData에서 'score' 필드만 유효한 값만 필터링하여 처리
+	    const scoreInputs = document.querySelectorAll('input[name="score"]');
+	 	
+	    scoreInputs.forEach(input => {
+	        const scoreValue = input.value.trim();
+	        
+	        // curriculum_no와 student_no를 직접 가져옴
+	        const curriculumNo = input.previousElementSibling.previousElementSibling.value;
+	        const studentNo = input.previousElementSibling.value;
+
+
+	        // scoreDto 객체 생성 후 배열에 추가 (빈 값도 포함)
+	        let scoreDto = {
+	            curriculum_no: curriculumNo,
+	            student_no: studentNo,
+	            score: scoreValue  // 빈 값도 전송
+	        };
+	        scoreDtoList.push(scoreDto);
+	    });
+	 	
+		const csrfToken = document.getElementById('csrf_token').value;
+		
 			fetch('/score',{
-				method:'post',
+				method:'POST',
 				headers : {
-					'X-CSRF-TOKEN':csrfToken
+					'X-CSRF-TOKEN':csrfToken,
+					'Content-Type': 'application/json'
 				},
-				body:payload
+				body:JSON.stringify(scoreDtoList) 
 			})
 			.then(response => response.json())
 			.then(data=>{
@@ -127,10 +151,7 @@
 						text : data.res_msg
 					});
 				}
-				
-			})
-		}
-		
+			});
 	});
 	</script>
 </body>

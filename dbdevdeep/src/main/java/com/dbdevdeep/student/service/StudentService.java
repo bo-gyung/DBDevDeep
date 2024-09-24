@@ -379,7 +379,6 @@ public class StudentService {
 		public List<ScoreDto> selectScoreByStudent(Long student_no){
 			List<Score> score = scoreRepository.findByStudent_StudentNo(student_no);
 			List<ScoreDto> scoreDto = new ArrayList<ScoreDto>();
-			System.out.println("서비스 score"+score);
 			for(Score s : score) {
 				ScoreDto dto = new ScoreDto().toDto(s);
 				scoreDto.add(dto);
@@ -389,9 +388,8 @@ public class StudentService {
 		
 		// 과목 기준 성적 데이터 불러오기
 		public List<ScoreDto> selectScoreBySubject(Long subject_no){
-			List<Score> score = scoreRepository.findBySubject_SubjectNo(subject_no);
+			List<Score> score = scoreRepository.findByCurriculum_Subject_SubjectNo(subject_no);
 			List<ScoreDto> scoreDto = new ArrayList<ScoreDto>();
-			System.out.println("서비스 score"+score);
 			for(Score s : score) {
 				ScoreDto dto = new ScoreDto().toDto(s);
 				scoreDto.add(dto);
