@@ -41,8 +41,8 @@
 	            margin: 5px; /* 여백 설정 */
 		}
 		
-		/* 다섯 번째 td 요소에 커서 포인터 추가 */
-		#holiday_config tbody tr td:nth-child(5) {
+		/* 세번째 td 요소에 커서 포인터 추가 */
+		#holiday_config tbody tr td:nth-child(3) {
 		    cursor: pointer;
 		}
 		
@@ -137,7 +137,6 @@
 	    	border-right: 1px solid #e8eef3;
 	    }	
 		
-		/* 첫 번째 td를 수평 및 수직 가운데 정렬 */
 		.bordered tbody tr td.align-center {
 		    text-align: center; /* 수평 가운데 정렬 */
 		    vertical-align: middle;
@@ -374,13 +373,27 @@
 	
 	        // 상세보기 모달에 데이터 표시 및 수정 모달 열기
 	        function showDetailModal(data) {
+	            // 날짜 포맷팅 함수
+	            function formatDateTime(mod_time) {
+	                const date = new Date(mod_time); // mod_time을 Date 객체로 변환
+	                
+	                const year = date.getFullYear();  // 연도 가져오기
+	                const month = (date.getMonth() + 1).toString().padStart(2, '0'); // 월 가져오기 (1월은 0이므로 +1)
+	                const day = date.getDate().toString().padStart(2, '0'); // 일 가져오기
+	                const hours = date.getHours().toString().padStart(2, '0'); // 시간 가져오기
+	                const minutes = date.getMinutes().toString().padStart(2, '0'); // 분 가져오기
+	                
+	                return `${year}.${month}.${day} ${hours}:${minutes}`; // 원하는 형식으로 리턴
+	            }
+	        	
 	            let dateDisplay = data.is_period === 'N' ? data.start_date : `${data.start_date} ~ ${data.end_date}`;
 	            let repeatDisplay = data.repeat_type === 'NONE' ? '반복 없음' : '매년 반복';
+	            let formattedModTime = formatDateTime(data.mod_time); // mod_time 포맷팅
 	
 	            $('#holidayDetailContent').html(`
 	                <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
 	                    <div class="modal-title" id="holidayDetailModalLabel">휴일 정보</div>
-	                    <div style="font-size:16px;">등록일 : ${data.mod_time}</div>
+	                    <div style="font-size:16px;">등록일 : ${formattedModTime}</div>
 	                </div>
 	                <div class="modal-body" style="padding:0px;">
 	                    <table style="border-bottom:none; border-top:none;" class="table bordered">
@@ -402,11 +415,16 @@
 	                </div>
 	                <div class="modal-footer" style="margin-top:-15px;">
 	                    <button type="button" class="btn btn-primary" id="updateButton">수정</button>
-	                    <button type="button" class="btn waves-effect waves-light btn-outline-secondary" data-dismiss="modal">닫기</button>
+	                    <button type="button" class="btn waves-effect waves-light btn-outline-secondary" id="closeModalButton">닫기</button>
 	                </div>
 	            `);
 	
 	            $('#holidayDetailModal').modal('show');
+	            
+	            // 닫기 버튼 클릭 시 모달 닫기
+	            $('#closeModalButton').on('click', function () {
+	                $('#holidayDetailModal').modal('hide');
+	            });
 	
 	            // 수정 버튼 클릭 시 수정 모달 열기
 	            $('#holidayDetailModal .btn-primary').on('click', function () {
@@ -438,6 +456,15 @@
 	            $('#holidayDetailModal').modal('hide');
 	            $('#holidayEditModal').modal('show');  // 수정 모달 열기
 	        }
+	        
+	        $('#holidayEditModal .close').on('click', function() {
+	            $('#holidayEditModal').modal('hide');
+	        });
+
+	        // 취소 버튼 클릭 시 모달 닫기
+	        $('#holidayEditModal .btn-outline-secondary').on('click', function() {
+	            $('#holidayEditModal').modal('hide');
+	        });
 	
 	        // 공통 함수: API 응답 처리
 	        function handleResponse(data, action) {
@@ -723,7 +750,7 @@
 				            </div>
 				            <div class="modal-footer" style="margin-top:-15px;">
 				                <button type="button" class="btn waves-effect waves-light btn-outline-secondary" data-dismiss="modal">취소</button>
-	             									<button type="submit" class="btn waves-effect waves-light btn-primary" id="saveButton">등록</button>
+	             				<button type="submit" class="btn waves-effect waves-light btn-primary" id="saveButton">등록</button>
 				            </div>
 		        	</form>
 		        </div>
