@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import com.dbdevdeep.student.domain.Curriculum;
 import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.Parent;
 import com.dbdevdeep.student.domain.ParentDto;
+import com.dbdevdeep.student.domain.Score;
+import com.dbdevdeep.student.domain.ScoreDto;
 import com.dbdevdeep.student.domain.Student;
 import com.dbdevdeep.student.domain.StudentClass;
 import com.dbdevdeep.student.domain.StudentClassDto;
@@ -24,6 +27,7 @@ import com.dbdevdeep.student.domain.TimeTable;
 import com.dbdevdeep.student.domain.TimeTableDto;
 import com.dbdevdeep.student.repository.CurriculumRepository;
 import com.dbdevdeep.student.repository.ParentRepository;
+import com.dbdevdeep.student.repository.ScoreRepository;
 import com.dbdevdeep.student.repository.StudentClassRepository;
 import com.dbdevdeep.student.repository.StudentRepository;
 import com.dbdevdeep.student.repository.SubjectRepository;
@@ -42,9 +46,12 @@ public class StudentService {
 	private final SubjectRepository subjectRepository;
 	private final CurriculumRepository curriculumRepository;
 	private final TimeTableRepository timeTableRepository;
+	private final ScoreRepository scoreRepository;
 	
 	@Autowired
-	public StudentService(StudentRepository studentRepository, TeacherHistoryRepository teacherHistoryRepository, StudentClassRepository studentClassRepository, ParentRepository parentRepository,SubjectRepository subjectRepository,CurriculumRepository curriculumRepository, TimeTableRepository timeTableRepository) {
+	public StudentService(StudentRepository studentRepository, TeacherHistoryRepository teacherHistoryRepository, 
+			StudentClassRepository studentClassRepository, ParentRepository parentRepository,SubjectRepository subjectRepository,
+			CurriculumRepository curriculumRepository, TimeTableRepository timeTableRepository, ScoreRepository scoreRepository) {
 		this.studentRepository = studentRepository;
 		this.teacherHistoryRepository = teacherHistoryRepository;
 		this.studentClassRepository = studentClassRepository;
@@ -52,7 +59,7 @@ public class StudentService {
 		this.subjectRepository = subjectRepository;
 		this.curriculumRepository = curriculumRepository;
 		this.timeTableRepository = timeTableRepository;
-	}
+		this.scoreRepository = scoreRepository;	}
 	
 	// 입력 form에서 받아온 dto data를 Student로 바꿔서 저장하는 절차
 	public Student createStudent(StudentDto dto) {
@@ -336,4 +343,100 @@ public class StudentService {
 			}
 			return curriculumdto;
 		}
+		
+		// 성적 등록
+		public List<Score> registScore(List<ScoreDto> dtoList) {
+		    List<Score> savedScores = new ArrayList<>(); // 저장된 성적을 담을 리스트
+
+		    for (ScoreDto sdto : dtoList) {
+		    	Long studentNo = sdto.getStudent_no();
+		        Long curriculumNo = sdto.getCurriculum_no();
+		        // 학생 정보 조회
+		        Student student = studentRepository.findBystudentNo(sdto.getStudent_no());
+		        if (student == null) {
+		            throw new IllegalArgumentException("Invalid student_no: " + sdto.getStudent_no());
+		        }
+
+		        // 교육 과정 정보 조회
+		        Curriculum curriculum = curriculumRepository.findBycurriculumNo(sdto.getCurriculum_no());
+		        if (curriculum == null) {
+		            throw new IllegalArgumentException("Invalid curriculum_no: " + sdto.getCurriculum_no());
+		        }
+
+		        // Score 엔티티 생성
+		        Score score = sdto.toEntity();
+		        score.setStudent(student); // 학생 정보 설정
+		        score.setCurriculum(curriculum); // 교육 과정 정보 설정
+
+		        // 성적 저장
+		        savedScores.add(scoreRepository.save(score)); // 저장 후 리스트에 추가
+		    }
+
+		    return savedScores; // 저장된 성적 목록 반환
+		}
+		
+		// 학생 기준 성적 데이터 불러오기
+		public List<ScoreDto> selectScoreByStudent(Long student_no){
+			List<Score> score = scoreRepository.findByStudent_StudentNo(student_no);
+			List<ScoreDto> scoreDto = new ArrayList<ScoreDto>();
+			System.out.println("서비스 score"+score);
+			for(Score s : score) {
+				ScoreDto dto = new ScoreDto().toDto(s);
+				scoreDto.add(dto);
+			}
+			return scoreDto;
+		}
+		
+		// 과목 기준 성적 데이터 불러오기
+		public List<ScoreDto> selectScoreBySubject(Long subject_no){
+			List<Score> score = scoreRepository.findBySubject_SubjectNo(subject_no);
+			List<ScoreDto> scoreDto = new ArrayList<ScoreDto>();
+			System.out.println("서비스 score"+score);
+			for(Score s : score) {
+				ScoreDto dto = new ScoreDto().toDto(s);
+				scoreDto.add(dto);
+			}
+			return scoreDto;
+		}
+		
+		// 존재하는 성적 데이터 수정
+		public List<Score> updateScore(List<ScoreDto> scoreDtoList) {
+		    List<Score> updatedScores = new ArrayList<>();
+		    
+		    for (ScoreDto dto : scoreDtoList) {
+		        Optional<Score> existingScoreOpt = scoreRepository.findByStudent_StudentNoAndCurriculum_CurriculumNo(
+		                dto.getStudent_no(), dto.getCurriculum_no());
+		        
+		        if (existingScoreOpt.isPresent()) {
+		            Score existingScore = existingScoreOpt.get();
+		            existingScore.setScore(dto.getScore());  // 새로운 점수로 업데이트
+		            updatedScores.add(scoreRepository.save(existingScore));  // 업데이트 후 저장
+		        }
+		    }
+		    
+		    return updatedScores;
+		}
+		
+		// 성적 데이터 삭제
+		public int deleteScores(List<ScoreDto> scoreDtoList) {
+		    int result = 0;
+
+		    try {
+		        for (ScoreDto dto : scoreDtoList) {
+		            Optional<Score> scoreOpt = scoreRepository.findByStudent_StudentNoAndCurriculum_CurriculumNo(
+		                dto.getStudent_no(), dto.getCurriculum_no());
+
+		            if (scoreOpt.isPresent()) {
+		                scoreRepository.deleteById(scoreOpt.get().getScoreNo());
+		                result = 1;  // 삭제 성공 시 1로 설정
+		            }
+		        }
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+
+		    return result;
+		}
+
+
 }

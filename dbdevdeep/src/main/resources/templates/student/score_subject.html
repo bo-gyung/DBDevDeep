@@ -63,8 +63,8 @@
 								        <td th:text="${curriculum.curriculum_max_score}+'점'"></td>
 								        <td>
 								        	<input type="hidden" th:value="${curriculum.curriculum_no}" name="curriculum_no">
-						                    <input type="hidden" th:value="${studentClass.student_id}" name="student_no">
-						                    <input type="text" style="width: 100px;" name="score">
+						                    <input type="hidden" th:value="${studentClass.student_no}" name="student_no">
+						                    <input type="text" style="width: 100px;" name="score" id="score">
 								        </td>
 								    </th:block>
 					
@@ -103,7 +103,7 @@
 		}else{
 			const payload = new FormData(form);
 			const csrfToken = document.getElementById('csrf_token').value;
-			fetch('/score/subject',{
+			fetch('/score',{
 				method:'post',
 				headers : {
 					'X-CSRF-TOKEN':csrfToken

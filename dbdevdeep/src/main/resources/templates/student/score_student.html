@@ -23,12 +23,11 @@
 				<div class="row">
 				<div class="card">
 					<div id="content" class="card-body">
-			            <form id="student_create_form" method="post">
+			            <form id="score_register_form" method="post">
 			            <h3>학생 성적 관리</h3>
-			            
+			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 			            <!-- 각 과목별로 테이블을 생성 -->
 			            <div th:each="subject : ${subjectList}">
-						    <!-- 첫 번째 과목이 아닐 때 <br> 추가 -->
 						    <br>
 						    <h3 th:text="${subject.subject_name}"></h3> <!-- 과목명 표시 -->
 						    
@@ -60,15 +59,20 @@
 							                      th:if="${curri.subject.subjectNo == subject.subject_no}">
 							                <td th:text="${curri.curriculum_ratio}"></td> <!-- 반영비율 -->
 							                <td th:text="${curri.curriculum_max_score}"></td> <!-- 과목만점 -->
-							                <input type="hidden" name="curriculum_no" th:value="${curri.curriculum_no}" />
-                    						<input type="hidden" name="student_no" th:value="${resultList.student_no}" />
-							                <td><input type="text" name="score" /></td>
+							                
+							                <td>
+								                <input type="hidden" name="curriculum_no" th:value="${curri.curriculum_no}"/>
+	                    						<input type="hidden" name="student_no" th:value="${resultList.student_no}"/>
+											    <input type="text" name="score" id="score" th:value="${scoreList.get(curri.curriculum_no) != null ? scoreList.get(curri.curriculum_no) : ''}" />
+											</td>
 							            </th:block>
 							        </tr>
 							    </tbody>
 							</table>
 
 						</div>
+							<input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
+				            <input type="submit" value="등록">
 	            		</form>
 					</div>
             	</div>
@@ -88,53 +92,74 @@
 	<script src="/dist/js/custom.min.js"></script>
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	<script>
-	const form=document.getElementById("score_register_form");
-	form.addEventListener('submit',(e)=>{
-		e.preventDefault();
-		// 유효성 검사 성공 가정
-		let vali_check = true;
+		const form = document.getElementById("score_register_form");
+	
+		form.addEventListener('submit', (e) => {
+		    e.preventDefault();
+	
+		    // 새로운 FormData 생성
+		    const formData = new FormData(form);
+	
+		    // scoreDtoList를 담을 배열 생성
+		    let scoreDtoList = [];
+	
+		    // FormData에서 'score' 필드만 유효한 값만 필터링하여 처리
+		    const scoreInputs = document.querySelectorAll('input[name="score"]');
+	
+		    scoreInputs.forEach(input => {
+		        const scoreValue = input.value.trim();
+		        
+		        // curriculum_no와 student_no를 직접 가져옴
+		        const curriculumNo = input.previousElementSibling.previousElementSibling.value;
+		        const studentNo = input.previousElementSibling.value;
 
-		
-	    const phone1 = document.getElementById('sp1').value;
-	    const phone2 = document.getElementById('sp2').value;
-	    const phone3 = document.getElementById('sp3').value;
-	    const fullPhoneNumber = `${phone1}-${phone2}-${phone3}`;
-	    document.getElementById('student_phone').value = fullPhoneNumber;
-	    
-		if(vali_check == false){
-			alert('유효성 검사 중 문제가 발생하였습니다.');
-		}else{
-			const payload = new FormData(form);
-			const csrfToken = document.getElementById('csrf_token').value;
-			fetch('/student',{
-				method:'post',
-				headers : {
-					'X-CSRF-TOKEN':csrfToken
-				},
-				body:payload
-			})
-			.then(response => response.json())
-			.then(data=>{
-				if(data.res_code == '200'){
-					Swal.fire({
-						icon : 'success',
-						title : '성공',
-						text : data.res_msg
-					}).then((result)=>{
-						location.href = "/student/score";
-					});
-				}else{
-					Swal.fire({
-						icon : 'error',
-						title : '실패',
-						text : data.res_msg
-					});
-				}
-				
-			})
-		}
-		
-	});
+		        console.log('curriculum_no:', curriculumNo);
+		        console.log('student_no:', studentNo);
+
+		        // scoreDto 객체 생성 후 배열에 추가 (빈 값도 포함)
+		        let scoreDto = {
+		            curriculum_no: curriculumNo,
+		            student_no: studentNo,
+		            score: scoreValue  // 빈 값도 전송
+		        };
+		        scoreDtoList.push(scoreDto);
+		        console.log(scoreDtoList);
+		    });
+
+	
+	
+		    // CSRF 토큰 가져오기
+		    const csrfToken = document.getElementById('csrf_token').value;
+	
+		    // 서버로 전송
+		    fetch('/score', {
+		        method: 'POST',
+		        headers: {
+		            'X-CSRF-TOKEN': csrfToken,
+		            'Content-Type': 'application/json' // JSON 형식으로 보냄
+		        },
+		        body: JSON.stringify(scoreDtoList) // scoreDtoList를 JSON으로 변환해서 전송
+		    })
+		    .then(response => response.json())
+		    .then(data => {
+		        if (data.res_code === '200') {
+		            Swal.fire({
+		                icon: 'success',
+		                title: '성공',
+		                text: data.res_msg
+		            }).then((result) => {
+		                location.href = "/student/score";
+		            });
+		        } else {
+		            Swal.fire({
+		                icon: 'error',
+		                title: '실패',
+		                text: data.res_msg
+		            });
+		        }
+		    });
+		});
+
 	</script>
 </body>
 

@@ -1,7 +1,9 @@
 package com.dbdevdeep.student.controller;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
 import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.ParentDto;
+import com.dbdevdeep.student.domain.ScoreDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
 import com.dbdevdeep.student.domain.SubjectDto;
@@ -151,6 +154,10 @@ public class StudentViewController {
 			List<StudentClassDto> resultList = studentService.selectStudentList(cdto);
 			SubjectDto subjectDto = studentService.selectSubjectOne(subject_no);
 			List<CurriculumDto> curriDto = studentService.selectCurriOne(subject_no);
+			List<ScoreDto> scoreList = studentService.selectScoreBySubject(subject_no);
+			
+			
+			
 			model.addAttribute("sdto",subjectDto);
 			model.addAttribute("resultList",resultList);
 			model.addAttribute("cdto",curriDto);
@@ -163,12 +170,19 @@ public class StudentViewController {
 			StudentDto studentDto = studentService.selectStudentOne(student_no);
 			List<SubjectDto> subjectList = studentService.mySubjectList();
 			List<CurriculumDto> curriList = studentService.selectCurriAll();
-			System.out.println(studentDto);
-			System.out.println(subjectList);
-			System.out.println(curriList);
+			List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
+			
+			Map<Long, String> scoreMap = new HashMap<>();
+		    for (ScoreDto score : scoreList) {
+		        scoreMap.put(score.getCurriculum_no(), score.getScore());
+		    }
+		    System.out.println("1"+scoreList);
+			System.out.println("2"+scoreMap);
+			model.addAttribute("scoreList",scoreMap);
 			model.addAttribute("subjectList",subjectList);
 			model.addAttribute("resultList",studentDto);
 			model.addAttribute("curriList",curriList);
 			return "student/score_student";
 		}
+
 }

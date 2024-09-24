@@ -1,9 +1,11 @@
 package com.dbdevdeep.student.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,12 @@ import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
 import com.dbdevdeep.student.domain.ParentDto;
+import com.dbdevdeep.student.domain.Score;
+import com.dbdevdeep.student.domain.ScoreDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
 import com.dbdevdeep.student.domain.SubjectDetailsDto;
+import com.dbdevdeep.student.repository.ScoreRepository;
 import com.dbdevdeep.student.service.StudentService;
 
 @Controller
@@ -39,13 +44,15 @@ public class StudentApiController {
 	private final TeacherHistoryService teacherHistoryService;
 	private final TeacherHistoryRepository teacherHistoryRepository;
 	private final FileService fileService;
+	private final ScoreRepository scoreRepository;
 	
 	@Autowired
-	public StudentApiController(StudentService studentService, TeacherHistoryService teacherHistoryService,TeacherHistoryRepository teacherHistoryRepository, FileService fileService) {
+	public StudentApiController(StudentService studentService, TeacherHistoryService teacherHistoryService,TeacherHistoryRepository teacherHistoryRepository, FileService fileService, ScoreRepository scoreRepository) {
 		this.studentService = studentService;
 		this.teacherHistoryService = teacherHistoryService;
 		this.teacherHistoryRepository = teacherHistoryRepository;
 		this.fileService = fileService;
+		this.scoreRepository = scoreRepository;
 	}
 	
 	// 학생 등록
@@ -273,14 +280,86 @@ public class StudentApiController {
 		public Map<String,String> deleteSubject(@PathVariable("subject_no") Long subject_no){
 			Map<String,String> map = new HashMap<String,String>();
 			map.put("res_code", "404");
-			map.put("res_msg", "학생 정보 삭제 중 오류가 발생했습니다");
+			map.put("res_msg", "과목 정보 삭제 중 오류가 발생했습니다");
 			
 			if(studentService.deleteSubject(subject_no) > 0) {
 				map.put("res_code", "200");
-				map.put("res_msg","정상적으로 학생 정보가 삭제되었습니다.");
+				map.put("res_msg","정상적으로 과목 정보가 삭제되었습니다.");
 				
 			}
 			return map;
 		}
+		
+		// 성적 등록, 업데이트, 삭제 처리
+		@ResponseBody
+		@PostMapping("/score")
+		public Map<String, String> createScore(@RequestBody List<ScoreDto> scoreDtoList) {
+		    Map<String, String> resultMap = new HashMap<>();
+		    resultMap.put("res_code", "404");
+		    resultMap.put("res_msg", "성적 입력 중 오류가 발생했습니다.");
+
+		    List<ScoreDto> newScores = new ArrayList<>();  // 새로 추가할 성적 리스트
+		    List<ScoreDto> updatedScores = new ArrayList<>();  // 업데이트할 성적 리스트
+		    List<ScoreDto> deleteScores = new ArrayList<>();  // 삭제할 성적 리스트
+
+		    // 중복 성적 체크 및 분류
+		    for (ScoreDto dto : scoreDtoList) {
+		        // student_no와 curriculum_no로 기존 성적을 확인
+		        Optional<Score> existingScoreOpt = scoreRepository.findByStudent_StudentNoAndCurriculum_CurriculumNo(
+		                dto.getStudent_no(), dto.getCurriculum_no());
+
+		        if (existingScoreOpt.isPresent()) {
+		            Score existingScore = existingScoreOpt.get();
+		            if (dto.getScore().trim().isEmpty()) {
+		                // 빈 값이 들어오면 성적을 삭제할 리스트에 추가
+		                deleteScores.add(dto);
+		                System.out.println("기존 성적이 삭제됩니다: student_no=" + dto.getStudent_no() 
+		                                   + ", curriculum_no=" + dto.getCurriculum_no());
+		            } else {
+		                // 기존 성적이 존재하는 경우 점수 업데이트
+		                existingScore.setScore(dto.getScore());  // 새로운 점수로 업데이트
+		                updatedScores.add(dto);
+		                System.out.println("기존 성적이 업데이트됩니다: student_no=" + dto.getStudent_no() 
+		                                   + ", curriculum_no=" + dto.getCurriculum_no());
+		            }
+		        } else {
+		            if (!dto.getScore().trim().isEmpty()) {
+		                // 중복되지 않은 경우 빈 값이 아니면 새로 추가할 성적 리스트에 추가
+		                newScores.add(dto);
+		            }
+		        }
+		    }
+
+		    // 새로 추가할 성적 저장
+		    if (!newScores.isEmpty() && studentService.registScore(newScores) != null) {
+		        resultMap.put("res_code", "200");
+		        resultMap.put("res_msg", "새로운 성적이 성공적으로 추가되었습니다.");
+		    }
+
+		    // 업데이트할 성적 처리
+		    if (!updatedScores.isEmpty() && studentService.updateScore(updatedScores) != null) {
+		        resultMap.put("res_code", "200");
+		        resultMap.put("res_msg", "기존 성적이 성공적으로 업데이트되었습니다.");
+		    }
+
+		    // 삭제할 성적 처리 및 결과 확인
+		    int deleteResult = studentService.deleteScores(deleteScores);
+		    if (deleteResult > 0) {
+		        resultMap.put("res_code", "200");
+		        resultMap.put("res_msg", "기존 성적이 성공적으로 삭제되었습니다.");
+		    }
+
+		    if (newScores.isEmpty() && updatedScores.isEmpty() && deleteScores.isEmpty()) {
+		        resultMap.put("res_code", "300");
+		        resultMap.put("res_msg", "변경사항이 없어 저장되지 않았습니다.");
+		    }
+
+		    return resultMap;
+		}
+
+
+
+
+
 		
 }
