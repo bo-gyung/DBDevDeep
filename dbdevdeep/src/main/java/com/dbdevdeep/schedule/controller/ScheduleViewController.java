@@ -40,7 +40,7 @@ public class ScheduleViewController {
 	}
 	
 	@GetMapping("/schedule")
-	public String selectscheduleList(Model model) {
+	public String selectScheduleList(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User)authentication.getPrincipal();
 		String empId = user.getUsername();
@@ -71,7 +71,7 @@ public class ScheduleViewController {
         List<ScheduleDto> combinedSchedule = new ArrayList<>();
 
         // 전체 일정 데이터 가져오기
-        List<ScheduleDto> totalSchedules = scheduleService.selectTotalScheduleList();
+        List<ScheduleDto> totalSchedules = scheduleService.selectTotalScheduleList(empId);
         combinedSchedule.addAll(totalSchedules); // 기존 전체 일정 추가
 
         // 휴가 요청 데이터 가져오기
