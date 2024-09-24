@@ -260,9 +260,7 @@
 
             if (Array.isArray(names)) {
                 $j(targetCellId).val(names.join('>')); // 선택한 노드들의 텍스트를 조합하여 표시
-            } else {
-                console.error("names is not an array:", names);
-            }
+            } 
 
             $j('#treeModal').modal('hide');
         });

@@ -1040,82 +1040,86 @@ $('#custom_config').DataTable({
 var empId;
 
 $(document).ready(function() {
-    // empId 값 가져오기
-    empId = document.getElementById("enterUser").value;
+    // enterUser 요소가 존재하는지 확인
+    var enterUserElement = document.getElementById("enterUser");
+    if (enterUserElement) {
+        // empId 값 가져오기
+        empId = enterUserElement.value;
 
-    // DataTable 초기화
-    var table = $('#attendance_config').DataTable({
-        "responsive": true,
-        "columnDefs": [
-            { "width": "10%", "targets": 0, "className": "dt-center" },
-            { "width": "40%", "targets": 1, "orderable": false, "className": "dt-center" },
-            { "width": "40%", "targets": 2, "orderable": false, "className": "dt-center" },
-            { "width": "10%", "targets": 3, "orderable": false, "className": "dt-center" }
-        ],
-        "info": false,
-        "paging": false,
-        "lengthChange": false,
-        "searching": false,
-        "order": [[0, 'asc']],  
-        "stateSave": true,      
-        "data": [],             
-        "columns": [
-            { "data": "attend_date",
-            "render" : function(data, type, row){
-				let date = new Date(data);
-				let realDate = String(date.getDate()).padStart(2, '0');
-				return `${realDate}`;
-			} 
-		},
-            { "data": "check_in_time", 
-            "render" : function(data, type, row){
-				let date = new Date(data);
-				let hours = String(date.getHours()).padStart(2, '0');
-				let minutes = String(date.getMinutes()).padStart(2, '0');
-				return `${hours} : ${minutes}`;
-			}
-        },
-            { "data": "check_out_time",
-       		"render" : function(data, type, row){
-				let date = new Date(data);
-				let hours = String(date.getHours()).padStart(2, '0');
-				let minutes = String(date.getMinutes()).padStart(2, '0');
-				return `${hours} : ${minutes}`;
-			}     
-        },
-            { "data": "work_status",
-            "render" : function(data, type, row){
-				if(data === 1 || data === 2){
-					return "출근";
-				}else if(data === 3){
-					return "결근";
-				}else{
-					return "알 수 없음";
-				}
-			}
-             }
-        ],
-        "language": {
-        	"emptyTable": "출퇴근 기록이 없습니다."  
-    	}
-    });
+        // DataTable 초기화
+        var table = $('#attendance_config').DataTable({
+            "responsive": true,
+            "columnDefs": [
+                { "width": "10%", "targets": 0, "className": "dt-center" },
+                { "width": "40%", "targets": 1, "orderable": false, "className": "dt-center" },
+                { "width": "40%", "targets": 2, "orderable": false, "className": "dt-center" },
+                { "width": "10%", "targets": 3, "orderable": false, "className": "dt-center" }
+            ],
+            "info": false,
+            "paging": false,
+            "lengthChange": false,
+            "searching": false,
+            "order": [[0, 'asc']],  
+            "stateSave": true,      
+            "data": [],             
+            "columns": [
+                { "data": "attend_date",
+                "render" : function(data, type, row){
+                    let date = new Date(data);
+                    let realDate = String(date.getDate()).padStart(2, '0');
+                    return `${realDate}`;
+                } 
+            },
+                { "data": "check_in_time", 
+                "render" : function(data, type, row){
+                    let date = new Date(data);
+                    let hours = String(date.getHours()).padStart(2, '0');
+                    let minutes = String(date.getMinutes()).padStart(2, '0');
+                    return `${hours} : ${minutes}`;
+                }
+            },
+                { "data": "check_out_time",
+                "render" : function(data, type, row){
+                    let date = new Date(data);
+                    let hours = String(date.getHours()).padStart(2, '0');
+                    let minutes = String(date.getMinutes()).padStart(2, '0');
+                    return `${hours} : ${minutes}`;
+                }     
+            },
+                { "data": "work_status",
+                "render" : function(data, type, row){
+                    if(data === 1 || data === 2){
+                        return "출근";
+                    }else if(data === 3){
+                        return "결근";
+                    }else{
+                        return "알 수 없음";
+                    }
+                }
+                 }
+            ],
+            "language": {
+                "emptyTable": "출퇴근 기록이 없습니다."  
+            }
+        });
 
-    // 현재 날짜 설정 및 초기 데이터 로드
-    let today = new Date();
-    let year = today.getFullYear();
-    let month = ('0' + (today.getMonth()+1)).slice(-2);
-    $('#searchYandM').val(`${year}-${month}`);
-    
-    // 초기 데이터 로드
-    loadAttendanceData(year, month);
+        // 현재 날짜 설정 및 초기 데이터 로드
+        let today = new Date();
+        let year = today.getFullYear();
+        let month = ('0' + (today.getMonth()+1)).slice(-2);
+        $('#searchYandM').val(`${year}-${month}`);
+        
+        // 초기 데이터 로드
+        loadAttendanceData(year, month);
 
-    // 날짜 변경 시 데이터 갱신
-    $('#searchYandM').on('change', function() {
-        let changeDate = $(this).val();
-        let changeYear = changeDate.split('-')[0];
-        let changeMonth = changeDate.split('-')[1];
-        loadAttendanceData(changeYear, changeMonth);
-    });
+        // 날짜 변경 시 데이터 갱신
+        $('#searchYandM').on('change', function() {
+            let changeDate = $(this).val();
+            let changeYear = changeDate.split('-')[0];
+            let changeMonth = changeDate.split('-')[1];
+            loadAttendanceData(changeYear, changeMonth);
+        });
+    } 
 });
 
 // AJAX로 데이터를 로드하여 DataTable에 추가하는 함수
