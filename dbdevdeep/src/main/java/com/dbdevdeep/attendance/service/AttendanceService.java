@@ -3,6 +3,8 @@ package com.dbdevdeep.attendance.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -14,6 +16,7 @@ import com.dbdevdeep.attendance.domain.Attendance;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.repository.AttendanceRepository;
 import com.dbdevdeep.employee.domain.Employee;
+import com.dbdevdeep.employee.domain.EmployeeDto;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 
 @Service
@@ -125,4 +128,30 @@ int result = -1;
 		
 		return result;
 	}
+	
+	// vacationHour 출력
+	public EmployeeDto employeeInfo(String empId) {
+		Employee employee = employeeRepository.findByempId(empId);
+		EmployeeDto dto = EmployeeDto.builder()
+				.vacation_hour(employee.getVacationHour())
+				.build();
+		
+		return dto;
+	}
+	
+	// 월별 기본 정보 조회
+	public List<AttendanceDto> findByYearAndMonth(String empId, int year, int month){
+		List<Attendance> aList = null;
+		LocalDate startDate = LocalDate.of(year, month, 1);
+		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+		Employee employee = employeeRepository.findByempId(empId);
+		aList = attendanceRepository.findByYearAndMonth(employee, startDate, endDate);
+		List<AttendanceDto> aDtoList = new ArrayList<AttendanceDto>();
+		for(Attendance a : aList) {
+			AttendanceDto dto = new AttendanceDto().toDto(a);
+			aDtoList.add(dto);
+		}
+		return aDtoList;
+	}
+	
 }
