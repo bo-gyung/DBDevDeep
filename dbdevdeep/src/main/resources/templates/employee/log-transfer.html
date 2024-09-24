@@ -116,12 +116,12 @@
 										<tbody>
 											<th:block th:if="${#lists.isEmpty(logDtoList)}">
 												<tr>
-													<td colspan="7">기록이 없습니다.</td>
+													<td colspan="7" id="history">기록이 없습니다.</td>
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(logDtoList)}">
 												<tr th:each="log, logStat : ${logDtoList}">
-													<td scope="row" th:text="${logStat.count}"></td>
+													<td scope="row" th:text="${logStat.count}" id="history"></td>
 													<td th:text="${log.emp_id}"></td>
 													<!-- <td th:text="${log.emp_name}"></td> -->
 													<td th:text="${log.trans_date}"></td>
@@ -146,40 +146,45 @@
 
 			<script>
 				$(document).ready(function() {
-					var table = $('#log-transfer').DataTable();
-
-					// 필터링 함수
-					function filterTable() {
-						var statusFilters = [];
-						var jobFilters = [];
-
-						$('.filter-status:checked').each(
-								function() {
-									statusFilters.push($(this)
-											.val());
-								});
-
-						table.column(4).search(
-								statusFilters.join('|'), true,
-								false).draw();
+					var history = document.getElementById("history").innerText;
+					
+					if(history != '기록이 없습니다.'){
+						var table = $('#log-transfer').DataTable();
+						// 필터링 함수
+						function filterTable() {
+							var statusFilters = [];
+							var jobFilters = [];
+	
+							$('.filter-status:checked').each(
+									function() {
+										statusFilters.push($(this)
+												.val());
+									});
+	
+							table.column(4).search(
+									statusFilters.join('|'), true,
+									false).draw();
+						}
+	
+						// 체크박스 변경 이벤트
+						$('.filter-status').on('change', function() {
+							if ($(this).hasClass('filter-status')&& $(this).val() === '전체') {
+								if ($(this).is(':checked')) {
+									$('.filter-status').not('.filter-status[value="전체"]').prop('checked', true);
+								} else {
+									$('.filter-status').not('.filter-status[value="전체"]').prop('checked', false);
+								}
+							}					
+							
+							// 필터 적용
+							filterTable();
+						});
+	
+						// 초기 필터링
+						filterTable();
+						
 					}
 
-					// 체크박스 변경 이벤트
-					$('.filter-status').on('change', function() {
-						if ($(this).hasClass('filter-status')&& $(this).val() === '전체') {
-							if ($(this).is(':checked')) {
-								$('.filter-status').not('.filter-status[value="전체"]').prop('checked', true);
-							} else {
-								$('.filter-status').not('.filter-status[value="전체"]').prop('checked', false);
-							}
-						}					
-						
-						// 필터 적용
-						filterTable();
-					});
-
-					// 초기 필터링
-					filterTable();
 				});
 			</script>
 
