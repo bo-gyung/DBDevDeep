@@ -3,6 +3,9 @@ package com.dbdevdeep.schedule.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +22,23 @@ public class ScheduleAlertController {
 	
     @GetMapping("/scheduleAlert")
     public List<Map<String, Object>> getScheduleAlerts() {
+        // 현재 로그인한 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (authentication == null) {
+            System.out.println("Authentication is null");
+            return null;  // 오류 처리
+        }
+        
+        if (!(authentication.getPrincipal() instanceof User)) {
+            System.out.println("Principal is not an instance of User");
+            return null;  // 오류 처리
+        }
+        
+        User user = (User) authentication.getPrincipal();
+        String empId = user.getUsername(); // empId 가져오기
+    	
         // 서비스에서 준비된 알림 데이터를 반환
-        return scheduleService.getAlerts();
+        return scheduleService.getAlerts(empId);
     }
 }

@@ -1676,6 +1676,7 @@
         });
     }
     
+    
     let scheduleNo;
     
  	// 상세정보 모달 업데이트 함수
@@ -1804,7 +1805,7 @@
             <div class="modal-footer" style="margin-top:-15px;">
 	            <button type="button" class="btn btn-primary public-btn" id="editButton">수정</button>
 	            <button type="button" class="btn btn-light public-btn" id="deleteButton">삭제</button>
-	            <button type="button" class="btn btn-outline-secondary public-btn" data-dismiss="modal">닫기</button>
+	            <button type="button" class="btn btn-outline-secondary public-btn" data-dismiss="modal" id="closeButton">닫기</button>
             </div>
         `;
         
@@ -1812,6 +1813,11 @@
 	    if (typeof feather !== 'undefined') {
 	        feather.replace();  // Feather Icons가 로드된 경우에만 초기화
 	    }
+        
+	 	// 모달 닫기 버튼에 클릭 이벤트 추가
+	    document.getElementById('closeButton').addEventListener('click', function() {
+	        $('#scheduleDetailModal').modal('hide');
+	    });
         
         const activeButtons = scheduleDetailContent.querySelectorAll('.btn.active');
         activeButtons.forEach(button => {
