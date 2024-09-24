@@ -104,7 +104,7 @@ $('#notice_config').DataTable({
 });
 
 /****************************************
- * 2. holiday_config : 각자의 테이블 옵션 설정하기 *
+ * 2. holiday_config
  ****************************************/
 $('#holiday_config').DataTable({
 	// 화면 크기에 따라 컬럼 width 자동 조절
@@ -393,7 +393,7 @@ $('#address_all_book').DataTable({
 		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
 		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
 		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-		var searchButton = $('<button class="btn btn-primary ml-2" style="position: absolute; right: 5px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;">검색</button>');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
@@ -503,7 +503,7 @@ $('#log-employee').DataTable({
 		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
 		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
 		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-		var searchButton = $('<button class="btn btn-primary ml-2" style="position: absolute; right: 5px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;">검색</button>');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
@@ -614,7 +614,7 @@ $('#employee_teacher_history_list').DataTable({
 		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
 		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
 		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-		var searchButton = $('<button class="btn btn-primary ml-2" style="position: absolute; right: 5px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;">검색</button>');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
@@ -721,7 +721,7 @@ $('#log-transfer').DataTable({
 		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
 		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
 		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-		var searchButton = $('<button class="btn btn-primary ml-2" style="position: absolute; right: 5px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;">검색</button>');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
@@ -828,7 +828,7 @@ $('#log-rest').DataTable({
 		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
 		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
 		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-		var searchButton = $('<button class="btn btn-primary ml-2" style="position: absolute; right: 5px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;">검색</button>');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
@@ -933,7 +933,7 @@ $('#log-leave').DataTable({
 		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
 		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
 		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-		var searchButton = $('<button class="btn btn-primary ml-2" style="position: absolute; right: 5px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;">검색</button>');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
@@ -1036,7 +1036,7 @@ $('#class_by_year').DataTable({
 		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
 		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
 		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-		var searchButton = $('<button class="btn btn-primary ml-2" style="position: absolute; right: 5px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;">검색</button>');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
@@ -1395,6 +1395,8 @@ $('.dataTables_paginate').after(searchBoxContainer);
 $('div.dataTables_filter').hide();
 }
 });
+
+
 /******************************************
  * 			Custom Table
  * ****************************************/
