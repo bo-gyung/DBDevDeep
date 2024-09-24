@@ -94,10 +94,6 @@ public class ScheduleService {
 	public Schedule createSchedule(ScheduleDto dto) {
 	    Employee employee = employeeRepository.findByempId(dto.getEmp_id());
 	    Category category = categoryRepository.findByCategoryNo(dto.getCategory_no());
-	    
-	    if (employee == null || category == null) {
-	        System.out.println("null값입니다.");
-	    }
 		
 		Schedule schedule = Schedule.builder()
 				.calendarType(dto.getCalendar_type())
