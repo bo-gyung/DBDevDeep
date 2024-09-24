@@ -1,6 +1,7 @@
 package com.dbdevdeep.chat.config;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,6 +33,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
         this.chatMessageHandler = chatMessageHandler;
         this.alertMessageHandler = alertMessageHandler;
     }
+    
+    // private Map<String,WebSocketSession> clients = new HashMap<String,WebSocketSession>();
 
     // 클라이언트가 연결되었을 때 동작
     @Override
@@ -43,8 +46,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
     // 클라이언트가 웹소켓 서버로 메시지를 전송했을 때
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    	//클라이언트가 보낸 메시지
         String payload = message.getPayload();
+        // json 객체 생성
         ObjectMapper objectMapper = new ObjectMapper();
+        // json -> SendMessage 형태 변환
         Map<String, Object> messageMap;
         
         // 대분류 -> 중분류 -> 소분류. 총 세단계로 분류
@@ -55,6 +61,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         // action : CREATE_ROOM & SEND_MESSAGE / 알림액션1 & 알림액션2
 
         try {
+        	// json -> SendMessage 형태 변환
             messageMap = objectMapper.readValue(payload, Map.class);
         } catch (IOException e) {
             logger.error("Failed to parse message payload: " + payload, e);
