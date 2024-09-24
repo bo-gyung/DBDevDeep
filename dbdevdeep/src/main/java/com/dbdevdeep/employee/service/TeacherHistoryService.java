@@ -14,8 +14,6 @@ import com.dbdevdeep.employee.mybatis.mapper.TeacherHistoryVoMapper;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
 import com.dbdevdeep.employee.vo.GradeClassGroup;
-import com.dbdevdeep.student.domain.Student;
-import com.dbdevdeep.student.domain.StudentDto;
 
 @Service
 public class TeacherHistoryService {
@@ -219,5 +217,12 @@ public class TeacherHistoryService {
 		}
 		return teacherHistoryDtoList;
 	}
+	
+	// 모든 신청인(직원) 조회
+    public List<TeacherHistory> findAllTeachers() {
+        return teacherHistoryRepository.findAll();
+    }
+
+    
 
 }

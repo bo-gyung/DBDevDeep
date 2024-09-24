@@ -715,4 +715,16 @@ public class EmployeeService {
 
 		return logDto;
 	}
+	
+	// 모든 신청인(직원) 조회
+    public List<Employee> findAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    // 특정 직원 조회 (필요 시 사용)
+    public Employee findEmployeeById(String empId) {
+        return employeeRepository.findById(empId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + empId));
+    }
+	
 }

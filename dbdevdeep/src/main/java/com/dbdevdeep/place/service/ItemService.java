@@ -35,7 +35,27 @@ public class ItemService {
 		this.placeRepository = placeRepository;
 		this.fileService = fileService;
 	}
-	// 일련번호 중복방지
+	// 장소 번호에 따라 기자재 리스트 조회
+    public List<Item> findByPlacePlaceNo(Long placeNo) {
+        return itemRepository.findByPlacePlaceNo(placeNo);
+    }
+	
+	
+ // 특정 장소 번호에 해당하는 기자재 목록을 가져오는 메서드
+    public List<Item> getItemsByPlaceNo(Long placeNo) {
+        return itemRepository.findByPlacePlaceNo(placeNo);
+    }
+	
+	
+	 // 모든 기자재 조회
+    public List<Item> getAllItems() {
+        return itemRepository.findAll();
+    }
+    
+    // 특정 장소의 기자재 조회 (필요 시 사용)
+    public List<Item> getItemsByPlaceId(Long placeNo) {
+        return itemRepository.findByPlacePlaceNo(placeNo);
+    }
 	
 	
 	

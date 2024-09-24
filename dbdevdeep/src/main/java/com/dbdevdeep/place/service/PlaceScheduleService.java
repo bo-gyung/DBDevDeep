@@ -1,16 +1,24 @@
 package com.dbdevdeep.place.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dbdevdeep.employee.domain.Employee;
+import com.dbdevdeep.employee.domain.TeacherHistory;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
+import com.dbdevdeep.place.domain.Item;
+import com.dbdevdeep.place.domain.Place;
+import com.dbdevdeep.place.domain.PlaceItemSchedule;
 import com.dbdevdeep.place.domain.PlaceItemScheduleDto;
 import com.dbdevdeep.place.mybatis.mapper.PlaceScheduleVoMapper;
 import com.dbdevdeep.place.repository.ItemRepository;
 import com.dbdevdeep.place.repository.PlaceRepository;
+import com.dbdevdeep.place.repository.PlaceScheduleRepository;
+import com.dbdevdeep.place.vo.PlaceItemScheduleVo;
 
 @Service
 public class PlaceScheduleService {
@@ -22,26 +30,56 @@ public class PlaceScheduleService {
 	private final PlaceRepository placeRepository;
 	private final ItemRepository itemRepository;
 	private final TeacherHistoryRepository teacherHistoryRepository;
-	
+	private final PlaceScheduleRepository placeScheduleRepository;
 	@Autowired
 	public PlaceScheduleService(PlaceScheduleVoMapper placeScheduleVoMapper,EmployeeRepository employeeRepository,
 			PlaceRepository placeRepository, ItemRepository itemRepository,
-			 TeacherHistoryRepository teacherHistoryRepository) {
+			 TeacherHistoryRepository teacherHistoryRepository, PlaceScheduleRepository placeScheduleRepository) {
 		
 		this.placeScheduleVoMapper = placeScheduleVoMapper;
 		this.employeeRepository = employeeRepository;
 		this.placeRepository = placeRepository;
 		this.itemRepository = itemRepository;
 		this.teacherHistoryRepository = teacherHistoryRepository;
+		this.placeScheduleRepository = placeScheduleRepository;
 	}
 
 	
-	// 전체일정 조회
-	public List<PlaceItemScheduleDto> selectTotalScheduleList(){
-		
-		// Mapper를 통해 데이터베이스에서 모든 일정을 조회
-        List<PlaceItemScheduleDto> totalSchedule = placeScheduleVoMapper.getTotalScheduleList();
-        
-        return totalSchedule; // 조회된 일정 리스트 반환
-	}
+	// 일정 등록
+    public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
+        try {
+            // 필요한 엔티티 조회
+            Place place = placeRepository.findByplaceNo(vo.getPlace_no());
+            Item item = itemRepository.findByitemNo(vo.getItem_no());
+            Employee employee = employeeRepository.findByempId(vo.getEmp_id());
+            TeacherHistory teacherHistory = teacherHistoryRepository.findByteacherNo(vo.getTeacher_no());
+
+            // PlaceItemSchedule 엔티티 생성
+            PlaceItemSchedule placeItemSchedule = PlaceItemSchedule.builder()
+                    .employee(employee)
+                    .teacherHistory(teacherHistory)
+                    .item(item)
+                    .place(place)
+                    .placeScheduleTitle(vo.getPlace_schedule_title())
+                    .placeScheduleContent(vo.getPlace_schedule_content())
+                    .startDate(vo.getStart_date())
+                    .endDate(vo.getEnd_date())
+                    .startTime(vo.getStart_time())
+                    .endTime(vo.getEnd_time())
+                    .managementNo(vo.getManagement_no())
+                    .build();
+
+            // 저장
+            return placeScheduleRepository.save(placeItemSchedule);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    // 전체 일정 조회 (VO 사용)
+    public List<PlaceItemScheduleVo> selectTotalScheduleList() {
+        // Mapper를 통해 데이터베이스에서 모든 일정을 조회 (VO로 바로 반환)
+        return placeScheduleVoMapper.getTotalScheduleList();
+    }
 }

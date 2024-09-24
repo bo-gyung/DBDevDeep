@@ -14,15 +14,23 @@
     <link href="/dist/css/style.min.css" rel="stylesheet">
     <style>
     
+    	.fc-timegrid-allday {
+	    display: none; /* All-day 행을 숨깁니다 */
+			}
+    
+    	.fc-scrollgrid-sync-inner {
+		    height: 100%; /* 전체 캘린더 높이 */
+		}
+    
     	/* 일요일과 토요일 스타일 */
 	    .fc-day-sun .fc-daygrid-day-number,
 	    .fc-day-sun .fc-col-header-cell-cushion {
-	        color: red !important; /* 일요일 빨간색 */
+	        color:  #FF0000 !important;/* 일요일 빨간색 */
 	    }
 
 	    .fc-day-sat .fc-daygrid-day-number,
 	    .fc-day-sat .fc-col-header-cell-cushion {
-	        color: blue !important; /* 토요일 남색 */
+	        color:  #0031AE !important; /* 토요일 남색 */
 	    }
     
         /* 스타일 관련 내용은 그대로 유지 */
@@ -68,7 +76,7 @@
                                     <div style="font-size:30px;">캘린더</div>
                                 </div>
                                 <div class="col d-flex justify-content-end align-items-center" style="padding:0px;">
-                                    <button type="button" class="btn btn-outline-secondary public-btn" id="register-button">등록</button>
+                                    <button type="button" class="btn btn-outline-secondary public-btn" id="register-button" sec:authorize="hasAnyAuthority('D3')">등록</button>
                                 </div>
                             </div>
 
@@ -109,7 +117,7 @@
                     <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
                 </button>
             </div>
-            <form id="scheduleCreateFrm">
+            <form id="scheduleCreateFrm" th:action="@{/place_schedule/save}" method="post">
                 <div class="modal-body" style="padding:0px;">
                     <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
                     <table style="border-bottom:none; border-top:none;" class="table bordered">
@@ -145,13 +153,17 @@
                             <!-- 장소 선택 -->
                             <tr>
                                 <td class="align-center" style="width: 20%;">
-                                    <label>장소</label>
+                                    <label for ="create_place_no">장소</label>
                                 </td>
                                 <td style="width: 80%;">
                                     <select class="form-control" id="create_place_no" name="place_no">
-                                        <option value="1">회의실 1</option>
-                                        <option value="2">회의실 2</option>
-                                        <!-- 여기에 DB에서 가져온 장소 데이터를 추가합니다 -->
+                                        <option value="" disabled selected>장소를 선택하세요</option>
+                                        <option th:each ="place: ${placeList}" 
+								            th:value="${place.placeNo}" 
+								            th:text="${place.placeName}">
+                                        
+                                        </option>
+                                        
                                     </select>
                                 </td>
                             </tr>
@@ -159,18 +171,17 @@
                             <!-- 기자재 선택 -->
                             <tr>
                                 <td class="align-center" style="width: 20%;">
-                                    <label>기자재</label>
-                                </td>
-                                <td style="width: 80%;">
-                                    <div class="form-inline">
-                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="1"> 빔프로젝터</label>
-                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="2"> 마이크</label>
-                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="3"> 스피커</label>
-                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="4"> 화이트보드</label>
-                                        <label class="mr-2"><input type="checkbox" name="item_no[]" value="5"> 노트북</label>
-                                        <!-- 여기에 필요한 기자재 데이터를 추가합니다 -->
-                                    </div>
-                                </td>
+			                        <label>기자재</label>
+			                    </td>
+			                    <td style="width: 80%;">
+			                        <div class="form-inline" id = "item-checkboxes">
+			                        
+			                            <label class="mr-2" th:each="item : ${itemList}">
+			                                <input type="checkbox" name="item_no[]" th:value="${item.itemNo}" th:text="${item.itemName}">
+			                            </label>
+			                            
+			                        </div>
+			                    </td>
                             </tr>
 
                             <!-- 신청인 선택 -->
@@ -180,10 +191,12 @@
                                 </td>
                                 <td style="width: 80%;">
                                     <select class="form-control" id="create_emp_id" name="emp_id">
-                                        <option value="1">홍길동</option>
-                                        <option value="2">김철수</option>
-                                        <!-- 여기에 DB에서 가져온 신청인 데이터를 추가합니다 -->
-                                    </select>
+			                            <option value="" disabled selected>신청인을 선택하세요</option>
+			                            <option th:each="employee : ${employeeList}" 
+			                                    th:value="${employee.empId}" 
+			                                    th:text="${employee.empName}">
+			                            </option>
+                       				 </select>
                                 </td>
                             </tr>
 
@@ -193,7 +206,7 @@
                                     <label>내용</label>
                                 </td>
                                 <td style="width: 80%;">
-                                    <textarea class="form-control" rows="3" name="schedule_content" id="create_schedule_content" placeholder="내용을 입력해주세요."></textarea>
+                                    <textarea class="form-control" rows="3" name="schedule_content" id="create_schedule_content" placeholder="내용을 입력해주세요." style ="resize : none;"></textarea>
                                 </td>
                             </tr>
                         </tbody>
@@ -241,10 +254,56 @@
     </div>
 
 <script>
+$(document).ready(function () {
+    // 장소 선택이 변경되었을 때 호출되는 함수
+    $('#create_place_no').on('change', function() {
+        const placeNo = $(this).val();  // 선택된 장소 번호
+        console.log("Place selected:", placeNo);  // 선택된 값 확인용 로그
+        
+        // 선택된 값이 0이 아니면 AJAX 요청을 보냄
+        if (placeNo !== '0') {
+            $.ajax({
+                url: '/getItemsForPlace',  // 기자재 정보를 가져오는 URL
+                type: 'GET',
+                data: { placeNo: placeNo },  // 선택된 장소 번호를 쿼리 파라미터로 전송
+                contentType: 'application/json; charset=utf-8',  // JSON 형식으로 데이터를 전송
+                dataType: 'json',  // 서버에서 받을 데이터 형식을 JSON으로 지정
+                success: function(data) {
+                    // 기자재 체크박스 업데이트
+                    updateCheckboxes(data);
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error: ", status, error);
+                    alert("기자재 정보를 불러오는데 실패했습니다.");
+                }
+            });
+        } else {
+            // 장소가 선택되지 않은 경우 체크박스를 초기화
+            $('#item-checkboxes').html('');
+        }
+    });
+
+    // 체크박스 업데이트 함수
+    function updateCheckboxes(items) {
+        let checkboxesHtml = '';  // 체크박스 HTML을 동적으로 생성
+        items.forEach(function(item) {
+            checkboxesHtml += `
+                <label class="mr-2">
+                    <input type="checkbox" name="item_no[]" value="${item.itemNo}">
+                    ${item.itemName}
+                </label>
+            `;
+        });
+        // 생성된 체크박스를 'item-checkboxes' 영역에 삽입
+        $('#item-checkboxes').html(checkboxesHtml);
+    }
+});
+
+// 전체 조회(캘린더 폼)
 
 $(document).ready(function () {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
+    let calendarEl = document.getElementById('calendar');
+    let calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',  // 기본 월간 뷰
         headerToolbar: {
             left: 'prev,next today',  // 왼쪽에 이전, 다음, 오늘 버튼
@@ -260,6 +319,7 @@ $(document).ready(function () {
             prev: '이전',
             next: '다음'
         },
+        displayEventTime: false, // 시간 및 날짜 숨기기
         dayHeaderClassNames: function(arg) {
             // 요일 헤더에 클래스 추가
             if (arg.date.getDay() === 0) {
@@ -278,12 +338,43 @@ $(document).ready(function () {
                 return ['fc-day-sat'];
             }
         },
+        views: {
+                // 주간 뷰에서 All-day 행 숨김
+            timeGridWeek: {
+                allDaySlot: false, 
+                eventTimeFormat : {}
+            },
+            timeGridDay: {
+                // 일간 뷰에서 All-day 행 숨김
+                allDaySlot: false,
+                eventTimeFormat: {}
+            }
+        },
+        
         events: function(fetchInfo, successCallback, failureCallback) {
             $.ajax({
                 url: '/totalSchedule',  // 데이터 조회 URL
                 type: 'GET',
                 success: function(data) {
-                    successCallback(data);
+                	// FullCalendar에서 요구하는 형식으로 데이터 변환
+                    let events = data.map(function(schedule) {
+                    	let gradeClass = schedule.grade + "학년 " + schedule.gradeClass + "반";  // 학급(grade) + 반(gradeClass)
+                        let place = schedule.place_name;  // 장소명
+                        let title = schedule.place_schedule_title;  // 일정 제목
+                    	
+                        return {
+                            id: schedule.place_schedule_no,
+                            title: gradeClass + " " + place + " " + title,  // 세 가지 정보 결합
+                            start: schedule.start_date + 'T' + schedule.start_time,  // 시작일과 시간 결합
+                            end: schedule.end_date + 'T' + schedule.end_time,      // 종료일과 시간 결합
+                            description: schedule.place_schedule_content,         // 추가 설명
+                            empName: schedule.emp_name                            // 신청자명
+                            
+                        };
+                    });
+
+                    // FullCalendar에 이벤트 등록
+                    successCallback(events);
                 },
                 error: function() {
                     failureCallback();
@@ -293,16 +384,97 @@ $(document).ready(function () {
     });
 
     calendar.render();
-
-    //모달 열기
+	
+    
+ // 등록 모달창 열기
     $('#register-button').on('click', function() {
         $('#scheduleCreateModal').modal('show');
     });
-    
-    
- 
-        
 
+    // 일정 등록 폼 제출
+    $('#scheduleCreateFrm').on('submit', function(e) {
+        e.preventDefault();  // 기본 제출 동작 방지
+
+        // 유효성 검사 초기화
+        let vali_check = false; 
+        let vali_text = '';
+        let form =  document.getElementById('scheduleCreateFrm');
+
+        // 유효성 검사
+        if (form.create_start_date.value === '') {
+            vali_text += '시작일이 비어있습니다.\n';
+            form.create_start_date.focus();
+        } else if (form.create_start_time.value === '') {
+            vali_text += '시작시간이 비어있습니다.\n';
+            form.create_start_time.focus();
+        } else if (form.create_end_date.value === '') {
+            vali_text += '종료일이 비어있습니다.\n';
+            form.create_end_date.focus();
+        } else if (form.create_end_time.value === '') {
+            vali_text += '종료시간이 비어있습니다.\n';
+            form.create_end_time.focus();
+        } else if (form.create_schedule_title.value === '') {
+            vali_text += '제목이 비어있습니다.\n';
+            form.create_schedule_title.focus();
+        } else if (form.create_place_no.value === '') {
+            vali_text += '장소를 선택해주세요.\n';
+            form.create_place_no.focus();
+        } else {
+            vali_check = true;  // 유효성 검사가 통과된 경우
+        }
+
+        // 유효성 검사가 실패하면 경고 메시지 표시
+        if (!vali_check) {
+            Swal.fire({
+                icon: 'error',
+                title: '실패',
+                text: vali_text,
+                confirmButtonText: "닫기"
+            });
+        } else {
+            // 유효성 검사가 통과된 경우 폼 데이터를 FormData로 전송
+            const formData = new FormData(form);  // FormData 사용
+            const csrfToken = document.getElementById('csrf_token').value;  // CSRF 토큰
+
+            fetch('/place_schedule', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken  // CSRF 토큰 추가
+                },
+                body: formData  // FormData로 폼 데이터 전송
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.res_code === '200') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '성공',
+                        text: data.res_msg,
+                        confirmButtonText: '닫기'
+                    }).then((result) => {
+                        location.href = "/place_schedule";  // 성공 후 페이지 이동
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '실패',
+                        text: data.res_msg,
+                        confirmButtonText: "닫기"
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '서버 오류',
+                    text: '일정 등록 중 오류가 발생했습니다.',
+                    confirmButtonText: "닫기"
+                });
+            });
+        }
+    });
+    
     // HTML에서 클릭 이벤트 추가
     $('#month-view-button').on('click', function() {
         calendar.changeView('dayGridMonth');

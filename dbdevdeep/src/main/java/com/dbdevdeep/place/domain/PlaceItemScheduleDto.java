@@ -73,9 +73,9 @@ public class PlaceItemScheduleDto {
 	            .item_name(pis.getItem().getItemName())
 	            .item_quantity(pis.getItem().getItemQuantity())
 	            .item_serial_no(pis.getItem().getItemSerialNo())  // item_serial_no 포함
-	            .teacher_no(pis.getTeacherHistroy().getTeacherNo())
-	            .grade(pis.getTeacherHistroy().getGrade())
-	            .gradeClass(pis.getTeacherHistroy().getGradeClass())
+	            .teacher_no(pis.getTeacherHistory().getTeacherNo())
+	            .grade(pis.getTeacherHistory().getGrade())
+	            .gradeClass(pis.getTeacherHistory().getGradeClass())
 	            .emp_id(pis.getEmployee().getEmpId())
 	            .emp_name(pis.getEmployee().getEmpName())
 	            .place_schedule_title(pis.getPlaceScheduleTitle())

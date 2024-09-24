@@ -47,7 +47,7 @@ public class PlaceItemSchedule {
 	
 	@ManyToOne
 	@JoinColumn(name = "teacher_no")
-	private TeacherHistory teacherHistroy;
+	private TeacherHistory teacherHistory;
 
 	@ManyToOne
 	@JoinColumn(name = "emp_id")

@@ -177,7 +177,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 												<td th:text="${place.place_location}"></td>
 												<td th:text="${place.formattedTimeRange}"></td>
 												<td th:text="${place.place_status == 'Y' ? '사용가능' : '사용 불가능'}"></td>
-												<td th:text="${place.unuseable_start_date != null ? place.unuseable_start_date : ''} + ' - ' + ${place.unuseable_end_date != null ? place.unuseable_end_date : ''}"></td>
+												<td th:text="${place.unuseable_start_date != null ? place.unuseable_start_date : ''} + ' ~ ' + ${place.unuseable_end_date != null ? place.unuseable_end_date : ''}"></td>
 											</tr>
 										</th:block>
 									</tbody>

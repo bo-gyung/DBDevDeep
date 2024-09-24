@@ -37,6 +37,8 @@ public class PlaceService {
 		this.fileService = fileService;
 	}
 	
+	
+	
 	// 모든 Place 엔티티를 조회하는 기본 메서드,(select용)
     public List<Place> getAllPlaces() {
         return placeRepository.findAll();
@@ -258,7 +260,7 @@ public class PlaceService {
 		String endTime = formatTime(place.getPlaceEndtime());
 		
 		
-		return startTime + " - " + endTime;
+		return startTime + " ~ " + endTime;
 	}
 	
 	
