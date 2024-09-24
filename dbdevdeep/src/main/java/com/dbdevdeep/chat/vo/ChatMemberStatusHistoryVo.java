@@ -16,8 +16,8 @@ import lombok.Setter;
 @ToString
 @Builder
 public class ChatMemberStatusHistoryVo {
-	private Long history_no;
-	private Long room_no;
+	private int history_no;
+	private int room_no;
 	private String member_id;
 	private int member_status;
 	private LocalDateTime change_time;

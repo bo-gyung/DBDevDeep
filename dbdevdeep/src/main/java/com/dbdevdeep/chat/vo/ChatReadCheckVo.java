@@ -16,8 +16,8 @@ import lombok.Setter;
 @ToString
 @Builder
 public class ChatReadCheckVo {
-	private Long check_no;
-	private Long msg_no;
+	private int check_no;
+	private int msg_no;
 	private String read_id;
 	private LocalDateTime read_time;
 }

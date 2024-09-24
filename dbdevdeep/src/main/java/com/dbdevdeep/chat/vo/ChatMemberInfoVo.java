@@ -16,9 +16,9 @@ import lombok.ToString;
 @ToString
 @Builder
 public class ChatMemberInfoVo {
-	private Long info_no;
+	private int info_no;
 	private String member_id;
-	private Long room_no;
+	private int room_no;
 	private String room_name;
 	private LocalDateTime join_time;
 	private int is_admin;

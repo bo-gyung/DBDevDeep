@@ -44,6 +44,9 @@ public class WebSecurityConfig {
             		 .logoutSuccessHandler(customLogoutSuccessHandler)
             		.permitAll()
             ); // 로그아웃 접근 허용
+        
+        // 웹소켓 관련 보안 설정 (추후 정리 필요)
+        http.csrf(csrf ->csrf.ignoringRequestMatchers("/api/notifications"));
 
         return http.build();
     }
