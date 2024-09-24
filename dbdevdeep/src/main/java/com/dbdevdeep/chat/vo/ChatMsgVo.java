@@ -16,8 +16,8 @@ import lombok.Setter;
 @ToString
 @Builder
 public class ChatMsgVo {
-	private Long msg_no;
-	private Long room_no;
+	private int msg_no;
+	private int room_no;
 	private String writer_id;
 	private String chat_content;
 	private int is_important;
