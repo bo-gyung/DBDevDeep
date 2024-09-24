@@ -16,6 +16,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>{
 	Attendance findByTodayCheckTime(@Param("employee") Employee employee, @Param("ld") LocalDate ld);
 	
 	@Query("SELECT a FROM Attendance a WHERE a.attendDate = :now")
-	
 	List<Attendance> selectByToDayList(@Param("now") LocalDate now); 
+
+	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee AND a.attendDate BETWEEN :startDate AND :endDate")
+	List<Attendance> findByYearAndMonth(@Param("employee") Employee employee, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee")
+	Attendance findByEmpId(@Param("employee") Employee employee);
 }

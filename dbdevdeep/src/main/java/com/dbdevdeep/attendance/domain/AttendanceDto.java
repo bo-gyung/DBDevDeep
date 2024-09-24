@@ -22,12 +22,13 @@ public class AttendanceDto {
 	
 	private String emp_id;
 	private String emp_name;
+	private int vacation_hour;
 	
 	private LocalDate attend_date;
 	private LocalDateTime check_in_time;
 	private LocalDateTime check_out_time;
 	private int work_status;
-	private String lateStatus;
+	private String late_status;
 	
 	public Attendance toEntity() {
 		return Attendance.builder()
@@ -36,7 +37,7 @@ public class AttendanceDto {
 				.checkInTime(check_in_time)
 				.checkOutTime(check_out_time)
 				.workStatus(work_status)
-				.lateStatus(lateStatus)
+				.lateStatus(late_status)
 				.build();
 	}
 	
@@ -45,11 +46,12 @@ public class AttendanceDto {
 				.attend_no(attend.getAttendNo())
 				.emp_id(attend.getEmployee().getEmpId())
 				.emp_name(attend.getEmployee().getEmpName())
+				.vacation_hour(attend.getEmployee().getVacationHour())
 				.attend_date(attend.getAttendDate())
 				.check_in_time(attend.getCheckInTime())
 				.check_out_time(attend.getCheckOutTime())
 				.work_status(attend.getWorkStatus())
-				.lateStatus(attend.getLateStatus())
+				.late_status(attend.getLateStatus())
 				.build();
 	}
 }

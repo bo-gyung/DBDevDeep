@@ -1403,3 +1403,131 @@ $('#custom_config').DataTable({
 	// 필요 옵션 입력
 	// 없으면 기본 설정된 값으로 생성됩니다.
 });
+
+/******************************************
+ * 			Attendance Table
+ * ****************************************/
+
+// 근태 테이블 
+// DataTable 초기화 및 정렬 후 데이터 유지
+var empId;
+
+$(document).ready(function() {
+    // empId 값 가져오기
+    empId = document.getElementById("enterUser").value;
+
+    // DataTable 초기화
+    var table = $('#attendance_config').DataTable({
+        "responsive": true,
+        "columnDefs": [
+            { "width": "10%", "targets": 0, "className": "dt-center" },
+            { "width": "40%", "targets": 1, "orderable": false, "className": "dt-center" },
+            { "width": "40%", "targets": 2, "orderable": false, "className": "dt-center" },
+            { "width": "10%", "targets": 3, "orderable": false, "className": "dt-center" }
+        ],
+        "info": false,
+        "paging": false,
+        "lengthChange": false,
+        "searching": false,
+        "order": [[0, 'asc']],  
+        "stateSave": true,      
+        "data": [],             
+        "columns": [
+            { "data": "attend_date",
+            "render" : function(data, type, row){
+				let date = new Date(data);
+				let realDate = String(date.getDate()).padStart(2, '0');
+				return `${realDate}`;
+			} 
+		},
+            { "data": "check_in_time", 
+            "render" : function(data, type, row){
+				let date = new Date(data);
+				let hours = String(date.getHours()).padStart(2, '0');
+				let minutes = String(date.getMinutes()).padStart(2, '0');
+				return `${hours} : ${minutes}`;
+			}
+        },
+            { "data": "check_out_time",
+       		"render" : function(data, type, row){
+				let date = new Date(data);
+				let hours = String(date.getHours()).padStart(2, '0');
+				let minutes = String(date.getMinutes()).padStart(2, '0');
+				return `${hours} : ${minutes}`;
+			}     
+        },
+            { "data": "work_status",
+            "render" : function(data, type, row){
+				if(data === 1 || data === 2){
+					return "출근";
+				}else if(data === 3){
+					return "결근";
+				}else{
+					return "알 수 없음";
+				}
+			}
+             }
+        ],
+        "language": {
+        	"emptyTable": "출퇴근 기록이 없습니다."  
+    	}
+    });
+
+    // 현재 날짜 설정 및 초기 데이터 로드
+    let today = new Date();
+    let year = today.getFullYear();
+    let month = ('0' + (today.getMonth()+1)).slice(-2);
+    $('#searchYandM').val(`${year}-${month}`);
+    
+    // 초기 데이터 로드
+    loadAttendanceData(year, month);
+
+    // 날짜 변경 시 데이터 갱신
+    $('#searchYandM').on('change', function() {
+        let changeDate = $(this).val();
+        let changeYear = changeDate.split('-')[0];
+        let changeMonth = changeDate.split('-')[1];
+        loadAttendanceData(changeYear, changeMonth);
+    });
+});
+
+// AJAX로 데이터를 로드하여 DataTable에 추가하는 함수
+function loadAttendanceData(year, month) {
+    $.ajax({
+        url: '/changeAttendance',
+        method: 'GET',
+        data: { empId: empId, year: year, month: month },
+        success: function(response) {
+            // DataTable 갱신
+            var table = $('#attendance_config').DataTable();
+            table.clear();  // 기존 데이터 제거
+            table.rows.add(response);  // 새 데이터 추가
+            table.draw();  // 테이블 다시 그리기
+
+            // 출근, 결석, 지각 카운트 계산
+            let attendanceCount = 0;
+            let absenceCount = 0;
+            let lateCount = 0;
+
+            $.each(response, function(index, item) {
+                if (item.work_status === 1 || item.work_status === 2) {
+                    attendanceCount++;
+                }
+                if (item.work_status === 3) {
+                    absenceCount++;
+                }
+                if (item.late_status == "Y") {
+                    lateCount++;
+                }
+            });
+
+            // 카운트 업데이트
+            $('#attendanceCount').text(attendanceCount);
+            $('#absenceCount').text(absenceCount);
+            $('#lateCount').text(lateCount);
+        },
+        error: function() {
+            alert('데이터를 불러오는 중 오류가 발생했습니다.');
+        }
+    });
+}
