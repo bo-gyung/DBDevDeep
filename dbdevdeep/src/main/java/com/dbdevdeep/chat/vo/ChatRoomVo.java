@@ -16,7 +16,7 @@ import lombok.Setter;
 @ToString
 @Builder
 public class ChatRoomVo {
-	private Long room_no;
+	private int room_no;
 	private String last_chat;
 	private LocalDateTime last_time;
 }
