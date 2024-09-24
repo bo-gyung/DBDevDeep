@@ -73,13 +73,36 @@ public class ApproveApiController {
 		this.employeeRepository =employeeRepository;
 	}
 	
+	// 보고서 삭제
+	@ResponseBody
+	@DeleteMapping("/docuAppro/{appro_no}")
+	public Map<String, String> deleteDocuAppro(@PathVariable("appro_no") Long appro_no){
+		Map<String, String> map = new HashMap<>();
+		map.put("res_code", "404");
+		map.put("res_msg", "삭제중 오류가 발생하였습니다.");
+		
+		int fileDeleteResult = fileService.approFileDelete(appro_no);
+		
+		if(fileDeleteResult >=0 ) {
+			if(approveService.deleteDocuApprove(appro_no) > 0) {
+				map.put("res_code", "200");
+				map.put("res_msg", "삭제되었습니다.");
+			}else {
+				map.put("res_msg", "삭제중 오류 발생 하였습니다.");
+			}
+		} else {
+			map.put("res_msg", "파일 삭제중 오류가 발생하였습니다.");
+		}
+		return map;
+	}
+	
 	// 결재 삭제
 	@ResponseBody
 	@DeleteMapping("/appro/{appro_no}")
 	public Map<String, String> deleteAppro(@PathVariable("appro_no") Long appro_no) {
 	    Map<String, String> map = new HashMap<>();
 	    map.put("res_code", "404");
-	    map.put("res_msg", "삭제 중 오류가 발생하였습니다.");
+	    map.put("res_msg", "삭제중 오류가 발생하였습니다.");
 
 	    int fileDeleteResult = fileService.approFileDelete(appro_no);
 
@@ -88,7 +111,7 @@ public class ApproveApiController {
 	            map.put("res_code", "200");
 	            map.put("res_msg", "정상적으로 삭제되었습니다.");
 	        } else {
-	            map.put("res_msg", "승인 정보 삭제에 실패하였습니다.");
+	            map.put("res_msg", "삭제중 오류 발생 하였습니다.");
 	        }
 	    } else {
 	        map.put("res_msg", "파일 삭제 중 오류가 발생하였습니다.");
@@ -129,7 +152,47 @@ public class ApproveApiController {
 	    return resultMap;
 	}
 	
-	// 반려 처리
+	// 보고서 반려 처리 
+		@ResponseBody
+		@PostMapping("/backDocu")
+		public Map<String, String> backDocu(@RequestBody Map<String, Object> requestData) {
+		    Map<String, String> resultMap = new HashMap<>();
+		    resultMap.put("res_code", "404");
+		    resultMap.put("res_msg", "반려 처리 중 오류가 발생했습니다.");
+
+		    try {
+		        // 요청 데이터 파싱
+		        Long approNo = Long.valueOf((String) requestData.get("approNo"));
+		        String empId = (String) requestData.get("empId");
+		        String principalId = (String) requestData.get("principalId");
+		        String deptCode = (String) requestData.get("deptCode");
+		        String jobCode = (String) requestData.get("jobCode");
+		        String reasonBack = (String) requestData.get("reasonBack");
+
+		        // ApproveLineDto 생성
+		        ApproveLineDto approveLineDto = new ApproveLineDto();
+		        approveLineDto.setAppro_no(approNo);
+		        approveLineDto.setEmp_id(principalId);
+		        approveLineDto.setReason_back(reasonBack);
+
+		        // 서비스 호출
+		        int result = approveService.backDocuLine(approveLineDto, empId, deptCode, jobCode);
+
+		        if (result > 0) {
+		            resultMap.put("res_code", "200");
+		            resultMap.put("res_msg", "반려 처리되었습니다.");
+		        } else {
+		            resultMap.put("res_msg", "반려 처리가 실패하였습니다.");
+		        }
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        resultMap.put("res_msg", "처리 중 오류가 발생했습니다.");
+		    }
+
+		    return resultMap;
+		}
+	
+	// 휴가 반려 처리
 	@ResponseBody
 	@PostMapping("/backApprove")
 	public Map<String, String> backApprove(@RequestBody Map<String, Object> requestData) {
@@ -170,6 +233,92 @@ public class ApproveApiController {
 	    }
 
 	    return resultMap;
+	}
+	
+	// 보고서 수정
+	@ResponseBody
+	@PostMapping("/docuReUp/{appro_no}")
+	public Map<String,String> updateDocuApprove(
+			@RequestParam("appro_no") Long approNo,
+			@RequestParam("appro_name") String approName,
+			@RequestParam("emp_id") String empId,
+			@RequestParam("dept_code") String deptCode,
+			@RequestParam("job_code") String jobCode,
+			@RequestParam("appro_title") String approTitle,
+			@RequestParam("tempNo") String tempNo,
+			@RequestParam("appro_content") String approContent,
+			@RequestParam("consult") String consult,
+			@RequestParam("approval") String approval,
+			@RequestParam(name="file_name", required=false)MultipartFile file){
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "404");
+		resultMap.put("res_msg", "게시글 수정중 오류가 발생했습니다.");
+		Long tempNoN = (tempNo != null && !tempNo.isEmpty()) ? Long.parseLong(tempNo) : 0L ;
+		
+		ApproFileDto approFileDto = null;
+		if (file != null && !file.isEmpty()) { 
+		    approFileDto = new ApproFileDto();
+		    String savedFileName = fileService.approveUpload(file);
+		    if (savedFileName != null) {
+		        approFileDto.setOri_file(file.getOriginalFilename());
+		        approFileDto.setNew_file(savedFileName);
+		        if (fileService.approFileDelete(approNo) > 0) {
+		            resultMap.put("res_msg", "기존 파일이 정상적으로 삭제되었습니다.");
+		        }
+		    } else {
+		        resultMap.put("res_msg", "파일 업로드가 실패하였습니다.");
+		    }
+		}
+		try {
+			ApproveDto approveDto = new ApproveDto();
+			approveDto.setAppro_no(approNo);
+			approveDto.setEmp_id(empId);
+			approveDto.setDept_code(deptCode);
+			approveDto.setJob_code(jobCode);
+			approveDto.setTemp_no(tempNoN);
+			approveDto.setAppro_name(approName);
+			approveDto.setAppro_type(1);
+			approveDto.setAppro_title(approTitle);
+			approveDto.setAppro_content(approContent);
+			
+			List<ApproveLineDto> approveLineDtos = new ArrayList<>();
+			LocalDateTime currentTime = LocalDateTime.now();
+			int order = 1;
+			boolean firstSet = false;
+			
+			if(consult !=null && !consult.isEmpty()) {
+				String[] consults = consult.split(">");
+				for(String c : consults) {
+					String consultId = pullId(c);
+					String consultName = pullName(c);
+					int status = firstSet ? 0 : 1;
+					firstSet = true;
+					approveLineDtos.add(new ApproveLineDto(null, null, consultId, consultName ,order++, status, currentTime ,null, "Y" , null));
+				}
+			}
+			if(approval != null && !approval.isEmpty()) {
+				String[] approvals = approval.split(">");
+				for(String a : approvals) {
+					String approvalId = pullId(a);
+					String approvalName = pullName(a);
+					int status = firstSet ? 0 : 1;
+					firstSet = true;
+					approveLineDtos.add(new ApproveLineDto(null, null, approvalId , approvalName ,order++ , status , currentTime ,null, "N" , null));
+				}
+			}
+			
+			int result = approveService.docuUpdate(approveDto, approveLineDtos, approFileDto, file);
+			
+			if(result > 0) {
+				resultMap.put("res_code","200");
+				resultMap.put("res_msg", "게시글이 성공적으로 수정되었습니다.");
+			}
+		} catch (Exception e) {
+	        e.printStackTrace();  // 서버 로그에 오류 출력
+	        resultMap.put("res_msg", "서버 내부 오류: " + e.getMessage());
+	    }
+		
+		return resultMap;
 	}
 	
 	// 결재 수정

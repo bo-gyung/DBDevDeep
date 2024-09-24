@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
+<th:block layout:fragment="content">
+	<style>
+		/* datatable css */
+		div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+			margin: 2px 0; white-space: nowrap; justify-content: center; margin-top: 8px;
+		}
+		/* a 태그 속성 제거 */
+		a {
+			text-decoration: none; /* 밑줄 제거 */ color: inherit; /* 기본 색상 제거, 부모 요소의 색상 사용 */ cursor: pointer; /* 커서 스타일 변경 */
+		}
+		/* a 태그 호버 시 스타일 */
+		a:hover {
+			text-decoration: none; /* 호버 시 밑줄 추가 */ color: inherit; /* 호버 시 색상 변경 */
+		}
+		
+		/* 첫 번째 td를 수평 및 수직 가운데 정렬 */
+		.bordered tbody tr td.align-center {
+			text-align: center; /* 수평 가운데 정렬 */ vertical-align: middle; padding-bottom: 8px;
+		}
+		
+		/* 정렬 아이콘의 위치 및 정렬 설정 */
+		table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {
+			display: inline-block; /* 아이콘을 인라인 블록으로 설정 */ position: relative; /* 아이콘 위치를 텍스트 옆으로 설정 */ margin-left: 10px !important; /* 텍스트와 아이콘 사이의 간격을 조정 */ bottom: 0; /* 아이콘을 텍스트 높이에 맞추기 위해 위치 설정 */ opacity: 0.7; /* 아이콘의 불투명도 설정 */ content: ''; /* 정렬 아이콘을 CSS로 설정 */
+		}
+		
+		table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+			content: "\25BC"; /* 아래쪽 화살표 */
+		}
+		
+		/* 정렬 아이콘 활성화 시 스타일 */
+		table.dataTable thead .sorting_asc:after {
+			content: "\25B2"; /* 위쪽 삼각형 화살표 */
+		}
+		
+		table.dataTable thead .sorting_desc:after {
+			content: "\25BC"; /* 아래쪽 삼각형 화살표 */
+		}
+		
+		.filter {
+			border-collapse: separate; border-spacing: 0; width: 100%; margin-bottom: 8px;
+		}
+		
+		.pad {
+			height: 5px; background: none;
+		}
+		
+		.filter tr {
+			background-color: #e9ecef; border-radius: 50px;
+		}
+		
+		.filter td, th {
+			padding: 8px;
+		}
+		
+		.filter th {
+			border-bottom-left-radius: 5px; border-top-left-radius: 5px; padding-left: 20px;
+		}
+		
+		.filter td:last-child {
+			border-bottom-right-radius: 5px; border-top-right-radius: 5px; padding-right: 20px;
+		}
+		
+		.filter input[type="checkbox"] {
+			border: 1px solid #e9ecef; width: 16px; height: 16px; margin: 0px 5px;
+		}
+		
+		.filter label {
+			display: flex; align-items: center; margin: 0px auto;
+		}
+		label, input[type='checkbox'] {
+			cursor: pointer;
+		}
+	</style>
+	<body>
+		<div class="page-wrapper">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body" style="padding: 50px;">
+								<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+									<div style="font-size: 30px;">직원 퇴직 기록</div>
+								</div>
+								<div class="table-responsive">
+									<table id="log-leave" class="table table-bordered no-wrap" style="width: 100%">
+										<thead>
+											<tr>
+												<th scope="col">번호</th>
+												<th scope="col">직원번호</th>
+												<!-- <th scope="col">직원성명</th> -->
+												<th scope="col">퇴직일</th>
+												<th scope="col">퇴직사유</th>
+												<th scope="col">행정직원번호</th>
+												<!-- <th scope="col">행정직원성명</th> -->
+												<th scope="col">기록일시</th>
+											</tr>
+										</thead>
+										<tbody>
+											<th:block th:if="${#lists.isEmpty(logDtoList)}">
+												<tr>
+													<td colspan="6">기록이 없습니다.</td>
+												</tr>
+											</th:block>
+											<th:block th:if="${!#lists.isEmpty(logDtoList)}">
+												<tr th:each="log, logStat : ${logDtoList}">
+													<td scope="row" th:text="${logStat.count}"></td>
+													<td th:text="${log.emp_id}"></td>
+													<!-- <td th:text="${log.emp_name}"></td> -->
+													<td th:text="${log.stop_date}"></td>
+													<td th:text="${log.stop_reason}"></td>
+													<td th:text="${log.admin_id}"></td>
+													<!-- <td th:text="${log.admin_name}"></td> -->
+													<td th:text="${#temporals.format(log.log_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
+												</tr>
+											</th:block>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<footer class="footer text-center text-muted">
+				All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
+			</footer>
+
+
+		</div>
+	</body>
+</th:block>
+</html>

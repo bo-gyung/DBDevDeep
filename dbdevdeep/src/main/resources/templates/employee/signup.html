@@ -2,73 +2,76 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
-.addPic {
-	background-color: gainsboro;
-	width: 100%;
-	aspect-ratio: 1/1;
-	border-radius: 50%;
-	border: none;
-	font-size: 25px;
-}
-
-.addPic, .littleButton {
-	transition: background-color 0.3s ease;
-}
-
-.addPic:hover, .littleButton:hover {
-	background-color: rgb(189, 189, 189);
-	cursor: pointer;
-}
-
-.littleButton {
-	background-color: gainsboro;
-	width: 35px;
-	height: 35px;
-	border-radius: 50%;
-	border: none;
-	font-size: 15px;
-	text-align: center;
-	position: relative;
-	bottom: 35px;
-	left: 85px;
-}
-
-.preview-container {
-	border-radius: 50%;
-	overflow: hidden;
-	width: 100%;
-	aspect-ratio: 1/1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	border: 2px solid lightgray;
-}
-
-#imagePreview {
-	width: 100%;
-	aspect-ratio: 1/1;
-	object-fit: cover;
-}
-
-.hidden {
-	display: none;
-}
-
-.centered-container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-</style>
+		.addPic {
+			background-color: gainsboro;
+			width: 100%;
+			aspect-ratio: 1/1;
+			border-radius: 50%;
+			border: none;
+			font-size: 25px;
+		}
+		
+		.addPic, .littleButton {
+			transition: background-color 0.3s ease;
+		}
+		
+		.addPic:hover, .littleButton:hover {
+			background-color: rgb(189, 189, 189);
+			cursor: pointer;
+		}
+		
+		.littleButton {
+			background-color: gainsboro;
+			width: 35px;
+			height: 35px;
+			border-radius: 50%;
+			border: none;
+			font-size: 15px;
+			text-align: center;
+			position: relative;
+			bottom: 35px;
+			left: 85px;
+		}
+		
+		.preview-container {
+			border-radius: 50%;
+			overflow: hidden;
+			width: 100%;
+			aspect-ratio: 1/1;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border: 2px solid lightgray;
+		}
+		
+		#imagePreview {
+			width: 100%;
+			aspect-ratio: 1/1;
+			object-fit: cover;
+		}
+		
+		.hidden {
+			display: none;
+		}
+		
+		.centered-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
 				<div class="card">
-					<div class="card-body">
-						<h4 class="card-title">직원 계정 등록</h4>
-						<hr>
+					<div class="card-body" style="padding: 50px;">
+						<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+									<div style="font-size: 30px;">직원 계정 등록</div>
+								</div>
+								<hr>
 						<form id="employeeAddFrm">
 							<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+							<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 							<div class="form-body">
 								<div class="row">
 									<div class="col-md-1 "></div>

@@ -304,35 +304,39 @@
                 
                 
            <div class="container">
-     		   <form id="approCreateFrm" method="POST">
+     		   <form id="docuUpdate" method="POST">
      		   <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 					<br><br>     		   
      			   <h2 class="text-center">보&nbsp;&nbsp;고&nbsp;&nbsp;서</h2>
      			   <br><br>
 				        <table class="table table-bordered">
 				            <tbody>
+				            		<input type="hidden" id="approNo" name="appro_no" th:value="${aDto.appro_no}">
 				                <tr>
 				                    <td>성명</td>
-				                    <td><input type="text" name="emp_name" th:value="${#authentication.principal.dto.emp_name}" readonly style="border: 0; outline: none;"></td>	
+				                    <td><input type="text" name="appro_name" th:value="${aDto.appro_name}" readonly style="border: 0; outline: none;"></td>	
 				                    <td>직원번호</td>
-				                    <td><input type="text" name="emp_id" th:value="${#authentication.principal.dto.emp_id}" readonly style="border: 0; outline: none;"></td>
+				                    <td><input type="text" name="emp_id" th:value="${aDto.emp_id}" readonly style="border: 0; outline: none;"></td>
 				                </tr>
 				                <tr>
 				                    <td>부서</td>
 				                    <td>
-									    <input type="text" name="dept_name" th:value="${#authentication.principal.dto.dept_name}" readonly style="border: 0; outline: none;">
+									    <input type="text" name="dept_name" th:value="${aDto.dept_code == 'D1' ? '교장' : 
+																                       aDto.dept_code == 'D2' ? '교감' :
+																                       aDto.dept_code == 'D3' ? '행정부' : '교무부'}" 
+									                       readonly style="border: 0; outline: none;">
 									    <!-- 숨겨진 필드로 dept_code 값을 유지 -->
-									    <input type="hidden" name="dept_code" th:value="${#authentication.principal.dto.dept_code}">
+									    <input type="hidden" name="dept_code" th:value="${aDto.dept_code}">
 									</td>
 				                    <td>직급</td>
 									<td>
 									    <input type="text" name="job_name_display" 
-									           th:value="${#authentication.principal.dto.job_code == 'J1' ? '교장' : 
-									                       #authentication.principal.dto.job_code == 'J2' ? '교감' :
-									                       #authentication.principal.dto.job_code == 'J3' ? '부장' : '직원'}"
+									           th:value="${aDto.job_code == 'J1' ? '교장' : 
+									                       aDto.job_code == 'J2' ? '교감' :
+									                       aDto.job_code == 'J3' ? '부장' : '직원'}"
 									           readonly style="border: 0; outline: none;">
 									    <!-- 실제 job_code를 숨겨진 필드로 추가 -->
-									    <input type="hidden" name="job_code" th:value="${#authentication.principal.dto.job_code}">
+									    <input type="hidden" name="job_code" th:value="${aDto.job_code}">
 									</td>
 				                
 				                </tr>
@@ -341,10 +345,14 @@
 				                    <td><input type="text" id="appro_title" name="appro_title" class="form-control" th:value="${aDto.appro_title}"></td>
 				                    <td>종류</td>
 				                    <td>
-				                    <select id="templateSelect" name="tempNo" class="form-control">
-										    <option value="">종류를 선택해주세요</option>
-										    <option th:each="template : ${tempList}" th:value="${template.temp_no}" th:text="${template.temp_name}"></option>
-									</select>
+									    <select id="templateSelect" name="tempNo" class="form-control">
+									        <option value="">종류를 선택해주세요</option>
+									        <option th:each="template : ${tempList}" 
+									                th:value="${template.temp_no}" 
+									                th:text="${template.temp_name}" 
+									                th:selected="${template.temp_no} == ${aDto.temp_no}">
+									        </option>
+									    </select>
 									</td>
 				                </tr>
 				                <tr>
@@ -358,6 +366,7 @@
 										                	</div>
 										                </div>
 										                <textarea id="approContent" name="appro_content" style="display:none;"></textarea>
+										                <input type="hidden" id="appro_content_hidden" th:value="${aDto.appro_content}">
 										            </div>
 										        </div>
 										    </div>
@@ -366,14 +375,14 @@
 				                <tr>
 					                <td>협의자</td>
 					                <td colspan="3"><button id="openTreeButton1" class="btn btn-primary" type="button">+</button>
-					                <input type="text" name="consult" id="selectedNodesTable1" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
+					                <input type="text" name="consult" id="selectedNodesTable1" readonly style="border: 0; outline: none; width: calc(100% - 50px);" th:value="''">
 					                </td>
 				                </tr>
 				                <tr>
 					                <td>결재자</td>
 									<td colspan="3">
 									    <button id="openTreeButton2" class="btn btn-primary" type="button">+</button>
-									    <input type="text" name="approval" id="selectedNodesTable2" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
+									    <input type="text" name="approval" id="selectedNodesTable2" readonly style="border: 0; outline: none; width: calc(100% - 50px);" th:value="''">
 									</td>
 				                </tr>
 				                
@@ -383,16 +392,12 @@
 				                </tr>
             				</tbody>
        					 </table>
-					        <div style= "display: flex; justify-content: space-between; align-items: center;">
-						        <div class="text-center mt-3">
-						        	<input type="button" value="목록" id="returnList" class="btn btn-success"></button>
-						        </div>
-						   
-						        <div class="text-center mt-3">
-						            <button type="button" id="saveBtn" class="btn btn-primary">임시 저장</button>
-									<button type="submit" id="submitBtn" class="btn btn-success" >결재 요청</button>
-						        </div>
-					        </div>
+					        		<div style="margin-left: auto; text-align: right; align-items: center;">
+                                        <div class="text-center mt-3"> 
+											<input type="button" value="취소" id="returnList" class="btn btn-primary"></button>	
+                                            <button type="submit" class="btn btn-success" >수정</button>
+                                        </div>
+                                    </div>
 					        </form>
 					    </div>
 							    <!-- 트리 모달창 -->
@@ -458,23 +463,41 @@
 	<!-- ============================================================== -->
 	<!-- Bootstrap tether Core JavaScript -->
 	
-
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	var consultData = /*[[${cDto != null ? cDto : '[]'}]]*/ [];
+	var approvalData = /*[[${lDto != null ? lDto : '[]'}]]*/ [];
+	
+	document.addEventListener("DOMContentLoaded", function() {
+	    var consultNames = consultData.filter(function(item) {
+	        return item.consult_yn === 'Y';
+	    }).map(function(item) {
+	        return item.appro_line_name + ' (' + item.emp_id + ')';
+	    }).join(' > ');
+	
+	    var approvalNames = approvalData.filter(function(item) {
+	        return item.consult_yn === 'N';
+	    }).map(function(item) {
+	        return item.appro_line_name + ' (' + item.emp_id + ')';
+	    }).join(' > ');
+	
+	    // Set the value to the input fields
+	    document.getElementById('selectedNodesTable1').value = consultNames;
+	    document.getElementById('selectedNodesTable2').value = approvalNames;
+	});
+	/*]]>*/
+	</script>
 
 	
-	<script src="assets/libs/popper.js/dist/umd/popper.min.js"></script>
-	<script src="assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-	<!-- apps -->
-	<script src="dist/js/app-style-switcher.js"></script>
-	<script src="dist/js/feather.min.js"></script>
-	<!-- slimscrollbar scrollbar JavaScript -->
-	<script src="assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script> 
-	<script src="assets/extra-libs/sparkline/sparkline.js"></script>
-	<!--Wave Effects -->
-	<!-- themejs -->
-	<!--Menu sidebar -->
-	<script src="dist/js/sidebarmenu.js"></script>
-	<!--Custom JavaScript -->
-	<script src="dist/js/custom.min.js"></script>
+	<script th:src="@{/assets/libs/popper.js/dist/umd/popper.min.js}"></script>
+	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.min.js}"></script>
+	<script th:src="@{/dist/js/app-style-switcher.js}"></script>
+	<script th:src="@{/dist/js/feather.min.js}"></script>
+	<script th:src="@{/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js}"></script>
+	<script th:src="@{/assets/extra-libs/sparkline/sparkline.js}"></script>
+	<script th:src="@{/dist/js/sidebarmenu.js}"></script>
+	<script th:src="@{/dist/js/custom.min.js}"></script>
+
 	
 	
 	
@@ -507,175 +530,149 @@
     
     <!-- tempEdit 내용 불러오기 -->
     <script>
-    // CKEditor가 초기화되었는지 여부를 저장하는 변수
+    // 에디터가 초기화되었는지 여부를 저장하는 변수
     let editorInitialized = false;
     let editorInstance;  // CKEditor 인스턴스를 저장할 변수
 
     document.addEventListener("DOMContentLoaded", function() {
         ClassicEditor
-            .create(document.querySelector('#editor'), {
-                // 테이블 관련 플러그인 추가
-                extraPlugins: ['Table', 'TableToolbar'],
-                
-                // 테이블에 기본 스타일 적용
-                table: {
-                    contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells'],
-                    tableProperties: {
-                        defaultProperties: {
-                            borderWidth: '1px',
-                            borderColor: '#000',
-                            width: '100%'
+        .create(document.querySelector('#editor'))
+        .then(editor => {
+            editorInstance = editor;  // CKEditor 인스턴스 저장
+            editorInitialized = true;  // CKEditor 초기화 완료 플래그
+            console.log("CKEditor initialized:", editorInstance);
+
+            // Hidden input에 있는 appro_content 값 가져오기
+            const approContent = document.getElementById('appro_content_hidden').value;
+            
+            // CKEditor에 값 설정 (HTML 데이터를 삽입)
+            if (approContent) {
+                editor.setData(approContent);  // CKEditor에 데이터 설정
+            }
+        })
+        .catch(error => {
+            console.error('CKEditor 초기화 중 오류 발생:', error);
+        });
+    });
+
+    // 템플릿 변경 시 에디터 데이터 설정
+    $('#templateSelect').change(function() {
+        var tempNo = $(this).val();
+        console.log("선택된 템플릿 ID:", tempNo);
+
+        if (tempNo) {
+            $.ajax({
+                url: '/getTempContent/' + tempNo,
+                method: 'GET',
+                success: function(data) {
+                    if (data && data.temp_content) {
+                        if (editorInitialized && typeof editorInstance.setData === 'function') {
+                            editorInstance.setData(data.temp_content);  // CKEditor에 데이터 설정
+                        } else {
+                            console.error("CKEditor가 아직 초기화되지 않았습니다.");
                         }
-                    },
-                    tableCellProperties: {
-                        defaultProperties: {
-                            borderWidth: '1px',
-                            borderColor: '#000',
-                            verticalAlign: 'middle',
-                        }
+                    } else {
+                        console.log("템플릿 내용이 없습니다.");
                     }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching template content:', error);
                 }
-            })
-            .then(editor => {
-                editorInstance = editor;  // CKEditor 인스턴스 저장
-                editorInitialized = true;  // CKEditor 초기화 완료 플래그
-                const approContent = /*[[${aDto.appro_content}]]*/ '';  // Thymeleaf를 사용하여 서버에서 전달된 데이터 주입
-                if (approContent) {
-                    editor.setData(approContent);  // 에디터에 HTML 데이터를 설정
-                }
-            })
-            .catch(error => {
-                console.error('CKEditor 초기화 중 오류 발생:', error);
             });
+        } else {
+            if (editorInitialized && typeof editorInstance.setData === 'function') {
+                editorInstance.setData('');  // 에디터 내용을 초기화
+            }
+        }
     });
 
-    </script>
-    
-    
-    <script>
-    // 임시저장
-    document.getElementById('saveBtn').addEventListener('click', function () {
-        handleSave();  
+    // 취소 버튼 처리
+    $('#returnList').on('click', function() {
+        Swal.fire({
+            title: '수정을 취소 하시겠습니까?',
+            text: '변경된 내용은 저장되지 않습니다.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#5f76e8',
+            cancelButtonColor: '#e8eaec',
+            confirmButtonText: '이동',
+            cancelButtonText: '취소',
+            customClass: {
+                cancelButton: 'custom-cancel-button'
+            }
+        }).then((result) => {
+            if(result.isConfirmed) {
+                window.history.back();
+            }
+        });
     });
 
-    // 승인 요청
-    document.getElementById('submitBtn').addEventListener('click', function (event) {
-        event.preventDefault();  // 기본 submit 방지
-        handleSubmit();  // 유효성 검사 및 제출 처리 함수 호출
-    });
+    // 결재 요청 유효성 검사 및 처리 함수
+    const approNo = document.getElementById('approNo').value;
+    const form = document.getElementById('docuUpdate');
 
-    // 임시 저장 처리 함수
-    function handleSave(){
-        const form = document.getElementById('approCreateFrm');
-        const formData = new FormData(form);
-        const csrfToken = document.getElementById("csrf_token").value;
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();  
 
-        if (form.appro_title.value == ""){
+        let vali_check = false;
+
+        if (form.appro_title.value == "") {
             Swal.fire({
                 icon: 'error',
                 title: '제목을 입력해주세요',
                 confirmButtonText: '닫기'
             });
-            return;
-        }
-
-        fetch('/draftApprove', {
-            method: 'POST',
-            headers:{
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.res_code == '200'){
-                Swal.fire({
-                    icon: 'success',
-                    title: '성공',
-                    text: data.res_msg,
-                    confirmButtonText: "닫기"
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: '실패',
-                    text: data.res_msg,
-                    confirmButtonText: "닫기"
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    }
-
-    // 결재 요청 유효성 검사 및 처리 함수
-    function handleSubmit() {
-        const form = document.getElementById('approCreateFrm'); 
-        const formData = new FormData(form); 
-        const csrfToken = document.getElementById("csrf_token").value;
-		const editorValue = document.getElementById("editor").value;
-        if (editorInitialized && editorInstance) {
-        const editorContent = editorInstance.getData();
-        document.getElementById('approContent').value = editorContent; 
-    }
-
-     // **FormData 수동으로 추가하기**
-        formData.set('appro_content', document.getElementById('approContent').value);
-        
-        // 유효성 검사
-        if (form.appro_title.value == "") {
-            Swal.fire({
-                icon: 'error',
-                title: '제목을 입력해주세요',
-                confirmButtonText: "닫기"
-            });
-            return;
         } else if (form.approval.value == "") {
             Swal.fire({
                 icon: 'error',
                 title: '결재자를 선택해주세요',
-                confirmButtonText: "닫기"
+                confirmButtonText: '닫기'
             });
             form.approval.focus();
-            return;
+        } else {
+            vali_check = true;
         }
-
-        fetch('/docuApproUp', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': csrfToken 
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.res_code == '200') {
-                Swal.fire({
-                    icon: 'success',
-                    title: '성공',
-                    text: data.res_msg,
-                    confirmButtonText: "닫기"
-                }).then(() => {
-                    location.href = "/";
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: '실패',
-                    text: data.res_msg,
-                    confirmButtonText: "닫기"
-                });
+        
+        if (vali_check) {
+        	if (editorInitialized && editorInstance) {
+                const editorContent = editorInstance.getData();
+                document.getElementById('approContent').value = editorContent; 
             }
-        })
-        .catch(error => {
-            console.error('Error:', error); 
-        });
-    }
+
+            const formData = new FormData(form);
+            const csrfToken = document.getElementById("csrf_token").value;
+            fetch('/docuReUp/' + approNo, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.res_code == '200') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '성공',
+                        text: data.res_msg,
+                        confirmButtonText: '닫기'
+                    }).then((result) => {
+                        window.history.back();  // 페이지 이동
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '실패',
+                        text: data.res_msg,
+                        confirmButtonText: '닫기'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
 </script>
-
-
 </th:block>
-	
-
 </html>

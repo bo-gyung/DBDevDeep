@@ -486,7 +486,17 @@
     
     // 문서 삭제 
     const approDelete = function(approNo) {
-        if (confirm("정말 삭제하시겠습니까?")) {
+    // 삭제 여부를 Swal로 물어봄
+    Swal.fire({
+        title: '정말 삭제하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+    }).then((result) => {
+        if (result.isConfirmed) {
             const csrfToken = document.getElementById("csrf_token").value; // CSRF 토큰 가져오기
 
             fetch('/appro/' + approNo, {
@@ -497,16 +507,17 @@
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data);
-                if (data.res_code == '200') {
+                if (data.res_code === '200') {
+                    // 삭제 성공 시 Swal로 성공 메시지 띄움
                     Swal.fire({
                         icon: 'success',
-                        title: '성공',
+                        title: '삭제 완료',
                         text: data.res_msg
-                    }).then((result) => {
-                        location.href = "/approve";
+                    }).then(() => {
+                        location.href = "/approve"; // 삭제 후 리디렉션
                     });
                 } else {
+                    // 삭제 실패 시 Swal로 오류 메시지 띄움
                     Swal.fire({
                         icon: 'error',
                         title: '오류',
@@ -514,11 +525,20 @@
                         confirmButtonText: '닫기'
                     });
                 }
-            }).catch(error => {
+            })
+            .catch(error => {
                 console.error('Error during fetch:', error); // 오류 로그 추가
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류',
+                    text: '삭제 중 문제가 발생했습니다.',
+                    confirmButtonText: '닫기'
+                });
             });
         }
-    }
+    });
+}
+
 
 	</script>
     	

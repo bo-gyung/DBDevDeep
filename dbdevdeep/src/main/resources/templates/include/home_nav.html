@@ -163,6 +163,18 @@
             .work_status{
                 color: #3A9900;
             }
+            
+            .work-check-in {
+            	color: #3A9900;
+            }
+            
+            .work-check-out {
+            	color: #0031AE; 
+            }
+            
+            .work-check-none {
+            	color: red;
+            }
 
         </style>
         <aside class="left-sidebar" data-sidebarbg="skin6">
@@ -172,7 +184,7 @@
                 <div class="sidebar_container">
                     <div class="sidebar_div profile_section">
                         <div class="profile_image">
-                            <img th:src="@{'/UploadImg/employee/' + ${#authentication.principal.dto.new_pic_name}}" alt="Profile Picture">
+                            <img th:src="@{'/UploadImg/employee/' + ${#authentication.principal.dto.new_pic_name}}" alt="Profile Picture"  onerror="this.onerror=null; this.src='/assets/images/users/user-profile.png';">
                         </div>
                         <div class="profile_name">
                             <div><span class="text-dark" sec:authentication="principal.dto.emp_name"></span></div> <!-- 이름을 여기에 입력 -->
@@ -218,7 +230,7 @@
                                     </tr>
                                     <tr>
                                         <td class="info_label">업무 상태</td>
-                                        <td class="info_value work_status" id="checkStatus">출근 전</td>
+                                        <td class="info_value work-check-none" id="checkStatus">출근 전</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -239,7 +251,7 @@
                     </div>
                 </div>
             </div>
-            <script>
+            <script>            
 	            let today = new Date();   
 	            
 	            let year = today.getFullYear(); // 년도
@@ -384,10 +396,17 @@
 						  
 						  if(workStatus == 0) {
 							  document.getElementById('checkStatus').innerText = '출근 전';
+							  document.getElementById('checkStatus').classList.add('work-check-none');
+							  document.getElementById('checkStatus').classList.remove('work-check-in');
+							  document.getElementById('checkStatus').classList.remove('work-check-out');
 						  } else if(workStatus == 1) {
 							  document.getElementById('checkStatus').innerText = '출근';
 							  document.getElementById('checkInBtn').disabled = true;
 							  document.getElementById('checkOutBtn').disabled = false;
+							  
+							  document.getElementById('checkStatus').classList.remove('work-check-none');
+							  document.getElementById('checkStatus').classList.add('work-check-in');
+							  document.getElementById('checkStatus').classList.remove('work-check-out');
 							  
 							  document.getElementById('attend_no').value = attendNo;
 							  document.getElementById('attend_date').value = attendDate;
@@ -397,6 +416,10 @@
 							  document.getElementById('checkStatus').innerText = '퇴근';
 							  document.getElementById('checkOutBtn').disabled = true;
 							  document.getElementById('checkInBtn').disabled = true;
+							  
+							  document.getElementById('checkStatus').classList.remove('work-check-none');
+							  document.getElementById('checkStatus').classList.remove('work-check-in');
+							  document.getElementById('checkStatus').classList.add('work-check-out');
 						  }
 						  
 						  if(attendNo != null) {
