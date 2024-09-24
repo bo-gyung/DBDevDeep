@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -34,7 +35,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
         this.alertMessageHandler = alertMessageHandler;
     }
     
-    // private Map<String,WebSocketSession> clients = new HashMap<String,WebSocketSession>();
+    
+    
+     private Map<String,WebSocketSession> clients = new HashMap<String,WebSocketSession>();
 
     // 클라이언트가 연결되었을 때 동작
     @Override
@@ -56,13 +59,18 @@ public class WebSocketHandler extends TextWebSocketHandler {
         // 대분류 -> 중분류 -> 소분류. 총 세단계로 분류
         // (type -> subType -> Action)
         
-        // type : CHAT / ALERT [ 채팅(개인/단체/채팅알림) / 알림(공지/문서/일정?) ]
+        // type : CHAT / ALERT [ 채팅(개인/단체/채팅알림) / 알림(공지/문서/결재) ]
         // subType : PRIVATE & GROUP / 알림분류1 & 알림분류2
         // action : CREATE_ROOM & SEND_MESSAGE / 알림액션1 & 알림액션2
 
         try {
         	// json -> SendMessage 형태 변환
             messageMap = objectMapper.readValue(payload, Map.class);
+            
+            for(String msg : messageMap.keySet()) {
+            	System.out.println(messageMap.keySet() + ": " + msg);
+            }
+            
         } catch (IOException e) {
             logger.error("Failed to parse message payload: " + payload, e);
             session.sendMessage(new TextMessage("Invalid message format"));
@@ -81,9 +89,10 @@ public class WebSocketHandler extends TextWebSocketHandler {
             case "CHAT":
                 chatMessageHandler.handleChatMessage(session, messageMap);
                 break;
-//            case "ALERT":
+            case "ALERT":
 //            	alertMessageHandler.handleAlertMessage(session, messageMap);
-//            	break;
+				System.out.println("=== 등록 확인 ===");
+            	break;
             default:
                 logger.warn("Unhandled message type: " + type);
                 break;

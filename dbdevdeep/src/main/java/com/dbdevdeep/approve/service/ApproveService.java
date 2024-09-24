@@ -1,20 +1,22 @@
 package com.dbdevdeep.approve.service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.sql.Timestamp;
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dbdevdeep.FileService;
+import com.dbdevdeep.alert.config.AlertMessageHandler;
+import com.dbdevdeep.alert.domain.Alert;
+import com.dbdevdeep.alert.domain.AlertDto;
+import com.dbdevdeep.alert.repository.AlertRepository;
 import com.dbdevdeep.approve.domain.ApproFile;
 import com.dbdevdeep.approve.domain.ApproFileDto;
 import com.dbdevdeep.approve.domain.Approve;
@@ -43,7 +45,6 @@ import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.JobRepository;
 import com.dbdevdeep.employee.repository.MySignRepository;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -60,6 +61,8 @@ public class ApproveService {
 	private final JobRepository jobRepository;
 	private final TempEditRepository tempEditRepository;
 	private final MySignRepository mySignRepository;
+	private final AlertRepository alertRepository;
+	private final AlertMessageHandler alertMessageHandler;
 	
 	@Autowired
 	public ApproveService(ApproveRepository approveRepository, 
@@ -72,7 +75,9 @@ public class ApproveService {
             JobRepository jobRepository,
             TempEditRepository tempEditRepository,
             FileService fileService,
-            MySignRepository mySignRepository) {
+            MySignRepository mySignRepository,
+            AlertRepository alertRepository,
+            AlertMessageHandler alertMessageHandler) {
 		this.approveRepository = approveRepository;
 		this.vacationRequestRepository = vacationRequestRepository;
         this.approveLineRepository = approveLineRepository;
@@ -84,6 +89,8 @@ public class ApproveService {
         this.tempEditRepository = tempEditRepository;
         this.fileService = fileService;
         this.mySignRepository = mySignRepository;
+        this.alertRepository = alertRepository;
+        this.alertMessageHandler = alertMessageHandler;
 	}
 	
 	// 보고서 삭제
@@ -187,15 +194,41 @@ public class ApproveService {
 	    		nextDto.setAppro_line_status(1);
 	    		Employee nextEmployee = employeeRepository.findByempId(nextApproveLine.getEmployee().getEmpId());
 	    		ApproveLine nextEmpDto = nextDto.toEntity(approve, nextEmployee);
-	    		approveLineRepository.save(nextEmpDto);
+	    		ApproveLine a = approveLineRepository.save(nextEmpDto);
+	    		
+	    		// 승인 시 alert에 저장 
+	    		// 다음 결재자에게 alert
+	    		if(a != null) {
+	    			AlertDto alertDto = new AlertDto();
+		    		alertDto.setReference_name("approve_line");
+		    		alertDto.setReference_no(a.getApproLineNo());
+		    		alertDto.setAlarm_content(a.getApprove().getApproTitle() + a.getApprove().getApproType());
+		    		alertDto.setRead_yn("N");
+		    		
+		    		Alert alert = alertDto.toEntity(a.getEmployee());
+		    		alertRepository.save(alert);
+	    		}
 	    	}
-	    }else {
+	    } else { // 최종 승인
 	    	if(approve != null) {
 	    		ApproveDto aDto = new ApproveDto().toDto(approve);
 	    		aDto.setAppro_no(approNo);
 	    		aDto.setAppro_status(1);
 	    		Approve finalApprove = aDto.toEntity(employee, department, job, null);
-	    		approveRepository.save(finalApprove);
+	    		Approve a = approveRepository.save(finalApprove);
+	    		
+	    		// 보고서 승인 시 alert에 저장
+	    		// 최종 승인 시 결재 요청자에게 alert
+	    		if(a != null) {
+	    			AlertDto alertDto = new AlertDto();
+		    		alertDto.setReference_name("approve");
+		    		alertDto.setReference_no(a.getApproNo());
+		    		alertDto.setAlarm_content(a.getApproTitle() + a.getApproType() + a.getApproStatus());
+		    		alertDto.setRead_yn("N");
+		    		
+		    		Alert alert = alertDto.toEntity(a.getEmployee());
+		    		alertRepository.save(alert);
+	    		}
 	    	}
 	    }
 	    return 1;
@@ -215,7 +248,20 @@ public class ApproveService {
 	    ApproveDto approveDto = new ApproveDto().toDto(approve); // 기존 Approve를 DTO로 변환
 	    approveDto.setAppro_status(2); // 반려 상태로 설정
 	    Approve updatedApprove = approveDto.toEntity(employee, department, job, null); // DTO를 다시 엔티티로 변환
-	    approveRepository.save(updatedApprove); // 업데이트된 엔티티 저장
+	    Approve alertApprove = approveRepository.save(updatedApprove); // 업데이트된 엔티티 저장
+	    
+	    // 보고서 반려 시 alert에 저장
+	    // 반려 시 결재 요청자에게 alert
+	    if(alertApprove != null) {
+	    	AlertDto alertDto = new AlertDto();
+	    	alertDto.setReference_name("approve");
+	    	alertDto.setReference_no(alertApprove.getApproNo());
+	    	alertDto.setRead_yn("N");
+	    	alertDto.setAlarm_content(alertApprove.getApproTitle() + alertApprove.getApproType() + alertApprove.getApproStatus());
+	    	
+	    	Alert alert = alertDto.toEntity(alertApprove.getEmployee());
+	    	alertRepository.save(alert);
+	    }
 
 	    String backSign = "반려";
 	    
@@ -246,7 +292,20 @@ public class ApproveService {
 	    ApproveDto approveDto = new ApproveDto().toDto(approve); // 기존 Approve를 DTO로 변환
 	    approveDto.setAppro_status(2); // 반려 상태로 설정
 	    Approve updatedApprove = approveDto.toEntity(employee, department, job, null); // DTO를 다시 엔티티로 변환
-	    approveRepository.save(updatedApprove); // 업데이트된 엔티티 저장
+	    Approve alertApprove = approveRepository.save(updatedApprove); // 업데이트된 엔티티 저장
+	    
+	    // 휴가 반려 시 alert에 저장
+	    // 반려 시 결재 요청자에게 alert
+	    if(alertApprove != null) {
+	    	AlertDto alertDto = new AlertDto();
+	    	alertDto.setReference_name("approve");
+	    	alertDto.setReference_no(alertApprove.getApproNo());
+	    	alertDto.setRead_yn("N");
+	    	alertDto.setAlarm_content(alertApprove.getApproTitle() + alertApprove.getApproType() + alertApprove.getApproStatus());
+	    	
+	    	Alert alert = alertDto.toEntity(alertApprove.getEmployee());
+	    	alertRepository.save(alert);
+	    }
 
 	    String backSign = "반려";
 	    // 3. ApproveLine 엔티티 업데이트
@@ -487,6 +546,7 @@ public class ApproveService {
 	    return detailMap;
 	}
 	
+	// 결재 상세
 	public Map<String, Object> getApproveDetail(Long approNo) {
 	    Map<String, Object> detailMap = new HashMap<>();
 
@@ -580,7 +640,6 @@ public class ApproveService {
 	}
 	
 	// 보고서 수정
-	
 	@Transactional
 	public int docuUpdate(ApproveDto approveDto, List<ApproveLineDto> approveLineDtos, ApproFileDto approFileDto, MultipartFile file) {
 		Employee employee = employeeRepository.findByempId(approveDto.getEmp_id());
@@ -738,6 +797,9 @@ public class ApproveService {
 	    approve = approveRepository.save(approve);
 	    Long approNo = approve.getApproNo();
 	    
+	    // alert에 저장하기 위한 ApproveLine 선언
+	    ApproveLine alertApproLine = null;
+	    
 	    for (ApproveLineDto lineDto : approveLineDtos) {
 	        lineDto.setAppro_no(approNo); // Approve의 appro_no 설정
 	        
@@ -748,7 +810,24 @@ public class ApproveService {
 	        }
 
 	        ApproveLine approveLine = lineDto.toEntity(approve, lineEmployee);
-	        approveLineRepository.save(approveLine);
+	        ApproveLine a = approveLineRepository.save(approveLine);
+	        
+	        if(a.getApproLineStatus() == 1) {
+	        	alertApproLine = a;
+	        }
+	    }
+	    
+	    // alertApproLine != null이면 alert에 저장
+	    // 결재자에게 alert
+	    if(alertApproLine != null) {
+	    	AlertDto alertDto = new AlertDto();
+	    	alertDto.setReference_name("approve_line");
+	    	alertDto.setReference_no(alertApproLine.getApproLineNo());
+	    	alertDto.setRead_yn("N");
+	    	alertDto.setAlarm_content(alertApproLine.getApprove().getApproTitle() + alertApproLine.getApprove().getApproType());
+	    	
+	    	Alert alert = alertDto.toEntity(alertApproLine.getEmployee());
+	    	alertRepository.save(alert);
 	    }
 	    
 	    if (approFileDto != null) { // approFileDto가 null이 아닐 때만 저장
@@ -792,7 +871,9 @@ public class ApproveService {
 	    vacationRequestRepository.save(vacationRequest);
 	    
 	    
-	 // 3. approve_Line 테이블에 저장
+	    ApproveLine alertApproveLine = null; // 처음 결재 요청 시 해당하는 결재자에게 alert
+	    
+	    // 3. approve_Line 테이블에 저장
 	    for (ApproveLineDto lineDto : approveLineDtos) {
 	        lineDto.setAppro_no(approNo); // Approve의 appro_no 설정
 
@@ -803,7 +884,26 @@ public class ApproveService {
 	        }
 
 	        ApproveLine approveLine = lineDto.toEntity(approve, lineEmployee);
-	        approveLineRepository.save(approveLine);
+	        ApproveLine a = approveLineRepository.save(approveLine);
+	        
+	        if(a.getApproLineStatus() == 1) {
+	        	alertApproveLine = a; // approve_status == 1인 경우 emp_id에 alert
+	        }
+	    }
+	    
+	    // alertApproveLine != null이면 alert에 저장
+	    // 결재자에게 alert
+	    if(alertApproveLine != null) {
+	    	AlertDto alertDto = new AlertDto();
+	    	alertDto.setReference_name("approve_line");
+	    	alertDto.setReference_no(alertApproveLine.getApproLineNo());
+	    	alertDto.setRead_yn("N");
+	    	alertDto.setAlarm_content(alertApproveLine.getApprove().getApproTitle() + alertApproveLine.getApprove().getApproType());
+	    	
+	    	Alert alert = alertDto.toEntity(alertApproveLine.getEmployee());
+	    	if(alertRepository.save(alert) != null) {
+	    		alertMessageHandler.sendAlertMessageToUser(alert.getEmployee().getEmpId(), alert);
+	    	}
 	    }
 
 	    // 4. reference 테이블에 저장
@@ -817,7 +917,9 @@ public class ApproveService {
 	        }
 
 	        Reference reference = refDto.toEntity(approve, refEmployee);
-	        referenceRepository.save(reference);
+	        Reference r = referenceRepository.save(reference);
+	        
+	        // 참조자 알람 구현 필요
 	    }
 
 	    // 5. appro_file 테이블에 저장
