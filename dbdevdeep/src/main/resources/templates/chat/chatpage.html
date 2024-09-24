@@ -28,7 +28,7 @@
                                     </div>
                                     <!-- 채팅방 목록 검색창 검색창 끝 -->
                                     <!-- 개설된 채팅방 목록 시작 -->
-                                    <div class="scrollable position-relative" style="height: 70vh;">
+                                    <div class="scrollable position-relative" style="height: 70vh;" th:fragment="chatRoomList">
                                         <ul class="mailbox list-style-none">
                                             <li>
                                                 <div class="message-center">
@@ -66,43 +66,36 @@
                                 </div>
                                 <!--채팅방 목록 끝 -->
                                 <!-- 채팅방 상세 시작 -->
-                                <div class="col-lg-9">
-                                    <div class="chat-box scrollable position-relative"
+                                <div class="col-lg-9" id="chat-container">
+                                    <div class="chat-box scrollable position-relative" id="messageContainer"
                                         style="height: 70vh;">
-                                        <!--chat Row -->
+                                        <!-- 전체 채팅 리스트 시작 -->
                                         <ul class="chat-list list-style-none px-3 pt-3">
-                                            <!--chat Row -->
+                                        
+                                            <!-- 상대방 -->
                                             <li class="chat-item list-style-none mt-3">
+                                                <!-- 상대방 사진 -->
                                                 <div class="chat-img d-inline-block"><img
                                                         src="assets/images/users/1.jpg" alt="user"
                                                         class="rounded-circle" width="45">
                                                 </div>
+                                                <!-- 메세지 공간 -->
                                                 <div class="chat-content d-inline-block pl-3">
+                                                	<!-- 상대방 이름 -->
                                                     <h6 class="font-weight-medium">James Anderson</h6>
+                                                    <!-- 상대방 대화내용 -->
                                                     <div class="msg p-2 d-inline-block mb-1">Lorem
                                                         Ipsum is simply
                                                         dummy text of the
                                                         printing &amp; type setting industry.</div>
                                                 </div>
+                                                <!-- 메세지 전송 시간 -->
                                                 <div class="chat-time d-block font-10 mt-1 mr-0 mb-3">10:56 am
                                                 </div>
                                             </li>
-                                            <!--chat Row -->
-                                            <li class="chat-item list-style-none mt-3">
-                                                <div class="chat-img d-inline-block"><img
-                                                        src="assets/images/users/2.jpg" alt="user"
-                                                        class="rounded-circle" width="45">
-                                                </div>
-                                                <div class="chat-content d-inline-block pl-3">
-                                                    <h6 class="font-weight-medium">Bianca Doe</h6>
-                                                    <div class="msg p-2 d-inline-block mb-1">It’s
-                                                        Great opportunity to
-                                                        work.</div>
-                                                </div>
-                                                <div class="chat-time d-block font-10 mt-1 mr-0 mb-3">10:57 am
-                                                </div>
-                                            </li>
-                                            <!--chat Row -->
+                                            <!-- 상대방 끝 -->
+                                            
+                                            <!-- 사용자 -->
                                             <li class="chat-item odd list-style-none mt-3">
                                                 <div class="chat-content text-right d-inline-block pl-3">
                                                     <div class="box msg p-2 d-inline-block mb-1">I
@@ -111,7 +104,6 @@
                                                     <br>
                                                 </div>
                                             </li>
-                                            <!--chat Row -->
                                             <li class="chat-item odd list-style-none mt-3">
                                                 <div class="chat-content text-right d-inline-block pl-3">
                                                     <div class="box msg p-2 d-inline-block mb-1 box">
@@ -122,54 +114,21 @@
                                                 <div class="chat-time text-right d-block font-10 mt-1 mr-0 mb-3">
                                                     10:59 am</div>
                                             </li>
-                                            <!--chat Row -->
-                                            <li class="chat-item list-style-none mt-3">
-                                                <div class="chat-img d-inline-block"><img
-                                                        src="assets/images/users/3.jpg" alt="user"
-                                                        class="rounded-circle" width="45">
-                                                </div>
-                                                <div class="chat-content d-inline-block pl-3">
-                                                    <h6 class="font-weight-medium">Angelina Rhodes</h6>
-                                                    <div class="msg p-2 d-inline-block mb-1">Well we
-                                                        have good budget
-                                                        for the project
-                                                    </div>
-                                                </div>
-                                                <div class="chat-time d-block font-10 mt-1 mr-0 mb-3">11:00 am
-                                                </div>
-                                            </li>
-                                            <!--chat Row -->
-                                            <li class="chat-item odd list-style-none mt-3">
-                                                <div class="chat-content text-right d-inline-block pl-3">
-                                                    <div class="box msg p-2 d-inline-block mb-1">I
-                                                        would love to
-                                                        join the team.</div>
-                                                    <br>
-                                                </div>
-                                            </li>
-                                            <!--chat Row -->
-                                            <li class="chat-item odd list-style-none mt-3">
-                                                <div class="chat-content text-right d-inline-block pl-3">
-                                                    <div class="box msg p-2 d-inline-block mb-1 box">
-                                                        Whats budget
-                                                        of the new project.</div>
-                                                    <br>
-                                                </div>
-                                                <div class="chat-time text-right d-block font-10 mt-1 mr-0 mb-3">
-                                                    10:59 am</div>
-                                            </li>
+                                            <!-- 사용자 끝 --> 
                                         </ul>
+                                        <!-- 전체 채팅 리스트 끝 -->
+                                        
                                     </div>
                                     <div class="card-body border-top">
                                         <div class="row">
                                             <div class="col-9">
                                                 <div class="input-field mt-0 mb-0">
-                                                    <input id="textarea1" placeholder="Type and enter"
+                                                    <input id="messageInput" placeholder="대화를 입력하세요."
                                                         class="form-control border-0" type="text">
                                                 </div>
                                             </div>
                                             <div class="col-3">
-                                                <a class="btn-circle btn-lg btn-cyan float-right text-white"
+                                                <a class="btn-circle btn-lg btn-cyan float-right text-white" id="sendButton" 
                                                     href="javascript:void(0)"><i class="fas fa-paper-plane"></i></a>
                                             </div>
                                         </div>
@@ -202,20 +161,76 @@
     <!-- ============================================================== -->
     <!-- This page JavaScript -->
     <!-- ============================================================== -->
-    <script>
-        $(function () {
-            $(document).on('keypress', "#textarea1", function (e) {
-                if (e.keyCode == 13) {
-                    var id = $(this).attr("data-user-id");
-                    var msg = $(this).val();
-                    msg = msg_sent(msg);
-                    $("#someDiv").append(msg);
-                    $(this).val("");
-                    $(this).focus();
-                }
-            });
-        });
-    </script>
+	<script type="text/javascript">
+		// 페이지 로드 시 웹소켓 연결 및 버튼 클릭 이벤트 설정
+		window.addEventListener("load", function() {
+		    // 웹소켓 연결 시도
+		    if (typeof connectWebSocket === 'function') {
+		        // connectWebSocket 호출 시도
+		        connectWebSocket(); // 웹소켓 연결
+		    } else {
+		        console.error("connectWebSocket 함수가 정의되지 않았습니다. 웹소켓 파일이 로드되었는지 확인하세요.");
+		    }
+	
+		    // 전송 버튼 클릭 이벤트 설정
+		    const sendButton = document.getElementById("sendButton");
+		    if (sendButton) {
+		        sendButton.addEventListener("click", function() {
+		            sendMessage(); // 메시지 전송 함수 호출
+		        });
+		        // 전송 버튼에 이벤트 리스너가 추가 완료
+		    } else {
+		        console.warn("전송 버튼(sendButton)을 찾을 수 없습니다. 버튼 ID를 확인하세요.");
+		    }
+	
+		    // Enter 키로 메시지 전송
+		    const messageInput = document.getElementById("messageInput");
+		    if (messageInput) {
+		        messageInput.addEventListener("keypress", function(event) {
+		            if (event.key === 'Enter') {
+		                sendMessage(); // 메시지 전송 함수 호출
+		            }
+		        });
+		        // 메시지 입력 필드에 'Enter' 키 이벤트 리스너가 추가 완료
+		    } else {
+		        console.warn("메시지 입력 필드(messageInput)를 찾을 수 없습니다. 입력 필드 ID를 확인하세요.");
+		    }
+		});
+		
+
+		// 메시지를 전송하는 함수
+		function sendMessage() {
+		    const msg = document.getElementById("messageInput").value;
+		    const message={
+		    		type:'CHAT',
+					subType: 'PRIVATE',
+					action: 'SEND_MESSAGE',
+					msg: msg
+		    }
+		    if (socket && socket.readyState === WebSocket.OPEN) {
+		    	socket.send(JSON.stringify(message)); // JSON 문자열로 변환하여 전송
+		    	document.getElementById("messageInput").value = ""; // 입력 필드 초기화
+		    } else {
+		        console.log("웹소켓이 연결되지 않았습니다.");
+		    }
+		}
+
+		// 메시지를 화면에 표시하는 함수
+		function displayMessage(message) {
+		    const messageContainer = document.getElementById("messageContainer");
+		    if (messageContainer) { // 요소 존재 여부 확인
+		        const messageElement = document.createElement("p");
+		        messageElement.innerText = message;
+		        messageElement.style.color = "blue"; // 알림 메시지 색상 변경
+		        messageContainer.appendChild(messageElement);
+		        messageContainer.scrollTop = messageContainer.scrollHeight; // 스크롤을 맨 아래로
+		    } else {
+		        console.log("messageContainer 요소가 없습니다.");
+		    }
+		}
+
+
+	</script>
     <!-- ============================================================== -->
     <!-- end page JavaScript -->
     <!-- ============================================================== -->

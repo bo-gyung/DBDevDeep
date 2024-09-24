@@ -8,24 +8,23 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" th:href="@{/assets/images/MulMang_logo.png}">
+	<link rel="icon" type="image/png" sizes="16x16" th:href="@{/assets/images/MulMang_logo.png}">
     <title>물망초등학교</title>
     <!-- Custom CSS -->
-    <link href="assets/extra-libs/c3/c3.min.css" rel="stylesheet">
-    <link href="assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
-    <link href="assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
+    <link href="/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
+    <link href="/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
+    <link href="/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
     <!-- Custom CSS -->
-    <link href="dist/css/style.min.css" rel="stylesheet">
+    <link href="/dist/css/style.min.css" rel="stylesheet">
 </head>
 <body>
 	<div id="main-wrapper" data-theme="light" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
         data-sidebar-position="fixed" data-header-position="fixed" data-boxed-layout="full">
 	<th:block th:replace="~{include/header :: headerLayout}"></th:block>
-	<th:block th:replace="~{include/home_nav :: homeNavLayout}"></th:block>
+	<th:block th:replace="~{include/attendance_nav :: attendanceNavLayout}"></th:block>
 	<th:block layout:fragment="content">
 	</th:block>
 	</div>
-	<!-- 웹소켓 연결 설정 js -->
-    <script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
+	
 </body>
 </html>
