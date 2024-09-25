@@ -62,7 +62,7 @@
 							                
 							                <td>
 								                <input type="hidden" name="curriculum_no" th:value="${curri.curriculum_no}"/>
-	                    						<input type="hidden" name="student_no" th:value="${resultList.student_no}"/>
+	                    						<input type="hidden" id="student_no" name="student_no" th:value="${resultList.student_no}"/>
 											    <input type="text" name="score" id="score" th:value="${scoreList.get(curri.curriculum_no) != null ? scoreList.get(curri.curriculum_no) : ''}" />
 											</td>
 							            </th:block>
@@ -74,6 +74,7 @@
 							<input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
 				            <input type="submit" value="등록">
 	            		</form>
+	            		<button id="download_excel">엑셀 다운</button>
 					</div>
             	</div>
 				</div>
@@ -91,6 +92,16 @@
 	<script src="/dist/js/sidebarmenu.js"></script>
 	<script src="/dist/js/custom.min.js"></script>
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+	  $(document).ready(function () {
+		  const studentNo = document.getElementById("student_no").value; 
+	    
+	    $('#download_excel').on('click', function () {
+	      const url = '/excel/download/' + studentNo; // studentNo를 URL에 추가
+	      window.location.href = url;  // 해당 URL로 요청하여 다운로드
+	    });
+	  });
+	</script>
 	<script>
 		const form = document.getElementById("score_register_form");
 	

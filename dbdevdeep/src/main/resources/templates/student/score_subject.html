@@ -66,14 +66,15 @@
 								        	<input type="hidden" th:value="${curri.curriculum_no}" name="curriculum_no">
 						                    <input type="hidden" th:value="${studentClass.student_no}" name="student_no">
 						                    <input type="text" style="width: 100px;" name="score" id="score" 
-                   th:value="${(scoreList != null && scoreList.get(studentClass.student_no) != null) ? 
-                     (scoreList.get(studentClass.student_no).get(curri.getCurriculum_no) != null ? 
-                     scoreList.get(studentClass.student_no).get(curri.getCurriculum_no) : '') : ''}">
+						                   th:value="${(scoreList != null && scoreList.get(studentClass.student_no) != null) ? 
+						                     (scoreList.get(studentClass.student_no).get(curri.getCurriculum_no) != null ? 
+						                     scoreList.get(studentClass.student_no).get(curri.getCurriculum_no) : '') : ''}">
 								        </td>
 								    </th:block>
 					
 								</tbody>
 						    </table>
+						    <button id="download_excel">엑셀 다운</button>
 						    <input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
 				            <input type="submit" value="등록">
 	            		</form>
@@ -94,7 +95,13 @@
 	<script src="/dist/js/sidebarmenu.js"></script>
 	<script src="/dist/js/custom.min.js"></script>
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-	
+	<script>
+	  $(document).ready(function () {
+	    $('#download_excel').on('click', function () {
+	       location.href = '/excel/download';
+	    });
+	  });
+	</script>
 	<script>
 	const form=document.getElementById("score_register_subject_form");
 	form.addEventListener('submit',(e)=>{
