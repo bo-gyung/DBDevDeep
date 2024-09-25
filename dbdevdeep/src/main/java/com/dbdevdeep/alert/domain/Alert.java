@@ -1,4 +1,8 @@
-package com.dbdevdeep.approve.domain;
+package com.dbdevdeep.alert.domain;
+
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.dbdevdeep.employee.domain.Employee;
 
@@ -17,32 +21,35 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="line_draft")
+@Table(name = "alarm")
 @NoArgsConstructor(access=AccessLevel.PROTECTED)
 @AllArgsConstructor(access=AccessLevel.PROTECTED)
 @Getter
 @Builder
-public class LineDraft {
-	
+public class Alert {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "draft_line_no")
-    private Long draftLineNo;
-
-    @ManyToOne
-    @JoinColumn(name = "draft_no")
-    private ApproDraft approDraft;
-
-    @ManyToOne
+	@Column(name = "alarm_no")
+	private Long alarmNo;
+	
+	@ManyToOne
     @JoinColumn(name = "emp_id")
     private Employee employee;
-    
-    @Column(name = "draft_line_name")
-    private String draftLineName;
-
-    @Column(name = "line_order")
-    private int lineOrder;
-
-    @Column(name = "consult_yn")
-    private String consultYn;
+	
+	@Column(name="reference_name")
+	private String referenceName;
+	
+	@Column(name="reference_no")
+	private Long referenceNo;
+	
+	@Column(name="alarm_content")
+	private String alarmContent;
+	
+	@Column(name="read_yn")
+	private String readYn;
+	
+	@Column(name="alarm_time")
+	@CreationTimestamp
+	private LocalDateTime alarmTime;
 }

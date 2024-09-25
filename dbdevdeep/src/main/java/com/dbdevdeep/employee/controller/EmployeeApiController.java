@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dbdevdeep.FileService;
+import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
 import com.dbdevdeep.employee.domain.EmployeeStatus;
@@ -32,6 +33,7 @@ import com.dbdevdeep.security.service.SecurityService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -42,6 +44,7 @@ public class EmployeeApiController {
 	private final FileService fileService;
 	private final SecurityService securityService;
 
+	// 정부관리번호 중복 확인
 	@ResponseBody
 	@PostMapping("/govid")
 	public Map<String, String> govIdCheck(@RequestBody String govId) {
@@ -62,20 +65,24 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 
+	// 계정 등록
+	@Transactional
 	@ResponseBody
 	@PostMapping("/employee/add")
 	public Map<String, String> signup(EmployeeDto dto, @RequestParam("file") MultipartFile file,
-			@RequestParam(name = "trans_school_id", required = false) String trans_school_id) {
-
+			@RequestParam(name = "trans_school_id", required = false) String trans_school_id,
+			@RequestParam(name = "admin_id") String admin_id) {
+				
 		Map<String, String> resultMap = new HashMap<String, String>();
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "계정 등록 중 오류가 발생하였습니다.");
 
 		String savedFileName = fileService.employeePicUpload(file);
-
+		
 		if (savedFileName != null) {
 			dto.setOri_pic_name(file.getOriginalFilename());
 			dto.setNew_pic_name(savedFileName);
+			
 
 			Employee employee = employeeService.addEmployee(dto);
 
@@ -88,8 +95,20 @@ public class EmployeeApiController {
 				transferDto.setTrans_date(employeeDto.getHire_date());
 				transferDto.setTrans_school_id(trans_school_id);
 				transferDto.setTrans_type("F");
+				transferDto.setAdmin_id(admin_id);
 
 				Transfer transferResult = employeeService.employeeTransfer(transferDto);
+				
+				String newDataJson = employeeService.convertDtoToJson(employeeDto);
+
+				AuditLogDto alDto = new AuditLogDto();			
+				alDto.setAdmin_id(admin_id);
+				alDto.setEmp_id(employeeDto.getEmp_id());
+				alDto.setNew_data(newDataJson);
+				alDto.setAudit_type("I");
+				alDto.setChanged_item("emp_info");
+				
+				employeeService.insertAuditLog(employee, alDto);
 
 				if (transferResult != null) {
 					resultMap.put("res_code", "200");
@@ -104,6 +123,7 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 
+	// 서명 저장
 	@ResponseBody
 	@PostMapping("/addsign")
 	public Map<String, String> addSign(MySignDto dto, @RequestParam("file") MultipartFile file) {
@@ -127,6 +147,7 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 
+	// 서명 수정
 	@ResponseBody
 	@PostMapping("/editsign")
 	public Map<String, String> editSign(MySignDto dto, @RequestParam("file") MultipartFile file) {
@@ -150,18 +171,19 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 
+	// 서명 삭제
 	@ResponseBody
 	@DeleteMapping("/mypage/sign/{sign_no}")
-	public Map<String, String> deleteBoard(@PathVariable("sign_no") Long sign_no) {
+	public Map<String, String> deleteMySign(@PathVariable("sign_no") Long sign_no) {
 
 		Map<String, String> resultMap = new HashMap<String, String>();
 
 		resultMap.put("res_code", "404");
-		resultMap.put("res_msg", "게시글 삭제 중 오류가 발생했습니다.");
+		resultMap.put("res_msg", "서명 삭제 중 오류가 발생했습니다.");
 
 		if (employeeService.deleteSign(sign_no) > 0) {
 			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "게시글이 성공적으로 삭제되었습니다.");
+			resultMap.put("res_msg", "서명이 성공적으로 삭제되었습니다.");
 		}
 
 		return resultMap;
@@ -318,14 +340,18 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 
+	// 직원 정보 수정
 	@ResponseBody
 	@PostMapping("/employee/edit")
 	public Map<String, String> employeeInfoEdit(EmployeeDto dto,
-			@RequestParam(name = "file", required = false) MultipartFile file) {
+			@RequestParam(name = "file", required = false) MultipartFile file,
+			@RequestParam(name = "admin_id") String admin_id) {
 		Map<String, String> resultMap = new HashMap<String, String>();
 
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "정보 수정 중 오류가 발생하였습니다.");
+
+		EmployeeDto oriData = employeeService.selectEmployeeOne(dto.getEmp_id());
 
 		if (file != null && "".equals(file.getOriginalFilename()) == false) {
 			String savedFileName = fileService.employeePicUpload(file);
@@ -334,15 +360,23 @@ public class EmployeeApiController {
 				dto.setOri_pic_name(file.getOriginalFilename());
 				dto.setNew_pic_name(savedFileName);
 
-				if (fileService.employeePicDelete(dto.getEmp_id()) > 0) {
-					resultMap.put("res_msg", "기존 파일이 정상적으로 삭제되었습니다.");
-				}
 			} else {
-				resultMap.put("res_msg", "파일 업로드가 실패하였습니다.");
+				resultMap.put("res_msg", "파일 업로드에 실패하였습니다.");
 			}
 		}
 
-		Employee e = employeeService.employeeInfoEdit(dto);
+		String oriDataJson = employeeService.convertDtoToJson(oriData);
+		String newDataJson = employeeService.convertDtoToJson(dto);
+
+		AuditLogDto alDto = new AuditLogDto();
+		alDto.setAdmin_id(admin_id);
+		alDto.setEmp_id(dto.getEmp_id());
+		alDto.setNew_data(newDataJson);
+		alDto.setOri_data(oriDataJson);
+		alDto.setAudit_type("U");
+		alDto.setChanged_item("emp_info");
+
+		Employee e = employeeService.employeeInfoEdit(dto, alDto);
 
 		if (e != null) {
 			resultMap.put("res_code", "200");
@@ -438,7 +472,7 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 
-	// 휴직 등록 및 직원 status 변경
+	// 복직 등록 및 직원 status 변경
 	@ResponseBody
 	@PostMapping("/employee/return")
 	public Map<String, String> employeeReturn(EmployeeStatusDto dto) {
@@ -448,7 +482,7 @@ public class EmployeeApiController {
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "복직 등록 중 오류가 발생하였습니다.");
 
-		EmployeeStatus employeeStatus = employeeService.employeeRest(dto);
+		EmployeeStatus employeeStatus = employeeService.employeeReturn(dto);
 
 		if (employeeStatus != null) {
 			resultMap.put("res_code", "200");
@@ -459,4 +493,5 @@ public class EmployeeApiController {
 
 		return resultMap;
 	}
+
 }

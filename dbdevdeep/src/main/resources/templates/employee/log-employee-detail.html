@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
+<th:block layout:fragment="content">
+	<style>
+		th, td {
+			text-align: center;
+		}
+		
+		.needCenter td {
+			text-align: center;
+		}
+		
+		.bg-lilghtblue {
+			background-color: #001e6946;
+		}
+		
+		.centered-container {
+			display: flex; justify-content: center; align-items: center;
+		}
+		
+		input:read-only {
+			border: none;
+		}
+		
+</style>
+	<div class="page-wrapper">
+		<div class="container-fluid">
+			<div class="col-sm-12 col-md-12">
+				<div class="card">
+					<div class="card-body" style="padding: 50px 80px;">
+						<div class="row" style="margin-left: 0px !important; margin-right: 0px !important; margin-bottom: 20px;">
+							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+								<div style="font-size: 30px;">직원 정보 변경 기록</div>
+							</div>
+							<div class="col d-flex justify-content-end">
+								<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/log/employee';">목록</button>
+							</div>
+						</div>
+
+						<div class="tab-content">
+							<div class="tab-pane show active" id="employee_info">
+								<div class="form-body col-md-10">
+									<table class="table needCenter">
+										<thead>
+											<tr class="bg-lilghtblue text-dark">
+												<th colspan="6" class="font-weight-bolder">기록</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<th>직원번호</th>
+												<th>직원성명</th>
+												<th>행정직원번호</th>
+												<th>행정직원성명</th>
+												<th>기록유형</th>
+												<th>기록시간</th>
+
+											</tr>
+											<tr>
+												<td th:text="${logDto.emp_id}"></td>
+												<td th:text="${logDto.emp_name}"></td>
+												<td th:text="${logDto.admin_id}"></td>
+												<td th:text="${logDto.admin_id}"></td>
+												<td th:text="${logDto.audit_type == 'U' ? '수정' : '등록'}"></td>
+												<td th:text="${#temporals.format(logDto.reg_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
+											</tr>
+										</tbody>
+									</table>
+									<table class="table" th:if="${logDto.audit_type == 'U'}">
+										<colgroup>
+											<col style="width: 10%;">
+											<col style="width: 40%;">
+											<col style="width: 10%;">
+											<col style="width: 40%;">
+										</colgroup>
+										<thead>
+											<tr class="bg-lilghtblue text-dark">
+												<th colspan="4" class="font-weight-bolder">수정내용</th>
+											</tr>
+										</thead>
+										<th:block th:if="${newData.emp_phone != null && newData.emp_phone != oriData.emp_phone}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">전화번호</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_phone}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_phone}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.ori_pic_name != null && newData.ori_pic_name != oriData.ori_pic_name}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">사진</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td><img th:src="@{'/UploadImg/employee/' + ${oriData.new_pic_name}}" width="100px"></td>
+												<td>수정 후</td>
+												<td><img th:src="@{'/UploadImg/employee/' + ${newData.new_pic_name}}" width="100px"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_post_code != null && newData.emp_post_code != oriData.emp_post_code}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">우편번호</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_post_code}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_post_code}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_addr != null && newData.emp_addr != oriData.emp_addr}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">주소</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_addr}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_addr}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_detail_addr != null && newData.emp_detail_addr != oriData.emp_detail_addr}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">상세 주소</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_detail_addr}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_detail_addr}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.dept_code != null && newData.dept_code != oriData.dept_code}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">부서</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.dept_name}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.dept_name}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.job_code != null && newData.job_code != oriData.job_code}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">직급</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.job_name}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.job_name}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.emp_internal_phone != null && newData.emp_internal_phone != oriData.emp_internal_phone}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">전화번호</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.emp_internal_phone}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.emp_internal_phone}"></td>
+											</tr>
+										</th:block>
+									</table>
+
+									<!-- 등록기록 -->
+									<table th:if="${logDto.audit_type == 'I'}" class="table">
+										<tbody>
+											<tr class="bg-lilghtblue text-dark">
+												<th colspan="4" class="font-weight-bolder">등록기록</th>
+											</tr>
+											<tr>
+												<th rowspan="8">
+													<img id="imagePreview" th:src="@{'/UploadImg/employee/' + ${newData.new_pic_name}}" width="100px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1/1">
+												</th>
+												<th>직원성명</th>
+												<th>직원번호</th>
+												<th>교육청관리번호</th>
+											</tr>
+											<tr>
+												<td th:text="${newData.emp_name}"></td>
+												<td th:text="${newData.emp_id}"></td>
+												<td th:text="${'N - ' + newData.gov_id}"></td>
+											</tr>
+											<tr>
+												<th>주민등록번호</th>
+												<th>부서</th>
+												<th>직급</th>
+											</tr>
+											<tr>
+												<td th:text="${#strings.substring(newData.emp_rrn, 0, 8) + '******'}"></td>
+												<td th:text="${newData.dept_name}"></td>
+												<td th:text="${newData.job_name}"></td>
+											</tr>
+											<tr>
+												<th>비밀번호</th>
+												<th>내선전화번호</th>
+												<th>전화번호</th>
+											</tr>
+											<tr>
+												<td>****</td>
+												<td th:text="${newData.emp_internal_phone}"></td>
+												<td th:text="${newData.emp_phone}"></td>
+											</tr>
+											<tr>
+												<th>우편번호</th>
+												<th>집주소</th>
+												<th>입사일</th>
+											</tr>
+											<tr>
+												<td th:text="${newData.emp_post_code}"></td>
+												<td th:text="${newData.emp_addr + ' ' + newData.emp_detail_addr}"></td>
+												<td th:text="${newData.hire_date}"></td>
+											</tr>
+										</tbody>
+									</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<footer class="footer text-center text-muted">
+				All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
+			</footer>
+		</div>
+	</body>
+</th:block>
+</html>

@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.dbdevdeep.approve.domain.ApproFileDto;
 import com.dbdevdeep.approve.domain.ApproveDto;
 import com.dbdevdeep.approve.domain.ApproveLineDto;
+import com.dbdevdeep.approve.domain.TempEdit;
+import com.dbdevdeep.approve.domain.TempEditDto;
 import com.dbdevdeep.approve.service.ApproveLineService;
 import com.dbdevdeep.approve.service.ApproveService;
+import com.dbdevdeep.approve.service.TempEditService;
 import com.dbdevdeep.employee.domain.MySignDto;
 
 @Controller
@@ -25,11 +28,14 @@ public class ApproveViewController {
 
 	private final ApproveService approveService;
 	private final ApproveLineService approveLineService;
+	private final TempEditService tempEditService;
 	
 	@Autowired
-	public ApproveViewController(ApproveService approveService , ApproveLineService approveLineService) {
+	public ApproveViewController(ApproveService approveService , ApproveLineService approveLineService,
+			TempEditService tempEditService) {
 		this.approveService = approveService;
 		this.approveLineService = approveLineService;
+		this.tempEditService = tempEditService;
 	}
 	
 	//목록조회
@@ -44,7 +50,38 @@ public class ApproveViewController {
 		return "approve/approList";
 	}
 	
-	// 결재 받은 목록 조회
+	// 완료 보고서 조회
+	@GetMapping("/completeDocu")
+	public String completeDocuList(Model model) {
+		List<ApproveDto> resultList = approveService.completeDocuList();
+		model.addAttribute("resultList",resultList);
+		return "approve/completeDocu"; 
+	}
+	
+	// 보고서 목록 조회
+	@GetMapping("/approveDocu")
+	public String selectApproveDocuList(Model model) {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		
+		List<ApproveDto> resultList = approveService.selectApproveDocuList(username);
+		model.addAttribute("resultList",resultList);
+		return "approve/approDocuList";
+	}
+	
+	// 결재 요청 받은 보고서 목록 조회
+	@GetMapping("/comeDocu")
+	public String ComeDocuList(Model model) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		
+		List<ApproveDto> resultList = approveService.comeDocuRequestList(username);
+		model.addAttribute("resultList", resultList);
+		return "approve/comeDocu";
+	}
+	
+	// 결재 요청 받은 휴가 목록 조회
 		@GetMapping("/comeApprove")
 		public String selectComeApproveList(Model model) {
 			
@@ -72,6 +109,36 @@ public class ApproveViewController {
 	@GetMapping("/approCreate")
     public String showApproCreatePage() {
         return "approve/approCreate";
+	}
+	
+	// 보고서 작성
+	@GetMapping("/docuCreate")
+    public String showDocuCreatePage(Model model) {
+		List<TempEditDto> tempList = tempEditService.callTemp();
+		model.addAttribute("tempList",tempList);
+        return "approve/docuCreate";
+	}
+	
+	// 보고서 상세
+	@GetMapping("/docuDetail/{appro_no}")
+	public String docuDetailOne(Model model, @PathVariable("appro_no") Long approNo) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = authentication.getName();
+		
+		Map<String, Object> detailMap = approveService.getDocuDetail(approNo);
+		
+		try {
+			ApproveLineDto backReason = approveLineService.approBackReason(approNo);
+			detailMap.put("backReason",backReason);
+		}catch (NoSuchElementException e) {
+			detailMap.put("backReason", null);
+		}
+		
+		List<MySignDto> signDto = approveService.signList(username);
+		
+		model.addAttribute("sDto", signDto);
+		model.addAllAttributes(detailMap);
+		return "approve/docuDetail";
 	}
 	
 	// 결재 상세
@@ -132,6 +199,18 @@ public class ApproveViewController {
 		Map<String, Object> detailMap = approveService.getApproveDetail(approNo);
 		model.addAllAttributes(detailMap);
 		return "approve/approUpdate";
+	}
+	
+	// 보고서 수정
+	@GetMapping("/docuUpdate/{appro_no}")
+	public String updateDocuOne(Model model, @PathVariable("appro_no") Long approNo) {
+		Map<String, Object> detailMap = approveService.getDocuDetail(approNo);
+		
+		List<TempEditDto> tempList = tempEditService.callTemp();
+		
+		model.addAttribute("tempList",tempList);
+		model.addAllAttributes(detailMap);
+		return "approve/docuUpdate";
 	}
 	
 }

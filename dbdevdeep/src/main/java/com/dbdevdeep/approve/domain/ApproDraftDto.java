@@ -31,6 +31,9 @@ public class ApproDraftDto {
 	private int vac_type;
 	private LocalDateTime start_time;
 	private LocalDateTime end_time;
+	private String consult_draft_root;
+	private String approval_draft_root;
+	private String ref_draft_root;
 	
 	// DTO를 Entity로 변환하는 메소드
 	public ApproDraft toEntity() {
@@ -47,6 +50,9 @@ public class ApproDraftDto {
 				.vacType(vac_type)
 				.startTime(start_time)
 				.endTime(end_time)
+				.consultDraftRoot(consult_draft_root)
+				.approvalDraftRoot(approval_draft_root)
+				.refDraftRoot(ref_draft_root)
 				.build();
 	}
 	
@@ -67,6 +73,9 @@ public class ApproDraftDto {
 				.vac_type(approDraft.getVacType())
 				.start_time(approDraft.getStartTime())
 				.end_time(approDraft.getEndTime())
+				.consult_draft_root(approDraft.getConsultDraftRoot())
+				.approval_draft_root(approDraft.getApprovalDraftRoot())
+				.ref_draft_root(approDraft.getRefDraftRoot())
 				.build();
 	}
 }

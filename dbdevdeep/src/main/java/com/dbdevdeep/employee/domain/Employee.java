@@ -6,11 +6,11 @@ import java.util.List;
 import com.dbdevdeep.approve.domain.ApproDraft;
 import com.dbdevdeep.approve.domain.Approve;
 import com.dbdevdeep.approve.domain.ApproveLine;
-import com.dbdevdeep.approve.domain.LineDraft;
 import com.dbdevdeep.approve.domain.Reference;
-import com.dbdevdeep.approve.domain.ReferenceDraft;
 import com.dbdevdeep.attendance.domain.Attendance;
 import com.dbdevdeep.chat.domain.ChatMemberInfo;
+import com.dbdevdeep.chat.domain.ChatMemberStatusHistory;
+import com.dbdevdeep.chat.domain.ChatReadCheck;
 import com.dbdevdeep.notice.domain.Notice;
 import com.dbdevdeep.notice.domain.NoticeComment;
 import com.dbdevdeep.notice.domain.NoticeReadCheck;
@@ -128,13 +128,7 @@ public class Employee {
     @OneToMany(mappedBy = "employee")
     private List<ApproDraft> approveDrafts;
 
-    @OneToMany(mappedBy = "employee")
-    private List<ReferenceDraft> referenceDrafts;
-
-    @OneToMany(mappedBy = "employee")
-    private List<LineDraft> lineDrafts;
-    
-	// 근태관리 관련
+    // 근태관리 관련
 	@OneToMany(mappedBy = "employee")
 	private List<Attendance> attendances;
 	
@@ -151,8 +145,15 @@ public class Employee {
 	// 채팅 참여자 정보
 	@OneToMany(mappedBy = "employee")
 	private List<ChatMemberInfo> chatMemberInfo;
-	
-	
+	// 채팅 참여자 상태이력 (member_id)
+	@OneToMany(mappedBy = "member")
+	private List<ChatMemberStatusHistory> chatMemberStatusHistoryMember;
+	// 채팅 참여자 상태이력 (change_by_id)
+	@OneToMany(mappedBy = "changeBy")
+	private List<ChatMemberStatusHistory> chatMemberStatusHistoryChangeBy;
+	// 채팅읽음확인
+	@OneToMany(mappedBy = "employee")
+	private List<ChatReadCheck> chatReadCheck;
 	
 	
 }

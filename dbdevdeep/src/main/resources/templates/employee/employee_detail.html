@@ -2,46 +2,50 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
-.preview-container {
-	border-radius: 50%; overflow: hidden; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
-}
-
-#imagePreview {
-	width: 80%; aspect-ratio: 1/1; object-fit: cover;
-}
-
-.hidden {
-	display: none;
-}
-
-.centered-container {
-	display: flex; justify-content: center; align-items: center;
-}
-
-input:read-only {
-	border: none;
-}
-
-.tooltip-container {
-	position: relative; display: inline-block;
-}
-
-.tooltip-trigger {
-	padding: 10px; font-size: 16px;
-}
-
-.tooltip {
-	visibility: hidden; width: 350px; border: 2px solid lightgray; color: black; text-align: center; border-radius: 6px; padding: 5px 10px; position: absolute; z-index: 1; bottom: 125%; /* 위치 조정 */ left: 50%; margin-left: -120px; /* 툴팁의 중앙 정렬을 위한 조정 */ opacity: 0; transition: opacity 0.3s; color: black
-}
-
-.tooltip::after {
-	content: ""; position: absolute; top: 100%; /* 위치 조정 */ left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: lightgray transparent transparent transparent;
-}
-
-.tooltip-container:hover .tooltip {
-	visibility: visible; opacity: 1;
-}
-</style>
+		.preview-container {
+			border-radius: 50%; overflow: hidden; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
+		}
+		
+		#imagePreview {
+			width: 80%; aspect-ratio: 1/1; object-fit: cover;
+		}
+		
+		.hidden {
+			display: none;
+		}
+		
+		.centered-container {
+			display: flex; justify-content: center; align-items: center;
+		}
+		
+		input:read-only {
+			border: none;
+		}
+		
+		.tooltip-container {
+			position: relative; display: inline-block;
+		}
+		
+		.tooltip-trigger {
+			padding: 10px; font-size: 16px;
+		}
+		
+		.tooltip {
+			visibility: hidden; width: 350px; border: 2px solid lightgray; color: black; text-align: center; border-radius: 6px; padding: 5px 10px; position: absolute; z-index: 1; bottom: 125%; /* 위치 조정 */ left: 50%; margin-left: -120px; /* 툴팁의 중앙 정렬을 위한 조정 */ opacity: 0; transition: opacity 0.3s; color: black
+		}
+		
+		.tooltip::after {
+			content: ""; position: absolute; top: 100%; /* 위치 조정 */ left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: lightgray transparent transparent transparent;
+		}
+		
+		.tooltip-container:hover .tooltip {
+			visibility: visible; opacity: 1;
+		}
+		
+		th, td {
+			 text-align: center;
+		}
+	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
@@ -82,7 +86,7 @@ input:read-only {
 											<div class="form-group" style="margin-top: 20px;">
 												<div class="row">
 													<div class="preview-container" id="preview-container">
-														<img id="imagePreview" th:src="@{'/UploadImg/employee/' + ${empDto.new_pic_name}}" width="100px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1/1">
+														<img id="imagePreview" th:src="@{'/UploadImg/employee/' + ${empDto.new_pic_name}}" width="100px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1/1"  onerror="this.onerror=null; this.src='/assets/images/users/user-profile.png';">
 													</div>
 												</div>
 											</div>
@@ -92,10 +96,12 @@ input:read-only {
 											<div class="form-group" style="margin-top: 40px;">
 												<div class="row">
 													<div class="col-md-3">
-														<label>직원번호</label> <input type="text" class="form-control" id="emp_id" name="emp_id" th:value="${empDto.emp_id}" placeholder="00000000000" maxlength="11" readonly>
+														<label>직원번호</label> 
+														<input type="text" class="form-control" id="emp_id" name="emp_id" th:value="${empDto.emp_id}" placeholder="00000000000" maxlength="11" readonly>
 													</div>
 													<div class="col-md-3">
-														<label>교육청관리번호</label> <input type="text" class="form-control" id="gov_id" name="gov_id" placeholder="00000000000" maxlength="11" th:value="${'N - ' + empDto.gov_id}" readonly><br>
+														<label>교육청관리번호</label> 
+														<input type="text" class="form-control" id="gov_id" name="gov_id" placeholder="00000000000" maxlength="11" th:value="${'N - ' + empDto.gov_id}" readonly><br>
 													</div>
 												</div>
 											</div>
@@ -183,7 +189,7 @@ input:read-only {
 									<div class="row">
 										<div class="col-md-8" style="margin-top: 40px;">
 											<div class="table-responsive">
-												<table id="employee_teacher_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table  class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 30%;">
@@ -225,7 +231,7 @@ input:read-only {
 										<div class="col-md-8" style="margin-top: 40px;">
 											<label>전근</label>
 											<div class="table-responsive">
-												<table id="employee_transfer_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 30%;">
@@ -263,7 +269,7 @@ input:read-only {
 										<div class="col-md-8" style="margin-top: 40px;">
 											<label>휴직</label>
 											<div class="table-responsive">
-												<table id="employee_rest_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 20%;">
@@ -314,7 +320,7 @@ input:read-only {
 										<div class="col-md-8" style="margin-top: 40px;">
 											<label>퇴직</label>
 											<div class="table-responsive">
-												<table id="employee_leave_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 40%;">
@@ -407,13 +413,18 @@ input:read-only {
 					</div>
 					<hr>
 					<form class="pl-3 pr-3" id="transFrm">
-						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> <input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> <input type="hidden" name="trans_type" value="T">
+						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="trans_type" value="T">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<div class="form-group">
-							<label for="trans_date">전근일 <span style="color: red;">*</span></label> <input type="date" class="form-control" id="trans_date" name="trans_date">
+							<label for="trans_date">전근일 <span style="color: red;">*</span></label> 
+							<input type="date" class="form-control" id="trans_date" name="trans_date">
 							<div id="trans_date_feedback" class="mt-2"></div>
 						</div>
 						<div class="form-group">
-							<label for="trans_school_id">전근 학교 코드 <span style="color: red;">*</span></label> <input type="text" class="form-control" placeholder="전근갈 학교의 코드를 입력하세요." id="trans_school_id" name="trans_school_id" maxlength="7">
+							<label for="trans_school_id">전근 학교 코드 <span style="color: red;">*</span></label> 
+							<input type="text" class="form-control" placeholder="전근갈 학교의 코드를 입력하세요." id="trans_school_id" name="trans_school_id" maxlength="7">
 							<div id="trans_school_id_feedback" class="mt-2"></div>
 						</div>
 						<div class="col-12 d-flex justify-content-end">
@@ -481,6 +492,7 @@ input:read-only {
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
 						<input type="hidden" name="status_type" th:value="${'R'}">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 
 						<div class="form-group">
 							<label for="stop_date">휴직일 <span style="color: red;">*</span></label> 
@@ -563,7 +575,8 @@ input:read-only {
 					<form class="pl-3 pr-3" id="returnFrm">
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="status_no" id="status_no"> 
-						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<input type="hidden" name="status_type" th:value="${'R'}">
 						
 						<div class="form-group">
@@ -590,7 +603,7 @@ input:read-only {
 						
 						<div class="col-12 d-flex justify-content-end">
 							<button type="button" class="btn waves-effect waves-light btn-light m-1" data-dismiss="modal" aria-hidden="true">취소</button>
-							<button type="submit" disabled="disabled" class="btn waves-effect waves-light btn-primary m-1" id="returnBtn">휴직</button>
+							<button type="submit" disabled="disabled" class="btn waves-effect waves-light btn-primary m-1" id="returnBtn">복직</button>
 						</div>
 					</form>
 				</div>
@@ -655,6 +668,7 @@ input:read-only {
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
 						<input type="hidden" name="status_type" value="N">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<div class="form-group">
 							<label for="stop_date_L">퇴직일 <span style="color: red;">*</span></label> 
 							<input type="date" class="form-control" id="stop_date_L" name="stop_date">
@@ -667,7 +681,7 @@ input:read-only {
 						</div>
 						<div class="col-12 d-flex justify-content-end">
 							<button type="button" class="btn waves-effect waves-light btn-light m-1" data-dismiss="modal" aria-hidden="true">취소</button>
-							<button type="submit" disabled="disabled" class="btn waves-effect waves-light btn-primary m-1" id="leaveBtn">전근</button>
+							<button type="submit" disabled="disabled" class="btn waves-effect waves-light btn-primary m-1" id="leaveBtn">퇴직</button>
 						</div>
 					</form>
 				</div>
@@ -675,7 +689,6 @@ input:read-only {
 		</div>
 	</div>
 	<!-- /.modal -->
-	
 
 	<script>
 		// script.js
@@ -890,7 +903,7 @@ input:read-only {
 						text : data.res_msg,
 						confirmButtonText:"닫기"
 					}).then(() => {
-						location.href="/employee/detail/" + document.getElementById('restFrm').emp_id.value;
+						location.href="/employee/list/" + document.getElementById('restFrm').emp_id.value;
 					})
 					
 				} else{
@@ -964,7 +977,7 @@ input:read-only {
 						text : data.res_msg,
 						confirmButtonText:"닫기"
 					}).then(() => {
-						location.href="/employee/detail/" + document.getElementById('leaveFrm').emp_id.value;
+						location.href="/employee/list/" + document.getElementById('leaveFrm').emp_id.value;
 					})
 					
 				} else{
@@ -1037,7 +1050,7 @@ input:read-only {
 						text : data.res_msg,
 						confirmButtonText:"닫기"
 					}).then(() => {
-						location.href="/employee/detail/" + document.getElementById('returnFrm').emp_id.value;
+						location.href="/employee/list/" + document.getElementById('returnFrm').emp_id.value;
 					})
 					
 				} else{
@@ -1052,6 +1065,21 @@ input:read-only {
 		});
 		})
 	</script>
+	<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Get the current URL
+
+            // Select all sidebar links
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+
+            sidebarLinks.forEach(link => {
+                // Check if the link's href matches the current URL
+                if (link.getAttribute('href') === '/employee/list') {
+                    link.classList.add('active'); // Add the active class
+                }
+            });
+        });
+    </script>
 	</body>
 </th:block>
 </html>

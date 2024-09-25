@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="chat_member_info")
+@Table(name="chat_member_info", uniqueConstraints = {
+	    @UniqueConstraint(columnNames = {"member_id", "room_no"})})
 @NoArgsConstructor(access=AccessLevel.PROTECTED)
 @AllArgsConstructor(access=AccessLevel.PROTECTED)
 @Getter
@@ -40,6 +42,9 @@ public class ChatMemberInfo {
 	@ManyToOne
 	@JoinColumn(name="room_no")
 	private ChatRoom chatRoom;
+
+	@Column(name="room_name")
+	private String roomName;
 	
 	@Column(name="join_time")
 	private LocalDateTime joinTime;

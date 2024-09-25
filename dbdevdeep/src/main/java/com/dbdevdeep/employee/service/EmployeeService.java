@@ -3,7 +3,9 @@ package com.dbdevdeep.employee.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dbdevdeep.employee.domain.AuditLog;
+import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.Department;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
@@ -23,6 +27,7 @@ import com.dbdevdeep.employee.domain.MySignDto;
 import com.dbdevdeep.employee.domain.Transfer;
 import com.dbdevdeep.employee.domain.TransferDto;
 import com.dbdevdeep.employee.mybatis.mapper.EmployeeVoMapper;
+import com.dbdevdeep.employee.repository.AuditLogRepository;
 import com.dbdevdeep.employee.repository.DepartmentRepository;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.EmployeeStatusRepository;
@@ -30,6 +35,8 @@ import com.dbdevdeep.employee.repository.JobRepository;
 import com.dbdevdeep.employee.repository.MySignRepository;
 import com.dbdevdeep.employee.repository.TransferRepository;
 import com.dbdevdeep.employee.vo.EmployeeVo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +52,8 @@ public class EmployeeService {
 	private final MySignRepository mySignRepository;
 	private final TransferRepository transferRepository;
 	private final EmployeeStatusRepository employeeStatusRepository;
+	private final ObjectMapper objectMapper;
+	private final AuditLogRepository auditLogRepository;
 
 	// 교육청관리번호 중복 확인
 	public int govIdCheck(String govId) {
@@ -370,7 +379,8 @@ public class EmployeeService {
 	}
 
 	// 직원 정보 수정
-	public Employee employeeInfoEdit(EmployeeDto dto) {
+	@Transactional
+	public Employee employeeInfoEdit(EmployeeDto dto, AuditLogDto alDto) {
 
 		EmployeeDto temp = selectEmployeeOne(dto.getEmp_id());
 
@@ -393,6 +403,12 @@ public class EmployeeService {
 
 		Employee result = employeeRepository.save(emp);
 
+		if (result != null) {
+			Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
+			AuditLog auditLog = alDto.toEntityWithJoin(result, admin);
+			auditLogRepository.save(auditLog);
+		}
+
 		return result;
 	}
 
@@ -401,10 +417,11 @@ public class EmployeeService {
 		Transfer transfer = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 재직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("Y")) {
-			transfer = transferRepository.save(dto.toEntityWithJoin(employee)); // transfer 테이블에 전근 데이터 저장
+			transfer = transferRepository.save(dto.toEntityWithJoin(employee, admin)); // transfer 테이블에 전근 데이터 저장
 		}
 
 		return transfer;
@@ -445,12 +462,13 @@ public class EmployeeService {
 		EmployeeStatus employeeStatus = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 재직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("R");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee)); // employee_status 테이블에 전근
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
 																							// 데이터 저장
 		}
 
@@ -487,18 +505,19 @@ public class EmployeeService {
 		return esDtoList;
 	}
 
-	// 휴직 등록
+	// 복직 등록
 	public EmployeeStatus employeeReturn(EmployeeStatusDto dto) {
 		EmployeeStatus employeeStatus = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 휴직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("R")) {
 			dto.setStatus_type("Y");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee)); // employee_status 테이블에 전근
-																							// 데이터 저장
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
+																							// // 데이터 저장
 		}
 
 		return employeeStatus;
@@ -509,12 +528,13 @@ public class EmployeeService {
 		EmployeeStatus employeeStatus = null;
 
 		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(dto.getAdmin_id());
 
 		// 직원의 재직 상태가 재직인 경우에만 전출 가능
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("N");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee)); // employee_status 테이블에 전근
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
 																							// // 데이터 저장
 		}
 
@@ -640,5 +660,119 @@ public class EmployeeService {
 		vo.setEmp_id(dto.getEmp_id());
 		vo.setEnt_status("Y");
 		employeeVoMapper.updateEntStatus(vo);
+	}
+
+	// Dto를 Json 형태로 변환
+	public String convertDtoToJson(EmployeeDto employeeDto) {
+		try {
+			return objectMapper.writeValueAsString(employeeDto);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public String compareJson(String oriDataJson, String newDataJson) {
+		try {
+			Map<String, Object> oriMap = objectMapper.readValue(oriDataJson, Map.class);
+			Map<String, Object> newMap = objectMapper.readValue(newDataJson, Map.class);
+
+			Map<String, Object> differences = new HashMap<>();
+
+			for (String key : oriMap.keySet()) {
+				if (!oriMap.get(key).equals(newMap.get(key))) {
+					differences.put(key, newMap.get(key));
+				}
+			}
+
+			for (String key : newMap.keySet()) {
+				if (!oriMap.containsKey(key)) {
+					differences.put(key, newMap.get(key));
+				}
+			}
+
+			return objectMapper.writeValueAsString(differences);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	// 사원 정보 변경 기록 전부
+	public List<AuditLogDto> selectAuditLogDtoList() {
+		List<AuditLogDto> logDtoList = new ArrayList<>();
+
+		List<AuditLog> logList = auditLogRepository.findAll();
+
+		for (AuditLog log : logList) {
+			AuditLogDto dto = new AuditLogDto().toDto(log);
+
+			logDtoList.add(dto);
+		}
+
+		return logDtoList;
+	}
+	
+	// 사원정보 변경 기록 하나
+	public AuditLogDto selectAuditLogDto(Long audit_no) {
+		AuditLog log = auditLogRepository.selectByAuditNoOne(audit_no);
+		
+		AuditLogDto logDto = new AuditLogDto().toDto(log);
+
+		return logDto;
+	}
+	
+	// 사원 정보 변경 기록 등록
+	public void insertAuditLog(Employee employee, AuditLogDto alDto) {	
+				
+		Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
+		AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
+		
+		auditLogRepository.save(auditLog);
+	}
+	
+	// 전근 기록 
+	public List<TransferDto> findByTransferAll() {
+		List<TransferDto> dtoList = new ArrayList<TransferDto>();
+
+		List<Transfer> transList = transferRepository.findAll();
+		
+		for(Transfer t : transList) {
+			TransferDto dto = new TransferDto().toDto(t);
+			
+			dtoList.add(dto);
+		}
+		
+		return dtoList;
+	}
+	
+	//휴직 기록 
+	public List<EmployeeStatusDto> findByRestAll() {
+		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+
+		List<EmployeeStatus> restList = employeeStatusRepository.selectRestLogAll();
+		
+		for(EmployeeStatus r : restList) {
+			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+			
+			dtoList.add(dto);
+		}
+		
+		return dtoList;
+	}
+	
+	//퇴직 기록 
+	public List<EmployeeStatusDto> findByLeaveAll() {
+		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+
+		List<EmployeeStatus> leaveList = employeeStatusRepository.selectLeaveLogAll();
+		
+		for(EmployeeStatus r : leaveList) {
+			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+			
+			dtoList.add(dto);
+		}
+		
+		return dtoList;
 	}
 }

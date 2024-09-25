@@ -8,11 +8,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import com.dbdevdeep.employee.domain.Employee;
@@ -42,16 +46,25 @@ public class ScheduleService {
 		this.categoryRepository = categoryRepository;
 	}
 	
-	public List<ScheduleDto> selectTotalScheduleList(){
-		List<Schedule> scheduleList = scheduleRepository.findAll();
-		
-		List<ScheduleDto> scheduleDtoList = new ArrayList<ScheduleDto>();
-		for(Schedule s : scheduleList) {
-			ScheduleDto dto = new ScheduleDto().toDto(s);
-			scheduleDtoList.add(dto);
-		}
-		
-		return scheduleDtoList;
+	public List<ScheduleDto> selectTotalScheduleList(String empId){
+		// 공용 일정 가져오기
+	    List<Schedule> publicScheduleList = scheduleRepository.findByCalendarType(0);
+	    
+	    // 개인 일정 가져오기
+	    List<Schedule> privateScheduleList = scheduleRepository.findByCalendarTypeAndEmployee_EmpId(1, empId);
+	    
+	    // 공용 일정과 개인 일정을 합침
+	    List<Schedule> totalScheduleList = new ArrayList<>(publicScheduleList);  // 공용 일정을 추가
+	    totalScheduleList.addAll(privateScheduleList);  // 개인 일정 추가
+
+	    // DTO 리스트로 변환
+	    List<ScheduleDto> scheduleDtoList = new ArrayList<>();
+	    for (Schedule s : totalScheduleList) {
+	        ScheduleDto dto = new ScheduleDto().toDto(s);
+	        scheduleDtoList.add(dto);
+	    }
+
+	    return scheduleDtoList;
 	}
 	
 	public List<ScheduleDto> selectPublicScheduleList() {
@@ -81,10 +94,6 @@ public class ScheduleService {
 	public Schedule createSchedule(ScheduleDto dto) {
 	    Employee employee = employeeRepository.findByempId(dto.getEmp_id());
 	    Category category = categoryRepository.findByCategoryNo(dto.getCategory_no());
-	    
-	    if (employee == null || category == null) {
-	        System.out.println("null값입니다.");
-	    }
 		
 		Schedule schedule = Schedule.builder()
 				.calendarType(dto.getCalendar_type())
@@ -214,14 +223,18 @@ public class ScheduleService {
                 alertData.put("title", "일정");
                 alertData.put("message", "\'" + s.getScheduleTitle() + "\' 일정이 " + msg); // 단일 따옴표 이스케이프
                 alertData.put("time", startDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
+                alertData.put("emp_id", s.getEmployee().getEmpId());
                 alertDataList.add(alertData);
             }
         }
     }
     
     // 클라이언트 요청 시 알림 데이터를 반환하는 메서드
-    public List<Map<String, Object>> getAlerts() {
-        return new ArrayList<>(alertDataList); // 알림 데이터 반환
+    public List<Map<String, Object>> getAlerts(String empId) {
+    	
+        return alertDataList.stream()
+            .filter(alert -> empId.equals(alert.get("emp_id")))
+            .collect(Collectors.toList());
     }
 
 }

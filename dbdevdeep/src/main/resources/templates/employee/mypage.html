@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/mypage_layout}">
 <th:block layout:fragment="content">
+	<style>
+		th, td {
+			text-align: center;
+		}
+	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
 			<!-- ============================================================== -->
@@ -13,73 +18,195 @@
 							<h4 class="card-title">내 정보</h4>
 							<hr>
 
-							<div class="row">
-								<div class="col-md-1 "></div>
+							<ul class="nav nav-tabs nav-bordered mb-3">
+								<li class="nav-item"><a href="#employee_info" data-toggle="tab" aria-expanded="true" class="nav-link active"> <i class="mdi mdi-home-variant d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">직원정보</span>
+								</a></li>
+								<li class="nav-item" th:if="${#authentication.principal.dto.dept_code == 'D4'}">
+									<a href="#class-history" data-toggle="tab" aria-expanded="false" class="nav-link"> 
+										<i class="mdi mdi-account-circle d-lg-none d-block mr-1"></i> 
+										<span class="d-none d-lg-block">학급이력</span>
+									</a>
+								</li>
+								<li class="nav-item"><a href="#employee-status" data-toggle="tab" aria-expanded="false" class="nav-link"> <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">재직이력</span>
+								</a></li>
+							</ul>
 
+							<div class="tab-content">
+								<div class="tab-pane show active" id="employee_info">
+									<div class="form-body">
+										<table class="table">
+										<tbody>
+											<tr>
+												<th rowspan="8" style="border-top: none;">
+													<img id="imagePreview" th:src="@{'/UploadImg/employee/' + ${empDto.new_pic_name}}" width="100px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1/1" onerror="this.onerror=null; this.src='/assets/images/users/user-profile.png';">
+												</th>
+												<th>직원성명</th>
+												<th>직원번호</th>
+												<th>교육청관리번호</th>
+											</tr>
+											<tr>
+												<td th:text="${empDto.emp_name}"></td>
+												<td th:text="${empDto.emp_id}"></td>
+												<td th:text="${'N - ' + empDto.gov_id}"></td>
+											</tr>
+											<tr>
+												<th>주민등록번호</th>
+												<th>부서</th>
+												<th>직급</th>
+											</tr>
+											<tr>
+												<td th:text="${#strings.substring(empDto.emp_rrn, 0, 8) + '******'}"></td>
+												<td th:text="${empDto.dept_name}"></td>
+												<td th:text="${empDto.job_name}"></td>
+											</tr>
+											<tr>
+												<th>비밀번호</th>
+												<th>내선전화번호</th>
+												<th>전화번호</th>
+											</tr>
+											<tr>
+												<td>****</td>
+												<td th:text="${empDto.emp_internal_phone}"></td>
+												<td th:text="${empDto.emp_phone}"></td>
+											</tr>
+											<tr>
+												<th>우편번호</th>
+												<th>집주소</th>
+												<th>입사일</th>
+											</tr>
+											<tr>
+												<td th:text="${empDto.emp_post_code}"></td>
+												<td th:text="${empDto.emp_addr + ' ' + empDto.emp_detail_addr}"></td>
+												<td th:text="${empDto.hire_date}"></td>
+											</tr>
+										</tbody>
+									</table>
+									</div>
+								</div>
 
-								<!-- 사진등록 -->
-								<div class="col-md-2 ">
-									<div class="form-group" style="margin-top: 20px;">
+								<div class="tab-pane" id="class-history">
+									<div class="form-group">
 										<div class="row">
-											<img th:src="@{'/UploadImg/employee/' + ${empDto.new_pic_name}}" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1;">
+											<div class="col-md-8" style="margin-top: 40px;">
+												<div class="table-responsive">
+													<table id="employee_teacher_history_list" class="table table-bordered no-wrap" style="width: 100%">
+														<colgroup>
+															<col style="width: 10%;">
+															<col style="width: 30%;">
+															<col style="width: 30%;">
+															<col style="width: 30%;">
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">번호</th>
+																<th scope="col">학년도</th>
+																<th scope="col">학년</th>
+																<th scope="col">반</th>
+															</tr>
+														</thead>
+														<tbody>
+															<th:block th:if="${#lists.isEmpty(thDtoList)}">
+																<tr>
+																	<td colspan="4">학급이력이 없습니다.</td>
+																</tr>
+															</th:block>
+															<th:block th:if="${!#lists.isEmpty(thDtoList)}">
+																<tr th:each="history, historyStat : ${thDtoList}">
+																	<td scope="row" th:text="${historyStat.count}"></td>
+																	<td th:text="${history.t_year}"></td>
+																	<td th:text="${history.grade}"></td>
+																	<td th:text="${history.grade_class}"></td>
+																</tr>
+															</th:block>
+														</tbody>
+													</table>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
-								
-								<div class="col-md-8">
-									<table class="table table-bordered no-wrap">
-										<colgroup>
-											<col style="width: 20%">
-											<col style="width: 80%">
-										</colgroup>
-										<tr>
-											<th>직원번호</th>
-											<td th:text="${empDto.emp_id}"></td>
-										</tr>
-										<tr>
-											<th>교육청관리번호</th>
-											<td th:text="'N - ' + ${empDto.gov_id}"></td>
-										</tr>
-										<tr>
-											<th>이름</th>
-											<td th:text="${empDto.emp_name}"></td>
-										</tr>
-										<tr>
-											<th>부서</th>
-											<td th:text="${empDto.dept_name}"></td>
-										</tr>
-										<tr>
-											<th>직급</th>
-											<td th:text="${empDto.job_name}"></td>
-										</tr>
-										<tr th:if="${empDto.dept_code} == 'D4'">
-											<th>담당</th>
-											<td th:if="${thDto == null}">미배정</td>
-											<th:block th:if="${thDto != null}">
-												<td th:text="${thDto.t_year} + '학년도 ' + ${thDto.grade} + '학년 ' + ${thDto.grade_class} + '반'"></td>
-											</th:block>
-										</tr>
-										<tr>
-											<th>주민등록번호</th>
-											<td th:text="${#strings.substring(empDto.emp_rrn, 0, 8)} + '******'"></td>
-										</tr>
-										<tr>
-											<th>주소</th>
-											<td th:text="${empDto.emp_addr} + ' ' + ${empDto.emp_detail_addr}"></td>
-										</tr>
-										<tr>
-											<th>전화번호</th>
-											<td th:text="${empDto.emp_phone}"></td>
-										</tr>
-										<tr>
-											<th>내선전화번호</th>
-											<td th:text="${empDto.emp_internal_phone}"></td>
-										</tr>
-										<tr>
-											<th>입사일</th>
-											<td th:text="${empDto.hire_date}"></td>
-										</tr>
-									</table>
+								<div class="tab-pane" id="employee-status">
+									<div class="form-group">
+										<div class="row">
+											<div class="col-md-8" style="margin-top: 40px;">
+												<label>전근</label>
+												<div class="table-responsive">
+													<table id="employee_transfer_history_list" class="table table-bordered no-wrap" style="width: 100%">
+														<colgroup>
+															<col style="width: 10%;">
+															<col style="width: 30%;">
+															<col style="width: 30%;">
+															<col style="width: 30%;">
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">번호</th>
+																<th scope="col">전근학교번호</th>
+																<th scope="col">전근일</th>
+																<th scope="col">전근유형</th>
+															</tr>
+														</thead>
+														<tbody>
+															<th:block th:if="${#lists.isEmpty(tDtoList)}">
+																<tr>
+																	<td colspan="4">전근이력이 없습니다.</td>
+																</tr>
+															</th:block>
+															<th:block th:if="${!#lists.isEmpty(tDtoList)}">
+																<tr th:each="history, historyStat : ${tDtoList}">
+																	<td scope="row" th:text="${historyStat.count}"></td>
+																	<td th:text="${history.trans_school_id}"></td>
+																	<td th:text="${history.trans_date}"></td>
+																	<td th:text="${history.trans_type == 'T' ? '전출' : history.trans_type == 'F' ? '전입' : '-'}"></td>
+																</tr>
+															</th:block>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-8" style="margin-top: 40px;">
+												<label>휴직</label>
+												<div class="table-responsive">
+													<table id="employee_rest_history_list" class="table table-bordered no-wrap" style="width: 100%">
+														<colgroup>
+															<col style="width: 10%;">
+															<col style="width: 20%;">
+															<col style="width: 20%;">
+															<col style="width: 20%;">
+															<col style="width: 30%;">
+														</colgroup>
+														<thead>
+															<tr>
+																<th scope="col">번호</th>
+																<th scope="col">휴직일</th>
+																<th scope="col">복귀예정일</th>
+																<th scope="col">복귀일</th>
+																<th scope="col">휴직사유</th>
+															</tr>
+														</thead>
+														<tbody>
+															<th:block th:if="${#lists.isEmpty(restDtoList)}">
+																<tr>
+																	<td colspan="5">휴직이력이 없습니다.</td>
+																</tr>
+															</th:block>
+															<th:block th:if="${!#lists.isEmpty(restDtoList)}">
+																<tr th:each="history, historyStat : ${restDtoList}">
+																	<td scope="row" th:text="${historyStat.count}"></td>
+																	<td th:text="${history.stop_date}"></td>
+																	<td th:text="${history.excepted_date}"></td>
+																	<td th:text="${history.return_date == null ? '-' : history.return_date}"></td>
+																	<td th:text="${history.stop_reason}"></td>
+																</tr>
+															</th:block>
+														</tbody>
+													</table>
+												</div>
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -87,40 +214,11 @@
 				</div>
 			</div>
 
-			<!-- ============================================================== -->
-			<!-- End PAge Content -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- Right sidebar -->
-			<!-- ============================================================== -->
-			<!-- .right-sidebar -->
-			<!-- ============================================================== -->
-			<!-- End Right sidebar -->
-			<!-- ============================================================== -->
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Container fluid  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- footer -->
-		<!-- ============================================================== -->
 		<footer class="footer text-center text-muted">
 			All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
 		</footer>
-		<!-- ============================================================== -->
-		<!-- End footer -->
-		<!-- ============================================================== -->
 	</div>
-	<!-- ============================================================== -->
-	<!-- End Page wrapper  -->
-	<!-- ============================================================== -->
-	<!-- ============================================================== -->
-	<!-- End Wrapper -->
-	<!-- ============================================================== -->
-	<!-- End Wrapper -->
-	<!-- ============================================================== -->
-	<!-- All Jquery -->
-	<!-- ============================================================== -->
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<!-- Bootstrap tether Core JavaScript -->
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
@@ -138,8 +236,5 @@
 	<script src="/dist/js/sidebarmenu.js"></script>
 	<!--Custom JavaScript -->
 	<script src="/dist/js/custom.min.js"></script>
-	<!--This page plugins -->
-	<script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
-	<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
 </th:block>
 </html>

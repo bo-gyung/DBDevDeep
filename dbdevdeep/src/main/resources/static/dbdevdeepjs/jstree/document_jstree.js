@@ -1,0 +1,471 @@
+$(document).ready(function() {
+    let folderData = {
+        publicFolderList: [],
+        privateFolderList: []
+    };
+	
+	// 공용문서함과 개인문서함의 폴더 번호를 미리 정의
+	const publicFolderNo = 1;  // 예: 공용업무폴더의 번호
+	const privateFolderNo = 6;  // 예: 개인업무폴더의 번호
+	
+	// 페이지가 로드되었을 때 기본적으로 공용문서함 용량을 보여줌
+	getFolderTotalSize(publicFolderNo);  // 공용문서함의 용량 계산
+	
+	if ($('#copyButton').length === 0) {
+	    $('<button/>', {
+	        id: 'copyButton',
+	        text: '개인문서함으로 복사',
+	        class: 'btn waves-effect waves-light btn-outline-secondary m-1',
+	        style: 'width: 170px; height: 45px;',
+	        click: function() {
+	            // 버튼 클릭 시 복사 기능 처리
+	            console.log("개인문서함으로 복사 버튼 클릭됨");
+	        }
+	    }).insertBefore('#uploadButton'); // '업로드' 버튼 앞에 추가
+	}
+
+    fetch('/api/folder-tree', {
+        method: 'GET'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        folderData.publicFolderList = addIconToItemsRecursively(data.publicFolderList);
+        folderData.privateFolderList = addIconToItemsRecursively(data.privateFolderList);
+        
+        displayFolders(folderData.publicFolderList, 1);  // 기본적으로 공용문서함 표시
+		selectDefaultFolder();  // 기본 폴더 선택
+    })
+    .catch(error => {
+        console.error('Error loading folder tree:', error);
+    });
+
+    $('#public-button').on('click', function() {
+        displayFolders(folderData.publicFolderList, 1);
+        $(this).addClass('active');
+        $('#private-button').removeClass('active');
+		$('#storage_name').text('공용문서함');
+		// 공용문서함 폴더 번호를 사용해 폴더 용량을 계산
+		getFolderTotalSize(publicFolderNo);
+		
+		if ($('#copyButton').length === 0) {
+		    $('<button/>', {
+		        id: 'copyButton',
+		        text: '개인문서함으로 복사',
+		        class: 'btn waves-effect waves-light btn-outline-secondary m-1',
+		        style: 'width: 170px; height: 45px;',
+		        click: function() {
+		            // 버튼 클릭 시 복사 기능 처리
+		            console.log("개인문서함으로 복사 버튼 클릭됨");
+		        }
+		    }).insertBefore('#uploadButton'); // '업로드' 버튼 앞에 추가
+		}
+    });
+
+    $('#private-button').on('click', function() {
+        displayFolders(folderData.privateFolderList, 1);
+        $(this).addClass('active');
+        $('#public-button').removeClass('active');
+		$('#storage_name').text('개인문서함');
+		// 개인문서함 폴더 번호를 사용해 폴더 용량을 계산
+		getFolderTotalSize(privateFolderNo);
+		
+		// '개인문서함으로 복사' 버튼이 존재하면 제거
+		$('#copyButton').remove();
+    });
+
+    function displayFolders(folders, maxDepth) {
+        $('#folder_list').jstree('destroy').empty();
+
+        $('#folder_list').jstree({
+            'core': {
+                'data': folders,
+                'themes': {
+                    'icons': true
+                }
+            },
+            'types': {
+                'default': {
+                    'icon': '/assets/images/yellow_folder.png'
+                },
+                'file': {
+                    'icon': '/assets/images/yellow_folder.png'
+                }
+            }
+        }).on('ready.jstree', function() {
+            let tree = $('#folder_list').jstree(true);
+            tree.open_node(tree.get_node('#').children, function() {
+                tree.get_node('#').children.forEach(function(node) {
+                    openNodeToDepth(tree, node, maxDepth);
+                });
+            });
+			
+			// 폴더 트리가 준비된 후에 기본 폴더를 선택하도록 설정
+			selectDefaultFolder();
+			
+        }).on('select_node.jstree', function(e, data) {
+            const selectedFolderName = data.node.text; // 선택된 폴더 이름
+			const folderNo = data.node.id; // 선택된 폴더 번호 (id)
+            updateFolderName(selectedFolderName); // 폴더 이름 업데이트
+            updateFolderPath(data.node); // 폴더 경로 업데이트
+			
+			// 테이블 초기화 후 새로운 데이터 로드
+			clearTableAndLoadData(folderNo);
+			
+			// 폴더 번호도 숨겨진 필드에 저장
+			$('#folder_no').val(folderNo); // 폴더 번호를 숨겨진 input에 저장
+        });
+    }
+
+    function openNodeToDepth(tree, node, maxDepth, currentDepth = 1) {
+        if (currentDepth < maxDepth) {
+            tree.open_node(node, function() {
+                if (tree.get_node(node).children.length > 0) {
+                    tree.get_node(node).children.forEach(function(childNode) {
+                        openNodeToDepth(tree, childNode, maxDepth, currentDepth + 1);
+                    });
+                }
+            });
+        }
+    }
+
+    const addIconToItemsRecursively = (items) => {
+        return items.map(item => {
+            const updatedItem = {
+                ...item,
+                icon: '/assets/images/yellow_folder.png'
+            };
+            if (item.children && item.children.length > 0) {
+                updatedItem.children = addIconToItemsRecursively(item.children);
+            }
+            return updatedItem;
+        });
+    };
+
+    // 폴더 이름을 업데이트하는 함수
+    function updateFolderName(folderName) {
+        $('div[style="font-size:30px;"]').text(folderName);
+    }
+
+    // 선택한 폴더의 경로를 업데이트하는 함수
+    function updateFolderPath(node) {
+        let tree = $('#folder_list').jstree(true);
+        let path = tree.get_path(node, ' > ');  // 최상위부터 현재 폴더까지 경로
+		
+		// 경로가 비어 있지 않도록 최상위 폴더에 대한 경로 처리
+		if (path === '') {
+		    path = node.text;  // 최상위 폴더일 경우 폴더 이름을 직접 설정
+		}
+		
+        $('#folderPath').text(path); // 폴더 위치 td에 경로 표시
+		$('#parentFolderPath').text(path);
+    }
+	
+	// 페이지 로드 시 기본적으로 '공용업무폴더'를 선택하도록 설정
+	function selectDefaultFolder() {
+	    let tree = $('#folder_list').jstree(true);
+	    const firstNode = tree.get_node(tree.get_node('#').children[0]);  // 첫 번째 폴더 노드
+	    if (firstNode) {
+	        tree.select_node(firstNode);  // 첫 번째 폴더 자동 선택
+	        updateFolderPath(firstNode);  // 폴더 경로 업데이트
+	        $('#folder_no').val(firstNode.id);  // 폴더 번호 설정
+	    }
+	}
+	
+	function clearTableAndLoadData(folderId) {
+	    if ($.fn.DataTable.isDataTable('#file_config')) {
+	        $('#file_config').DataTable().clear().destroy();  // 테이블의 기존 데이터를 모두 지운 후 새 데이터를 로드
+	    }
+
+	    loadFoldersAndFiles(folderId).then(() => {
+	        reloadDataTable();  // 테이블 다시 그리기
+	    });
+	}
+	
+	// 폴더 번호를 서버에 보내고 용량을 받아오는 함수
+	function getFolderTotalSize(folderNo) {
+	    fetch(`/api/totalSize?folder_no=${folderNo}`)
+	        .then(response => response.json())
+	        .then(data => {
+	            updateStorageInfo(data);  // 받은 데이터를 기반으로 용량 정보 업데이트
+	        })
+	        .catch(error => {
+	            console.error('Error fetching folder size:', error);
+	        });
+	}
+
+	function loadFoldersAndFiles(folderId) {
+	    return loadFolders(folderId)
+	        .then(() => loadFiles(folderId));
+	}
+
+	function loadFolders(folderNo) {
+	    return fetch(`/folderList?folder_no=${folderNo}`, {
+	        method: 'GET'
+	    })
+	    .then(response => {
+	        if (!response.ok) {
+	            throw new Error('Network response was not ok');
+	        }
+	        return response.json();
+	    })
+	    .then(folders => {
+	        populateFolderTable(folders);
+	    })
+	    .catch(error => {
+	        console.error('Error fetching folders:', error);
+	    });
+	}
+
+	function loadFiles(folderNo) {
+	    return fetch(`/fileList?folder_no=${folderNo}`, {
+	        method: 'GET'
+	    })
+	    .then(response => {
+	        if (!response.ok) {
+	            throw new Error('Network response was not ok');
+	        }
+	        return response.json();
+	    })
+	    .then(files => {
+	        populateFileTable(files);
+
+	    })
+	    .catch(error => {
+	        console.error('Error fetching files:', error);
+	    });
+	}
+	
+	function updateStorageInfo(totalSizeInBytes) {
+		if (!isNaN(totalSizeInBytes)) {  // totalSizeInBytes가 NaN이 아니면 업데이트
+		    const totalGB = 10;  // 총 10GB 용량
+		    const usedGB = totalSizeInBytes / (1024 * 1024 * 1024);  // 바이트를 GB로 변환
+		    const usedMB = totalSizeInBytes / (1024 * 1024);  // 바이트를 MB로 변환
+		    const percentage = (usedGB / totalGB) * 100;  // 퍼센티지 계산
+
+		    if (usedGB >= 1) {
+		        $('#storage-info .used-space').text(usedGB.toFixed(2) + 'GB');  // GB로 표시
+		    } else {
+		        $('#storage-info .used-space').text(usedMB.toFixed(2) + 'MB');  // MB로 표시
+		    }
+		    $('#storage-info .progress-bar').css('width', percentage + '%');  // 프로그레스바 업데이트
+		}
+	}
+	
+	function populateFolderTable(folders) {
+		    const tbody = $('#file_config tbody');
+		    tbody.empty(); // 기존 내용 제거
+
+		    // 폴더 추가
+		    folders.forEach(folder => {
+		        tbody.append(`
+		            <tr>
+		                <td><input type="checkbox" class="folderAndFileCheckbox" style="padding-top:5px;" value="folder_${folder.folder_no}"></td>
+		                <td><img src="/assets/images/yellow_folder_icon.png" alt="FOLDER" width="20"></td>
+		                <td>${folder.folder_name}</td>
+		                <td></td> <!-- 크기 없음 -->
+						<td>${folder.emp_name}</td>
+		                <td>${formatDate(folder.reg_time)}</td>
+		            </tr>
+		        `);
+		    });
+		}
+
+	function populateFileTable(files) {
+	    const tbody = $('#file_config tbody');
+
+		files.forEach(file => {
+		    let fileIcon = ''; // 기본값 설정
+
+		    // 파일 확장자에 따른 아이콘 결정
+		    switch (file.file_extension.toLowerCase()) {
+		        case '.pdf':
+		            fileIcon = '<img src="/assets/images/pdf.png" alt="PDF" width="24">';
+		            break;
+		        case '.ppt':
+		        case '.pptx':
+		            fileIcon = '<img src="/assets/images/ppt.png" alt="PPT" width="24">';
+		            break;
+		        case '.xls':
+					fileIcon = '<img src="/assets/images/xls.png" alt="XLS" width="24">';
+					break;
+		        case '.xlsx':
+		            fileIcon = '<img src="/assets/images/xlsx.png" alt="XLSX" width="24">';
+		            break;
+		        case '.doc':
+					fileIcon = '<img src="/assets/images/doc.png" alt="Word" width="24">';
+					break;
+		        case '.docx':
+		            fileIcon = '<img src="/assets/images/docx.png" alt="Word" width="24">';
+		            break;
+		        case '.txt':
+		            fileIcon = '<img src="/assets/images/txt.png" alt="Text" width="24">';
+		            break;
+		        case '.jpg':
+					fileIcon = '<img src="/assets/images/jpg.png" alt="JPG" width="24">';
+					break;
+		        case '.jpeg':
+		            fileIcon = '<img src="/assets/images/jpeg.png" alt="JPEG" width="24">';
+		            break;
+		        case '.gif':
+		            fileIcon = '<img src="/assets/images/gif.png" alt="GIF" width="24">';
+		            break;
+		        case '.png':
+		            fileIcon = '<img src="/assets/images/png.png" alt="PNG" width="24">';
+		            break;
+		        case '.mp4':
+		            fileIcon = '<img src="/assets/images/mp4.png" alt="MP4" width="24">';
+		            break;
+		        case '.mp3':
+		            fileIcon = '<img src="/assets/images/mp3.png" alt="MP3" width="24">';
+		            break;
+		        case '.avi':
+		            fileIcon = '<img src="/assets/images/avi.png" alt="AVI" width="24">';
+		            break;
+		        case '.zip':
+		            fileIcon = '<img src="/assets/images/zip.png" alt="ZIP" width="24">';
+		            break;
+		        default:
+		            fileIcon = '<img src="/path/to/icons/file.png" alt="File" width="24">'; // 기본 아이콘
+		            break;
+		    }
+
+		    // 테이블 행 추가
+		    tbody.append(`
+		        <tr>
+		            <td><input type="checkbox" class="folderAndFileCheckbox" style="padding-top:5px;" value="file_${file.file_no}"></td>
+		            <td>${fileIcon}</td>
+					<td>
+					    <a href="/download/${file.file_no}" style="text-decoration:none; color: inherit;">
+					        <span>${file.ori_file_name}</span>
+					    </a>
+					</td>
+		            <td>${formatFileSize(file.file_size)}</td>
+		            <td>${file.emp_name}</td>
+		            <td>${formatDate(file.reg_time)}</td>
+		        </tr>
+		    `);
+		});
+
+	}
+	
+	function reloadDataTable() {
+		$('#file_config').DataTable({
+			// 화면 크기에 따라 컬럼 width 자동 조절
+			"responsive": true,
+			"autoWidth": false,  // 자동 너비 계산을 비활성화
+			// 컬럼 width 비율 조절
+			"columnDefs": [
+				{ "width": "5%", "targets": 0, "className": "text-center", "orderable": false },
+				{ "width": "7%", "targets": 1, "orderable": false },
+				{ "width": "53%", "targets": 2 },
+				{ "width": "10%", "targets": 3, "orderable": false },
+				{ "width": "10%", "targets": 4 },		
+				{ "width": "15%", "targets": 5 }
+			],
+			language: {
+			    emptyTable: "데이터가 없습니다." // 빈 테이블일 때 메시지
+			},
+			// 정보 표시 해제
+			info: false,
+			searching: true,
+			// DataTables의 DOM 구조를 재정의
+			// 표시건수, 검색, 테이블, 페이징의 위치 재설정
+			// (정보 표시 부분을 제외)
+			"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"clearfix">>>t<"row view-pager"<"col-sm-12"<ipf>>>',
+			// 페이지네이션 버튼을 전체 숫자와 함께 표시
+			pagingType: 'full_numbers',
+			// 페이지당 항목 수를 선택할 수 있는 옵션
+			lengthMenu: [10, 25, 50, 100],
+			// 기본 페이지당 항목 수
+			pageLength: 10,
+	
+			// 페이징 관련 설정
+			drawCallback: function(settings) {
+				var api = this.api();  // DataTables API 객체
+				var info = api.page.info();  // 현재 페이지 정보
+				// 전체 페이지 수
+				var totalPages = info.pages;
+				// 현재 페이지 번호
+				var currentPage = info.page;
+				// 표시할 페이지 버튼 수
+				var numButtons = 5;
+				// 시작 페이지와 종료 페이지 번호 계산
+				var startPage = Math.max(currentPage - Math.floor(numButtons / 2), 0);
+				var endPage = Math.min(startPage + numButtons - 1, totalPages - 1);
+				// endPage가 최대값에 도달한 경우 startPage 조정
+				if (endPage - startPage < numButtons - 1) {
+					startPage = Math.max(endPage - numButtons + 1, 0);
+				}
+				// 사용자 정의 페이지네이션 HTML 생성
+				var paginationHtml = '<ul class="pagination">';
+				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><<</a></li>';
+				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><</a></li>';
+				for (var i = startPage; i <= endPage; i++) {
+					var isActive = i === currentPage ? 'active' : '';  // 현재 페이지에 'active' 클래스 적용
+					paginationHtml += '<li class="paginate_button page-item ' + isActive + '"><a class="page-link" href="#" tabindex="0">' + (i + 1) + '</a></li>';
+				}
+				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">></a></li>';
+				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">>></a></li>';
+				paginationHtml += '</ul>';
+				// 페이지네이션 컨테이너 업데이트
+				$(api.table().container()).find('.dataTables_paginate').html(paginationHtml);
+				// 클릭 이벤트 핸들러 추가
+				$(api.table().container()).find('.paginate_button').on('click', function(e) {
+					e.preventDefault();  // 기본 링크 동작 방지
+					if ($(this).hasClass('disabled')) return;  // 비활성화된 버튼 클릭 방지
+					var idx = $(this).find('a').text();  // 클릭된 버튼의 텍스트 가져오기
+					if (idx === '<<') {
+						api.page('first').draw('page');  // 첫 페이지로 이동
+					} else if (idx === '<') {
+						api.page('previous').draw('page');  // 이전 페이지로 이동
+					} else if (idx === '>') {
+						api.page('next').draw('page');  // 다음 페이지로 이동
+					} else if (idx === '>>') {
+						api.page('last').draw('page');  // 마지막 페이지로 이동
+					} else {
+						api.page(parseInt(idx) - 1).draw('page');  // 선택된 페이지로 이동
+					}
+				});
+			},
+			"initComplete": function () {
+					var searchBoxContainer = $('<div class="custom-dataTables_filter" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px;"></div>');
+					var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="height: 46px; padding: 8px 12px; width: 300px; box-sizing: border-box;">');
+					var searchButton = $('<button class="btn btn-primary ml-2" style="height:46px; width:72px;">검색</button>');
+	
+				searchButton.on('click', function() {
+					var searchTerm = searchInput.val();  // 검색어 가져오기
+					$('#file_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+				});
+	
+				searchBoxContainer.append(searchInput).append(searchButton);
+	
+				// 페이징 밑에 검색 박스 추가
+				$('.dataTables_paginate').after(searchBoxContainer);
+	
+				// DataTables 기본 검색창 숨기기
+				$('div.dataTables_filter').hide();
+			}
+		})
+	}
+	
+	// 날짜 형식 변환 함수
+	function formatDate(reg_time) {
+	    const date = new Date(reg_time);
+	    const year = date.getFullYear();
+	    const month = String(date.getMonth() + 1).padStart(2, '0'); // 월을 두 자리로 맞춤
+	    const day = String(date.getDate()).padStart(2, '0'); // 일을 두 자리로 맞춤
+	    return `${year}.${month}.${day}`;
+	}
+
+	// 파일 크기 변환 함수 (바이트를 MB로 변환)
+	function formatFileSize(file_size) {
+	    const sizeInMB = file_size / (1024 * 1024); // 바이트를 MB로 변환
+	    return `${sizeInMB.toFixed(2)} MB`; // 소수점 둘째 자리까지 표시
+	}
+
+});

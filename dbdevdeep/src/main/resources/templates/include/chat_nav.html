@@ -225,6 +225,7 @@
             </div>
         </aside>
         <!-- 사이드바 끝 -->
+    
     <!-- 대화상대 목록 jstree 출력, 대화상대 선택 버튼 클릭 이벤트 -->
     <script>
         $(document).ready(function() {
@@ -580,38 +581,76 @@
         });
 
 	</script>
-	<!-- 채팅방 생성하기? -->
+	
+	<!-- 채팅방 생성하기 -->
 	<script>
 		// 일대일 채팅방을 생성하는 함수
-		function createPrivateChat(selectedUserId) {
+		function createPrivateChat(selectedMemberId) {
+			// csrf토큰
+			const csrfToken = document.getElementById("csrf_token").value;
 		    // 일대일 채팅방 생성 요청
-		    fetch('/chatroom/create', {
+		    fetch('/chatroom/private', {
 		        method: 'POST',
 		        headers: {
-		            'Content-Type': 'application/json'
+		            'Content-Type': 'application/json',
+		            "X-CSRF-TOKEN": csrfToken
 		        },
 		        body: JSON.stringify({
-		            userId: selectedUserId // 선택된 사용자 ID
+		            emp_id: selectedMemberId // 선택된 사용자 ID
 		        })
 		    })
 		    .then(response => response.json())
 		    .then(data => {
-		        if (data.success) {
-		            openChatRoom(data.chatRoomId); // 채팅방으로 이동
+		        if (data.res_code == '200') {
+		        	// 챗룸핸들러로 이동하여 로직 진행
+		        	// 1. 대화상대에게 채팅방이 생성되었음을 알리고 채팅방 목록을 갱신하도록 요청
+		        	// 2. 사용자의 채팅방 목록을 갱신하고 채팅방에 입장
+		            handleChatRoomCreated(data.room_no, selectedMemberId);
 		        } else {
 		            Swal.fire({
 		                icon: 'error',
 		                title: '실패',
-		                text: '채팅방 생성에 실패했습니다.'
+		                text: data.res_msg
 		            });
 		        }
 		    })
-		    .catch(error => {
-		        console.error("채팅방 생성 중 오류 발생:", error);
-		    });
 		}
-
 	</script>
+	
+	<!-- 프로필 채팅방 생성 (일대일) -->
+	<script>
+	
+	</script>
+	
+	<!-- 챗룸 핸들러 -->
+	<script>
+		function handleChatRoomCreated(roomNo, memberId) {
+			// 1. 대화상대에게 채팅방이 생성되었음을 알리고 채팅방 목록을 갱신하도록 요청
+		    createRoomMessage(memberId);
+			
+		 	// 2-1. 사용자의 채팅방 목록을 갱신 : 채팅방 목록이 위치한 chatpage에 구현
+		    updateChatRoomList();
+		 	// 2-2. 생성된 채팅방 입장 : 채팅방 상세보기가 위치한 chatpage에 구현
+		    enterChatRoom(roomNo);
+		}
+	</script>
+	
+	<!-- 웹소켓으로 채팅방 정보 전송 -->
+	<script>
+		const createRoomMessage = function(memberId){
+			const adminId = document.getElementById("emp_id").value;
+			const message = {
+					type:'CHAT',
+					subType: 'PRIVATE',
+					action: 'CREATE_ROOM',
+					member_id: memberId,
+					msg: '채팅방이 생성되었습니다.'
+			}
+		}
+	</script>
+	
+	<!-- 채팅방 입장하기 -->
+	
 	<!-- 대화상대 프로필 출력 -->
 	<script>
 		// 트리 노드 클릭 이벤트 리스너 함수
@@ -651,9 +690,7 @@
 		}
     
 	</script>
-	<!-- 프로필 채팅방 생성 (일대일) -->
-	<script>
-	</script>
+
 	<!-- 내 상태 메세지 수정 -->
 	<script>
 	// 상태메세지 수정하기

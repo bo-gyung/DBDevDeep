@@ -31,9 +31,6 @@ public class ChatRoom {
 	@Column(name="room_no")
 	private Long roomNo;
 	
-	@Column(name="room_name")
-	private String roomName;
-	
 	@Column(name="last_chat")
 	private String lastChat;
 	
@@ -43,6 +40,10 @@ public class ChatRoom {
 	// 채팅 참여자 정보
 	@OneToMany(mappedBy = "chatRoom")
 	private List<ChatMemberInfo> chatMemberInfo;
+	
+	// 채팅 참여자 상태이력
+	@OneToMany(mappedBy = "chatRoom")
+	private List<ChatMemberStatusHistory> chatMemberStatusHistory;
 		
 
 }
