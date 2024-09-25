@@ -2,6 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
+		.table-responsive {
+			overflow: hidden;
+		}
+	
+		table.dataTable thead > tr > th.sorting_asc, table.dataTable thead > tr > th.sorting_desc, table.dataTable thead > tr > th.sorting, table.dataTable thead > tr > td.sorting_asc, table.dataTable thead > tr > td.sorting_desc, table.dataTable thead > tr > td.sorting {
+			padding-right: 16px;
+			padding-left: 32px;
+		}
+	
 		/* datatable css */
 		div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			margin: 2px 0; white-space: nowrap; justify-content: center; margin-top: 8px;
@@ -131,7 +140,7 @@
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(resultList)}">
-												<tr th:each="employee, employeeStat : ${resultList}" th:data-emp="${employee.emp_id}" class="employee-detail" style="cursor: pointer;">
+												<tr th:each="employee, employeeStat : ${resultList}" th:data-emp="${employee.emp_id}" class="employee-detail" style="cursor: pointer;" th:unless="${employee.emp_id == #authentication.principal.dto.emp_id}">
 													<td scope="row" th:text="${employeeStat.count}"></td>
 													<td th:text="${employee.emp_id}"></td>
 													<td th:text="${employee.emp_name}"></td>

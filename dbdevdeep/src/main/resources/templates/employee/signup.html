@@ -72,7 +72,7 @@
 						<form id="employeeAddFrm">
 							<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 							<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
-							<input type="hidden" name="emp_id">
+							<input type="hidden" name="dup_emp_id">
 							<div class="form-body">
 								<div class="row">
 									<div class="col-md-1 "></div>
@@ -88,6 +88,7 @@
 												</div>
 												<input type="button" class="addPic" id="addPic" value="+">
 											</div>
+											<div id="pic_feedback" class="mt-2"></div>
 										</div>
 									</div>
 
@@ -215,7 +216,7 @@
 											</div>
 										</div>
 										<div class="form-group">
-											<label for="gov_id">입사일 <span style="color: red;">*</span></label>
+											<label for="gov_id">전입일 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-8">
 													<input type="date" class="form-control " id="hire_date" name="hire_date">
@@ -294,6 +295,9 @@
 				form.emp_internal_phone.focus();
 			} else if(form.file.value == "") {
 				document.getElementById('addPic').focus();
+				document.getElementById('pic_feedback').textContent = '사진을 선택하세요.';
+				document.getElementById('pic_feedback').style.color = 'red';
+				document.getElementById('pic_feedback').style.fontSize = '13px';
 			} else {
 					const payload = new FormData(form);
 					const csrfToken = document.getElementById("csrf_token").value;
@@ -593,7 +597,7 @@
     		if(secondPhone.value.length == 3) {
     		secondPhone.classList.remove('is-invalid');
     		secondPhone.classList.add('is-valid');
-    		document.getElementById('emp_phone_feedback').textContent = '';    			
+    		document.getElementById('emp_phone_feedback').textContent = '';
     		}
     		thirdPhone.focus();
     	}
@@ -724,17 +728,19 @@
 				        })
 				    	.then((result) => {
 				    		if(result.isConfirmed){
+				    			valiCount = 1;
 				    			const oriData = data.oriData; // 서버에서 받아온 데이터
-				    			console.log(oriData)
 				                form.gov_id.value = oriData.gov_id; // 정부 ID
 				                form.emp_name.value = oriData.emp_name; // 직원 이름
 				                
 				                document.getElementById("firstempRrn").value = oriData.emp_rrn.split("-")[0];
 				                document.getElementById("secondempRrn").value = oriData.emp_rrn.split("-")[1];
+				                form.emp_rrn.value = oriData.emp_rrn
 				                
 				                document.getElementById("firstPhone").value = oriData.emp_phone.split("-")[0];
 				                document.getElementById("secondPhone").value = oriData.emp_phone.split("-")[1];
 				                document.getElementById("thirdPhone").value = oriData.emp_phone.split("-")[2];
+				                form.emp_phone.value = oriData.emp_phone;
 				                
 				                form.emp_pw.value = oriData.emp_rrn.split("-")[0] +  oriData.emp_rrn.split("-")[1];
 				                
@@ -743,11 +749,14 @@
 				                form.emp_detail_addr.value = oriData.emp_detail_addr; // 상세주소
 				                
 				                form.emp_internal_phone.value = oriData.emp_internal_phone;
-				                form.hire_date.value = oriData.hire_date;
+				                
+				                form.dup_emp_id.value = oriData.emp_id;
+				                form.dept_code.value = oriData.dept_code;
+				                form.job_code.value = oriData.job_code;
 				                
 				                govFeedback.textContent = '';
-						    	govIdInput.classList.remove('is-valid');
-					      		govIdInput.classList.remove('is-invalid');
+								    		govIdInput.classList.remove('is-valid');
+							      		govIdInput.classList.remove('is-invalid');
 				    		}
 				    	})
 					} else {
@@ -799,9 +808,9 @@
             } else {
                 Swal.fire({
                 	icon:'error',
-					title:'실패',
-					text: '이미지 파일만 선택할 수 있습니다.',
-					confirmButtonText:"닫기"
+									title:'실패',
+									text: '이미지 파일만 선택할 수 있습니다.',
+									confirmButtonText:"닫기"
                 });
                 fileInput.value = ''; 
                 imagePreview.src = '';

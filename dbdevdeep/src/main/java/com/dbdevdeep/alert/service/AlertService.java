@@ -39,4 +39,17 @@ public class AlertService {
 		
 		return alert;
 	}
+	
+	public List<AlertDto> selectAllAlertByEmpId(String emp_id) {
+		List<AlertDto> alertDtoList = new ArrayList<>();
+		List<Alert> alertList = alertRepository.selectAllAlertByEmpId(emp_id);
+		
+		for(Alert alert : alertList) {
+			AlertDto dto = new AlertDto().toDto(alert);
+			
+			alertDtoList.add(dto);
+		}
+		
+		return alertDtoList;
+	}
 }
