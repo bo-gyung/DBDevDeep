@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -72,6 +74,13 @@ public class ApproveApiController {
 		this.approveLineService = approveLineService;
 		this.employeeRepository =employeeRepository;
 	}
+	
+	// 파일 다운로드
+	@GetMapping("/approDownload/{appro_no}")
+	public ResponseEntity<Object> approDownload(@PathVariable("appro_no")Long appro_no){
+		return fileService.approDownload(appro_no);
+	}
+	
 	
 	// 보고서 삭제
 	@ResponseBody

@@ -385,11 +385,23 @@
 									    <input type="text" name="approval" id="selectedNodesTable2" readonly style="border: 0; outline: none; width: calc(100% - 50px);" th:value="''">
 									</td>
 				                </tr>
-				                
 				                <tr>
-					                <td>첨부파일</td>
-					                <td colspan="3"><input type="file" name="file_name"></td>
-				                </tr>
+                                    <td>기존파일</td>
+                                       <td colspan="3">
+									   <input type="text" th:value="${fDto != null ? fDto.ori_file : ''}" readonly style="border: 0; outline: none;"> 
+									</td>
+                                </tr>
+                                <tr>
+                                   <td>수정파일</td>
+                                   <td colspan="3">
+								   <input type="file" name="file_name"> 
+								   </td>
+                                </tr>
+                                <tr>
+                                   <td colspan="4">
+								      <span style="color:red;">*주의 ) 수정 파일 업로드시 기존 파일은 삭제 됩니다.</span> 
+								   </td>
+                                </tr>
             				</tbody>
        					 </table>
 					        		<div style="margin-left: auto; text-align: right; align-items: center;">
