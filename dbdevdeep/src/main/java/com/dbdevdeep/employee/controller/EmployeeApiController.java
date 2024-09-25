@@ -47,16 +47,19 @@ public class EmployeeApiController {
 	// 정부관리번호 중복 확인
 	@ResponseBody
 	@PostMapping("/govid")
-	public Map<String, String> govIdCheck(@RequestBody String govId) {
+	public Map<String, Object> govIdCheck(@RequestBody String govId) {
 
-		Map<String, String> resultMap = new HashMap<String, String>();
+		Map<String, Object> resultMap = new HashMap<String, Object>();
 
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "중복확인 중 오류가 발생하였습니다.");
+		
+		EmployeeDto dto = employeeService.govIdCheck(govId);
 
-		if (employeeService.govIdCheck(govId) == 1) {
+		if (dto != null) {
 			resultMap.put("res_code", "409");
 			resultMap.put("res_msg", "중복되는 값이 존재합니다.");
+			resultMap.put("oriData", dto);
 		} else {
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "중복되는 값이 없습니다.");

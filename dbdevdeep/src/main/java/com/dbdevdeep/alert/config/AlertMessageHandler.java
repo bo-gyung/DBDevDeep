@@ -30,10 +30,11 @@ public class AlertMessageHandler {
 		ObjectNode child = objectMapper.createObjectNode();
 		// 자식 key, value 추가
 		child.put("id", alert.getAlarmNo());
-		child.put("title", alert.getReferenceName());
+		child.put("title", alert.getAlarmTitle());
 		child.put("content", alert.getAlarmContent());
 		child.put("timestamp", alert.getAlarmTime().toString());
-		child.put("status", alert.getReadYn());
+		child.put("status", alert.getAlarmStatus());
+		child.put("reference_name", alert.getReferenceName());
 
 		// 자식을 부모에 추가
 		root.set("alert", child);

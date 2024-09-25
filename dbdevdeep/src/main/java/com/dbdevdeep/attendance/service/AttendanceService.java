@@ -34,20 +34,37 @@ public class AttendanceService {
 	public int employeeCheckIn(String empId) {
 
 		int result = -1;
+		int overtime = 0;
 
 		try {
 			Employee employee = employeeRepository.findByempId(empId);
 
 			LocalDate attendDate = LocalDate.now();
 			LocalDateTime checkInTime = LocalDateTime.now();
+			int year = attendDate.getYear();
+			int month = attendDate.getMonthValue();
+			int date = attendDate.getDayOfMonth();
+			if(date == 1) {
+				overtime = 0;
+			}else {
+				overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
+			}
+			
 			LocalDateTime checkOutTime = LocalDateTime.now();
 
 			LocalTime thresholdTime = LocalTime.of(8, 0); // 8시 기준
-			boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
-			String lateStatus = isLate ? "Y" : "N";
-
-			Attendance attendance = Attendance.builder().employee(employee).attendDate(attendDate)
-					.checkInTime(checkInTime).checkOutTime(checkOutTime).workStatus(1).lateStatus(lateStatus).build();
+      boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
+      String lateStatus = isLate ? "Y" : "N";
+			
+			Attendance attendance = Attendance.builder()
+          .employee(employee)
+          .attendDate(attendDate)
+          .checkInTime(checkInTime)
+          .checkOutTime(null)
+          .workStatus(1)
+          .lateStatus(lateStatus)
+          .overtimeSum(overtime)
+          .build();
 
 			attendanceRepository.save(attendance);
 
@@ -89,29 +106,48 @@ public class AttendanceService {
 
 	public int employeeCheckOut(AttendanceDto dto) {
 		int result = -1;
-
+		int overtime = 0;
+		int overtimeSum = 0;
 		try {
 			Employee employee = employeeRepository.findByempId(dto.getEmp_id());
-
+			
 			LocalDate attendDate = dto.getAttend_date();
+			int year = attendDate.getYear();
+			int month = attendDate.getMonthValue();
 			LocalDateTime checkInTime = dto.getCheck_in_time();
 			LocalDateTime checkOutTime = LocalDateTime.now();
-
+			
+			int overtimeEnd = checkOutTime.getHour()-16;
+			
+			overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
+			if(overtime > 67) {
+				overtimeSum = overtime;
+			}else {
+				overtimeSum = overtime + overtimeEnd;
+			}
+			
 			LocalTime thresholdTime = LocalTime.of(8, 0); // 8시 기준
-			boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
-			String lateStatus = isLate ? "Y" : "N";
-
-			Attendance attendance = Attendance.builder().employee(employee).attendNo(dto.getAttend_no())
-					.attendDate(attendDate).checkInTime(checkInTime).checkOutTime(checkOutTime).workStatus(2)
-					.lateStatus(lateStatus).build();
-
+      boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
+      String lateStatus = isLate ? "Y" : "N";
+			
+			Attendance attendance = Attendance.builder()
+          .employee(employee)
+          .attendNo(dto.getAttend_no())
+          .attendDate(attendDate)
+          .checkInTime(checkInTime)
+          .checkOutTime(checkOutTime)
+          .workStatus(2)
+          .lateStatus(lateStatus)
+          .overtimeSum(overtimeSum)
+          .build();
+			
 			attendanceRepository.save(attendance);
-
+			
 			result = 1;
-		} catch (Exception e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return result;
 	}
 	
