@@ -175,12 +175,12 @@ a:hover {
 										</tr>
 									</thead>
 									<tbody>
-										<th:block th:if="${#lists.isEmpty(resultList)}">
+										<th:block th:if="${resultList == null || #lists.isEmpty(resultList)}">
 											<tr>
 												<td colspan="7">해당하는 글이 없습니다.</td>
 											</tr>
 										</th:block>
-										<th:block th:if="${!#lists.isEmpty(resultList)}">
+										<th:block th:if="${resultList != null && !#lists.isEmpty(resultList)}">
 											<tr th:each="item : ${resultList}" th:data-item-no="${item.item_no}">
 												<td th:text="${item.place_name}"></td>
 												<td th:text ="${item.item_name}"></td>
@@ -249,6 +249,11 @@ a:hover {
 		<script src="assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 		<script src="dist/js/pages/datatable/datatable-basic.init.js"></script>
 		<script>
+		$(document).ready(function() {
+		    $('#item_list').DataTable(); // DataTables 초기화
+		});
+		
+		
 		$('#item_list').on('click', 'tr', function(){
 	        // 첫 번째 열에서 item_no 값을 추출
 	        let itemNo = $(this).data('item-no');
