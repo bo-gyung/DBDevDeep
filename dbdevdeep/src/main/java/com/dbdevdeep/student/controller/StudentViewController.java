@@ -196,5 +196,38 @@ public class StudentViewController {
 			model.addAttribute("curriList",curriList);
 			return "student/score_student";
 		}
+		
+		// 학생 목록 페이지로 이동
+		@GetMapping("/student/record")
+		public String listStudentRecord(Model model, StudentClassDto dto) {
+			List<StudentClassDto> resultList = studentService.selectStudentList(dto);
+			model.addAttribute("resultList",resultList);
+			return "student/student_record_list";
+		}
+		
+		// 학생 생활기록부 상세보기 페이지로 이동
+		@GetMapping("/student/record/{student_no}")
+		public String detailStudentRecord(Model model, 
+				@PathVariable("student_no") Long student_no) {
+			StudentDto dto = studentService.selectStudentOne(student_no);
+			List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
+			List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
+			List<SubjectDto> subjectList = studentService.mySubjectList();
+			List<CurriculumDto> curriList = studentService.selectCurriAll();
+			List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
+			
+			Map<Long, String> scoreMap = new HashMap<>();
+		    for (ScoreDto score : scoreList) {
+		        scoreMap.put(score.getCurriculum_no(), score.getScore());
+		    }
+		    
+		    model.addAttribute("scoreList",scoreMap);
+			model.addAttribute("subjectList",subjectList);
+		    model.addAttribute("curriList",curriList);
+			model.addAttribute("dto",dto);
+			model.addAttribute("pdto",resultList);
+			model.addAttribute("cdto",studentClassResultList);
+			return "student/student_record_detail";
+		}
 
 }
