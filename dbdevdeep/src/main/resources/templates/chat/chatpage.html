@@ -276,6 +276,7 @@
 			
 			const roomNo = element.querySelector('input[type="hidden"]').value;
 			loadChatroom(roomNo);
+			sendRoomNoInfo(roomNo);
 			
 		}
 		
@@ -297,6 +298,17 @@
 				// 메시지가 로드된 후 스크롤을 아래로 이동
 	            scrollToBottom();
 			})
+		}
+		
+		// 웹소켓으로 채팅방 정보 전송
+		function sendRoomNoInfo(roomNo) {
+		    // WebSocket 연결이 열려 있는 경우에만 정보 전송
+		    if (socket && socket.readyState === WebSocket.OPEN) {
+		        socket.send(JSON.stringify({
+		            type: "ROOM_NO", // 메시지 타입
+		            roomNo: roomNo   // 현재 페이지 경로 정보
+		        }));
+		    }
 		}
 		
 		// 스크롤 최하단으로 고정

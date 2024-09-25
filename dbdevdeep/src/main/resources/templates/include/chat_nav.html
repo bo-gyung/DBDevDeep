@@ -658,6 +658,7 @@
 			.then(fragment=>{
 				// 가져온 HTML 프래그먼트를 파싱하여 DOM에 삽입
 		        document.getElementById('chat_container').innerHTML = fragment;
+		        sendRoomNoInfo(roomNo);
 			})
 		}
 		
@@ -665,15 +666,14 @@
 	
 	<!-- 웹소켓으로 채팅방 정보 전송 -->
 	<script>
-		const createRoomMessage = function(memberId){
-			const adminId = document.getElementById("emp_id").value;
-			const message = {
-					type:'CHAT',
-					subType: 'PRIVATE',
-					action: 'CREATE_ROOM',
-					member_id: memberId,
-					msg: '채팅방이 생성되었습니다.'
-			}
+		function sendRoomNoInfo(roomNo) {
+		    // WebSocket 연결이 열려 있는 경우에만 정보 전송
+		    if (socket && socket.readyState === WebSocket.OPEN) {
+		        socket.send(JSON.stringify({
+		            type: "ROOM_NO", // 메시지 타입
+		            roomNo: roomNo   // 현재 페이지 경로 정보
+		        }));
+		    }
 		}
 	</script>
 	

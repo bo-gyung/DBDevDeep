@@ -14,6 +14,8 @@ let socket;
         // 웹소켓 연결이 열렸을 때 호출
         socket.onopen = function(event) {
             updateStatus("연결 상태: 연결됨", "green");
+            // 현재 페이지 정보를 서버에 전송
+        	sendPageInfo();
         };
         
     	// 웹소켓 메시지를 수신했을 때 호출
@@ -60,7 +62,7 @@ let socket;
         };
     }
 
-    // 연결 상태 업데이트 함수
+    // 헤더의 연결 상태 업데이트 함수
     function updateStatus(message, color) {
         const statusElement = document.getElementById("status");
         if (statusElement) {
@@ -68,11 +70,31 @@ let socket;
             statusElement.style.color = color;
         }
     }
+    
+    // 현재 페이지 정보를 WebSocket을 통해 서버에 전송하는 함수
+	function sendPageInfo() {
+	    const pageUrl = window.location.pathname; // 현재 페이지 경로 가져오기
+	
+	    // WebSocket 연결이 열려 있는 경우에만 정보 전송
+	    if (socket && socket.readyState === WebSocket.OPEN) {
+	        socket.send(JSON.stringify({
+	            type: "PAGE_INFO", // 메시지 타입
+	            pageUrl: pageUrl   // 현재 페이지 경로 정보
+	        }));
+	    }
+	}
 
     // 페이지를 떠날 때 웹소켓 연결 종료
     window.onbeforeunload = function() {
         if (socket && socket.readyState === WebSocket.OPEN) {
             // 웹소켓 연결 종료.
+		    // WebSocket 연결이 열려 있는 경우에만 정보 전송
+		    if (socket && socket.readyState === WebSocket.OPEN) {
+		        socket.send(JSON.stringify({
+		            type: "ROOM_NO", // 메시지 타입
+		            roomNo: 0   // 현재 페이지 경로 정보
+		        }));
+		    }
             socket.close();
         }
     };

@@ -19,17 +19,21 @@ import com.dbdevdeep.chat.vo.ChatMsgVo;
 import com.dbdevdeep.chat.vo.ChatRoomVo;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
+import com.dbdevdeep.websocket.config.WebSocketHandler;
 
 @Service
 public class ChatService {
 	
 	private final ChatMapper chatMapper;
 	private final EmployeeRepository employeeRepository;
+	private final WebSocketHandler webSocketHandler;
 	
 	@Autowired
-	public ChatService(ChatMapper chatMapper, EmployeeRepository employeeRepository) {
+	public ChatService(ChatMapper chatMapper, EmployeeRepository employeeRepository, 
+			WebSocketHandler webSocketHandler) {
 		this.chatMapper = chatMapper;
 		this.employeeRepository = employeeRepository;
+		this.webSocketHandler = webSocketHandler;
 	}
 	
 	// 채팅 페이지 나브 바 진입시
@@ -191,8 +195,8 @@ public class ChatService {
 		int result = -1; 
 		
 		result = chatMapper.createChatMsg(vo);
-		
-		
+		// 웹소켓 핸들러 호출
+		webSocketHandler.sendPrivateChatMsg(vo);
 		
 		return result;
 	}
