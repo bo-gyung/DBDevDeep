@@ -18,8 +18,8 @@ $(document).ready(function() {
 	        class: 'btn waves-effect waves-light btn-outline-secondary m-1',
 	        style: 'width: 170px; height: 45px;',
 	        click: function() {
-	            // 버튼 클릭 시 복사 기능 처리
-	            console.log("개인문서함으로 복사 버튼 클릭됨");
+				// 복사 모달창 열기 및 개인문서함 로드
+				openCopyModal();
 	        }
 	    }).insertBefore('#uploadButton'); // '업로드' 버튼 앞에 추가
 	}
@@ -59,8 +59,8 @@ $(document).ready(function() {
 		        class: 'btn waves-effect waves-light btn-outline-secondary m-1',
 		        style: 'width: 170px; height: 45px;',
 		        click: function() {
-		            // 버튼 클릭 시 복사 기능 처리
-		            console.log("개인문서함으로 복사 버튼 클릭됨");
+					// 복사 모달창 열기 및 개인문서함 로드
+					openCopyModal();
 		        }
 		    }).insertBefore('#uploadButton'); // '업로드' 버튼 앞에 추가
 		}
@@ -120,6 +120,136 @@ $(document).ready(function() {
 			$('#folder_no').val(folderNo); // 폴더 번호를 숨겨진 input에 저장
         });
     }
+	
+	// 복사 모달창 열기 및 개인문서함 폴더 목록 표시
+	function openCopyModal() {
+	    // 개인문서함 폴더 목록을 로드하여 jstree에 표시
+	    $('#copy_folder_list').jstree('destroy').empty();
+	    $('#copy_folder_list').jstree({
+	        'core': {
+	            'data': folderData.privateFolderList,
+	            'themes': {
+	                'icons': true
+	            }
+	        },
+	        'types': {
+	            'default': {
+	                'icon': '/assets/images/yellow_folder.png'
+	            },
+	            'file': {
+	                'icon': '/assets/images/yellow_folder.png'
+	            }
+	        }
+	    }).on('ready.jstree', function() {
+	        let tree = $('#copy_folder_list').jstree(true);
+			
+			// 모든 폴더를 펼침
+			tree.open_all();
+		}).on('select_node.jstree', function(e, data) {
+		    const folderNo = data.node.id;
+
+		    // 서버에 선택된 폴더 번호를 전송할 준비
+		    $('#selectedCopyFolderNo').val(folderNo); // 폴더 번호를 숨겨진 input에 저장
+		});
+		
+		const selectedFileNos = [];  // 파일 번호를 저장할 배열
+        const selectedFolderNos = [];  // 폴더 번호를 저장할 배열
+        
+        // 체크된 폴더 및 파일 항목의 value 값 가져오기
+        $('.folderAndFileCheckbox:checked').each(function() {
+            const value = $(this).val();
+
+            // 'file_'로 시작하는 경우 파일, 'folder_'로 시작하는 경우 폴더로 구분
+            if (value.startsWith('file_')) {
+                selectedFileNos.push(value.replace('file_', ''));  // 'file_' 제거 후 번호 저장
+            } else if (value.startsWith('folder_')) {
+				selectedFolderNos.push(value.replace('folder_', ''));  // 'folder_' 제거 후 번호 저장
+			}
+        });
+		
+		// 폴더가 선택된 경우 경고창 표시 (복사 시)
+		if (selectedFolderNos.length > 0) {
+		    showAlert('warning', '경고', '파일만 선택해주세요.');
+		    return;
+		}
+
+        // 체크박스가 선택되지 않았을 때 경고 메시지 표시
+        if (selectedFileNos.length === 0) {
+            showAlert('warning', '경고', '복사할 파일을 선택해주세요!');
+            return;
+        }
+
+	    // 복사 모달창을 열기
+	    $('#copyModal').modal('show');
+
+	    // 복사 폴더 선택 및 서버 전송 로직 추가
+	    $('#copyFrm').on('submit', function(e) {
+	        e.preventDefault();
+			
+			// 폴더 선택이 안 된 경우 경고 메시지 표시
+			const targetFolderNo = $('#selectedCopyFolderNo').val(); // 이동될 대상 폴더 번호
+			if (!targetFolderNo) {
+			    showAlert('warning', '경고', '복사할 대상 폴더를 선택해주세요!');
+			    return;
+			}
+
+			// 이동 확인 메시지
+            Swal.fire({
+                title: '복사하시겠습니까?',
+                text: '선택된 파일이 복사됩니다.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5f76e8',
+                cancelButtonColor: '#e8eaec',
+                confirmButtonText: '복사',
+                cancelButtonText: '취소',
+                customClass: {
+                    cancelButton: 'custom-cancel-button'
+                }
+	        }).then((result) => {
+	            if (result.isConfirmed) {
+	                fetch('/file/copy', {
+	                    method: 'POST',
+	                    headers: {
+	                        'Content-Type': 'application/json',
+	                        'X-CSRF-TOKEN': $('#csrf_token').val()
+	                    },
+	                    body: JSON.stringify({
+	                        targetFolderNo: targetFolderNo,
+	                        fileNos: selectedFileNos
+	                    })
+	                })
+	                .then(response => response.json())
+	                .then(data => {
+	                    if (data.file_res_code === '200') {
+	                        showAlert('success', '성공', '파일이 성공적으로 복사되었습니다.', () => location.reload());
+	                    } else {
+	                        showAlert('error', '실패', '복사 중 오류가 발생했습니다.');
+	                    }
+	                })
+	                .catch(error => {
+	                    console.error('Error during copy:', error);
+	                    showAlert('error', '실패', '복사 중 오류가 발생했습니다.');
+	                });
+	            }
+	        });
+	    });
+	}
+	
+	// showAlert 함수 정의
+	function showAlert(icon, title, text, callback = null) {
+	    Swal.fire({
+	        icon: icon,
+	        title: title,
+	        text: text,
+	        confirmButtonText: '확인',
+	        customClass: {
+	            confirmButton: 'swal-custom-button'
+	        }
+	    }).then(() => {
+	        if (callback) callback();
+	    });
+	}
 
     function openNodeToDepth(tree, node, maxDepth, currentDepth = 1) {
         if (currentDepth < maxDepth) {

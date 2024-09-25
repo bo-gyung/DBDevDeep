@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dbdevdeep.FileService;
+import com.dbdevdeep.document.domain.CopyRequestDto;
 import com.dbdevdeep.document.domain.FileDto;
 import com.dbdevdeep.document.domain.MoveRequestDto;
 import com.dbdevdeep.document.service.FolderService;
@@ -127,4 +128,30 @@ public class FileApiController {
 
         return resultMap;
     }
+	
+	@ResponseBody
+	@PostMapping("/file/copy")
+    public Map<String, String> copyFile(@RequestBody CopyRequestDto copyRequest) {
+		Map<String, String> resultMap = new HashMap<>();
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		String empId = user.getUsername();
+		
+        // 이동될 폴더 번호를 가져옴
+        Long targetFolderNo = copyRequest.getTargetFolderNo();
+
+        // 파일 이동 로직 처리
+        List<Long> fileNos = copyRequest.getFileNos();
+        if (fileNos != null && !fileNos.isEmpty()) {
+            for (Long fileNo : fileNos) {
+                if (fileService.copyFile(fileNo, targetFolderNo, empId) > 0) {
+                    resultMap.put("file_res_code", "200");
+                    resultMap.put("file_res_msg", "파일 복사를 성공했습니다.");
+                }
+            }
+        }
+		
+		return resultMap;
+	}
 }

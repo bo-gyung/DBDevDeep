@@ -19,4 +19,9 @@ public interface FileRepository extends JpaRepository<FileEntity, Long>{
 
 	FileEntity findByFileNo(Long fileNo);
 
+	List<FileEntity> findByFolderAndEmployee_EmpId(Folder folder, String empId);
+
+	@Query("SELECT SUM(f.fileSize) FROM FileEntity f WHERE f.folder.folderNo = :folderNo AND f.employee.empId = :empId")
+	Long getTotalFileSizeByFolderNoAndEmployee_EmpId(@Param("folderNo") Long folderNo, @Param("empId") String empId);
+
 }

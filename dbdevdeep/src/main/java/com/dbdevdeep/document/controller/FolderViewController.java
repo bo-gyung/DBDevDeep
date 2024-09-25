@@ -45,7 +45,11 @@ public class FolderViewController {
     @GetMapping("/totalSize")
     @ResponseBody
     public ResponseEntity<Long> getFolderTotalSize(@RequestParam("folder_no") Long folderNo) {
-        Long totalSize = folderService.calculateFolderTotalSize(folderNo);  // 폴더의 전체 용량 계산
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    User user = (User) authentication.getPrincipal();
+	    String empId = user.getUsername();
+	    
+        Long totalSize = folderService.calculateFolderTotalSize(folderNo, empId);  // 폴더의 전체 용량 계산
         return ResponseEntity.ok(totalSize);  // 계산된 용량을 클라이언트로 반환
     }
 }

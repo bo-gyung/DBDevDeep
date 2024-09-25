@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -492,6 +493,7 @@ public class FileService {
 
 	        // 5. 데이터베이스에서 파일의 폴더 정보 업데이트
 	        fileEntity.setFolder(targetFolder);
+	        fileEntity.setModTime(LocalDateTime.now());
 	        				
 	        fileRepository.save(fileEntity);  // 변경된 파일 정보 저장
 
@@ -505,6 +507,64 @@ public class FileService {
 	    return result;
 	}
 
+	public int copyFile(Long fileNo, Long targetFolderNo, String empId) {
+	    int result = -1;  // 기본적으로 실패를 나타내는 값
+
+	    try {
+	    	Employee employee = employeeRepository.findByempId(empId);
+	    	
+	        // 1. 파일 정보 가져오기
+	        FileEntity originalFile = fileRepository.findById(fileNo)
+	            .orElseThrow(() -> new RuntimeException("파일을 찾을 수 없습니다."));
+	        Folder targetFolder = folderRepository.findById(targetFolderNo)
+	            .orElseThrow(() -> new RuntimeException("대상 폴더를 찾을 수 없습니다."));
+
+	        // 2. 원본 파일 경로 계산
+	        Long currentFolderNo = originalFile.getFolder().getFolderNo();
+	        String currentFolderPath = getFolderPath(currentFolderNo);
+	        String originalFileName = URLDecoder.decode(originalFile.getNewFileName(), "UTF-8");
+
+	        // 3. 새로운 파일 이름 생성 (복사본이므로 다른 파일 이름을 사용)
+	        String fileExt = originalFile.getFileExtension();
+	        UUID uuid = UUID.randomUUID();
+	        String newFileName = uuid.toString().replaceAll("-", "") + fileExt;
+
+	        // 4. 복사할 경로 계산
+	        String targetFolderPath = getFolderPath(targetFolderNo);
+	        Path originalPath = Paths.get(fileDir + "document\\" + currentFolderPath + "\\" + originalFileName);
+	        Path copyPath = Paths.get(fileDir + "document\\" + targetFolderPath + "\\" + newFileName);
+
+	        // 5. 파일 복사
+	        if (Files.exists(originalPath)) {
+	            Files.copy(originalPath, copyPath, StandardCopyOption.REPLACE_EXISTING);
+	        } else {
+	            throw new RuntimeException("복사할 파일의 경로를 찾을 수 없습니다.");
+	        }
+
+	        // 6. 새로운 파일 정보를 데이터베이스에 저장 (복사본)
+	        FileEntity copiedFile = FileEntity.builder()
+	            .oriFileName(originalFile.getOriFileName())  // 원본 파일 이름 그대로 사용
+	            .newFileName(newFileName)  // 새로운 파일 이름
+	            .fileExtension(fileExt)  // 확장자는 동일
+	            .fileSize(originalFile.getFileSize())  // 파일 크기는 동일
+	            .employee(employee)  // 작성자 정보 그대로
+	            .folder(targetFolder)  // 대상 폴더로 이동
+	            .regTime(LocalDateTime.now())  // 복사된 파일의 등록 시간 갱신
+	            .modTime(LocalDateTime.now())  // 수정 시간도 갱신
+	            .build();
+
+	        // 7. 데이터베이스에 파일 정보 저장
+	        fileRepository.save(copiedFile);
+
+	        result = 1;  // 모든 작업이 성공적으로 완료된 경우
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result = 0;  // 실패 시
+	    }
+
+	    return result;
+	}
 
 }
 

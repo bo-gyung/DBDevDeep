@@ -16,4 +16,10 @@ public interface FolderRepository extends JpaRepository<Folder, Long>{
 
 	List<Folder> findByParentFolder(Folder folder);
 
+	Folder findByFolderTypeAndEmployee_EmpIdIsNull(int folderType);
+
+	List<Folder> findByParentFolderAndEmployee_EmpId(Folder rootFolder, String empId);
+
+	Folder findByFolderNoAndEmployee_EmpId(Long folderNo, String empId);
+
 }

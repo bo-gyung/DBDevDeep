@@ -14,6 +14,10 @@
 		.notifications{
 			width:360px;
 		}
+		
+		.schedule-message-item:hover {
+	    	color: inherit !important; /* 기본 텍스트 색상 유지 */
+	    }
 	</style>
 	<header class="topbar" data-navbarbg="skin6">
 		<div class="preloader">
@@ -257,7 +261,7 @@
 	    const bellElement = document.querySelector('#bell'); // <a> 태그 요소
 	
 	    const notificationHTML = `
-	        <a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2" 
+	        <a href="javascript:void(0)" class="schedule-message-item message-item d-flex align-items-center border-bottom px-3 py-2" 
 	            data-title="${title}" data-message="${message}" data-time="${time}">
 	            <span class="btn btn-success text-white rounded-circle btn-circle">
 	                <i data-feather="calendar" class="text-white"></i>
@@ -303,7 +307,7 @@
 	
 	// 새로 추가된 알림에 클릭 이벤트 리스너 추가
 	function addClickListenerToNotification() {
-	    const notificationItems = document.querySelectorAll('.message-item'); // 모든 알림 항목을 선택
+	    const notificationItems = document.querySelectorAll('.schedule-message-item'); // 모든 알림 항목을 선택
 
 	    notificationItems.forEach(item => {
 	        item.addEventListener('click', function() {
@@ -318,7 +322,7 @@
 	
 	// 중복된 알림이 있는지 확인하는 함수
 	function isNotificationDuplicate(title, message, time) {
-	    const existingAlerts = document.querySelectorAll('.message-item');
+	    const existingAlerts = document.querySelectorAll('.schedule-message-item');
 	    
 	    for (let alert of existingAlerts) {
 	        const alertTitle = alert.querySelector('h6').textContent.trim();

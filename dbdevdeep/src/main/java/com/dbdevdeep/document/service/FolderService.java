@@ -3,6 +3,7 @@ package com.dbdevdeep.document.service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,8 +44,16 @@ public class FolderService {
 
     // 개인 폴더 목록 가져오기
 	public List<Map<String, Object>> selectPrivateFolderTree(String empId) {
-		List<Folder> folderList = folderRepository.findByFolderTypeAndEmployee_EmpId(1, empId);
-		return convertToTree(folderList);
+	    // 1. 개인업무폴더(루트 폴더)를 먼저 가져오기 (empId가 null인 경우)
+	    Folder rootFolder = folderRepository.findByFolderTypeAndEmployee_EmpIdIsNull(1);
+	    
+	    // 2. 해당 사용자의 하위 폴더 목록 가져오기
+	    List<Folder> folderList = folderRepository.findByParentFolderAndEmployee_EmpId(rootFolder, empId);
+	    
+	    folderList.add(0, rootFolder);  // 루트 폴더를 맨 앞에 추가
+	    
+	    // 3. 폴더 목록을 트리 형태로 변환
+	    return convertToTree(folderList);
 	}
 
     // 트리 구조로 변환하는 메서드
@@ -78,10 +87,22 @@ public class FolderService {
 		return node;
 	}
 
-    public List<FolderDto> getChildFolders(Long folderNo) {
+    public List<FolderDto> getChildFolders(Long folderNo, String empId) {
         Folder folder = folderRepository.findById(folderNo)
             .orElseThrow(() -> new RuntimeException("Folder not found"));
-        List<Folder> childFolders = folderRepository.findByParentFolder(folder);
+
+        List<Folder> childFolders;
+        
+        // folder_type에 따라 공용 폴더인지 개인 폴더인지 구분
+        if (folder.getFolderType() == 0) {
+            // 공용 폴더의 경우 모든 하위 폴더 조회
+            childFolders = folderRepository.findByParentFolder(folder);
+        } else if (folder.getFolderType() == 1) {
+            // 개인 폴더의 경우 empId로 필터링하여 하위 폴더 조회
+            childFolders = folderRepository.findByParentFolderAndEmployee_EmpId(folder, empId);
+        } else {
+            throw new RuntimeException("Unknown folder type");
+        }
         
         List<FolderDto> folderDtoList = new ArrayList<>();
         for(Folder f : childFolders) {
@@ -92,10 +113,22 @@ public class FolderService {
         return folderDtoList;
     }
 
-    public List<FileDto> getFilesInFolder(Long folderNo) {
+    public List<FileDto> getFilesInFolder(Long folderNo, String empId) {
         Folder folder = folderRepository.findById(folderNo)
             .orElseThrow(() -> new RuntimeException("Folder not found"));
-        List<FileEntity> files = fileRepository.findByFolder(folder);
+
+        List<FileEntity> files;
+
+        // folder_type에 따라 공용 폴더인지 개인 폴더인지 구분
+        if (folder.getFolderType() == 0) {
+            // 공용 폴더의 경우 모든 파일 조회
+            files = fileRepository.findByFolder(folder);
+        } else if (folder.getFolderType() == 1) {
+            // 개인 폴더의 경우 empId로 필터링하여 파일 조회
+            files = fileRepository.findByFolderAndEmployee_EmpId(folder, empId);
+        } else {
+            throw new RuntimeException("Unknown folder type");
+        }
 
         List<FileDto> fileDtoList = new ArrayList<>();
         for(FileEntity f : files) {
@@ -107,26 +140,35 @@ public class FolderService {
     }
     
     // 폴더 번호로 폴더의 총 용량을 계산하는 메서드
-    public Long calculateFolderTotalSize(Long folderNo) {
+    public Long calculateFolderTotalSize(Long folderNo, String empId) {
+        Long totalSize = 0L;
+
         // 폴더를 조회
         Folder folder = folderRepository.findById(folderNo)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid folder ID"));
+            .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 폴더 ID"));
 
-        // 해당 폴더의 파일 크기 합산
-        Long totalSize = fileRepository.getTotalFileSizeByFolderNo(folderNo);
-        
-        // 파일이 없을 경우 null을 반환하므로 이를 0L로 처리
-        if (totalSize == null) {
-            totalSize = 0L;
-        }
+        // 공용문서함 처리 (folderType == 1)
+        if (folder.getFolderType() == 0) {
+            // 공용 폴더의 파일 크기를 합산
+            totalSize = fileRepository.getTotalFileSizeByFolderNo(folderNo);
+            totalSize = totalSize == null ? 0L : totalSize;
 
-        // 자식 폴더를 조회하여 재귀적으로 용량을 계산
-        List<Folder> subFolders = folderRepository.findByParentFolder(folder);
-        
-        // 자식 폴더가 없으면 더 이상 재귀 호출하지 않음
-        if (subFolders != null && !subFolders.isEmpty()) {
+            // 공용 폴더의 하위 폴더를 재귀적으로 계산
+            List<Folder> subFolders = folderRepository.findByParentFolder(folder);
             for (Folder subFolder : subFolders) {
-                totalSize += calculateFolderTotalSize(subFolder.getFolderNo());  // 재귀적으로 자식 폴더 용량 계산
+                totalSize += calculateFolderTotalSize(subFolder.getFolderNo(), null);
+            }
+        } 
+        // 개인문서함 처리 (folderType == 6)
+        else if (folder.getFolderType() == 1) {
+            // 개인 폴더의 파일 크기를 합산 (empId로 필터링)
+            Long folderFileSize = fileRepository.getTotalFileSizeByFolderNoAndEmployee_EmpId(folderNo, empId);
+            totalSize += folderFileSize == null ? 0L : folderFileSize;
+
+            // 개인 폴더의 하위 폴더를 재귀적으로 계산
+            List<Folder> subFolders = folderRepository.findByParentFolderAndEmployee_EmpId(folder, empId);
+            for (Folder subFolder : subFolders) {
+                totalSize += calculateFolderTotalSize(subFolder.getFolderNo(), empId);
             }
         }
 
@@ -221,6 +263,7 @@ public class FolderService {
 	        }
 	        
 	        folderToMove.setParentFolder(targetFolder);
+	        folderToMove.setModTime(LocalDateTime.now());
 	        		
 	        folderRepository.save(folderToMove);  // DB에서 상위 폴더 업데이트
 
