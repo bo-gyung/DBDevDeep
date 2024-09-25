@@ -72,6 +72,8 @@ public class PlaceScheduleViewController {
 	        // 일정 조회 데이터 추가 - VO 사용
 	        List<PlaceItemScheduleVo> totalSchedule = placeScheduleService.selectTotalScheduleList();
 	        
+	        
+	        
 	        // 모델에 담아서 뷰로 전달
 	        model.addAttribute("user", user);
 	        model.addAttribute("placeList", placeList);  // 장소 데이터
@@ -89,7 +91,7 @@ public class PlaceScheduleViewController {
 		public List<PlaceItemScheduleVo> totalScheduleData(){
 	        List<PlaceItemScheduleVo> totalSchedule = placeScheduleService.selectTotalScheduleList();
 	        
-	        System.out.println("Schedules returned to calendar: " + totalSchedule);  // 반환되는 일정 출력
+	        
 	        return totalSchedule; // 일정 조회 결과를 VO로 반환
 		}
 	
