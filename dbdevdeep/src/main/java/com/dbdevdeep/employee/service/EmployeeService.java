@@ -56,21 +56,17 @@ public class EmployeeService {
 	private final AuditLogRepository auditLogRepository;
 
 	// 교육청관리번호 중복 확인
-	public int govIdCheck(String govId) {
-		int result = -1;
-
-		try {
-			Employee e = employeeRepository.findBygovId(govId);
-
-			if (e != null) {
-				result = 1;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+	public EmployeeDto govIdCheck(String govId) {
+		
+		EmployeeDto dto = null;
+		
+		Employee e = employeeRepository.findBygovId(govId);
+	
+		if(e != null) {
+			dto = new EmployeeDto().toDto(e);
 		}
 
-		return result;
+		return dto;
 	}
 
 	// 직원 등록

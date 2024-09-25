@@ -163,13 +163,13 @@
               <a class="nav-link dropdown-toggle pl-md-3 position-relative" href="javascript:void(0)" id="bell"
                 role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text"><i data-feather="bell" class="svg-icon" style="width: 24px; height: 24px;"></i></span>
-                <span class="badge badge-primary notify-no rounded-circle">5</span>
+                <span id="alertNum" class="badge badge-primary notify-no rounded-circle"></span>
               </a>
               <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown" id="notification">
 	                <ul class="list-style-none">
 	                    <li>
 	                        <div class="message-center notifications position-relative" id="alertDiv">
-														<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
+								<!-- <a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
 			                        <div class="btn btn-danger rounded-circle btn-circle">
 			                          <i data-feather="info" class="text-white"></i>
 			                        </div>
@@ -179,7 +179,7 @@
 			                            등록되었습니다.</span>
 			                          <span class="font-12 text-nowrap d-block text-muted">9:30 AM</span>
 			                        </div>
-			                      </a>
+			                    </a> -->
 	                        </div>
 	                    </li>
 	                </ul>
@@ -389,6 +389,7 @@
 		    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
 		}
 	</script>
+
 	<script>
 	const csrfToken_header = document.getElementById("csrf_token_header").value;
 	
@@ -409,14 +410,20 @@
         	   const alert = alertDtoList[i];
         	   
         	   const alertHtml = `
-		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
-			        	<div class="btn btn-danger rounded-circle btn-circle">
-		              <i data-feather="info" class="text-white"></i>
+		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 "
+		        		data-alert-no="${alert.alarm_no}"
+		        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});">
+			        	<div class="btn btn-info rounded-circle btn-circle">
+			        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
+			        		<circle cx="12" cy="12" r="10"></circle>
+			        		<line x1="12" y1="16" x2="12" y2="12"></line>
+			        		<line x1="12" y1="8" x2="12" y2="8"></line>
+			        	</svg>
 		            </div>
 		            <div class="w-75 d-inline-block v-middle pl-2">
 		                <h6 class="message-title mb-0 mt-1">[${alert.alarm_title}]</h6>
 		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-		                    '${alert.alarm_content}'
+		                    ${alert.alarm_content}
 		                </span>
 		                <span class="font-12 text-nowrap d-block text-muted">
 		                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -428,9 +435,58 @@
 		        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
 		        document.getElementById('alertDiv').innerHTML += alertHtml;
            }
+           
+           const alertDiv = document.getElementById('alertDiv');
+       	
+	   		// alertDiv 안의 a 태그를 모두 선택
+	   		const anchorTags = alertDiv.getElementsByTagName('a');
+	   	
+	   		// a 태그의 개수 출력
+	   		const count = anchorTags.length;
+	   		
+	   		document.getElementById("alertNum").innerText = count;
         } 
     })
     .catch(error => console.error('Error:', error));
+	</script>
+	
+	<script>
+		function alertMoveFunc(referenceName, alertNo) {
+		    // 테이블 이름에 따라 이동할 URL을 결정합니다.
+		    let url = '';
+	
+		    switch (referenceName) {
+		        case 'approve':
+		            url = '/approve';
+		            fetch('/alert/' + alertNo, {
+		            	method: 'PUT',
+		            	headers: {
+		            		'X-CSRF-TOKEN': csrfToken_header
+		            	}
+		            }) 
+		            .then(response => response.json())
+					.then(data=>{
+						if(data.res_code == '200'){
+							const alertLink = document.querySelector(`a[data-alert-no="${alertNo}"]`);
+		                    if (alertLink) {
+		                        alertLink.remove();
+		                        window.location.reload();
+		                    }
+						} 
+					});
+		            break;
+		        case 'notice':
+		            url = '/notice';
+		            break;
+		        // 추가 테이블에 대한 케이스 추가
+		        default:
+		            console.error('알 수 없는 테이블 이름입니다:', referenceName);
+		            return;
+		    }
+	
+		    // URL로 이동
+		    window.location.href = url;
+		}
 	</script>
 
     </th:block>

@@ -15,4 +15,6 @@ public interface AlertRepository extends JpaRepository<Alert, Long>{
 	
 	@Query("SELECT a FROM Alert a WHERE a.referenceName = :referenceName AND a.referenceNo = :referenceNo")
 	List<Alert> findByreferenceNameandreferenceNo(@Param("referenceName")String referenceName, @Param("referenceNo")Long referenceNo);
+	
+	Alert findByalarmNo(Long alarmNo);
 }

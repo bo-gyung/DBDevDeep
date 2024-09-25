@@ -68,14 +68,14 @@ public class EmployeeViewController {
 		User user = (User) authentication.getPrincipal();
 
 		EmployeeDto dto = employeeService.selectEmployeeOne(user.getUsername());
-		TeacherHistoryDto thDto = teacherHistoryService.selectHistoryOne(dto);
+		List<TeacherHistoryDto> thDtoList = teacherHistoryService.selectTeacherHistoryByEmployee(dto.getEmp_id());
 		List<TransferDto> tDtoList = employeeService.selectTransferHistoryByEmployee(user.getUsername());
 		List<EmployeeStatusDto> restDtoList = employeeService.selectRestHistoryByEmployee(user.getUsername());
 
 		model.addAttribute("restDtoList", restDtoList);
 		model.addAttribute("tDtoList", tDtoList);
 		model.addAttribute("empDto", dto);
-		model.addAttribute("thDto", thDto);
+		model.addAttribute("thDtoList", thDtoList);
 
 		return "employee/mypage";
 	}
@@ -152,6 +152,7 @@ public class EmployeeViewController {
 
 		model.addAttribute("tDtoList", tDtoList);
 		model.addAttribute("thDtoList", thDtoList);
+		System.out.println("thDtoList: " + thDtoList);
 		model.addAttribute("empDto", empDto);
 		model.addAttribute("restDtoList", restDtoList);
 		model.addAttribute("leaveDtoList", leaveDtoList);

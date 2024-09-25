@@ -27,14 +27,20 @@ let socket;
 		        const alert = message.alert;
 		       
 		        const alertHtml = `
-		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
-			        	<div class="btn btn-danger rounded-circle btn-circle">
-		              <i data-feather="info" class="text-white"></i>
+		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2"
+		        		data-alert-no="${alert.id}"
+		        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.id});">
+			        	<div class="btn btn-info rounded-circle btn-circle">
+		              	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
+			        		<circle cx="12" cy="12" r="10"></circle>
+			        		<line x1="12" y1="16" x2="12" y2="12"></line>
+			        		<line x1="12" y1="8" x2="12" y2="8"></line>
+			        	</svg>
 		            </div>
 		            <div class="w-75 d-inline-block v-middle pl-2">
 		                <h6 class="message-title mb-0 mt-1">[${alert.title}]</h6>
 		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-		                    '${alert.content}'
+		                    ${alert.content}
 		                </span>
 		                <span class="font-12 text-nowrap d-block text-muted">
 		                    ${new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -45,6 +51,16 @@ let socket;
 		
 		        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
 		        document.getElementById('alertDiv').innerHTML += alertHtml;
+		        
+		        const alertDiv = document.getElementById('alertDiv');
+       	
+		   		// alertDiv 안의 a 태그를 모두 선택
+		   		const anchorTags = alertDiv.getElementsByTagName('a');
+		   	
+		   		// a 태그의 개수 출력
+		   		const count = anchorTags.length;
+		   		
+		   		document.getElementById("alertNum").innerText = count;
 		    }
 		};
 
