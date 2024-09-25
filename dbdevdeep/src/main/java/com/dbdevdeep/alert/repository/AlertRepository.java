@@ -10,6 +10,9 @@ import com.dbdevdeep.alert.domain.Alert;
 
 public interface AlertRepository extends JpaRepository<Alert, Long>{
 
-	@Query("SELECT a FROM Alert a WHERE a.employee.empId = :empId AND a.readYn = 'N'")
+	@Query("SELECT a FROM Alert a WHERE a.employee.empId = :empId AND a.alarmStatus = 'N'")
 	List<Alert> findByempId(@Param("empId") String empId);
+	
+	@Query("SELECT a FROM Alert a WHERE a.referenceName = :referenceName AND a.referenceNo = :referenceNo")
+	List<Alert> findByreferenceNameandreferenceNo(@Param("referenceName")String referenceName, @Param("referenceNo")Long referenceNo);
 }

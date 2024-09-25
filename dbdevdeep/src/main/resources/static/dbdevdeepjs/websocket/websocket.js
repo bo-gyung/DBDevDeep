@@ -25,22 +25,7 @@ let socket;
 		    
 		    if (message.alert) {
 		        const alert = message.alert;
-		        
-		        console.log(alert);
-		
-		        // 공지 HTML 생성
-/*		        const alertHtml = `
-		            <div class="w-75 d-inline-block v-middle pl-2">
-		                <h6 class="message-title mb-0 mt-1">[${alert.title}]</h6>
-		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-		                    '${alert.content}' 공지가 등록되었습니다.
-		                </span>
-		                <span class="font-12 text-nowrap d-block text-muted">
-		                    ${new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-		                </span>
-		            </div>
-		        `;*/
-		        
+		       
 		        const alertHtml = `
 		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
 			        	<div class="btn btn-danger rounded-circle btn-circle">
@@ -49,7 +34,7 @@ let socket;
 		            <div class="w-75 d-inline-block v-middle pl-2">
 		                <h6 class="message-title mb-0 mt-1">[${alert.title}]</h6>
 		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-		                    '${alert.content}' 공지가 등록되었습니다.
+		                    '${alert.content}'
 		                </span>
 		                <span class="font-12 text-nowrap d-block text-muted">
 		                    ${new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

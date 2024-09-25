@@ -35,8 +35,8 @@ public class Alert {
 	private Long alarmNo;
 
 	@ManyToOne
-	@JoinColumn(name = "emp_id")
 	@JsonBackReference
+	@JoinColumn(name = "emp_id")
 	private Employee employee;
 
 	@Column(name = "reference_name")

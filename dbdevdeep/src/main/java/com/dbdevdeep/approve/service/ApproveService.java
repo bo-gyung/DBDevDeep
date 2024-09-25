@@ -108,6 +108,17 @@ public class ApproveService {
 			Approve approve = approveRepository.findByApproNo(appro_no);
 			approveLineRepository.deleteByApprove(approve);
 			approveRepository.deleteById(appro_no);
+			
+			// 보고서 삭제 시 alert_status x로 변경
+			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("approve", appro_no);
+			for(Alert alert : alertList) {
+				AlertDto alertDto = new AlertDto().toDto(alert);
+				
+				alertDto.setAlarm_status("X");
+				Alert a = alertDto.toEntity(alert.getEmployee());
+				alertRepository.save(a);
+			}
+			
 			result = 1;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -161,7 +172,17 @@ public class ApproveService {
 			vacationRequestRepository.deleteByApprove(approve);
 			approveLineRepository.deleteByApprove(approve);
 			approveRepository.deleteById(appro_no);
-
+			
+			// 휴가 삭제 후 alert_status X로 설정
+			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("approve", appro_no);
+			for(Alert alert : alertList) {
+				AlertDto alertDto = new AlertDto().toDto(alert);
+				
+				alertDto.setAlarm_status("X");
+				Alert a = alertDto.toEntity(alert.getEmployee());
+				alertRepository.save(a);
+			}
+			
 			result = 1;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -169,7 +190,7 @@ public class ApproveService {
 		return result;
 	}
 
-	// 승인 처리
+	// 승인 처리 + 최종 승인 처리
 	@Transactional
 	public int agreeApproveLine(Long approNo, String empId, String principalId, String deptCode, String jobCode,
 			String signImage) {
@@ -212,8 +233,13 @@ public class ApproveService {
 					alertDto.setAlarm_content(a.getApprove().getApproTitle());
 					alertDto.setAlarm_status("N");
 
+					// alert 저장 후 웹 소켓에 데이터 전송
 					Alert alert = alertDto.toEntity(a.getEmployee());
-					sendAlertToAllSessions(alertRepository.save(alert));
+					try {
+						webSocketHandler.sendAlert(alertRepository.save(alert));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		} else { // 최종 승인
@@ -243,23 +269,19 @@ public class ApproveService {
 							alertDto.setAlarm_title("보고서 결재 반려");
 						}
 					}
-					alertDto.setAlarm_content(a.getApproTitle() + a.getApproType() + a.getApproStatus());
+					alertDto.setAlarm_content(a.getApproTitle());
 					alertDto.setAlarm_status("N");
 
 					Alert alert = alertDto.toEntity(a.getEmployee());
-					alertRepository.save(alert);
+					try {
+						webSocketHandler.sendAlert(alertRepository.save(alert));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
 		return 1;
-	}
-
-	private void sendAlertToAllSessions(Alert alert) {
-		try {
-			webSocketHandler.sendAlert(alert);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
 	// 보고서 반려 처리
@@ -290,7 +312,11 @@ public class ApproveService {
 			alertDto.setAlarm_content(alertApprove.getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApprove.getEmployee());
-			alertRepository.save(alert);
+			try {
+				webSocketHandler.sendAlert(alertRepository.save(alert));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		String backSign = "반려";
@@ -307,7 +333,7 @@ public class ApproveService {
 		return 1;
 	}
 
-	// 류가 반려 처리
+	// 휴가 반려 처리
 	@Transactional
 	public int backApproveLine(ApproveLineDto approveLineDto, String empId, int vacType, LocalDateTime startDate,
 			LocalDateTime endDate, String deptCode, String jobCode) {
@@ -337,7 +363,11 @@ public class ApproveService {
 			alertDto.setAlarm_content(alertApprove.getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApprove.getEmployee());
-			alertRepository.save(alert);
+			try {
+				webSocketHandler.sendAlert(alertRepository.save(alert));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		String backSign = "반려";
@@ -806,7 +836,7 @@ public class ApproveService {
 		}
 
 		// alertApproLine != null이면 alert에 저장
-		// 결재자에게 alert
+		// 첫 결재자에게 alert
 		if (alertApproLine != null) {
 			AlertDto alertDto = new AlertDto();
 			alertDto.setReference_name("approve");
@@ -816,7 +846,12 @@ public class ApproveService {
 			alertDto.setAlarm_content(alertApproLine.getApprove().getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApproLine.getEmployee());
-			alertRepository.save(alert);
+			
+			try {
+				webSocketHandler.sendAlert(alertRepository.save(alert));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		if (approFileDto != null) { // approFileDto가 null이 아닐 때만 저장
@@ -829,7 +864,7 @@ public class ApproveService {
 
 	}
 
-	// 결재 요청
+	// 휴가 결재 요청
 	@Transactional
 	public int approUp(ApproveDto approveDto, VacationRequestDto vacationRequestDto,
 			List<ApproveLineDto> approveLineDtos, List<ReferenceDto> referenceDto, ApproFileDto approFileDto,
@@ -880,7 +915,7 @@ public class ApproveService {
 		}
 
 		// alertApproveLine != null이면 alert에 저장
-		// 결재자에게 alert
+		// 첫 결재자에게 alert
 		if (alertApproveLine != null) {
 			AlertDto alertDto = new AlertDto();
 			alertDto.setReference_name("approve");
@@ -892,9 +927,15 @@ public class ApproveService {
 				alertDto.setAlarm_title("보고서 결재 요청");
 			}
 			alertDto.setAlarm_content(alertApproveLine.getApprove().getApproTitle());
-
+ 
+			// alert 저장 후 웹 소켓에 데이터 전송
 			Alert alert = alertDto.toEntity(alertApproveLine.getEmployee());
-			sendAlertToAllSessions(alertRepository.save(alert));
+			
+			try {
+				webSocketHandler.sendAlert(alertRepository.save(alert));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		// 4. reference 테이블에 저장
