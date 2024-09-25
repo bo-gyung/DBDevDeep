@@ -1,9 +1,10 @@
-package com.dbdevdeep.employee.domain;
+package com.dbdevdeep.alert.domain;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.dbdevdeep.employee.domain.Employee;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,42 +21,35 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name="employee_status")
+@Table(name = "alarm")
 @NoArgsConstructor(access=AccessLevel.PROTECTED)
 @AllArgsConstructor(access=AccessLevel.PROTECTED)
 @Getter
 @Builder
-public class EmployeeStatus {
+public class Alert {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="status_no")
-	private Long statusNo;
+	@Column(name = "alarm_no")
+	private Long alarmNo;
 	
 	@ManyToOne
-	@JoinColumn(name="emp_id")
-	private Employee employee;
+    @JoinColumn(name = "emp_id")
+    private Employee employee;
 	
-	@Column(name="stop_reason")
-	private String stopReason;
+	@Column(name="reference_name")
+	private String referenceName;
 	
-	@Column(name="stop_date")
-	private LocalDate stopDate;
+	@Column(name="reference_no")
+	private Long referenceNo;
 	
-	@Column(name="excepted_date")
-	private LocalDate exceptedDate;
+	@Column(name="alarm_content")
+	private String alarmContent;
 	
-	@Column(name="return_date")
-	private LocalDate returnDate;
+	@Column(name="read_yn")
+	private String readYn;
 	
-	@Column(name="status_type")
-	private String statusType;
-	
-	@ManyToOne
-	@JoinColumn(name="admin_id")
-	private Employee admin;
-	
-	@Column(name="log_time")
+	@Column(name="alarm_time")
 	@CreationTimestamp
-	private LocalDateTime logTime;
+	private LocalDateTime alarmTime;
 }

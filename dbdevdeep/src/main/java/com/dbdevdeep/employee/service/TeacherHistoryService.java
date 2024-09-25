@@ -135,6 +135,22 @@ public class TeacherHistoryService {
 
 		return teacherHistoryDtoList;
 	}
+	
+	public List<String> selectClassByOrderLastesListForAddressBook() {
+		String recentYear = teacherHistoryRepository.findMostRecentYear();
+
+		List<TeacherHistory> teacherHistoryList = teacherHistoryRepository.findByClassByYear(recentYear);
+
+		List<String> teacherHistoryDtoList = new ArrayList<>();
+		
+		for (TeacherHistory t : teacherHistoryList) {
+			String list = t.getEmployee().getEmpId();
+
+			teacherHistoryDtoList.add(list);
+		}
+
+		return teacherHistoryDtoList;
+	}
 
 	public TeacherHistoryDto selectHistoryOne(EmployeeDto dto) {
 		TeacherHistoryDto resultDto = null;

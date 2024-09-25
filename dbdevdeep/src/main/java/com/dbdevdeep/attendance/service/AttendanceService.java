@@ -24,21 +24,21 @@ public class AttendanceService {
 
 	private final AttendanceRepository attendanceRepository;
 	private final EmployeeRepository employeeRepository;
-	
+
 	@Autowired
-	public AttendanceService(AttendanceRepository attendanceRepository,
-			EmployeeRepository employeeRepository) {
+	public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository) {
 		this.attendanceRepository = attendanceRepository;
 		this.employeeRepository = employeeRepository;
 	}
-	
+
 	public int employeeCheckIn(String empId) {
-		
+
 		int result = -1;
 		int overtime = 0;
+
 		try {
 			Employee employee = employeeRepository.findByempId(empId);
-			
+
 			LocalDate attendDate = LocalDate.now();
 			LocalDateTime checkInTime = LocalDateTime.now();
 			int year = attendDate.getYear();
@@ -50,6 +50,8 @@ public class AttendanceService {
 				overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
 			}
 			
+			LocalDateTime checkOutTime = LocalDateTime.now();
+
 			LocalTime thresholdTime = LocalTime.of(8, 0); // 8시 기준
       boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
       String lateStatus = isLate ? "Y" : "N";
@@ -63,46 +65,45 @@ public class AttendanceService {
           .lateStatus(lateStatus)
           .overtimeSum(overtime)
           .build();
-			
+
 			attendanceRepository.save(attendance);
-			
+
 			result = 1;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return result;
 	}
-	
+
 	public AttendanceDto findByTodayCheckTime() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		User user = (User)authentication.getPrincipal();
+		User user = (User) authentication.getPrincipal();
 		String empId = user.getUsername();
-		
+
 		AttendanceDto attendDto = new AttendanceDto();
-		
-		
+
 		try {
 			Employee employee = employeeRepository.findByempId(empId);
-			
+
 			try {
 				LocalDate ld = LocalDate.now();
-				
+
 				Attendance attend = attendanceRepository.findByTodayCheckTime(employee, ld);
-				
-				if(attend != null) {
+
+				if (attend != null) {
 					attendDto = attendDto.toDto(attend);
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return attendDto;
 	}
-	
+
 	public int employeeCheckOut(AttendanceDto dto) {
 		int result = -1;
 		int overtime = 0;
@@ -150,6 +151,22 @@ public class AttendanceService {
 		return result;
 	}
 	
+	public List<String> selectByToDayList() {
+		List<String> dtoList = new ArrayList<>();
+		
+		LocalDate now = LocalDate.now(); 
+		
+		List<Attendance> attendList = attendanceRepository.selectByToDayList(now);
+		
+		for(Attendance attend : attendList) {
+			String list = attend.getEmployee().getEmpId();
+			
+			dtoList.add(list);
+		}
+		
+		return dtoList;
+	}
+
 	// vacationHour 출력
 	public EmployeeDto employeeInfo(String empId) {
 		Employee employee = employeeRepository.findByempId(empId);
@@ -174,5 +191,4 @@ public class AttendanceService {
 		}
 		return aDtoList;
 	}
-	
 }
