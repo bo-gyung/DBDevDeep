@@ -26,8 +26,9 @@ public class AlertDto {
 	
 	public String reference_name;
 	public Long reference_no;
+	public String alarm_title;
 	public String alarm_content;
-	public String read_yn;
+	public String alarm_status;
 	public LocalDateTime alarm_time;
 	
 	public Alert toEntity() {
@@ -35,8 +36,9 @@ public class AlertDto {
 				.alarmNo(alarm_no)
 				.referenceName(reference_name)
 				.referenceNo(reference_no)
+				.alarmTitle(alarm_title)
 				.alarmContent(alarm_content)
-				.readYn(read_yn)
+				.alarmStatus(alarm_status)
 				.alarmTime(alarm_time)
 				.build();
 	}
@@ -47,8 +49,9 @@ public class AlertDto {
 				.employee(e)
 				.referenceName(reference_name)
 				.referenceNo(reference_no)
+				.alarmTitle(alarm_title)
 				.alarmContent(alarm_content)
-				.readYn(read_yn)
+				.alarmStatus(alarm_status)
 				.alarmTime(alarm_time)
 				.build();
 	}
@@ -60,8 +63,9 @@ public class AlertDto {
 				.emp_name(a.getEmployee().getEmpName())
 				.reference_name(a.getReferenceName())
 				.reference_no(a.getReferenceNo())
+				.alarm_title(a.getAlarmTitle())
 				.alarm_content(a.getAlarmContent())
-				.read_yn(a.getReadYn())
+				.alarm_status(a.getAlarmStatus())
 				.alarm_time(a.getAlarmTime())
 				.build();
 	}

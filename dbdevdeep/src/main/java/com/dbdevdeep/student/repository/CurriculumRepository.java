@@ -9,4 +9,5 @@ import com.dbdevdeep.student.domain.Curriculum;
 public interface CurriculumRepository extends JpaRepository<Curriculum, Long>{
 
 	List<Curriculum> findBySubject_SubjectNo(Long subjectNo);
+	Curriculum findBycurriculumNo(Long curriculum_no);
 }

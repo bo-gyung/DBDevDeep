@@ -1,7 +1,9 @@
 package com.dbdevdeep.student.controller;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,7 @@ import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
 import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.ParentDto;
+import com.dbdevdeep.student.domain.ScoreDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
 import com.dbdevdeep.student.domain.SubjectDto;
@@ -58,7 +61,9 @@ public class StudentViewController {
 			@PathVariable("student_no") Long student_no) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
 		List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
+		List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
 		model.addAttribute("dto",dto);
+		model.addAttribute("pdto",resultList);
 		model.addAttribute("cdto",studentClassResultList);
 		return "student/student_detail";
 	}
@@ -132,4 +137,97 @@ public class StudentViewController {
 		public String createSubjectPage() {
 			return "student/subject_create";
 		}
+		
+	// 성적 등록 페이지로 이동
+		@GetMapping("/student/score")
+		public String listScorePage(Model model, SubjectDto sdto, StudentClassDto cdto) {
+			List<StudentClassDto> resultList = studentService.selectStudentList(cdto);
+			List<SubjectDto> subjectList = studentService.mySubjectList();
+			model.addAttribute("subjectList",subjectList);
+			model.addAttribute("resultList",resultList);
+			return "student/score_list";
+		}
+		
+	// 과목 별 성적 등록 페이지로 이동
+		@GetMapping("/score/subject/{subject_no}")
+		public String scoreSubjectOne(Model model, @PathVariable("subject_no") Long subject_no, SubjectDto sdto, StudentClassDto cdto) {
+			List<StudentClassDto> resultList = studentService.selectStudentList(cdto);
+			SubjectDto subjectDto = studentService.selectSubjectOne(subject_no);
+			List<CurriculumDto> curriDto = studentService.selectCurriOne(subject_no);
+			List<ScoreDto> scoreList = studentService.selectScoreBySubject(subject_no);
+			Map<Long, Map<Long, String>> scoreMap = new HashMap<>();
+
+			for (ScoreDto score : scoreList) {
+			    Long studentNo = score.getStudent_no(); // 각 ScoreDto에서 student_no를 가져옴
+			    Long curriculumNo = score.getCurriculum_no(); // 각 ScoreDto에서 curriculum_no를 가져옴
+			    String scoreValue = score.getScore(); // 각 ScoreDto에서 점수를 가져옴
+			    
+			    // studentNo에 해당하는 Map이 없으면 새로 생성
+			    scoreMap.putIfAbsent(studentNo, new HashMap<>());
+			    
+			    // studentNo에 해당하는 curriculumNo와 score를 저장
+			    scoreMap.get(studentNo).put(curriculumNo, scoreValue);
+			}
+
+			// 모델에 scoreMap을 추가
+			model.addAttribute("scoreList", scoreMap);
+			model.addAttribute("subject",subjectDto);
+			model.addAttribute("resultList",resultList);
+			model.addAttribute("curriList",curriDto);
+			return "student/score_subject";
+		}
+		
+	// 학생 별 성적 등록 페이지로 이동
+		@GetMapping("/score/student/{student_no}")
+		public String scoreStudentOne(Model model, @PathVariable("student_no") Long student_no, SubjectDto sdto, StudentClassDto cdto) {
+			StudentDto studentDto = studentService.selectStudentOne(student_no);
+			List<SubjectDto> subjectList = studentService.mySubjectList();
+			List<CurriculumDto> curriList = studentService.selectCurriAll();
+			List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
+			
+			Map<Long, String> scoreMap = new HashMap<>();
+		    for (ScoreDto score : scoreList) {
+		        scoreMap.put(score.getCurriculum_no(), score.getScore());
+		    }
+
+			model.addAttribute("scoreList",scoreMap);
+			model.addAttribute("subjectList",subjectList);
+			model.addAttribute("resultList",studentDto);
+			model.addAttribute("curriList",curriList);
+			return "student/score_student";
+		}
+		
+		// 학생 목록 페이지로 이동
+		@GetMapping("/student/record")
+		public String listStudentRecord(Model model, StudentClassDto dto) {
+			List<StudentClassDto> resultList = studentService.selectStudentList(dto);
+			model.addAttribute("resultList",resultList);
+			return "student/student_record_list";
+		}
+		
+		// 학생 생활기록부 상세보기 페이지로 이동
+		@GetMapping("/student/record/{student_no}")
+		public String detailStudentRecord(Model model, 
+				@PathVariable("student_no") Long student_no) {
+			StudentDto dto = studentService.selectStudentOne(student_no);
+			List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
+			List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
+			List<SubjectDto> subjectList = studentService.mySubjectList();
+			List<CurriculumDto> curriList = studentService.selectCurriAll();
+			List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
+			
+			Map<Long, String> scoreMap = new HashMap<>();
+		    for (ScoreDto score : scoreList) {
+		        scoreMap.put(score.getCurriculum_no(), score.getScore());
+		    }
+		    
+		    model.addAttribute("scoreList",scoreMap);
+			model.addAttribute("subjectList",subjectList);
+		    model.addAttribute("curriList",curriList);
+			model.addAttribute("dto",dto);
+			model.addAttribute("pdto",resultList);
+			model.addAttribute("cdto",studentClassResultList);
+			return "student/student_record_detail";
+		}
+
 }

@@ -15,28 +15,9 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			<div class="page-breadcrumb">
 				<div class="row">
 					<div class="col-7 align-self-center">
-						<h4
-							class="page-title text-truncate text-dark font-weight-medium mb-1">Basic
-							Table</h4>
 						<div class="d-flex align-items-center">
 							<nav aria-label="breadcrumb">
-								<ol class="breadcrumb m-0 p-0">
-									<li class="breadcrumb-item"><a href="index.html"
-										class="text-muted">Home</a></li>
-									<li class="breadcrumb-item text-muted active"
-										aria-current="page">Library</li>
-								</ol>
 							</nav>
-						</div>
-					</div>
-					<div class="col-5 align-self-center">
-						<div class="customize-input float-right">
-							<select
-								class="custom-select custom-select-set form-control bg-white border-0 custom-shadow custom-radius">
-								<option selected>Aug 19</option>
-								<option value="1">July 19</option>
-								<option value="2">Jun 19</option>
-							</select>
 						</div>
 					</div>
 				</div>
@@ -49,7 +30,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								<h3 class="card-title">학생 상세 정보</h3>
 								<div class="student-info">
 									<div class="student-details">
-										<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 											<div class="row">
 											    <th:block th:if="${dto.student_new_pic != null}">
 											        <img th:src="@{'/UploadImg/student/' + ${dto.student_new_pic}}" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1;">
@@ -77,8 +57,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 														<td th:text="${dto.student_phone}"></td>
 													</tr>
 												</table>
-										<ul>
-											<li>
 												<div class="academic-info">
 													<h3>학년 이력 조회</h3>
 													<a th:href="@{/student/class/{std_no}(std_no=${dto.student_no})}">학년 이력 수정</a><br> 
@@ -117,8 +95,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 														</tbody>
 													</table>
 												</div>
-											</li>
-											<li>
 												<div class="academic-info">
 													<h3>가족사항</h3>
 													<a th:href="@{/student/parent/{std_no}(std_no=${dto.student_no})}">학부모 정보 수정</a>
@@ -154,8 +130,48 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 														</tbody>
 													</table>
 												</div>
-											</li>
-										</ul>
+												<div th:each="subject : ${subjectList}">
+													    <br>
+													    <h3 th:text="${subject.subject_name}"></h3> <!-- 과목명 표시 -->
+													    
+													    <table class="table table-bordered no-wrap">
+														    <thead>
+														        <tr>
+														            <th rowspan="2">과목</th>
+														            <!-- 해당 과목에 해당하는 교육과정 내용만 필터링 -->
+														            <th th:each="curri : ${curriList}" 
+														                th:if="${curri.subject.subjectNo == subject.subject_no}" 
+														                th:text="${curri.curriculum_content}" colspan="3"></th> <!-- 교육과정 내용 -->
+														        </tr>
+														        <tr>
+														            <!-- 해당 과목의 교육과정 정보만 필터링해서 반복 -->
+														            <th:block th:each="curri : ${curriList}" 
+														                      th:if="${curri.subject.subjectNo == subject.subject_no}">
+														                <th>반영비율(%)</th>
+														                <th>과목만점</th>
+														                <th>점수</th>
+														            </th:block>
+														        </tr>
+														    </thead>
+														    <tbody>
+														        <!-- 과목 별로 하나의 row를 생성 -->
+														        <tr>
+														            <td th:text="${subject.subject_name}"></td>
+														            <!-- 해당 과목의 curriculum만 필터링해서 반복 -->
+														            <th:block th:each="curri : ${curriList}" 
+														                      th:if="${curri.subject.subjectNo == subject.subject_no}">
+														                <td th:text="${curri.curriculum_ratio}"></td> <!-- 반영비율 -->
+														                <td th:text="${curri.curriculum_max_score}"></td> <!-- 과목만점 -->
+																		<td th:text="${scoreList.get(curri.curriculum_no) != null ? scoreList.get(curri.curriculum_no) : ''}"></td>
+																		
+														            </th:block>
+														        </tr>
+														    </tbody>
+														</table>
+							
+													</div>
+												</div>
+							            	</div>
 									</div>
 									<a th:href="@{/student/list}">목록으로</a><br> 
 									<a th:href="@{/student/update/{student_no}(student_no=${dto.student_no})}">수정</a><br>
@@ -165,8 +181,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
 		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
 		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -180,36 +194,6 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		<script
 			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
-		<script>
-		const studentDelete = function(studentNo){
-			if(confirm("정말 삭제하시겠습니까?")){
-				const csrfToken = document.getElementById('csrf_token').value;
-				 fetch('/student/'+studentNo,{
-					 method : 'delete',
-					 headers : {
-							'X-CSRF-TOKEN':csrfToken}
-				 })
-				 .then(response => response.json())
-				 .then(data => {
-					 if(data.res_code == '200'){
-							Swal.fire({
-								icon :'success',
-								title:'성공',
-								text : data.res_msg ,
-								confirmButtonText:"닫기"
-							}).then((result)=>{
-								location.href="/student/list";
-							});
-						} else{
-							Swal.fire({
-								icon:'error',
-								title:'실패',
-								text: data.res_msg,
-								confirmButtonText:"닫기"
-					 		});
-						}
-					})
-			}}
-	</script>
+		
 	</body>
 </html>

@@ -3,6 +3,7 @@ package com.dbdevdeep.employee.domain;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.dbdevdeep.alert.domain.Alert;
 import com.dbdevdeep.approve.domain.ApproDraft;
 import com.dbdevdeep.approve.domain.Approve;
 import com.dbdevdeep.approve.domain.ApproveLine;
@@ -16,6 +17,7 @@ import com.dbdevdeep.notice.domain.NoticeComment;
 import com.dbdevdeep.notice.domain.NoticeReadCheck;
 import com.dbdevdeep.schedule.domain.Category;
 import com.dbdevdeep.schedule.domain.Schedule;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,109 +31,109 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
- 
+
 @Entity
-@Table(name="employee")
-@NoArgsConstructor(access=AccessLevel.PROTECTED)
-@AllArgsConstructor(access=AccessLevel.PROTECTED)
+@Table(name = "employee")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Builder
 public class Employee {
-	
+
 	@Id
-	@Column(name="emp_id")
+	@Column(name = "emp_id")
 	private String empId;
-	
-	@Column(name="emp_pw")
+
+	@Column(name = "emp_pw")
 	private String empPw;
-	
-	@Column(name="gov_id")
+
+	@Column(name = "gov_id")
 	private String govId;
-	
-	@Column(name="emp_name")
+
+	@Column(name = "emp_name")
 	private String empName;
-	
-	@Column(name="emp_rrn")
+
+	@Column(name = "emp_rrn")
 	private String empRrn;
-	
-	@Column(name="emp_phone")
+
+	@Column(name = "emp_phone")
 	private String empPhone;
-	
-	@Column(name="ori_pic_name")
+
+	@Column(name = "ori_pic_name")
 	private String oriPicName;
-	
-	@Column(name="new_pic_name")
+
+	@Column(name = "new_pic_name")
 	private String newPicName;
-	
-	@Column(name="emp_post_code")
+
+	@Column(name = "emp_post_code")
 	private String empPostCode;
-	
-	@Column(name="emp_addr")
+
+	@Column(name = "emp_addr")
 	private String empAddr;
-	
-	@Column(name="emp_detail_addr")
+
+	@Column(name = "emp_detail_addr")
 	private String empDetailAddr;
-	
+
 	@ManyToOne
-	@JoinColumn(name="dept_code")
+	@JoinColumn(name = "dept_code")
 	private Department department;
-	
+
 	@ManyToOne
-	@JoinColumn(name="job_code")
+	@JoinColumn(name = "job_code")
 	private Job job;
-	
-	@Column(name="emp_internal_phone")
+
+	@Column(name = "emp_internal_phone")
 	private String empInternalPhone;
-	
-	@Column(name="vacation_hour")
+
+	@Column(name = "vacation_hour")
 	private int vacationHour;
-	
-	@Column(name="hire_date")
+
+	@Column(name = "hire_date")
 	private LocalDate hireDate;
-	
-	@Column(name="end_date")
+
+	@Column(name = "end_date")
 	private LocalDate endDate;
-	
-	@Column(name="ent_status")
+
+	@Column(name = "ent_status")
 	private String entStatus;
-	
-	@Column(name="login_yn")
-	private String loginYn;	
-	
-	@Column(name="account_status")
+
+	@Column(name = "login_yn")
+	private String loginYn;
+
+	@Column(name = "account_status")
 	private String accountStatus;
-	
-	@Column(name="chat_status_msg")
+
+	@Column(name = "chat_status_msg")
 	private String chatStatusMsg;
-	
+
 	// 직원 반 배정 관련
 	@OneToMany(mappedBy = "employee")
 	private List<TeacherHistory> teacherHistorys;
-	
+
 	// 일정 관련
 	@OneToMany(mappedBy = "employee")
 	private List<Schedule> schedules;
-	
+
 	// 범주 관련
 	@OneToMany(mappedBy = "employee")
 	private List<Category> categories;
 
 	@OneToMany(mappedBy = "employee")
-    private List<Approve> approves;
+	private List<Approve> approves;
 
-    @OneToMany(mappedBy = "employee")
-    private List<ApproveLine> approveLines;
+	@OneToMany(mappedBy = "employee")
+	private List<ApproveLine> approveLines;
 
-    @OneToMany(mappedBy = "employee")
-    private List<Reference> references;
+	@OneToMany(mappedBy = "employee")
+	private List<Reference> references;
 
-    @OneToMany(mappedBy = "employee")
-    private List<ApproDraft> approveDrafts;
+	@OneToMany(mappedBy = "employee")
+	private List<ApproDraft> approveDrafts;
 
-    // 근태관리 관련
+	// 근태관리 관련
 	@OneToMany(mappedBy = "employee")
 	private List<Attendance> attendances;
-	
+
 	// 공지사항
 	@OneToMany(mappedBy = "employee")
 	private List<Notice> notice;
@@ -141,7 +143,7 @@ public class Employee {
 	// 공지사항 읽음확인
 	@OneToMany(mappedBy = "employee")
 	private List<NoticeReadCheck> noticeReadCheck;
-	
+
 	// 채팅 참여자 정보
 	@OneToMany(mappedBy = "employee")
 	private List<ChatMemberInfo> chatMemberInfo;
@@ -155,5 +157,9 @@ public class Employee {
 	@OneToMany(mappedBy = "employee")
 	private List<ChatReadCheck> chatReadCheck;
 	
-	
+	// 알람 관련
+	@JsonManagedReference
+	@OneToMany(mappedBy = "employee")
+	private List<Alert> alerts;
+
 }

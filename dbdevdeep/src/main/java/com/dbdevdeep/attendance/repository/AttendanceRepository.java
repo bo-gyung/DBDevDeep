@@ -2,6 +2,7 @@ package com.dbdevdeep.attendance.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -23,4 +24,7 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>{
 
 	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee")
 	Attendance findByEmpId(@Param("employee") Employee employee);
+	
+	@Query("SELECT MAX(a.overtimeSum) FROM Attendance a WHERE a.employee = :employee AND FUNCTION('YEAR', a.attendDate) = :year AND FUNCTION('MONTH', a.attendDate) = :month")
+	Optional<Integer> findByLastInfo(@Param("employee") Employee employee , @Param("year") int year , @Param("month") int month);
 }

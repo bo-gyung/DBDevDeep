@@ -38,6 +38,8 @@ import com.dbdevdeep.place.domain.Item;
 import com.dbdevdeep.place.domain.Place;
 import com.dbdevdeep.place.repository.ItemRepository;
 import com.dbdevdeep.place.repository.PlaceRepository;
+import com.dbdevdeep.student.domain.Student;
+import com.dbdevdeep.student.repository.StudentRepository;
 
 @Service
 public class FileService {
@@ -50,17 +52,24 @@ public class FileService {
 	private final ApproveRepository approveRepository;
 	private final PlaceRepository placeRepository;
 	private final ItemRepository itemRepository;
+	private final StudentRepository studentRepository;
 	private final FolderRepository folderRepository;
 	private final FileRepository fileRepository;
+	
 	@Autowired
 	public FileService(EmployeeRepository employeeRepository, ApproFileRepository approFileRepository,
 			ApproveRepository approveRepository, PlaceRepository placeRepository, ItemRepository itemRepository,
-			FolderRepository folderRepository, FileRepository fileRepository) {
+			StudentRepository studentRepository,FolderRepository folderRepository, FileRepository fileRepository) {
+
 		this.employeeRepository = employeeRepository;
 		this.approFileRepository = approFileRepository;
 		this.approveRepository = approveRepository;
 		this.placeRepository = placeRepository;
+
 		this.itemRepository = itemRepository;
+
+		this.studentRepository = studentRepository;
+
 		this.folderRepository = folderRepository;
 		this.fileRepository = fileRepository;
 	}
@@ -190,7 +199,7 @@ public class FileService {
 
 	public int employeePicDelete(String emp_id) {
 		int result = -1;
-
+		
 		try {
 			Employee e = employeeRepository.findByempId(emp_id);
 			String newFileName = e.getNewPicName(); // UUID
@@ -333,23 +342,7 @@ public class FileService {
 	
 	
 	
-		public List<String> documentUploadFiles(List<MultipartFile> files, Long folderNo, FileDto dto) {
-		    List<String> savedFileNames = new ArrayList<>();
-
-		    for (MultipartFile file : files) {
-		        // 각 파일마다 새로운 DTO를 생성해서 전송
-		        FileDto fileDto = new FileDto();
-		        fileDto.setEmp_id(dto.getEmp_id());
-		        fileDto.setReg_time(dto.getReg_time());
-		        fileDto.setMod_time(dto.getMod_time());
-
-		        String savedFileName = documentUploadFile(file, folderNo, fileDto);
-		        if (savedFileName != null) {
-		            savedFileNames.add(savedFileName);
-		        }
-		    }
-		    return savedFileNames;
-		}
+		
 
 
 		private String documentUploadFile(MultipartFile file, Long folderNo, FileDto dto) {
@@ -399,6 +392,90 @@ public class FileService {
 			}
 			return newFileName;
 		}
+
+
+	public List<String> documentUploadFiles(List<MultipartFile> files, Long folderNo, FileDto dto) {
+	    List<String> savedFileNames = new ArrayList<>();
+
+	    for (MultipartFile file : files) {
+	        // 각 파일마다 새로운 DTO를 생성해서 전송
+	        FileDto fileDto = new FileDto();
+	        fileDto.setEmp_id(dto.getEmp_id());
+	        fileDto.setReg_time(dto.getReg_time());
+	        fileDto.setMod_time(dto.getMod_time());
+
+	        String savedFileName = documentUploadFile(file, folderNo, fileDto);
+	        if (savedFileName != null) {
+	            savedFileNames.add(savedFileName);
+	        }
+	    }
+	    return savedFileNames;
+	}
+
+
+	
+
+	public String studentPicUpload(MultipartFile file) {
+			
+			String newFileName = null;
+			
+			try {
+				// 1. 파일 원래 이름
+				String oriFileName = file.getOriginalFilename();
+				// 2. 파일 자르기 (자료형 떼서 UUID로 바꾸기 위해)
+				String fileExt = oriFileName.substring(oriFileName.lastIndexOf("."),oriFileName.length());
+				// 3. 파일 명칭 바꾸기
+				UUID uuid = UUID.randomUUID();
+				// 4. 8자리마다 포함되는 하이픈 제거
+				String uniqueName = uuid.toString().replaceAll("-", "");
+				// 5. 새로운 파일명
+				newFileName = uniqueName+fileExt;
+				// 7. 파일 껍데기 생성
+				File saveFile = new File(fileDir + "student\\" + newFileName);
+				// 8. 경로 존재 여부 확인
+				if(!saveFile.exists()) {
+					saveFile.mkdirs();
+				}
+				// 9. 껍데기에 파일 정보 복제
+				file.transferTo(saveFile);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+			return newFileName; 
+		}
+	
+	
+	public int studentPicDelete(Long student_no) {
+		int result = -1;
+		try {
+			Student student = studentRepository.findBystudentNo(student_no);
+			
+			String newFileName = student.getStudentNewPic();	// UUID
+			String oriFileName = student.getStudentOriPic();	// 사용자가 아는 파일명
+			
+			if (newFileName == null || newFileName.isEmpty()) {
+	            // 파일명이 null 또는 빈 문자열일 경우 바로 성공 처리
+	            return 1;
+	        }
+			
+			String resultDir = fileDir + "student\\" + URLDecoder.decode(newFileName, "UTF-8");
+			
+			if(resultDir != null && resultDir.isEmpty() == false) {
+				File file = new File(resultDir);
+				
+				if(file.exists()) {
+					file.delete();
+					result = 1;
+				}
+			}
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+	
+
 		
 		public String getFolderPath(Long folderNo) {
 		    List<String> folderNames = new ArrayList<>();
@@ -580,6 +657,6 @@ public class FileService {
 	
 	
 	
-	
+
 }
 
