@@ -101,8 +101,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 										</ul>
 										<div class="form-group">
 											<div class="form-group">
-												<select id="t_year" name="t_year"
-													onchange="fetchDataByYear()">
+												<select id="t_year" name="t_year" onchange="fetchDataByYear()">
 													<option th:each="ty : ${Tyear}" th:text="${ty}"
 														th:value="${ty}"></option>
 												</select> 

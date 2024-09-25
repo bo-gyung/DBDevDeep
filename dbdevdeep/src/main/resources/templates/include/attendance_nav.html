@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="attendanceNavLayout">
+	<aside class="left-sidebar" data-sidebarbg="skin6">
+		<!-- Sidebar scroll-->
+		<div class="scroll-sidebar" data-sidebarbg="skin6">
+			<!-- Sidebar navigation-->
+
+			<nav class="sidebar-nav">
+				<ul id="sidebarnav">
+					<!-- 근태관리 Nav -->
+					<li class="sidebar-item selected">
+						<a class="sidebar-link" th:href="@{/attendance}" aria-expanded="false"> 
+							<span class="hide-menu">근태관리</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</aside>
+</th:block>
+</html>

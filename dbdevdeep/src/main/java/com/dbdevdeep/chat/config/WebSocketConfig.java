@@ -6,7 +6,6 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 //채팅 웹소켓 설정 클래스!
 @Configuration
@@ -28,7 +27,5 @@ public class WebSocketConfig implements WebSocketConfigurer {
 			.addHandler(webSocketHandler, "/ws")
 			.addInterceptors(new CustomHandshakeInterceptor()) // 인터셉터 추가
 			.setAllowedOrigins("*");
-		
 	}
-
 }

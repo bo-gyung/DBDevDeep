@@ -16,6 +16,7 @@
 		}
 	</style>
 	<header class="topbar" data-navbarbg="skin6">
+		<input type="hidden" id="csrf_token_header" th:value="${_csrf.token}">
 		<div class="preloader">
 			<div class="lds-ripple">
 				<div class="lds-pos"></div>
@@ -111,8 +112,7 @@
               </a>
             </li>
             <li class="nav-item left-nav">
-              <a class="nav-link" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
-                aria-haspopup="true" aria-expanded="false">
+              <a class="nav-link" th:href="@{/attendance}" role="button" aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text">근태관리</span>
               </a>
             </li>
@@ -145,7 +145,7 @@
               </a>
             </li>
             <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/folder}" role="button"
+              <a class="nav-link" th:href="@{/file}" role="button"
                 aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text">문서관리</span>
               </a>
@@ -168,9 +168,8 @@
               <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown" id="notification">
 	                <ul class="list-style-none">
 	                    <li>
-	                        <div class="message-center notifications position-relative">
-								<a href="javascript:void(0)"
-			                        class="message-item d-flex align-items-center border-bottom px-3 py-2">
+	                        <div class="message-center notifications position-relative" id="alertDiv">
+														<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
 			                        <div class="btn btn-danger rounded-circle btn-circle">
 			                          <i data-feather="info" class="text-white"></i>
 			                        </div>
@@ -204,7 +203,7 @@
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="javascript:void(0)" data-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false">
-                <img th:src="@{'/UploadImg/employee/' + ${#authentication.principal.dto.new_pic_name}}" alt="user" class="rounded-circle" style="margin-top:-3px; width: 40px; height: 40px; object-fit: cover;">
+                <img th:src="@{'/UploadImg/employee/' + ${#authentication.principal.dto.new_pic_name}}" alt="user" class="rounded-circle" style="margin-top:-3px; width: 40px; height: 40px; object-fit: cover;"  onerror="this.onerror=null; this.src='/assets/images/users/user-profile.png';">
 
                 <span class="ml-2 d-none d-lg-inline-block">
                 	<span>안녕하세요, </span>
@@ -233,163 +232,206 @@
         </div>
       </nav>
     </header>
-   	<!-- 웹소켓 연결 설정 js -->
-  	<script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
-<script>
-	// 서버에서 주기적으로 알림을 가져오는 함수
-	function fetchAlerts() {
-	    fetch('/scheduleAlert')
-	        .then(response => response.json())
-	        .then(alerts => {
-	            if (alerts.length > 0) {
-	                alerts.forEach(alert => {
-	                    addScheduleNotification(alert.title, alert.message, alert.time);
-	                });
-	            }
-	        })
-	        .catch(error => console.error('Error fetching alerts:', error));
-	}
-	
-	// 1분마다 서버에 요청을 보냄
-	setInterval(fetchAlerts, 60000); // 60,000ms = 1분
-	
-	// 알림을 화면에 추가하는 함수
-	function addScheduleNotification(title, message, time) {
-	    let messageCenter = document.querySelector('.message-center.notifications'); // 메시지 센터
-	    const bellElement = document.querySelector('#bell'); // <a> 태그 요소
-	
-	    const notificationHTML = `
-	        <a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2" 
-	            data-title="${title}" data-message="${message}" data-time="${time}">
-	            <span class="btn btn-success text-white rounded-circle btn-circle">
-	                <i data-feather="calendar" class="text-white"></i>
-	            </span>
-	            <div class="w-75 d-inline-block v-middle pl-2">
-	                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
-	                <span class="font-12 text-nowrap d-block text-muted text-truncate">${message}</span>
-	                <span class="font-12 text-nowrap d-block text-muted">${time}</span>
-	            </div>
-	        </a>
-	    `;
-	
-	    // message-center가 존재하지 않는 경우 전체 구조 추가
-	    if (!messageCenter) {
-	        const firstAlertHTML = `
-	            <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown">
-	                <ul class="list-style-none">
-	                    <li>
-	                        <div class="message-center notifications position-relative">
-	                            ${notificationHTML}
-	                        </div>
-	                    </li>
-	                </ul>
-	            </div>
-	        `;
-	        bellElement.insertAdjacentHTML('afterend', firstAlertHTML);
-	    } else {
-	        // 알림이 중복되지 않도록 확인 후 추가
-	        if (!isNotificationDuplicate(title, message, time)) {
-	            messageCenter.insertAdjacentHTML('afterbegin', notificationHTML);
-	        }
-	    }
-	
-	    // Feather Icons 렌더링 호출
-	    feather.replace();
-	
-	    // 알림을 LocalStorage에 저장
-	    saveAlertToLocalStorage(title, message, time);
-	    
-	 	// 알림 클릭 이벤트 추가
-	    addClickListenerToNotification();
-	}
-	
-	// 새로 추가된 알림에 클릭 이벤트 리스너 추가
-	function addClickListenerToNotification() {
-	    const notificationItems = document.querySelectorAll('.message-item'); // 모든 알림 항목을 선택
+    <!-- 웹소켓 연결 설정 js -->
+    <script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
+	<script>
+		// 서버에서 주기적으로 알림을 가져오는 함수
+		function fetchAlerts() {
+		    fetch('/scheduleAlert')
+		        .then(response => response.json())
+		        .then(alerts => {
+		            if (alerts.length > 0) {
+		                alerts.forEach(alert => {
+		                    addScheduleNotification(alert.title, alert.message, alert.time);
+		                });
+		            }
+		        })
+		        .catch(error => console.error('Error fetching alerts:', error));
+		}
+		
+		// 1분마다 서버에 요청을 보냄
+		setInterval(fetchAlerts, 60000); // 60,000ms = 1분
+		
+		// 알림을 화면에 추가하는 함수
+		function addScheduleNotification(title, message, time) {
+		    let messageCenter = document.querySelector('.message-center.notifications'); // 메시지 센터
+		    const bellElement = document.querySelector('#bell'); // <a> 태그 요소
+		
+		    const notificationHTML = `
+		        <a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2" 
+		            data-title="${title}" data-message="${message}" data-time="${time}">
+		            <span class="btn btn-success text-white rounded-circle btn-circle">
+		                <i data-feather="calendar" class="text-white"></i>
+		            </span>
+		            <div class="w-75 d-inline-block v-middle pl-2">
+		                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
+		                <span class="font-12 text-nowrap d-block text-muted text-truncate">${message}</span>
+		                <span class="font-12 text-nowrap d-block text-muted">${time}</span>
+		            </div>
+		        </a>
+		    `;
+		
+		    // message-center가 존재하지 않는 경우 전체 구조 추가
+		    if (!messageCenter) {
+		        const firstAlertHTML = `
+		            <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown">
+		                <ul class="list-style-none">
+		                    <li>
+		                        <div class="message-center notifications position-relative">
+		                            ${notificationHTML}
+		                        </div>
+		                    </li>
+		                </ul>
+		            </div>
+		        `;
+		        bellElement.insertAdjacentHTML('afterend', firstAlertHTML);
+		    } else {
+		        // 알림이 중복되지 않도록 확인 후 추가
+		        if (!isNotificationDuplicate(title, message, time)) {
+		            messageCenter.insertAdjacentHTML('afterbegin', notificationHTML);
+		        }
+		    }
+		
+		    // Feather Icons 렌더링 호출
+		    feather.replace();
+		
+		    // 알림을 LocalStorage에 저장
+		    saveAlertToLocalStorage(title, message, time);
+		    
+		 	// 알림 클릭 이벤트 추가
+		    addClickListenerToNotification();
+		}
+		
+		// 새로 추가된 알림에 클릭 이벤트 리스너 추가
+		function addClickListenerToNotification() {
+		    const notificationItems = document.querySelectorAll('.message-item'); // 모든 알림 항목을 선택
 
-	    notificationItems.forEach(item => {
-	        item.addEventListener('click', function() {
-	            const title = item.getAttribute('data-title'); // data-* 속성에서 title 값을 가져옴
-	            const message = item.getAttribute('data-message'); // data-* 속성에서 message 값을 가져옴
-	            const time = item.getAttribute('data-time'); // data-* 속성에서 time 값을 가져옴
-	            
-	            removeAlertAndHide(item, title, message, time); // 클릭 시 알림 제거 및 LocalStorage에서 삭제
-	        });
-	    });
-	}
+		    notificationItems.forEach(item => {
+		        item.addEventListener('click', function() {
+		            const title = item.getAttribute('data-title'); // data-* 속성에서 title 값을 가져옴
+		            const message = item.getAttribute('data-message'); // data-* 속성에서 message 값을 가져옴
+		            const time = item.getAttribute('data-time'); // data-* 속성에서 time 값을 가져옴
+		            
+		            removeAlertAndHide(item, title, message, time); // 클릭 시 알림 제거 및 LocalStorage에서 삭제
+		        });
+		    });
+		}
+		
+		// 중복된 알림이 있는지 확인하는 함수
+		function isNotificationDuplicate(title, message, time) {
+		    const existingAlerts = document.querySelectorAll('.message-item');
+		    
+		    for (let alert of existingAlerts) {
+		        const alertTitle = alert.querySelector('h6').textContent.trim();
+		        const alertMessage = alert.querySelector('.font-12').textContent.trim();
+		        
+		        if (alertTitle.includes(title) && alertMessage.includes(message)) {
+		            return true; // 중복 알림
+		        }
+		    }
+		    
+		    return false; // 중복 아님
+		}
+		
+		// 알림을 LocalStorage에 저장하는 함수
+		function saveAlertToLocalStorage(title, message, time) {
+		    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 기존 알림을 불러옴
+		    if (!alerts.some(alert => alert.title === title && alert.message === message && alert.time === time)) {
+		        alerts.push({ title, message, time }); // 새로운 알림을 추가
+		    }
+		    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 LocalStorage에 저장
+		}
+		
+		// LocalStorage에 저장된 알림을 화면에 추가하는 함수
+		function loadAlertsFromLocalStorage() {
+		    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 알림을 불러옴
+		
+		    alerts.forEach(alert => {
+		        addScheduleNotification(alert.title, alert.message, alert.time); // 각 알림을 화면에 추가
+		    });
+		}
+		
+		// 알림이 제거된 후 남은 알림이 있는지 확인
+		function checkNotifications() {
+		    const messageCenter = document.querySelector('.message-center.notifications');
+		
+		    // 남은 알림이 없으면 message-center를 제거
+		    if (messageCenter && messageCenter.children.length === 0) {
+		        messageCenter.parentElement.remove(); // 전체 <li>를 제거
+		        clearAlertsInLocalStorage(); // LocalStorage에서 알림 삭제
+		    }
+		}
+		
+		// 알림 클릭 시 실행되는 함수 (알림 제거 및 LocalStorage 업데이트)
+		function removeAlertAndHide(element, title, message, time) {
+		    // 알림을 화면에서 제거
+		    element.remove();
+		    // LocalStorage에서 알림 삭제
+		    removeAlertFromLocalStorage(title, message, time);
+		    // 남은 알림이 있는지 확인 후 처리
+		    checkNotifications();
+		}
+		
+		// LocalStorage에서 특정 알림을 삭제하는 함수
+		function removeAlertFromLocalStorage(title, message, time) {
+		    let alerts = JSON.parse(localStorage.getItem('alerts')) || [];
+		    alerts = alerts.filter(alert => !(alert.title === title && alert.message === message && alert.time === time)); // 조건에 맞지 않는 알림만 필터링
+		    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 저장
+		}
+		
+		// LocalStorage에서 알림을 삭제하는 함수
+		function clearAlertsInLocalStorage() {
+		    localStorage.removeItem('alerts'); // LocalStorage에서 알림 데이터를 삭제
+		}
+		
+		// 초기 상태에서 LocalStorage에서 알림을 불러와서 화면에 추가
+		window.onload = function() {
+		    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
+		}
+	</script>
+	<script>
+	const csrfToken_header = document.getElementById("csrf_token_header").value;
 	
-	// 중복된 알림이 있는지 확인하는 함수
-	function isNotificationDuplicate(title, message, time) {
-	    const existingAlerts = document.querySelectorAll('.message-item');
-	    
-	    for (let alert of existingAlerts) {
-	        const alertTitle = alert.querySelector('h6').textContent.trim();
-	        const alertMessage = alert.querySelector('.font-12').textContent.trim();
-	        
-	        if (alertTitle.includes(title) && alertMessage.includes(message)) {
-	            return true; // 중복 알림
-	        }
+	fetch('/alert', {
+	    method: 'GET',
+	    headers: {
+	        'Accept': 'application/json',
+	        'Content-Type': 'application/json',
+	        'X-CSRF-TOKEN': csrfToken_header
 	    }
-	    
-	    return false; // 중복 아님
-	}
-	
-	// 알림을 LocalStorage에 저장하는 함수
-	function saveAlertToLocalStorage(title, message, time) {
-	    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 기존 알림을 불러옴
-	    if (!alerts.some(alert => alert.title === title && alert.message === message && alert.time === time)) {
-	        alerts.push({ title, message, time }); // 새로운 알림을 추가
-	    }
-	    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 LocalStorage에 저장
-	}
-	
-	// LocalStorage에 저장된 알림을 화면에 추가하는 함수
-	function loadAlertsFromLocalStorage() {
-	    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 알림을 불러옴
-	
-	    alerts.forEach(alert => {
-	        addScheduleNotification(alert.title, alert.message, alert.time); // 각 알림을 화면에 추가
-	    });
-	}
-	
-	// 알림이 제거된 후 남은 알림이 있는지 확인
-	function checkNotifications() {
-	    const messageCenter = document.querySelector('.message-center.notifications');
-	
-	    // 남은 알림이 없으면 message-center를 제거
-	    if (messageCenter && messageCenter.children.length === 0) {
-	        messageCenter.parentElement.remove(); // 전체 <li>를 제거
-	        clearAlertsInLocalStorage(); // LocalStorage에서 알림 삭제
-	    }
-	}
-	
-	// 알림 클릭 시 실행되는 함수 (알림 제거 및 LocalStorage 업데이트)
-	function removeAlertAndHide(element, title, message, time) {
-	    // 알림을 화면에서 제거
-	    element.remove();
-	    // LocalStorage에서 알림 삭제
-	    removeAlertFromLocalStorage(title, message, time);
-	    // 남은 알림이 있는지 확인 후 처리
-	    checkNotifications();
-	}
-	
-	// LocalStorage에서 특정 알림을 삭제하는 함수
-	function removeAlertFromLocalStorage(title, message, time) {
-	    let alerts = JSON.parse(localStorage.getItem('alerts')) || [];
-	    alerts = alerts.filter(alert => !(alert.title === title && alert.message === message && alert.time === time)); // 조건에 맞지 않는 알림만 필터링
-	    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 저장
-	}
-	
-	// LocalStorage에서 알림을 삭제하는 함수
-	function clearAlertsInLocalStorage() {
-	    localStorage.removeItem('alerts'); // LocalStorage에서 알림 데이터를 삭제
-	}
-	
-	// 초기 상태에서 LocalStorage에서 알림을 불러와서 화면에 추가
-	window.onload = function() {
-	    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
-	}
-</script>
+	})
+	.then(response => response.json())
+    .then(data => {
+        if (data.res_code === "200") {
+           let alertDtoList = data.res_msg;
+           
+           for(let i = 0; i < alertDtoList.length; i++) {
+        	   const alert = alertDtoList[i];
+        	   
+        	   const alertHtml = `
+		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
+			        	<div class="btn btn-danger rounded-circle btn-circle">
+		              <i data-feather="info" class="text-white"></i>
+		            </div>
+		            <div class="w-75 d-inline-block v-middle pl-2">
+		                <h6 class="message-title mb-0 mt-1">[${alert.alarm_title}]</h6>
+		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
+		                    '${alert.alarm_content}'
+		                </span>
+		                <span class="font-12 text-nowrap d-block text-muted">
+		                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+		                </span>
+		            </div>
+		          </a>
+		        `;
+		
+		        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
+		        document.getElementById('alertDiv').innerHTML += alertHtml;
+           }
+        } 
+    })
+    .catch(error => console.error('Error:', error));
+	</script>
 
     </th:block>
 </html>

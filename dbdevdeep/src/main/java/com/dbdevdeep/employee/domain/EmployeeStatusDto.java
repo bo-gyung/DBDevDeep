@@ -1,6 +1,7 @@
 package com.dbdevdeep.employee.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,15 +30,22 @@ public class EmployeeStatusDto {
 	private String changed_item;
 	private String status_type;
 	
-	public EmployeeStatus toEntityWithJoin(Employee employee) {
+	private String admin_id;
+	private String admin_name;
+	
+	private LocalDateTime log_time;
+	
+	public EmployeeStatus toEntityWithJoin(Employee employee, Employee admin) {
 		return EmployeeStatus.builder()
 				.employee(employee)
+				.admin(admin)
 				.statusNo(status_no)
 				.stopReason(stop_reason)
 				.stopDate(stop_date)
 				.exceptedDate(excepted_date)
 				.returnDate(return_date)
 				.statusType(status_type)
+				.logTime(log_time)
 				.build();
 	}
 	
@@ -49,6 +57,7 @@ public class EmployeeStatusDto {
 				.exceptedDate(excepted_date)
 				.returnDate(return_date)
 				.statusType(status_type)
+				.logTime(log_time)
 				.build();
 	}
 	
@@ -57,11 +66,14 @@ public class EmployeeStatusDto {
 				.status_no(es.getStatusNo())
 				.emp_id(es.getEmployee().getEmpId())
 				.emp_name(es.getEmployee().getEmpName())
+				.admin_id(es.getAdmin().getEmpId())
+				.admin_name(es.getAdmin().getEmpName())
 				.stop_reason(es.getStopReason())
 				.stop_date(es.getStopDate())
 				.excepted_date(es.getExceptedDate())
 				.return_date(es.getReturnDate())
 				.status_type(es.getStatusType())
+				.log_time(es.getLogTime())
 				.build();
 	}
 }
