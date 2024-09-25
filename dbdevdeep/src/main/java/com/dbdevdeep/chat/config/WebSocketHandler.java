@@ -152,8 +152,4 @@ public class WebSocketHandler extends TextWebSocketHandler {
 		}
 
 	}
-
-	public Set<WebSocketSession> sessionSet() {
-		return sessions;
-	}
 }

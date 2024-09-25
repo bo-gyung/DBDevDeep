@@ -79,10 +79,10 @@ public class ApproveService {
 	public ApproveService(ApproveRepository approveRepository, VacationRequestRepository vacationRequestRepository,
 			ApproveLineRepository approveLineRepository, ApproFileRepository approFileRepository,
 			ReferenceRepository referenceRepository, EmployeeRepository employeeRepository,
-			DepartmentRepository departmentRepository, JobRepository jobRepository, TempEditRepository tempEditRepository,
-			FileService fileService, MySignRepository mySignRepository, AlertRepository alertRepository,
-			AlertMessageHandler alertMessageHandler, ObjectMapper objectMapper, WebSocketHandler webSocketHandler,
-			AlertMessageHandler alertMessageHandler1) {
+			DepartmentRepository departmentRepository, JobRepository jobRepository,
+			TempEditRepository tempEditRepository, FileService fileService, MySignRepository mySignRepository,
+			AlertRepository alertRepository, AlertMessageHandler alertMessageHandler, ObjectMapper objectMapper,
+			WebSocketHandler webSocketHandler, AlertMessageHandler alertMessageHandler1) {
 		this.approveRepository = approveRepository;
 		this.vacationRequestRepository = vacationRequestRepository;
 		this.approveLineRepository = approveLineRepository;
@@ -206,10 +206,11 @@ public class ApproveService {
 				// 다음 결재자에게 alert
 				if (a != null) {
 					AlertDto alertDto = new AlertDto();
-					alertDto.setReference_name("approve_line");
-					alertDto.setReference_no(a.getApproLineNo());
-					alertDto.setAlarm_content(a.getApprove().getApproTitle() + a.getApprove().getApproType());
-					alertDto.setRead_yn("N");
+					alertDto.setReference_name("approve");
+					alertDto.setReference_no(a.getApprove().getApproNo());
+					alertDto.setAlarm_title("결재요청");
+					alertDto.setAlarm_content(a.getApprove().getApproTitle());
+					alertDto.setAlarm_status("N");
 
 					Alert alert = alertDto.toEntity(a.getEmployee());
 					sendAlertToAllSessions(alertRepository.save(alert));
@@ -223,14 +224,27 @@ public class ApproveService {
 				Approve finalApprove = aDto.toEntity(employee, department, job, null);
 				Approve a = approveRepository.save(finalApprove);
 
-				// 보고서 승인 시 alert에 저장
+				// 승인 시 alert에 저장
 				// 최종 승인 시 결재 요청자에게 alert
 				if (a != null) {
 					AlertDto alertDto = new AlertDto();
 					alertDto.setReference_name("approve");
 					alertDto.setReference_no(a.getApproNo());
+					if (a.getApproType() == 0) {
+						if (a.getApproStatus() == 1) {
+							alertDto.setAlarm_title("휴가 결재 완료");
+						} else if (a.getApproStatus() == 2) {
+							alertDto.setAlarm_title("휴가 결재 반려");
+						}
+					} else {
+						if (a.getApproStatus() == 1) {
+							alertDto.setAlarm_title("보고서 결재 완료");
+						} else if (a.getApproStatus() == 2) {
+							alertDto.setAlarm_title("보고서 결재 반려");
+						}
+					}
 					alertDto.setAlarm_content(a.getApproTitle() + a.getApproType() + a.getApproStatus());
-					alertDto.setRead_yn("N");
+					alertDto.setAlarm_status("N");
 
 					Alert alert = alertDto.toEntity(a.getEmployee());
 					alertRepository.save(alert);
@@ -271,9 +285,9 @@ public class ApproveService {
 			AlertDto alertDto = new AlertDto();
 			alertDto.setReference_name("approve");
 			alertDto.setReference_no(alertApprove.getApproNo());
-			alertDto.setRead_yn("N");
-			alertDto
-					.setAlarm_content(alertApprove.getApproTitle() + alertApprove.getApproType() + alertApprove.getApproStatus());
+			alertDto.setAlarm_status("N");
+			alertDto.setAlarm_title("보고서 반려");
+			alertDto.setAlarm_content(alertApprove.getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApprove.getEmployee());
 			alertRepository.save(alert);
@@ -318,9 +332,9 @@ public class ApproveService {
 			AlertDto alertDto = new AlertDto();
 			alertDto.setReference_name("approve");
 			alertDto.setReference_no(alertApprove.getApproNo());
-			alertDto.setRead_yn("N");
-			alertDto
-					.setAlarm_content(alertApprove.getApproTitle() + alertApprove.getApproType() + alertApprove.getApproStatus());
+			alertDto.setAlarm_status("N");
+			alertDto.setAlarm_title("휴가 결재 반려");
+			alertDto.setAlarm_content(alertApprove.getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApprove.getEmployee());
 			alertRepository.save(alert);
@@ -388,9 +402,9 @@ public class ApproveService {
 		for (Approve a : approveList) {
 
 			ApproveDto dto = ApproveDto.builder().appro_no(a.getApproNo()).emp_id(a.getEmployee().getEmpId())
-					.dept_code(a.getDepartment().getDeptCode()).job_code(a.getJob().getJobCode()).appro_time(a.getApproTime())
-					.appro_type(a.getApproType()).appro_status(a.getApproStatus()).appro_title(a.getApproTitle())
-					.appro_content(a.getApproContent()).build();
+					.dept_code(a.getDepartment().getDeptCode()).job_code(a.getJob().getJobCode())
+					.appro_time(a.getApproTime()).appro_type(a.getApproType()).appro_status(a.getApproStatus())
+					.appro_title(a.getApproTitle()).appro_content(a.getApproContent()).build();
 
 			approveDtoList.add(dto);
 		}
@@ -407,8 +421,9 @@ public class ApproveService {
 			// 결과 배열에서 데이터 추출
 			LocalDateTime approTime = (LocalDateTime) result[2];
 
-			ApproveDto dto = ApproveDto.builder().appro_no(((Number) result[0]).longValue()).appro_title((String) result[1])
-					.appro_time(approTime).appro_name((String) result[3]).appro_status((Integer) result[4]).build();
+			ApproveDto dto = ApproveDto.builder().appro_no(((Number) result[0]).longValue())
+					.appro_title((String) result[1]).appro_time(approTime).appro_name((String) result[3])
+					.appro_status((Integer) result[4]).build();
 			approvalList.add(dto);
 		}
 		return approvalList;
@@ -427,9 +442,9 @@ public class ApproveService {
 				approTime = ((Timestamp) result[2]).toLocalDateTime();
 			}
 
-			ApproveDto dto = ApproveDto.builder().appro_no(((Number) result[0]).longValue()).appro_title((String) result[1])
-					.appro_time(approTime).appro_name((String) result[3]).appro_status((Integer) result[4])
-					.vac_type(result[5] != null ? (Integer) result[5] : null).build();
+			ApproveDto dto = ApproveDto.builder().appro_no(((Number) result[0]).longValue())
+					.appro_title((String) result[1]).appro_time(approTime).appro_name((String) result[3])
+					.appro_status((Integer) result[4]).vac_type(result[5] != null ? (Integer) result[5] : null).build();
 			approvalList.add(dto);
 		}
 
@@ -446,9 +461,9 @@ public class ApproveService {
 			// 결과 배열에서 데이터 추출
 			LocalDateTime approTime = (LocalDateTime) result[2]; // LocalDateTime으로 캐스팅
 
-			ApproveDto dto = ApproveDto.builder().appro_no(((Number) result[0]).longValue()).appro_title((String) result[1])
-					.appro_time(approTime).appro_name((String) result[3]).appro_status((Integer) result[4])
-					.vac_type(result[5] != null ? (Integer) result[5] : null).build();
+			ApproveDto dto = ApproveDto.builder().appro_no(((Number) result[0]).longValue())
+					.appro_title((String) result[1]).appro_time(approTime).appro_name((String) result[3])
+					.appro_status((Integer) result[4]).vac_type(result[5] != null ? (Integer) result[5] : null).build();
 			refList.add(dto);
 		}
 
@@ -478,17 +493,21 @@ public class ApproveService {
 		List<ApproveLine> approLineList = approveLineRepository.findByApprove(approve);
 
 		// 결재자와 협의자를 구분하여 리스트로 할당
-		List<ApproveLineDto> approveLineList = approLineList.stream().filter(a -> "N".equals(a.getConsultYn())) // 결재자만 필터링
-				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId()).appro_line_name(a.getApproLineName())
-						.appro_line_order(a.getApproLineOrder()).appro_line_status(a.getApproLineStatus())
-						.appro_permit_time(a.getApproPermitTime()).reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
+		List<ApproveLineDto> approveLineList = approLineList.stream().filter(a -> "N".equals(a.getConsultYn())) // 결재자만
+																												// 필터링
+				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId())
+						.appro_line_name(a.getApproLineName()).appro_line_order(a.getApproLineOrder())
+						.appro_line_status(a.getApproLineStatus()).appro_permit_time(a.getApproPermitTime())
+						.reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
 						.appro_line_sign(a.getApproLineSign()).build())
 				.collect(Collectors.toList());
 
-		List<ApproveLineDto> consultLineList = approLineList.stream().filter(a -> "Y".equals(a.getConsultYn())) // 협의자만 필터링
-				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId()).appro_line_name(a.getApproLineName())
-						.appro_line_order(a.getApproLineOrder()).appro_line_status(a.getApproLineStatus())
-						.appro_permit_time(a.getApproPermitTime()).reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
+		List<ApproveLineDto> consultLineList = approLineList.stream().filter(a -> "Y".equals(a.getConsultYn())) // 협의자만
+																												// 필터링
+				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId())
+						.appro_line_name(a.getApproLineName()).appro_line_order(a.getApproLineOrder())
+						.appro_line_status(a.getApproLineStatus()).appro_permit_time(a.getApproPermitTime())
+						.reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
 						.appro_line_sign(a.getApproLineSign()).build())
 				.collect(Collectors.toList());
 
@@ -539,17 +558,21 @@ public class ApproveService {
 		List<ApproveLine> approLineList = approveLineRepository.findByApprove(approve);
 
 		// 결재자와 협의자를 구분하여 리스트로 할당
-		List<ApproveLineDto> approveLineList = approLineList.stream().filter(a -> "N".equals(a.getConsultYn())) // 결재자만 필터링
-				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId()).appro_line_name(a.getApproLineName())
-						.appro_line_order(a.getApproLineOrder()).appro_line_status(a.getApproLineStatus())
-						.appro_permit_time(a.getApproPermitTime()).reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
+		List<ApproveLineDto> approveLineList = approLineList.stream().filter(a -> "N".equals(a.getConsultYn())) // 결재자만
+																												// 필터링
+				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId())
+						.appro_line_name(a.getApproLineName()).appro_line_order(a.getApproLineOrder())
+						.appro_line_status(a.getApproLineStatus()).appro_permit_time(a.getApproPermitTime())
+						.reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
 						.appro_line_sign(a.getApproLineSign()).build())
 				.collect(Collectors.toList());
 
-		List<ApproveLineDto> consultLineList = approLineList.stream().filter(a -> "Y".equals(a.getConsultYn())) // 협의자만 필터링
-				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId()).appro_line_name(a.getApproLineName())
-						.appro_line_order(a.getApproLineOrder()).appro_line_status(a.getApproLineStatus())
-						.appro_permit_time(a.getApproPermitTime()).reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
+		List<ApproveLineDto> consultLineList = approLineList.stream().filter(a -> "Y".equals(a.getConsultYn())) // 협의자만
+																												// 필터링
+				.map(a -> ApproveLineDto.builder().emp_id(a.getEmployee().getEmpId())
+						.appro_line_name(a.getApproLineName()).appro_line_order(a.getApproLineOrder())
+						.appro_line_status(a.getApproLineStatus()).appro_permit_time(a.getApproPermitTime())
+						.reason_back(a.getReasonBack()).consult_yn(a.getConsultYn())
 						.appro_line_sign(a.getApproLineSign()).build())
 				.collect(Collectors.toList());
 
@@ -786,11 +809,11 @@ public class ApproveService {
 		// 결재자에게 alert
 		if (alertApproLine != null) {
 			AlertDto alertDto = new AlertDto();
-			alertDto.setReference_name("approve_line");
-			alertDto.setReference_no(alertApproLine.getApproLineNo());
-			alertDto.setRead_yn("N");
-			alertDto
-					.setAlarm_content(alertApproLine.getApprove().getApproTitle() + alertApproLine.getApprove().getApproType());
+			alertDto.setReference_name("approve");
+			alertDto.setReference_no(alertApproLine.getApprove().getApproNo());
+			alertDto.setAlarm_title("보고서 결재 요청");
+			alertDto.setAlarm_status("N");
+			alertDto.setAlarm_content(alertApproLine.getApprove().getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApproLine.getEmployee());
 			alertRepository.save(alert);
@@ -808,8 +831,9 @@ public class ApproveService {
 
 	// 결재 요청
 	@Transactional
-	public int approUp(ApproveDto approveDto, VacationRequestDto vacationRequestDto, List<ApproveLineDto> approveLineDtos,
-			List<ReferenceDto> referenceDto, ApproFileDto approFileDto, MultipartFile file) {
+	public int approUp(ApproveDto approveDto, VacationRequestDto vacationRequestDto,
+			List<ApproveLineDto> approveLineDtos, List<ReferenceDto> referenceDto, ApproFileDto approFileDto,
+			MultipartFile file) {
 
 		// Employee, Department, Job 정보 가져오기
 		Employee employee = employeeRepository.findByempId(approveDto.getEmp_id());
@@ -859,11 +883,15 @@ public class ApproveService {
 		// 결재자에게 alert
 		if (alertApproveLine != null) {
 			AlertDto alertDto = new AlertDto();
-			alertDto.setReference_name("approve_line");
-			alertDto.setReference_no(alertApproveLine.getApproLineNo());
-			alertDto.setRead_yn("N");
-			alertDto.setAlarm_content(
-					alertApproveLine.getApprove().getApproTitle() + alertApproveLine.getApprove().getApproType());
+			alertDto.setReference_name("approve");
+			alertDto.setReference_no(alertApproveLine.getApprove().getApproNo());
+			alertDto.setAlarm_status("N");
+			if (alertApproveLine.getApprove().getApproType() == 0) {
+				alertDto.setAlarm_title("휴가 결재 요청");
+			} else {
+				alertDto.setAlarm_title("보고서 결재 요청");
+			}
+			alertDto.setAlarm_content(alertApproveLine.getApprove().getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApproveLine.getEmployee());
 			sendAlertToAllSessions(alertRepository.save(alert));
