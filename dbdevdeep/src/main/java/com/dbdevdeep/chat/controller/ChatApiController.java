@@ -81,7 +81,7 @@ public class ChatApiController {
 
 		Map<String,String> resultMap = new HashMap<String,String>();
 		resultMap.put("res_code", "404");
-		resultMap.put("res_msg", "채팅방 생성 중 오류가 발생하였습니다.");
+		resultMap.put("res_msg", "채팅메세지 등록 중 오류가 발생하였습니다.");
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User) authentication.getPrincipal();
@@ -92,7 +92,9 @@ public class ChatApiController {
 		
 		if(result>0) {
 			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "채팅방 생성에 성공하였습니다.");
+			resultMap.put("res_msg", "채팅메세지 등록에 성공하였습니다.");
+			// 웹소켓 호출하기
+			// 메세지가 새로 등록된 채팅방번호에 속한 참여자가 
 		}
 		
 		return resultMap;
