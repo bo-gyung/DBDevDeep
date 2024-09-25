@@ -10,19 +10,39 @@
 	parameterType="String" 
 	resultType="com.dbdevdeep.chat.dto.CustomChatRoomDto">
 		SELECT 
-			cr.room_no, cmi.room_name, cr.last_chat, cr.last_time
+			 cr.room_no, cmi.room_name, cr.last_chat, cr.last_time
 		FROM 
-			chat_member_status_history cmsh 
-			JOIN chat_member_info cmi ON cmsh.member_id = cmi.member_id
-			JOIN chat_room cr ON cmsh.room_no = cr.room_no
-		WHERE 
-			cmsh.member_id = #{emp_id} 
-			AND cmsh.member_status IN (1, 3);
+		    (
+		        SELECT 
+		            cmsh.room_no, cmsh.member_id, cmsh.change_time, cmsh.member_status
+		        FROM 
+		            chat_member_status_history cmsh
+		        JOIN 
+		            (
+		                SELECT 
+		                    room_no, 
+		                    MAX(change_time) AS max_change_time
+		                FROM 
+		                    chat_member_status_history
+		                WHERE 
+		                    member_id = #{emp_id}
+		                    AND member_status IN (1, 3)
+		                GROUP BY 
+		                    room_no
+		            ) latest ON cmsh.room_no = latest.room_no 
+		            AND cmsh.change_time = latest.max_change_time
+		        WHERE 
+		            cmsh.member_id = #{emp_id}
+		    ) latest
+		JOIN 
+		    chat_member_info cmi ON latest.room_no = cmi.room_no AND latest.member_id = cmi.member_id
+		JOIN 
+		    chat_room cr ON latest.room_no = cr.room_no;
 	</select>
 	<!-- 사용자가 참여하고 있는 채팅방의 다른 참여자의 정보를 조회 -->
 	<!-- 
 		1. room_no = #{room_no}인 사용자 조회
-		2. 중복 member_id가 있을 경우 change_timedmf DESC하여 가장 첫번째 결과만 조회
+		2. 중복 member_id가 있을 경우 change_time DESC하여 가장 첫번째 결과만 조회
 		3. 중복 제거된 결과의 member_status가 1, 3인 결과만 조회
 		4. member_id가 #{emp_id}이 아닌 결과만 조회
 		5. 결과값이 1개라면 employee e와 조인하여 new_pic_name 값 가져오기, 1개 이상이라면 null로 결과값 세팅하기
@@ -56,28 +76,31 @@
 	
 	<!-- 일대일 채팅방 조회 -->
 	<select id="selectPrivateChatRoom" 
-	parameterType="String" 
-	resultType="Long">
-		SELECT room_no
-		FROM (
-		    SELECT room_no, member_id, member_status
-		    FROM chat_member_status_history AS h
-		    WHERE (room_no, member_id, change_time) IN (
-		        SELECT room_no, member_id, MAX(change_time)
-		        FROM chat_member_status_history
-		        GROUP BY room_no, member_id
-		    )
-		) AS latest_status
-		WHERE member_status IN (1, 3)
-		  AND room_no IN (
-		      SELECT room_no
-		      FROM chat_member_status_history
-		      WHERE member_id IN ('2024013', '2024005')
-		      GROUP BY room_no
-		      HAVING COUNT(DISTINCT member_id) = 2
-		  )
-		GROUP BY room_no
-		HAVING COUNT(member_id) = 2;
+		parameterType="String" 
+		resultType="int">
+	    SELECT 
+	        IFNULL(
+	            (SELECT room_no
+	             FROM (
+	                 SELECT room_no, member_id, member_status
+	                 FROM chat_member_status_history AS h
+	                 WHERE (room_no, member_id, change_time) IN (
+	                     SELECT room_no, member_id, MAX(change_time)
+	                     FROM chat_member_status_history
+	                     GROUP BY room_no, member_id
+	                 )
+	             ) AS latest_status
+	             WHERE member_status IN (1, 3)
+	               AND room_no IN (
+	                   SELECT room_no
+	                   FROM chat_member_status_history
+	                   WHERE member_id IN (#{admin_id}, #{emp_id})
+	                   GROUP BY room_no
+	                   HAVING COUNT(DISTINCT member_id) = 2
+	               )
+	             GROUP BY room_no
+	             HAVING COUNT(member_id) = 2
+	            ), 0) AS room_no;
 	</select>
 	
 	<!-- 일대일 채팅방 생성 -->
@@ -94,8 +117,38 @@
 	
 	<!-- 일대일 채팅 참여자 상태이력 생성 -->
 	<insert id="createChatMemberStatusHistory" parameterType="com.dbdevdeep.chat.vo.ChatMemberStatusHistoryVo">
-	    INSERT INTO chat_member_info (room_no, member_id, member_status, change_by_id)
-	    VALUES (#{room_no}, #{member_id}, #{member_status}, #{change_by_id})
+	    INSERT INTO chat_member_status_history (room_no, member_id, member_status, changed_by_id)
+	    VALUES (#{room_no}, #{member_id}, #{member_status}, #{changed_by_id})
+	</insert>
+	
+	<!-- 채팅방 이름 조회 -->
+	<select id="selectChatRoomName" parameterType="com.dbdevdeep.chat.vo.ChatMemberInfoVo" resultType="string">
+		SELECT room_name
+		FROM chat_member_info
+		WHERE member_id = #{member_id}
+		AND room_no = #{room_no}
+	</select>
+	
+	<!-- 메세지 리스트 조회 -->
+	<select id="selectChatMsgList" parameterType="int" resultType="com.dbdevdeep.chat.vo.ChatMsgVo">
+		SELECT *
+		FROM chat_msg
+		WHERE room_no = #{room_no}
+		ORDER BY reg_time ASC
+	</select>
+	
+	<!-- 상태이력 리스트 조회 -->
+	<select id="selectHistoryList" parameterType="int" resultType="com.dbdevdeep.chat.vo.ChatMemberStatusHistoryVo">
+		SELECT *
+		FROM chat_member_status_history
+		WHERE room_no = #{room_no}
+		ORDER BY change_time ASC
+	</select>
+	
+	<!-- 채팅 메세지 생성 -->
+	<insert id="createChatMsg" parameterType="com.dbdevdeep.chat.vo.ChatMsgVo">
+	    INSERT INTO chat_msg (room_no, writer_id, chat_content)
+	    VALUES (#{room_no}, #{writer_id}, #{chat_content})
 	</insert>
 </mapper>
 

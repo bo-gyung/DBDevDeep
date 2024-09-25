@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Param;
 import com.dbdevdeep.chat.dto.CustomChatRoomDto;
 import com.dbdevdeep.chat.vo.ChatMemberInfoVo;
 import com.dbdevdeep.chat.vo.ChatMemberStatusHistoryVo;
+import com.dbdevdeep.chat.vo.ChatMsgVo;
 import com.dbdevdeep.chat.vo.ChatRoomVo;
 
 @Mapper
@@ -32,4 +33,15 @@ public interface ChatMapper {
 	// 일대일 채팅 참여자 상태이력 생성
 	int createChatMemberStatusHistory(ChatMemberStatusHistoryVo cmshVo);
 	
+	// 채팅방 이름 조회
+	String selectChatRoomName(ChatMemberInfoVo cmiVo);
+	
+	// 메세지 리스트 조회
+	List<ChatMsgVo> selectChatMsgList(@Param("room_no") int room_no);
+	
+	// 상태이력 리스트 조회
+	List<ChatMemberStatusHistoryVo> selectHistoryList(@Param("room_no") int roomNo);
+	
+	// 채팅 매세지 생성
+	int createChatMsg(ChatMsgVo vo);
 }

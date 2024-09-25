@@ -1,5 +1,7 @@
 package com.dbdevdeep.chat.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,11 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dbdevdeep.chat.dto.ChatMsgDto;
+import com.dbdevdeep.chat.dto.CustomChatContainerDto;
 import com.dbdevdeep.chat.dto.CustomChatRoomDto;
 import com.dbdevdeep.chat.mybatis.mapper.ChatMapper;
 import com.dbdevdeep.chat.vo.ChatMemberInfoVo;
 import com.dbdevdeep.chat.vo.ChatMemberStatusHistoryVo;
+import com.dbdevdeep.chat.vo.ChatMsgVo;
 import com.dbdevdeep.chat.vo.ChatRoomVo;
+import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 
 @Service
@@ -49,24 +54,22 @@ public class ChatService {
                 chatRoom.setRoom_pic("8b821ba7a513411f8cacf78926ff4d64.png");
             }
         }
-		
 		return ccrDtoList;
 	}
 	
 	// 일대일 채팅방 조회
 	public int selectPrivateChatRoom(String admin_id, String emp_id) {
-		int result ;
+		int result = -1;
 		
-		// 두 사용자가 함께 참여한 채팅방이 있는지 찾고 있다면 방번호 반환
 		result = chatMapper.selectPrivateChatRoom(admin_id, emp_id);
-		
+	    
 		return result;
 	}
 	
 	// 일대일 채팅방 생성
 	public int createPrivateChatRoom(String admin_id, String emp_id) {
 		
-		String lastChatMessage = admin_id + "님이 " + emp_id + "님을 초대하였습니다.";
+		String lastChatMessage = "";
 		ChatRoomVo crVo = new ChatRoomVo();
 		crVo.setLast_chat(lastChatMessage);
 
@@ -84,7 +87,10 @@ public class ChatService {
 		ChatMemberInfoVo adminCmiVo = new ChatMemberInfoVo();
 		adminCmiVo.setMember_id(admin_id);
 		adminCmiVo.setRoom_no(room_no);
-		adminCmiVo.setRoom_name(emp_id);
+		
+		Employee emp = employeeRepository.findByempId(emp_id);
+		adminCmiVo.setRoom_name(emp.getEmpName());
+		
 		adminCmiVo.setIs_admin(1);
 		int admin = chatMapper.createChatMemberInfo(adminCmiVo);
 		
@@ -92,7 +98,10 @@ public class ChatService {
 		ChatMemberInfoVo memberCmiVo = new ChatMemberInfoVo();
 		memberCmiVo.setMember_id(emp_id);
 		memberCmiVo.setRoom_no(room_no);
-		memberCmiVo.setRoom_name(admin_id);
+		
+		Employee ad = employeeRepository.findByempId(admin_id);
+		memberCmiVo.setRoom_name(ad.getEmpName());
+		
 		memberCmiVo.setIs_admin(0);
 		int member = chatMapper.createChatMemberInfo(memberCmiVo);
 		
@@ -104,7 +113,7 @@ public class ChatService {
 	}
 	
 	// 채팅 참여자 상태이력 생성
-	public int createChatMemberStatusHistory(int room_no, String member_id, int member_status, String change_by_id) {
+	public int createChatMemberStatusHistory(int room_no, String member_id, int member_status, String changed_by_id) {
 
 		int result = -1;
 		
@@ -112,31 +121,79 @@ public class ChatService {
 		cmshVo.setRoom_no(room_no);
 		cmshVo.setMember_id(member_id);
 		cmshVo.setMember_status(member_status);
-		cmshVo.setChange_by_id(change_by_id);
+		cmshVo.setChanged_by_id(changed_by_id);
 		
 		result = chatMapper.createChatMemberStatusHistory(cmshVo);
 		
 		return result;
 	}
 	
+	// 채팅방 이름 조회
+	public String selectChatRoomName(int roomNo, String login_id) {
+		ChatMemberInfoVo cmiVo = new ChatMemberInfoVo();
+		cmiVo.setMember_id(login_id);
+		cmiVo.setRoom_no(roomNo);
+		
+		return chatMapper.selectChatRoomName(cmiVo);
+	}
 	
+	// 메세지+상태이력 리스트 조회
+	public List<CustomChatContainerDto> selectmsgHistoryList(int roomNo, String login_id){
+		// 메세지 리스트 조회
+		List<ChatMsgVo> msgList = chatMapper.selectChatMsgList(roomNo);
+		// 상태이력 리스트 조회
+		List<ChatMemberStatusHistoryVo> historyList = chatMapper.selectHistoryList(roomNo);
+		
+		// 통합 리스트 생성
+	    List<CustomChatContainerDto> combinedList = new ArrayList<>();
+	    // 메세지 리스트를 CustomChatContainerDto로 변환하여 추가	
+	    for (ChatMsgVo msg : msgList) {
+	        
+	    	String messageType = msg.getWriter_id().equals(login_id) ? "me" : "notMe";
+	        Employee e = employeeRepository.findByempId(msg.getWriter_id());
+	        
+	        CustomChatContainerDto dto = new CustomChatContainerDto(
+	            messageType,  // "me" 또는 "notMe"
+	            msg.getWriter_id(),
+	            e.getEmpName(),
+	            messageType.equals("notMe") ? e.getNewPicName() : "",
+	            msg.getChat_content(),  // 메시지 내용
+	            msg.getReg_time()  // 타임스탬프
+	        );
+	        combinedList.add(dto);
+	    }
+	    // 상태이력 리스트를 CustomChatContainerDto로 변환하여 추가
+	    for (ChatMemberStatusHistoryVo history : historyList) {
+	    	
+	    	Employee e = employeeRepository.findByempId(history.getMember_id());
+	    	
+	        CustomChatContainerDto dto = new CustomChatContainerDto(
+	            "history",  // 상태 이력 타입
+	            history.getMember_id(),
+	            e.getEmpName(),
+	            "",
+	            String.valueOf(history.getMember_status()),  // 상태 이력 내용 (입장, 퇴장, 초대 등)
+	            history.getChange_time()  // 타임스탬프
+	        );
+	        combinedList.add(dto);
+	    }
+	    
+	    // 타임스탬프 기준으로 리스트 정렬
+	    combinedList.sort(Comparator.comparing(CustomChatContainerDto::getTimestamp));
+
+	    return combinedList;
+		
+	}
+	
+
 	// 채팅 메세지 생성
-	public int createChatMsg(ChatMsgDto dto) {
+	public int createChatMsg(ChatMsgVo vo) {
 		int result = -1; 
-//		try {
-//			ChatRoom room = chatRoomRepository.findByroomNo(dto.getRoom_no());
-//			ChatMsg target = ChatMsg.builder()
-//					.chatContent(dto.getChat_content())
-//					.isFromSender(dto.getIs_from_sender())
-//					.isReceiverRead('N')
-//					.chatRoom(room)
-//					.build();
-//
-//			chatMsgRepository.save(target);
-//			result = 1; 
-//		}catch(Exception e) {
-//			e.printStackTrace();
-//		}
+		
+		result = chatMapper.createChatMsg(vo);
+		
+		
+		
 		return result;
 	}
 	

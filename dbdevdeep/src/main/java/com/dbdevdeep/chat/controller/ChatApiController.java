@@ -8,12 +8,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dbdevdeep.chat.service.ChatService;
-import com.dbdevdeep.chat.vo.ChatMemberInfoVo;
+import com.dbdevdeep.chat.vo.ChatMsgVo;
 import com.dbdevdeep.employee.domain.EmployeeDto;
 
 @Controller
@@ -42,13 +43,15 @@ public class ChatApiController {
         
         // 두 사람이 한번에 참여한 채팅방이 있는 지 조회
         int room_no = chatService.selectPrivateChatRoom(admin_id, emp_id);
-        if(room_no<0) {
+        
+        if(room_no<1) {
         	// 없다면 
         	// 1. 채팅방 생성
         	room_no = chatService.createPrivateChatRoom(admin_id, emp_id);
         	// 2. 채팅 참여자 정보 생성
         	int result = chatService.createChatMemberInfo(admin_id, emp_id, room_no);
 			if(result<0) {
+				System.out.println("채팅 참여자 정보 생성 중 오류 발생");
 				resultMap.put("res_msg", "채팅 참여자 정보 생성 중 오류가 발생하였습니다.");
 				return resultMap;
 			}
@@ -58,6 +61,7 @@ public class ChatApiController {
 			// 참여자 (member_status : 3 (초대))
 			int memberResult = chatService.createChatMemberStatusHistory(room_no, emp_id, 3, admin_id);
 			if(adminResult<0 || memberResult<0) {
+				System.out.println("채팅 참여자 상태이력 생성 중 오류 발생");
 				resultMap.put("res_msg", "채팅 참여자 상태이력 생성 중 오류가 발생하였습니다.");
 				return resultMap;
 			}
@@ -70,6 +74,28 @@ public class ChatApiController {
         return resultMap;
 	}
 	
-	// 채팅방 입장
+	// 채팅 메세지 작성
+	@ResponseBody
+	@PostMapping("/chatmsg/{roomNo}")
+	public Map<String,String> createChatMsg(@PathVariable("roomNo") int room_no, @RequestBody ChatMsgVo vo){
+
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "404");
+		resultMap.put("res_msg", "채팅방 생성 중 오류가 발생하였습니다.");
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User) authentication.getPrincipal();
+		String writer_id = user.getUsername();
+		vo.setWriter_id(writer_id);
+		
+		int result = chatService.createChatMsg(vo);
+		
+		if(result>0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "채팅방 생성에 성공하였습니다.");
+		}
+		
+		return resultMap;
+	}
 	
 }
