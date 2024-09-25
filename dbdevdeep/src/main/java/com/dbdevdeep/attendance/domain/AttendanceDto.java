@@ -29,6 +29,7 @@ public class AttendanceDto {
 	private LocalDateTime check_out_time;
 	private int work_status;
 	private String late_status;
+	private int overtime_sum;
 	
 	public Attendance toEntity() {
 		return Attendance.builder()
@@ -38,6 +39,7 @@ public class AttendanceDto {
 				.checkOutTime(check_out_time)
 				.workStatus(work_status)
 				.lateStatus(late_status)
+				.overtimeSum(overtime_sum)
 				.build();
 	}
 	
@@ -52,6 +54,7 @@ public class AttendanceDto {
 				.check_out_time(attend.getCheckOutTime())
 				.work_status(attend.getWorkStatus())
 				.late_status(attend.getLateStatus())
+				.overtime_sum(attend.getOvertimeSum())
 				.build();
 	}
 }

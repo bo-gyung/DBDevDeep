@@ -50,4 +50,7 @@ public class Attendance {
 	
 	@Column(name="late_status")
 	private String lateStatus;
+	
+	@Column(name="overtime_sum")
+	private int overtimeSum;
 }

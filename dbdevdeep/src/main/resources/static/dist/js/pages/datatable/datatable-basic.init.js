@@ -1051,6 +1051,7 @@ $(document).ready(function() {
         // DataTable 초기화
         var table = $('#attendance_config').DataTable({
             "responsive": true,
+            "paging": false,
             "columnDefs": [
                 { "width": "10%", "targets": 0, "className": "dt-center" },
                 { "width": "40%", "targets": 1, "orderable": false, "className": "dt-center" },
@@ -1081,11 +1082,15 @@ $(document).ready(function() {
                 }
             },
                 { "data": "check_out_time",
-                "render" : function(data, type, row){
-                    let date = new Date(data);
-                    let hours = String(date.getHours()).padStart(2, '0');
-                    let minutes = String(date.getMinutes()).padStart(2, '0');
-                    return `${hours} : ${minutes}`;
+			    "render": function(data, type, row) {
+			        if (data === null || data === undefined) {
+			            return "";  // 데이터가 null 또는 undefined인 경우 빈 문자열 반환
+			        }
+			
+			        let date = new Date(data);
+			        let hours = String(date.getHours()).padStart(2, '0');
+			        let minutes = String(date.getMinutes()).padStart(2, '0');
+			        return `${hours} : ${minutes}`;
                 }     
             },
                 { "data": "work_status",
@@ -1141,6 +1146,7 @@ function loadAttendanceData(year, month) {
             let attendanceCount = 0;
             let absenceCount = 0;
             let lateCount = 0;
+			let maxOvertime = 0;
 
             $.each(response, function(index, item) {
                 if (item.work_status === 1 || item.work_status === 2) {
@@ -1152,12 +1158,16 @@ function loadAttendanceData(year, month) {
                 if (item.late_status == "Y") {
                     lateCount++;
                 }
+                if(item.overtime_sum > maxOvertime){
+					maxOvertime = item.overtime_sum;
+				}
             });
 
             // 카운트 업데이트
             $('#attendanceCount').text(attendanceCount);
             $('#absenceCount').text(absenceCount);
             $('#lateCount').text(lateCount);
+            $('#maxOvertime').text(maxOvertime+'/67');
         },
         error: function() {
             alert('데이터를 불러오는 중 오류가 발생했습니다.');
