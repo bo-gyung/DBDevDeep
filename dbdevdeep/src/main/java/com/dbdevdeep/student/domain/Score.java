@@ -12,11 +12,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="score")
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 @Getter
 @Builder
 public class Score {

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{include/student_layout}">
+<th:block layout:fragment="content">
+	<style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* 탭 메뉴 스타일 */
+        .tab-menu {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tab-menu button {
+            background-color: lightgray;
+            border: none;
+			padding: 5px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .tab-menu button:hover {
+            background-color: darkgray;
+        }
+
+        .tab-menu button.active {
+            background-color: black;
+            color: white;
+        }
+
+        /* 탭 콘텐츠 스타일 */
+        .tab-content {
+            display: none; /* 기본적으로 모든 콘텐츠를 숨김 */
+        }
+
+        .tab-content.active {
+            display: block; /* 활성화된 콘텐츠만 보이게 함 */
+            margin-top: 20px; /* 버튼과 콘텐츠 사이 간격 추가 */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px; /* 버튼 아래로 배치되도록 간격 추가 */
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: center;
+        }
+    </style>
+	<body>
+		<body>
+		<!-- ============================================================== -->
+		<!-- Page wrapper  -->
+		<!-- ============================================================== -->
+		<div class="page-wrapper">
+
+			<div class="container-fluid" style="margin-bottom:-10px;">
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body" style="padding:50px 80px">
+		                        <div class="row mb-2">
+		                        	<div class="col-6 d-flex justify-content-start" style="padding-top:10px; padding-left:0px;">
+		                        		<div class="tab-menu">
+									        <button id="subject-tab" class="active">과목별 등록</button>
+									        <button id="individual-tab">개인별 등록</button>
+									    </div>
+		                        	</div>
+		                        </div>
+		                        
+		                        <!-- 과목별 등록 리스트 -->	
+                               	<div id="subject-content" class="tab-content active">
+							        <h2>2024 학년도 5학년 4반 2학기 교육 과정</h2>
+							        <table id="subject_list" class="table table-hover table-bordered no-wrap" style="width:100%">
+                                        <thead>
+                                            <tr>
+												<th scope="col">학년도</th>
+												<th scope="col">학기</th>
+												<th scope="col">학년</th>
+												<th scope="col">반</th>
+												<th scope="col">과목명</th>
+												<th scope="col">담당 교사</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        	<th:block th:if="${#lists.isEmpty(subjectList)}">
+												<tr>
+													<td colspan="6">존재하는 과목 정보가 없습니다.</td>
+												</tr>
+											</th:block>
+											<th:block th:if="${!#lists.isEmpty(subjectList)}">
+											    <tr th:each="subject, subjectStat : ${subjectList}">
+											        <td style="display:none;" th:text="${subject.subject_no}"></td>
+													<td th:text="${subject.teacher_history.getTYear}"></td>
+											        <td th:text="${subject.subject_semester}"></td>
+													<td th:text="${subject.teacher_history.getGrade}"></td>
+													<td th:text="${subject.teacher_history.getGradeClass}"></td>
+											        <td th:text="${subject.subject_name}"></td>
+											        <td th:text="${subject.teacher_history.getEmployee().getEmpName()}"></td>
+											    </tr>
+											    </th:block>
+										</tbody>
+                                        
+                                    </table>
+							    </div>
+							    
+							    <!-- 개인별 등록 리스트 -->
+							    <div id="individual-content" class="tab-content">
+							        <h2>5학년 4반 성적 관리</h2>
+							        <table id="student_list" class="table table-hover table-bordered no-wrap" style="width:100%">
+                                        <thead>
+                                            <tr>
+												<th scope="col">학년</th>
+												<th scope="col">반</th>
+												<th scope="col">번호</th>
+												<th scope="col">성명</th>
+												<th scope="col">생년월일</th>
+                                                <th scope="col">재학여부</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <th:block th:if="${#lists.isEmpty(resultList)}">
+												<tr>
+													<td colspan="6">존재하는 학생 정보가 없습니다.</td>
+												</tr>
+											</th:block>
+											<th:block th:if="${!#lists.isEmpty(resultList)}">
+											    <tr th:each="studentClass, studentClassStat : ${resultList}">
+											        <td style="display:none;" th:text="${studentClass.student.studentNo}"></td>
+													<th:block th:if="${studentClass.teacher_history != null}">
+									                    <td th:text="${studentClass.teacher_history.grade} + '학년'"></td>
+									                    <td th:text="${studentClass.teacher_history.gradeClass} + '반'"></td>
+									                    <td th:text="${studentClass.student_id} + '번'"></td>
+									                </th:block>
+									                <th:block th:if="${studentClass.teacher_history == null}">
+									                    <td colspan="3">존재하는 학급 이력이 없습니다.</td>
+									                </th:block>
+													<td th:text="${studentClass.student.studentName}"></td>
+													<td th:text="${studentClass.student.studentBirth}"></td>
+											        <td th:text="${studentClass.student.studentStatus}"></td>
+											    </tr>
+											    </th:block>
+										</tbody>
+                                        
+                                    </table>
+							    </div>
+							    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- End PAge Content -->
+                <!-- ============================================================== -->
+            </div>
+        </div>
+		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="/dist/js/app-style-switcher.js"></script>
+		<script src="/dist/js/feather.min.js"></script>
+		<script
+			src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+		<script src="/dist/js/sidebarmenu.js"></script>
+		<script src="/dist/js/custom.min.js"></script>
+		<script
+			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+		<script>
+	        // 각 버튼과 콘텐츠 요소를 선택
+	        const subjectTab = document.getElementById('subject-tab');
+	        const individualTab = document.getElementById('individual-tab');
+	        const subjectContent = document.getElementById('subject-content');
+	        const individualContent = document.getElementById('individual-content');
+	
+	        // 과목별 등록 탭 클릭 시
+	        subjectTab.addEventListener('click', () => {
+	            subjectTab.classList.add('active');
+	            individualTab.classList.remove('active');
+	            subjectContent.classList.add('active');
+	            individualContent.classList.remove('active');
+	        });
+	
+	        // 개인별 등록 탭 클릭 시
+	        individualTab.addEventListener('click', () => {
+	            individualTab.classList.add('active');
+	            subjectTab.classList.remove('active');
+	            individualContent.classList.add('active');
+	            subjectContent.classList.remove('active');
+	        });
+	    </script>
+		<script>
+		    $('#student_list').on('click', 'td', function () {
+		        // 클릭된 행에서 해당 학생 번호를 추출합니다.
+		        var studentNo = $(this).closest('tr').find('td:nth-child(1)').text(); // 번호가 있는 td를 선택
+		
+		        // 학생 상세 페이지로 이동합니다.
+		        if (studentNo) {
+		            window.location.href = '/score/student/' + studentNo;
+		        }
+		    });
+		</script>
+		<script>
+			$('#subject_list').on('click', 'tr', function () {
+			    var subjectNo = $(this).find('td:nth-child(1)').text(); // 첫 번째 열의 subjectNo 추출
+			    
+			    if (subjectNo && subjectNo !== "") {
+			        window.location.href = '/score/subject/' + subjectNo;
+			    }
+			});
+		</script>
+	</body>
+</html>
