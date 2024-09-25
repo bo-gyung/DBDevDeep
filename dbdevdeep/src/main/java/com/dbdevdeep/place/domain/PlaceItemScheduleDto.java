@@ -31,6 +31,7 @@ public class PlaceItemScheduleDto {
 	private Long teacher_no;
 	private int grade;
 	private int gradeClass;
+	private String t_year;
 	private String emp_id;
 	private String emp_name;
 	
@@ -76,6 +77,7 @@ public class PlaceItemScheduleDto {
 	            .teacher_no(pis.getTeacherHistory().getTeacherNo())
 	            .grade(pis.getTeacherHistory().getGrade())
 	            .gradeClass(pis.getTeacherHistory().getGradeClass())
+	            .t_year(pis.getTeacherHistory().getTYear())
 	            .emp_id(pis.getEmployee().getEmpId())
 	            .emp_name(pis.getEmployee().getEmpName())
 	            .place_schedule_title(pis.getPlaceScheduleTitle())

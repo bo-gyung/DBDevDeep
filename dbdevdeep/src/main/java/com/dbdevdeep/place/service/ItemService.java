@@ -3,9 +3,9 @@ package com.dbdevdeep.place.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -35,27 +35,35 @@ public class ItemService {
 		this.placeRepository = placeRepository;
 		this.fileService = fileService;
 	}
-	// 장소 번호에 따라 기자재 리스트 조회
-    public List<Item> findByPlacePlaceNo(Long placeNo) {
-        return itemRepository.findByPlacePlaceNo(placeNo);
+	
+	
+	 // 특정 장소 번호에 해당하는 기자재 목록을 가져오는 메서드
+    public List<ItemDto> getItemsByPlaceNo(Long placeNo) {
+        List<Item> items = itemRepository.findByPlacePlaceNo(placeNo);
+        return items.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
     }
-	
-	
- // 특정 장소 번호에 해당하는 기자재 목록을 가져오는 메서드
-    public List<Item> getItemsByPlaceNo(Long placeNo) {
-        return itemRepository.findByPlacePlaceNo(placeNo);
+
+    // Item -> ItemDto 변환 메서드
+    private ItemDto convertToDto(Item item) {
+        return ItemDto.builder()
+                .item_no(item.getItemNo())
+                .place_no(item.getPlace().getPlaceNo())
+                .place_name(item.getPlace().getPlaceName())
+                .item_name(item.getItemName())
+                .item_quantity(item.getItemQuantity())
+                .item_status(item.getItemStatus())
+                .item_serial_no(item.getItemSerialNo())
+                .build();
     }
-	
 	
 	 // 모든 기자재 조회
     public List<Item> getAllItems() {
         return itemRepository.findAll();
     }
     
-    // 특정 장소의 기자재 조회 (필요 시 사용)
-    public List<Item> getItemsByPlaceId(Long placeNo) {
-        return itemRepository.findByPlacePlaceNo(placeNo);
-    }
+    
 	
 	
 	

@@ -9,7 +9,8 @@
 
 
 
-<!-- 전체 일정 조회 -->
+
+
      <!-- 전체 일정 조회 -->
     <select id="getTotalScheduleList"
             resultType="com.dbdevdeep.place.vo.PlaceItemScheduleVo">
@@ -43,7 +44,7 @@
             item i ON s.item_no = i.item_no
         JOIN
             employee e ON s.emp_id = e.emp_id
-        JOIN
+        LEFT JOIN
             teacher_history th ON s.teacher_no = th.teacher_no
 
 

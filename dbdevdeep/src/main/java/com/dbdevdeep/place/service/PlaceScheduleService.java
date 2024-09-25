@@ -1,7 +1,6 @@
 package com.dbdevdeep.place.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +12,6 @@ import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
 import com.dbdevdeep.place.domain.Item;
 import com.dbdevdeep.place.domain.Place;
 import com.dbdevdeep.place.domain.PlaceItemSchedule;
-import com.dbdevdeep.place.domain.PlaceItemScheduleDto;
 import com.dbdevdeep.place.mybatis.mapper.PlaceScheduleVoMapper;
 import com.dbdevdeep.place.repository.ItemRepository;
 import com.dbdevdeep.place.repository.PlaceRepository;
@@ -45,6 +43,11 @@ public class PlaceScheduleService {
 	}
 
 	
+	private String generateManagementNo(Long placeNo, String itemSerialNo) {
+	    // 장소 번호와 단일 기자재 일련번호를 결합하여 관리번호 생성 (예: 01-A01)
+	    return placeNo + "-" + itemSerialNo;
+	}
+	
 	// 일정 등록
     public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
         try {
@@ -53,7 +56,17 @@ public class PlaceScheduleService {
             Item item = itemRepository.findByitemNo(vo.getItem_no());
             Employee employee = employeeRepository.findByempId(vo.getEmp_id());
             TeacherHistory teacherHistory = teacherHistoryRepository.findByteacherNo(vo.getTeacher_no());
-
+            
+            
+            if (place == null) {
+                throw new IllegalArgumentException("해당 장소를 찾을 수 없습니다: " + vo.getPlace_no());
+            }
+           
+            
+            
+         // Management No 생성: place_no와 item_serial_no를 결합하여 생성
+            String managementNo = generateManagementNo(place.getPlaceNo(), item.getItemSerialNo());
+            
             // PlaceItemSchedule 엔티티 생성
             PlaceItemSchedule placeItemSchedule = PlaceItemSchedule.builder()
                     .employee(employee)
@@ -66,7 +79,7 @@ public class PlaceScheduleService {
                     .endDate(vo.getEnd_date())
                     .startTime(vo.getStart_time())
                     .endTime(vo.getEnd_time())
-                    .managementNo(vo.getManagement_no())
+                    .managementNo(managementNo)  // 생성된 management_no 설정
                     .build();
 
             // 저장
@@ -76,6 +89,8 @@ public class PlaceScheduleService {
         }
         return null;
     }
+    
+    
 
     // 전체 일정 조회 (VO 사용)
     public List<PlaceItemScheduleVo> selectTotalScheduleList() {

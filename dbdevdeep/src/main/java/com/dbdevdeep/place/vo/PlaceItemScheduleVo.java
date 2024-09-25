@@ -3,6 +3,7 @@ package com.dbdevdeep.place.vo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,12 +26,14 @@ private Long place_schedule_no;
 	private Long place_no;
 	private String place_name;
 	private Long item_no;
+
 	private String item_name;
 	private int item_quantity;
 	private String item_serial_no;
 	private Long teacher_no;
 	private int grade;
 	private int gradeClass;
+	private String t_year;
 	private String emp_id;
 	private String emp_name;
 	

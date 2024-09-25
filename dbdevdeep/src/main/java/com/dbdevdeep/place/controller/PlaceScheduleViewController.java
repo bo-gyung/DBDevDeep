@@ -17,6 +17,7 @@ import com.dbdevdeep.employee.domain.TeacherHistory;
 import com.dbdevdeep.employee.service.EmployeeService;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
 import com.dbdevdeep.place.domain.Item;
+import com.dbdevdeep.place.domain.ItemDto;
 import com.dbdevdeep.place.domain.Place;
 import com.dbdevdeep.place.service.ItemService;
 import com.dbdevdeep.place.service.PlaceScheduleService;
@@ -45,10 +46,12 @@ public class PlaceScheduleViewController {
 		
 		@GetMapping("/getItemsForPlace")
 		@ResponseBody
-		public List<Item> getItemsForPlace(@RequestParam("placeNo") Long placeNo) {
-		    List<Item> items = itemService.getItemsByPlaceNo(placeNo);
-		    return items;  // 기자재 데이터를 반환
+		public List<ItemDto> getItemsForPlace(@RequestParam("placeNo") Long placeNo) {
+		
+			
+			return itemService.getItemsByPlaceNo(placeNo);  // ItemDto 리스트를 반환
 		}
+		
 	
 		
 	
@@ -85,6 +88,8 @@ public class PlaceScheduleViewController {
 		@ResponseBody  // JSON 응답을 위해 추가
 		public List<PlaceItemScheduleVo> totalScheduleData(){
 	        List<PlaceItemScheduleVo> totalSchedule = placeScheduleService.selectTotalScheduleList();
+	        
+	        System.out.println("Schedules returned to calendar: " + totalSchedule);  // 반환되는 일정 출력
 	        return totalSchedule; // 일정 조회 결과를 VO로 반환
 		}
 	
