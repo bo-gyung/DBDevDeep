@@ -23,7 +23,7 @@ public class CustomHandshakeInterceptor implements HandshakeInterceptor {
             if (principal instanceof UserDetails) {
                 String username = ((UserDetails) principal).getUsername();
                 attributes.put("emp_id", username);  // 사용자 이름을 WebSocketSession의 attributes에 저장
-            }
+            } 
         }
         return true;
 	}

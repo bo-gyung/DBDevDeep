@@ -3,6 +3,59 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/student_layout}">
 <th:block layout:fragment="content">
+<style>
+	.addPic {
+	background-color: gainsboro;
+	width: 100%;
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+	border: none;
+	font-size: 25px;
+	}
+	
+	.addPic, .littleButton {
+		transition: background-color 0.3s ease;
+	}
+	
+	.addPic:hover, .littleButton:hover {
+		background-color: rgb(189, 189, 189);
+		cursor: pointer;
+	}
+	
+	.littleButton {
+		background-color: gainsboro;
+		width: 35px;
+		height: 35px;
+		border-radius: 50%;
+		border: none;
+		font-size: 15px;
+		text-align: center;
+		position: relative;
+		bottom: 35px;
+		left: 85px;
+	}
+	
+	.preview-container {
+		border-radius: 50%;
+		overflow: hidden;
+		width: 100%;
+		aspect-ratio: 1/1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px solid lightgray;
+	}
+	
+	#imagePreview {
+		width: 100%;
+		aspect-ratio: 1/1;
+		object-fit: cover;
+	}
+	
+	.hidden {
+		display: none;
+	}
+</style>
 	<body>
 		<div class="page-wrapper">
 			<div class="page-breadcrumb">
@@ -12,63 +65,72 @@
 						<div class="form-section">
 							<form id="student_update_form" th:object="${dto}">
 								<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+								
+								
 								<div class="form-group">
-									<input type="hidden" name="student_no" th:field="*{student_no}">
-									<label for="name">이름</label> <input type="text" id="name"
-										name="student_name" th:field="*{student_name}">
+				                    <label>사진</label>
+				                    <div class="row">
+										<div class="preview-container" id="preview-container">
+											<th:block th:if="${dto != null && dto.student_new_pic != null}">
+											    <img id="imagePreview" th:src="@{'/UploadImg/student/' + ${dto.student_new_pic}}" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1;">
+											</th:block>
+											<th:block th:unless="${dto != null && dto.student_new_pic != null}">
+											    <img id="imagePreview" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1;">
+											</th:block>	
+										</div>
+										<input type="button" class="littleButton" id="addPic" value="+">
+									</div>
+				                </div>
+												<div th:text="${dto.student_new_pic}"></div>
+								<input type="file" class="custom-file-input" id="inputGroupFile04" name="file">
+								
+								<div class="form-group">
+									<input type="hidden" name="student_no" th:value="${dto.student_no}">
+									<label for="name">이름</label> 
+									<input type="text" id="name" name="student_name" th:value="${dto.student_name}">
 								</div>
 								<div class="form-group">
-									<label for="student_status">재학 여부</label> <select
-										id="student_status" name="student_status"
-										th:field="*{student_status}">
+									<label for="student_status">재학 여부</label> 
+									<select id="student_status" name="student_status" th:value="${dto.student_status}">
 										<option value="재학">재학</option>
 										<option value="휴학">휴학</option>
 										<option value="전학">전학</option>
+					                    <option value="졸업">졸업</option>
 										<option value="퇴학">퇴학</option>
 									</select>
 								</div>
 								<div class="form-group">
-									<label for="student_birth">생년월일</label> <input type="date"
-										name="student_birth" id="student_birth"
-										th:field="*{student_birth}">
+									<label for="student_birth">생년월일</label> 
+									<input type="date" name="student_birth" id="student_birth" th:value="${dto.student_birth}">
 								</div>
 								<div class="form-group">
-									<label for="zipcode">우편번호</label> <input type="text"
-										id="zipcode" name="student_post_code"
-										th:field="*{student_post_code}"> <input type="button"
-										id="student_location" value="우편찾기">
+									<label for="zipcode">우편번호</label> 
+									<input type="text" id="zipcode" name="student_post_code" th:value="${dto.student_post_code}"> 
+									<input type="button" id="student_location" value="우편찾기">
 								</div>
 								<div class="form-group">
-									<label for="address">주소</label> <input type="text"
-										id="student_address" name="student_addr"
-										th:field="*{student_addr}">
+									<label for="address">주소</label> 
+									<input type="text" id="student_address" name="student_addr" th:value="${dto.student_addr}">
 								</div>
 								<div class="form-group">
-									<label for="address-detail">상세주소</label> <input type="text"
-										id="address-detail" name="student_detail_addr"
-										th:field="*{student_detail_addr}">
+									<label for="address-detail">상세주소</label> 
+									<input type="text" id="address-detail" name="student_detail_addr" th:value="${dto.student_detail_addr}">
 								</div>
 								<div class="form-group">
-									<label for="phone">전화번호</label> <input type="text" id="sp1"
-										maxlength="3"> - <input type="text" id="sp2"
-										maxlength="4"> - <input type="text" id="sp3"
-										maxlength="4">
+									<label for="phone">전화번호</label> 
+										<input type="text" id="sp1" maxlength="3" th:value="${dto.student_phone.split('-')[0]}"> - 
+										<input type="text" id="sp2" maxlength="4" th:value="${dto.student_phone.split('-')[1]}"> - 
+										<input type="text" id="sp3" maxlength="4" th:value="${dto.student_phone.split('-')[2]}">
+										<input type="hidden" name="student_phone" id="student_phone">
 								</div>
 								<div class="form-group">
-									<label for="photo">사진</label> <input type="file" id="photo"
-										name="file"> <span> ※ 이미지 파일을 수정하시려면 새로운 파일을
-										등록하세요. </span><br>
-								</div>
-								<div class="form-group">
-									<label>성별</label> <input type="radio" id="male"
-										name="student_gender" value="M" th:field="*{student_gender}">
-									남자 <input type="radio" id="female" name="student_gender"
-										value="W" th:field="*{student_gender}"> 여자
+									<label>성별</label> 
+									<input type="radio" id="male" name="student_gender" value="M" th:checked="${dto.student_gender=='M'}">남자 
+									<input type="radio" id="female" name="student_gender" value="W" th:checked="${dto.student_gender=='W'}"> 여자
 								</div>
 								<div class="form-group" style="text-align: right;">
-									<input type="button" value="취소"
-										th:onclick="|location.href='@{/student}'|"> <input
-										type="submit" value="수정">
+									<input type="button" value="취소" th:onclick="|location.href='@{/student/{studentNo}(studentNo=${dto.student_no})}'|"> 
+									<input type="submit" value="수정">
 								</div>
 							</form>
 
@@ -91,90 +153,140 @@
 		<script src="/dist/js/custom.min.js"></script>
 		<script
 			src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-		<script>
-	  window.onload = function() {
-	    // student_phone의 값을 가져와 각 부분을 나눠서 각 input에 설정
-	    const fullPhone = document.getElementById('student_phone').value;
-	
-	    if (fullPhone) {
-	      // 첫 3자리
-	      document.getElementById('sphone-1').value = fullPhone.substring(0, 3);
-	      // 중간 4자리
-	      document.getElementById('sphone-2').value = fullPhone.substring(3, 7);
-	      // 마지막 4자리
-	      document.getElementById('sphone-3').value = fullPhone.substring(7, 11);
-	    }
-	  };
-	</script>
-		<script>
-	window.onload = function(){
-	    document.getElementById("student_location").addEventListener("click", function(){ //주소입력칸을 클릭하면
-	        //카카오 지도 발생
-	        new daum.Postcode({
-	            oncomplete: function(data) { //선택시 입력값 세팅
-	                document.getElementById("zipcode").value = data.zonecode;
-	                document.getElementById("student_address").value = data.address; // 주소 넣기
-	            }
-	        }).open();
-	    });
-	}
-	</script>
-
-
-		<script>
-	const form=document.getElementById("student_update_form");
-	form.addEventListener('submit',(e)=>{
-		e.preventDefault();
-		// 유효성 검사 성공 가정
-		let vali_check = true;
-		const year = document.getElementById('birth-year').value;
-	    const month = document.getElementById('birth-month').value.padStart(2, '0');
-	    const day = document.getElementById('birth-day').value.padStart(2, '0');
-	    const fullBirthDate = `${year}-${month}-${day}`;
-	    document.getElementById("student_birth").value = fullBirthDate;
-	    
-	    
-	    const phone1 = document.getElementById('sp1').value;
-	    const phone2 = document.getElementById('sp2').value;
-	    const phone3 = document.getElementById('sp3').value;
-	    const fullPhoneNumber = `${phone1}-${phone2}-${phone3}`;
-	    document.getElementById('student_phone').value = fullPhoneNumber;
-	    
-		if(vali_check == false){
-			alert('유효성 검사 중 문제가 발생하였습니다.');
-		}else{
-			const payload = new FormData(form);
-			const csrfToken = document.getElementById('csrf_token').value;
-			const studentNo = form.student_no.value;
-			fetch('/student/'+studentNo,{
-				method:'post',
-				headers : {
-					'X-CSRF-TOKEN':csrfToken
-				},
-				body:payload
-			})
-			.then(response => response.json())
-			.then(data=>{
-				if(data.res_code == '200'){
-					Swal.fire({
-						icon : 'success',
-						title : '성공',
-						text : data.res_msg
-					}).then((result)=>{
-						location.href = "/student";
-					});
-				}else{
-					Swal.fire({
-						icon : 'error',
-						title : '실패',
-						text : data.res_msg
-					});
-				}
-				
-			})
-		}
 		
-	});
+	<script>
+		window.onload = function(){
+		    document.getElementById("student_location").addEventListener("click", function(){ //주소입력칸을 클릭하면
+		        //카카오 지도 발생
+		        new daum.Postcode({
+		            oncomplete: function(data) { //선택시 입력값 세팅
+		                document.getElementById("zipcode").value = data.zonecode;
+		                document.getElementById("student_address").value = data.address; // 주소 넣기
+		            }
+		        }).open();
+		    });
+		}
 	</script>
+
+
+	<script>
+		window.onload = function(){
+			const form=document.getElementById("student_update_form");
+			form.addEventListener('submit',(e)=>{
+				e.preventDefault();
+				// 유효성 검사 성공 가정
+				let vali_check = true;
+			    
+			    const phone1 = document.getElementById('sp1').value;
+			    const phone2 = document.getElementById('sp2').value;
+			    const phone3 = document.getElementById('sp3').value;
+			    const fullPhoneNumber = `${phone1}-${phone2}-${phone3}`;
+			    document.getElementById('student_phone').value = fullPhoneNumber;
+			    
+				if(vali_check == false){
+					alert('유효성 검사 중 문제가 발생하였습니다.');
+				}else{
+					const payload = new FormData(form);
+					const csrfToken = document.getElementById('csrf_token').value;
+					const studentNo = form.student_no.value;
+					fetch('/student/'+studentNo,{
+						method:'post',
+						headers : {
+							'X-CSRF-TOKEN':csrfToken
+						},
+						body:payload
+					})
+					.then(response => response.json())
+					.then(data=>{
+						if(data.res_code == '200'){
+							Swal.fire({
+								icon : 'success',
+								title : '성공',
+								text : data.res_msg
+							}).then((result)=>{
+								location.href = "/student/"+studentNo;
+							});
+						}else{
+							Swal.fire({
+								icon : 'error',
+								title : '실패',
+								text : data.res_msg
+							});
+						}
+						
+					})
+				}
+			
+			});
+		};
+	</script>
+	<script>
+		    const fileInput = document.getElementById('inputGroupFile04');
+		    const imagePreview = document.getElementById('imagePreview');
+		    const addPicButton = document.getElementById('addPic');
+		    const previewContainer = document.getElementById('preview-container');
+	
+		    /* const ext = imagePreview.src; */
+		    
+		    // 기본 이미지 경로나 "이미지 없음" 메시지
+		    const defaultImageSrc = imagePreview.src == "" ? '/assets/images/noprofile.png' : imagePreview.src; // 기본 이미지 경로 (없으면 빈 문자열도 가능)
+		    
+	
+		    // imagePreview 요소가 존재하는지 확인
+		    if (imagePreview) {
+		        // DTO에 student_new_pic 값이 있는 경우 이미지 미리보기 설정
+		        const existingImageSrc = imagePreview.dataset.existingImage;  // data 속성으로 전달된 기존 이미지 경로
+	
+		        if (existingImageSrc) {
+		            imagePreview.src = existingImageSrc;  // 기존 이미지를 미리보기로 설정
+		            addPicButton.classList.add('littleButton');  // 이미지가 있는 경우 버튼 스타일 변경
+		            previewContainer.classList.remove('hidden');
+		        } else {
+		            imagePreview.src = defaultImageSrc;  // 기본 이미지를 설정하거나 "이미지 없음" 처리
+		            /* previewContainer.classList.add('hidden'); */
+		        }
+	
+		        // 파일 업로드 이벤트 처리
+		        addPicButton.addEventListener('click', () => {
+		            fileInput.click();
+		        });
+	
+		        fileInput.addEventListener('change', (event) => {
+		            const file = event.target.files[0];
+	
+		            if (file) {
+		                const validExtensions = ['jpg', 'jpeg', 'png', 'jfif'];
+		                const fileExtension = file.name.split('.').pop().toLowerCase();
+	
+		                if (validExtensions.includes(fileExtension)) {
+		                    const reader = new FileReader();
+	
+		                    reader.onload = (e) => {
+		                        imagePreview.src = e.target.result;  // 선택한 파일을 이미지로 미리보기
+		                        addPicButton.classList.remove('addPic');
+		                        addPicButton.classList.add('littleButton');
+		                        previewContainer.classList.remove('hidden');
+		                    };
+	
+		                    reader.readAsDataURL(file);  // 파일을 읽어서 데이터 URL로 변환
+		                } else {
+		                    Swal.fire({
+		                        icon: 'error',
+		                        title: '실패',
+		                        text: '이미지 파일만 선택할 수 있습니다.',
+		                        confirmButtonText: "닫기"
+		                    });
+		                    fileInput.value = ''; 
+		                    imagePreview.src = defaultImageSrc;  // 기본 이미지로 재설정
+		                }
+		            } else {
+		                imagePreview.src = defaultImageSrc;  // 기본 이미지로 재설정
+		            }
+		        });
+		    } else {
+		        console.error("imagePreview element not found!");
+		    }
+		
+	</script>	
 	</body>
 </html>

@@ -101,9 +101,11 @@ input, select, textarea {
 					        <form id="item_updateForm"  th:action="@{/item/update/{item_no}(item_no=${dto.item_no})}" method="post" enctype="multipart/form-data">
 					         <!-- CSRF 토큰 추가 -->
                             <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                            
                              <!-- Hidden Fields for Item and Place -->
-					        <input type="hidden" id="place_no" name="place_no" th:value="${dto.place_no}">
+					       
 					        <input type="hidden" id="item_no" name="item_no" th:value="${dto.item_no}">
+                            
                             <!-- 장소 선택 -->
                             <div class="row mb-3">
 							    <label for="placeName" class="col-sm-2 col-form-label">장소명</label>
@@ -113,7 +115,7 @@ input, select, textarea {
 							            <option th:value="${dto.place_no}" th:text="${dto.place_name}"></option>
 							        </select>
 							        <!-- 실제 서버로 전송되는 히든 필드 -->
-							        <input type="hidden" name="place_no" th:value="${dto.place_no}">
+							        <input type="hidden" name="place_no" th:value="${dto.place_no}" id="place_no">
 							    </div>
 							</div>
                             <!-- 일련번호 -->
@@ -121,7 +123,7 @@ input, select, textarea {
 							    <label for="item_serial_no" class="col-sm-2 col-form-label">일련번호</label>
 							    <div class="col-sm-10">
 							        <input type="text" class="form-control" id="item_serial_no" name="item_serial_no"
-                                           th:value="${dto.item_serial_no}" placeholder="A01부터 입력하세요." required>
+                                           th:value="${dto.item_serial_no}" placeholder="A01부터 입력하세요." required disabled>
                                            <!-- 실제 서버로 전송되는 히든 필드 -->
 											<input type="hidden" name="item_serial_no" th:value="${dto.item_serial_no}">
 							        <span id="serialError" style="color: red; display: none;">잘못된 일련번호 형식입니다. 예: A01, B02</span>
@@ -224,8 +226,8 @@ input, select, textarea {
 </div>
 </div>
 <script>
-//사용 여부에 따른 필드 숨기기/보이기
-function toggleUnusableFields(){
+// 사용 여부에 따른 필드 숨기기/보이기
+function toggleUnusableFields() {
     const isUsable = document.getElementById('usable').checked;
     const unusableFields = document.getElementById('unusableFields');
 
@@ -241,9 +243,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const usableRadio = document.getElementById('usable');
     const unusableFields = document.getElementById('unusableFields');
 
-    
-    
-    
     if (usableRadio && unusableFields) {
         toggleUnusableFields(); // 초기 상태 설정
         document.getElementById('usable').addEventListener('change', toggleUnusableFields);
@@ -252,7 +251,6 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error('usableRadio 또는 unusableFields 요소를 찾을 수 없습니다.');
     }
 });
-
 
 // 수정 버튼 클릭 시 폼 제출 처리
 const form = document.getElementById("item_updateForm");
@@ -264,22 +262,25 @@ form.addEventListener('submit', (e) => {
     let vali_text = ""; 
 
     // 유효성 검사
-    if(form.item_name.value === ''){
-    	vali_text += '기자재명을 입력하세요.';
-    	form.item_name.focus();
-    }else if(form.item_content.value === ''){
-    	vali_text += '내용을 입력하세요.';
-    	form.item_content.focus();
-    }else if (form.item_quantity.value.trim() === '' || form.item_quantity.value <= 0) {
+    const itemQuantity = parseInt(form.item_quantity.value.trim());
+    const unusableQuantity = parseInt(document.getElementById('unuseable_quantity').value.trim() || 0);
+
+    if (form.item_name.value === '') {
+        vali_text += '기자재명을 입력하세요.\n';
+        form.item_name.focus();
+    } else if (form.item_content.value === '') {
+        vali_text += '내용을 입력하세요.\n';
+        form.item_content.focus();
+    } else if (isNaN(itemQuantity) || itemQuantity <= 0) {
         vali_text += '기자재 갯수를 올바르게 입력하세요.\n';
         form.item_quantity.focus();
     } else if (document.getElementById('unusable').checked) {
         // 사용 불가능 상태일 때 추가 유효성 검사
-        const unusableReason = document.getElementById('unuseable_reason').value;
+        const unusableReason = document.getElementById('unuseable_reason').value.trim();
         const unusableStartDate = document.getElementById('unuseable_start_date').value;
         const unusableEndDate = document.getElementById('unuseable_end_date').value;
-		const unusableQuantity = document.getElementById('unuseable_quantity').value;
-        if (unusableReason.trim() === '') {
+
+        if (unusableReason === '') {
             vali_text += '사용 불가능한 사유를 입력하세요.\n';
             document.getElementById('unuseable_reason').focus();
         } else if (unusableStartDate === '') {
@@ -288,15 +289,24 @@ form.addEventListener('submit', (e) => {
         } else if (unusableEndDate === '') {
             vali_text += '사용 불가 종료 날짜를 입력하세요.\n';
             document.getElementById('unuseable_end_date').focus();
-        } else if(unusableQuantity === ''){
-        	vali_text += '사용불가 갯수를 입력하세요.';
-        	document.getElementById('unuseable_quantity').focus();
+        } else if (new Date(unusableStartDate) > new Date(unusableEndDate)) {
+            // 시작일이 종료일보다 미래일 경우 유효성 검사 실패
+            vali_text += '종료일은 시작일 이후여야 합니다.\n';
+            document.getElementById('unuseable_end_date').focus();
+        } else if (isNaN(unusableQuantity) || unusableQuantity <= 0) {
+            vali_text += '사용 불가능한 갯수를 올바르게 입력하세요.\n';
+            document.getElementById('unuseable_quantity').focus();
+        } else if (unusableQuantity > itemQuantity) {
+            // 사용 불가능 갯수가 전체 기자재 갯수를 초과할 수 없음
+            vali_text += '사용 불가능 갯수는 기자재 총 갯수를 초과할 수 없습니다.\n';
+            document.getElementById('unuseable_quantity').focus();
         } else {
             vali_check = true; // 모든 유효성 검사를 통과한 경우
         }
     } else {
         vali_check = true; // 사용 가능 상태일 때는 추가 유효성 검사 없이 통과
     }
+
     // 유효성 검사가 실패하면 경고 메시지 표시
     if (!vali_check) {
         Swal.fire({
@@ -343,8 +353,8 @@ form.addEventListener('submit', (e) => {
         });
     }
 });
-    
-    </script>
+</script>
+
 
 				<!-- ============================================================== -->
 				<!-- End PAge Content -->

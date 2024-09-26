@@ -17,3 +17,4 @@ public interface ItemRepository extends JpaRepository<Item, Long>{
 	// 장소 번호와 일련번호로 중복 여부 확인
 	boolean existsByPlacePlaceNoAndItemSerialNo(Long placeNo, String itemSerialNo);
 }
+
