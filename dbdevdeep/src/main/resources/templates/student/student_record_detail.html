@@ -34,6 +34,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											    <th:block th:if="${dto.student_new_pic != null}">
 											        <img th:src="@{'/UploadImg/student/' + ${dto.student_new_pic}}" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1;">
 											    </th:block>
+											    <input type="hidden" id="student_no" name="student_no" th:value="${dto.student_no}"/>
 											</div>
 												<table class="table table-bordered no-wrap">
 													<colgroup>
@@ -176,6 +177,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									<a th:href="@{/student/list}">목록으로</a><br> 
 									<a th:href="@{/student/update/{student_no}(student_no=${dto.student_no})}">수정</a><br>
 									<a th:onclick="studentDelete([[${dto.student_no}]])">삭제</a>
+									<button id="download_pdf">pdf 다운</button>
 								</div>
 							</div>
 						</div>
@@ -194,6 +196,14 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		<script
 			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
-		
+		<script>
+		  $(document).ready(function () {
+			  const studentNo = document.getElementById("student_no").value;
+		    $('#download_pdf').on('click', function () {
+		      const url = '/pdf/download/' + studentNo; // studentNo를 URL에 추가
+		      window.location.href = url;  // 해당 URL로 요청하여 다운로드
+		    });
+		  });
+		</script>
 	</body>
 </html>

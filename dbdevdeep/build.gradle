@@ -33,7 +33,20 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	
-	
+	// iTextPDF (pdf)
+	implementation 'com.itextpdf:itext7-core:7.1.14'
+	implementation 'com.itextpdf:forms:7.1.14'
+	implementation 'com.itextpdf:hyph:7.1.14'
+	implementation 'com.itextpdf:io:7.1.14'
+	implementation 'com.itextpdf:styled-xml-parser:7.1.14'
+	implementation 'com.itextpdf:svg:7.1.14'
+	implementation 'com.itextpdf:html2pdf:3.0.3'
+	implementation 'com.itextpdf:kernel:7.1.14'
+	implementation 'com.itextpdf:layout:7.1.14'
+	implementation 'com.itextpdf:pdfa:7.1.14'
+	implementation 'com.itextpdf:sign:7.1.14'
+	implementation 'com.itextpdf:barcodes:7.1.14'
+	implementation 'com.itextpdf:font-asian:7.1.14'
 	// Apache Poi (Excel)	
 	implementation 'org.apache.poi:poi-ooxml:5.3.0'
 	// MuBatis(마이바티스)
