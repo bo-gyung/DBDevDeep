@@ -10,11 +10,13 @@
 	<!-- CSRF Token -->
 	<meta name="_csrf" th:content="${_csrf.token}" />
 	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+	
+	<!-- CKEditor의 CDN 스타일 시트를 불러옵니다 -->
+	<script src="https://cdn.ckeditor.com/ckeditor5/35.3.0/classic/ckeditor.js"></script>
+
 	<!-- Favicon icon -->
 	<link rel="icon" type="image/png" sizes="16x16" th:href="@{/assets/images/MulMang_logo.png}">
 	<title>물망초등학교</title>
-	<!-- Custom CSS -->
-	<link th:href="@{/dist/css/style.min.css}" rel="stylesheet">
 	
     <!-- jQuery는 최상단에서 한 번만 로드 -->
 	<!-- jQuery 3.5.1 버전 로드 -->
@@ -27,8 +29,7 @@
 	<!-- Bootstrap 및 다른 라이브러리 -->
 	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> 
-
-
+	
 <script>
     var $j = jQuery.noConflict();
 
@@ -39,7 +40,7 @@
 
         let targetCellId;
 
-        $j('#openTreeButton1, #openTreeButton2, #openTreeButton3').click(function() {
+        $j('#openTreeButton1, #openTreeButton2').click(function() {
             targetCellId = '#' + $j(this).attr('id').replace('openTreeButton', 'selectedNodesTable');
             $j('#treeModal').modal('show');
             initializeTree();
@@ -260,7 +261,9 @@
 
             if (Array.isArray(names)) {
                 $j(targetCellId).val(names.join('>')); // 선택한 노드들의 텍스트를 조합하여 표시
-            } 
+            } else {
+                console.error("names is not an array:", names);
+            }
 
             $j('#treeModal').modal('hide');
         });
@@ -291,7 +294,7 @@
 			<div class="col-sm-12 col-md-12">
 				<div class="card">
 					<div class="card-body">
-						<h3 class="card-title">휴가 신청</h3>
+						<h3 class="card-title">보고서 작성</h3>
 							<hr>
 								<div class="container-fluid">
             <!-- ============================================================== -->
@@ -300,24 +303,26 @@
                 
                 
            <div class="container">
-     		   <form id="approCreateFrm">
+     		   <form id="approCreateFrm" method="POST">
      		   <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-     			   <h2 class="text-center">휴가 신청서</h2>
+					<br><br>     		   
+     			   <h2 class="text-center">보&nbsp;&nbsp;고&nbsp;&nbsp;서</h2>
+     			   <br><br>
 				        <table class="table table-bordered">
 				            <tbody>
 				                <tr>
 				                    <td>성명</td>
 				                    <td><input type="text" name="emp_name" th:value="${#authentication.principal.dto.emp_name}" readonly style="border: 0; outline: none;"></td>	
+				                    <td>직원번호</td>
+				                    <td><input type="text" name="emp_id" th:value="${#authentication.principal.dto.emp_id}" readonly style="border: 0; outline: none;"></td>
+				                </tr>
+				                <tr>
 				                    <td>부서</td>
 				                    <td>
 									    <input type="text" name="dept_name" th:value="${#authentication.principal.dto.dept_name}" readonly style="border: 0; outline: none;">
 									    <!-- 숨겨진 필드로 dept_code 값을 유지 -->
 									    <input type="hidden" name="dept_code" th:value="${#authentication.principal.dto.dept_code}">
 									</td>
-				                </tr>
-				                <tr>
-				                    <td>직원번호</td>
-				                    <td><input type="text" name="emp_id" th:value="${#authentication.principal.dto.emp_id}" readonly style="border: 0; outline: none;"></td>
 				                    <td>직급</td>
 									<td>
 									    <input type="text" name="job_name_display" 
@@ -328,78 +333,50 @@
 									    <!-- 실제 job_code를 숨겨진 필드로 추가 -->
 									    <input type="hidden" name="job_code" th:value="${#authentication.principal.dto.job_code}">
 									</td>
-
+				                
 				                </tr>
 				                <tr>
 				                	<td>제목</td>
-				                    <td colspan="3"><input type="text" id="appro_title" name="appro_title" class="form-control"></td>
-				                </tr>
-				                <tr>
+				                    <td><input type="text" id="appro_title" name="appro_title" class="form-control" th:value="${dto.appro_title}"></td>
 				                    <td>종류</td>
-				                    <td colspan="3">
-				                    <div style="display: flex; gap: 15px; justify-content: space-evenly; align-items: center;">
-				                        <div><label><input type="radio" name="vac_type" value="0"> 연차</label></div>
-				                        
-				                        <div><label><input type="radio" name="vac_type" value="6"> 오전반차</label></div>
-				                		<div><label><input type="radio" name="vac_type" value="7"> 오후반차</label></div>
-				                        
-				                        <div><label><input type="radio" name="vac_type" value="1"> 공가</label></div>
-				                        <div><label><input type="radio" name="vac_type" value="2"> 병가</label></div>
-				                        <div><label><input type="radio" name="vac_type" value="3"> 조퇴</label></div>
-				                        <div><label><input type="radio" name="vac_type" value="4"> 경조사</label></div>
-				                        <div><label><input type="radio" name="vac_type" value="5"> 출산휴가</label></div>
-				                        </div>
-				                    </td>
+				                    <td>
+				                    <select id="templateSelect" name="tempNo" class="form-control">
+										    <option value="">종류를 선택해주세요</option>
+										    <option th:each="template : ${tempList}" th:value="${template.temp_no}" th:text="${template.temp_name}"></option>
+									</select>
+									</td>
 				                </tr>
 				                <tr>
-				                	<td>일정</td>
-				                	<td colspan="3">
-				                	<div style="display: flex; gap: 15px; justify-content: space-evenly; align-items: center;">
-				                	<div><input type="date" id="start_date" class="form-control" name="start_date"></div>
-				                	<div><span>~</span></div>
-				                	<div><input type="date" id="end_date" class="form-control" name="end_date"></div>
-				                	</div>
+				                	<td colspan="4">
+					                		<!-- CKEditor가 적용될 영역 -->
+							                <div>
+										        <div class="main-container">
+										            <div class="editor-container editor-container_classic-editor editor-container_include-block-toolbar" id="editor-container">
+										                <div class="editor-container__editor">
+										                	<div id="editor">
+										                	</div>
+										                </div>
+										                <textarea id="approContent" name="appro_content" style="display:none;"></textarea>
+										                <input type="hidden" id="appro_content_hidden" th:value="${dto.appro_content}">
+										            </div>
+										        </div>
+										    </div>
 				                	</td>
 				                </tr>
 				                <tr>
-				                <td>신청사유</td>
-				                <td colspan="3"><textarea class="form-control" rows="10" style="resize: none" name="appro_content"></textarea></td>
-				                </tr>
-				                <tr>
-				                <td>참고사항</td>
-				                <td colspan="3">*공가 - 예비군 /민방위의 경우 사후에 참석증을 반드시 제출부탁드립니다.<br>
-												*병가 - 연 25회 초과시 무급휴가로 전환 됩니다.<br>
-												*경조사 - 사전/사후에 행사일을 증명할 수 있는 서류 제출부탁드립니다.<br>
-												*명시된 결재자의 순서에 따라 결재라인이 생성됩니다. (대분류는 협의 > 결재 순)
-										</td>
-					                </tr>
-					          	<tr>
-					             <td colspan="4">
-					             <div style="text-align: center;"><h4>상기와 같이 휴가를 신청하오니 검토 후 승인하여 주시기 바랍니다.</h4></div>
-					             <br><br>
-					             <h1 style="text-align: center;">물망초등학교</h1>
-					             
-					             </td>
-					           </tr>
-				                <tr>
 					                <td>협의자</td>
 					                <td colspan="3"><button id="openTreeButton1" class="btn btn-primary" type="button">+</button>
-					                <input type="text" name="consult" id="selectedNodesTable1" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
+					                <input type="text" name="consult" id="selectedNodesTable1" th:value="${dto.consult_draft_root}" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
 					                </td>
 				                </tr>
 				                <tr>
 					                <td>결재자</td>
 									<td colspan="3">
 									    <button id="openTreeButton2" class="btn btn-primary" type="button">+</button>
-									    <input type="text" name="approval" id="selectedNodesTable2" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
+									    <input type="text" name="approval" id="selectedNodesTable2" th:value="${dto.approval_draft_root}" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
 									</td>
 				                </tr>
-				                <tr>
-				                	<td>참조자</td>
-				                	<td colspan="3"><button id="openTreeButton3" class="btn btn-primary" type="button">+</button>
-				                	<input type="text" name="reference" id="selectedNodesTable3" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
-				                	</td>
-				                </tr>
+				                
 				                <tr>
 					                <td>첨부파일</td>
 					                <td colspan="3"><input type="file" name="file_name"></td>
@@ -412,6 +389,7 @@
 						        </div>
 						   
 						        <div class="text-center mt-3">
+						            <button type="button" id="saveBtn" class="btn btn-primary">임시 저장</button>
 									<button type="submit" id="submitBtn" class="btn btn-success" >결재 요청</button>
 						        </div>
 					        </div>
@@ -480,90 +458,25 @@
 	<!-- ============================================================== -->
 	<!-- Bootstrap tether Core JavaScript -->
 	
-	<script src="assets/libs/popper.js/dist/umd/popper.min.js"></script>
-	<script src="assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
 	<!-- apps -->
-	<script src="dist/js/app-style-switcher.js"></script>
-	<script src="dist/js/feather.min.js"></script>
+	<script src="/dist/js/app-style-switcher.js"></script>
+	<script src="/dist/js/feather.min.js"></script>
 	<!-- slimscrollbar scrollbar JavaScript -->
-	<script src="assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script> 
-	<script src="assets/extra-libs/sparkline/sparkline.js"></script>
+	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script> 
+	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
 	<!--Wave Effects -->
 	<!-- themejs -->
 	<!--Menu sidebar -->
-	<script src="dist/js/sidebarmenu.js"></script>
+	<script src="/dist/js/sidebarmenu.js"></script>
 	<!--Custom JavaScript -->
-	<script src="dist/js/custom.min.js"></script>
+	<script src="/dist/js/custom.min.js"></script>
+	
+	
 	
 	 <script>
     
-	 // 로컬 시간대로 현재 날짜와 시간을 포맷팅하는 함수
-	    function formatDateToLocal(date) {
-	        const year = date.getFullYear();
-	        const month = String(date.getMonth() + 1).padStart(2, '0'); // 월은 0부터 시작하므로 +1
-	        const day = String(date.getDate()).padStart(2, '0');
-	        const hours = String(date.getHours()).padStart(2, '0');
-	        const minutes = '00'; // 항상 00으로 고정
-	        return `${year}-${month}-${day}T${hours}:${minutes}`;
-	    }
-	
-	    // 로컬 시간대로 오늘 날짜를 포맷팅하는 함수
-	    function formatDateOnly(date) {
-	        const year = date.getFullYear();
-	        const month = String(date.getMonth() + 1).padStart(2, '0');
-	        const day = String(date.getDate()).padStart(2, '0');
-	        return `${year}-${month}-${day}`;
-	    }
-    
-    
-	 // 조퇴 선택 시 일정에 시간까지 설정 가능하게 변환
-	    function toggleDateInputType() {
-	        const halfDay = document.querySelector('input[name="vac_type"][value="3"]').checked; // '조퇴'가 선택되었는지 확인
-	        const startDate = document.getElementById('start_date');
-	        const endDate = document.getElementById('end_date');
-
-	        // 현재 로컬 날짜와 시간을 가져와 포맷팅
-	        const now = new Date();
-	        const today = formatDateToLocal(now); // 로컬 시간대로 포맷된 현재 날짜와 시간
-	        const todayDateOnly = formatDateOnly(now); // 로컬 시간대로 포맷된 현재 날짜
-
-	        if (halfDay) {
-	            startDate.type = 'datetime-local';  // '조퇴'일 경우 datetime-local로 변경
-	            endDate.type = 'datetime-local';
-
-	            // datetime-local의 최소값을 오늘 날짜로 설정
-	            startDate.min = today;
-	            endDate.min = today;
-
-	            startDate.value = today;
-	            endDate.value = today;
-
-	            // 날짜 선택 시 분을 항상 00으로 설정
-	            startDate.addEventListener('input', () => {
-	                const selectedDate = new Date(startDate.value);
-	                selectedDate.setMinutes(0);
-	                startDate.value = formatDateToLocal(selectedDate);
-	            });
-
-	            endDate.addEventListener('input', () => {
-	                const selectedDate = new Date(endDate.value);
-	                selectedDate.setMinutes(0);
-	                endDate.value = formatDateToLocal(selectedDate);
-	            });
-	        } else {
-	            startDate.type = 'date';  // 그렇지 않으면 date로 설정
-	            endDate.type = 'date';
-
-	            // date 타입의 최소값을 오늘 날짜로 설정
-	            startDate.min = todayDateOnly;
-	            endDate.min = todayDateOnly;
-	        }
-	    }
-
-	    // 모든 'vac_type' 라디오 버튼에 이벤트 리스너를 추가
-	    document.querySelectorAll('input[name="vac_type"]').forEach(function (radio) {
-	        radio.addEventListener('change', toggleDateInputType);
-	    });
 	
 	    // 목록으로 이동시 재 확인
 	    $('#returnList').on('click', function() {
@@ -588,88 +501,118 @@
 	    })
 	    
     </script>
-	    
-	<!-- 유효성검사 -->
-    <script>
-	    // 승인 요청
-	    document.getElementById('submitBtn').addEventListener('click', function (event) {
-	        event.preventDefault(); 
-	        handleSubmit();
-	    });
     
-	 // 결재 요청 유효성 검사 및 처리 함수
-	    function handleSubmit() {
-	        const form = document.getElementById('approCreateFrm'); 
-	        const formData = new FormData(form); 
-	        const csrfToken = document.getElementById("csrf_token").value; 
+    <!-- tempEdit 내용 불러오기 -->
+    <script>
+    // 에디터가 초기화되었는지 여부를 저장하는 변수
+    let editorInitialized = false;
+    let editorInstance;  // CKEditor 인스턴스를 저장할 변수
 
-	        // 유효성 검사
-	        if (form.appro_title.value == "") {
+    document.addEventListener("DOMContentLoaded", function() {
+        ClassicEditor
+            .create(document.querySelector('#editor'))
+            .then(editor => {
+                editorInstance = editor;  // CKEditor 인스턴스 저장
+                editorInitialized = true;  // CKEditor 초기화 완료 플래그
+            
+             // Hidden input에 있는 appro_content 값 가져오기
+                const approContent = document.getElementById('appro_content_hidden').value;
+                
+                // CKEditor에 값 설정 (HTML 데이터를 삽입)
+                if (approContent) {
+                    editor.setData(approContent);  // CKEditor에 데이터 설정
+                }
+            })
+            .catch(error => {
+                console.error('CKEditor 초기화 중 오류 발생:', error);
+            });
+    });
+
+    // 템플릿 변경 시 에디터 데이터 설정
+    $('#templateSelect').change(function() {
+        var tempNo = $(this).val();
+
+        if (tempNo) {
+            $.ajax({
+                url: '/getTempContent/' + tempNo,
+                method: 'GET',
+                success: function(data) {
+                    if (data && data.temp_content) {
+                        if (editorInitialized && typeof editorInstance.setData === 'function') {
+                            editorInstance.setData(data.temp_content);  // CKEditor에 데이터 설정
+                        } else {
+                            console.error("CKEditor가 아직 초기화되지 않았습니다.");
+                        }
+                    } else {
+                        console.log("템플릿 내용이 없습니다.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching template content:', error);
+                }
+            });
+        } else {
+            if (editorInitialized && typeof editorInstance.setData === 'function') {
+                editorInstance.setData('');  // 에디터 내용을 초기화
+            }
+        }
+    });
+
+    </script>
+    
+    
+    <script>
+    // 임시저장
+    document.getElementById('saveBtn').addEventListener('click', function () {
+        handleSave();  
+    });
+
+    // 승인 요청
+    document.getElementById('submitBtn').addEventListener('click', function (event) {
+        event.preventDefault();  // 기본 submit 방지
+        handleSubmit();  // 유효성 검사 및 제출 처리 함수 호출
+    });
+
+    // 임시 저장 처리 함수
+    function handleSave() {
+	        const form = document.getElementById('approCreateFrm');
+	        const formData = new FormData(form);  
+	        const csrfToken = document.getElementById("csrf_token").value;
+
+	        if (form.appro_title.value === "") {
 	            Swal.fire({
 	                icon: 'error',
 	                title: '제목을 입력해주세요',
-	                confirmButtonText: "닫기"
+	                confirmButtonText: '닫기'
 	            });
-	            return;
-	        } else if (!document.querySelector('input[name="vac_type"]:checked')) {
-	            Swal.fire({
-	                icon: 'error',
-	                title: '종류를 선택해주세요',
-	                confirmButtonText: "닫기"
-	            });
-	            form.vac_type.focus();
-	            return;
-	        }  else if (form.start_date.value == "") {
-	            Swal.fire({
-	                icon: 'error',
-	                title: '일정시작일을 입력해주세요',
-	                confirmButtonText: "닫기"
-	            });
-	            form.start_date.focus();
-	            return;
-	        } else if (form.end_date.value == "") {
-	            Swal.fire({
-	                icon: 'error',
-	                title: '일정종료일을 입력해주세요',
-	                confirmButtonText: "닫기"
-	            });
-	            form.end_date.focus();
-	            return;
-	        } else if (form.appro_content.value == "") {
-	            Swal.fire({
-	                icon: 'error',
-	                title: '신청사유를 입력해주세요',
-	                confirmButtonText: "닫기"
-	            });
-	            form.appro_context.focus();
-	            return;
-	        } else if (form.approval.value == "") {
-	            Swal.fire({
-	                icon: 'error',
-	                title: '결재자를 선택해주세요',
-	                confirmButtonText: "닫기"
-	            });
-	            form.approval.focus();
 	            return;
 	        }
+	        if (editorInitialized && editorInstance) {
+	            const editorContent = editorInstance.getData();
+	            document.getElementById('approContent').value = editorContent; 
+	        }
 
-	        fetch('/approUp', {
+	         // **FormData 수동으로 추가하기**
+	            formData.set('appro_content', document.getElementById('approContent').value);
+	            
+
+	        fetch('/draftApprove', {
 	            method: 'POST',
 	            headers: {
-	                'X-CSRF-TOKEN': csrfToken 
+	                'X-CSRF-TOKEN': csrfToken
 	            },
 	            body: formData
 	        })
 	        .then(response => response.json())
 	        .then(data => {
-	            if (data.res_code == '200') {
+	        	if (data.res_code == '200') {
 	                Swal.fire({
 	                    icon: 'success',
 	                    title: '성공',
 	                    text: data.res_msg,
 	                    confirmButtonText: "닫기"
 	                }).then(() => {
-	                    location.href = "/approve";
+	                    location.href = "/approvedraft";
 	                });
 	            } else {
 	                Swal.fire({
@@ -681,10 +624,74 @@
 	            }
 	        })
 	        .catch(error => {
-	            console.error('Error:', error); 
+	            console.error('Error:', error);
 	        });
 	    }
-	</script>
 
+    // 결재 요청 유효성 검사 및 처리 함수
+    function handleSubmit() {
+        const form = document.getElementById('approCreateFrm'); 
+        const formData = new FormData(form); 
+        const csrfToken = document.getElementById("csrf_token").value;
+		const editorValue = document.getElementById("editor").value;
+        // 에디터에서 HTML 데이터를 가져와 textarea에 설정
+        if (editorInitialized && editorInstance) {
+        const editorContent = editorInstance.getData();
+        document.getElementById('approContent').value = editorContent; 
+    }
+
+     // **FormData 수동으로 추가하기**
+        formData.set('appro_content', document.getElementById('approContent').value);
+        
+        // 유효성 검사
+        if (form.appro_title.value == "") {
+            Swal.fire({
+                icon: 'error',
+                title: '제목을 입력해주세요',
+                confirmButtonText: "닫기"
+            });
+            return;
+        } else if (form.approval.value == "") {
+            Swal.fire({
+                icon: 'error',
+                title: '결재자를 선택해주세요',
+                confirmButtonText: "닫기"
+            });
+            form.approval.focus();
+            return;
+        }
+
+        fetch('/docuApproUp', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken 
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.res_code == '200') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '성공',
+                    text: data.res_msg,
+                    confirmButtonText: "닫기"
+                }).then(() => {
+                    location.href = "/approveDocu";
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '실패',
+                    text: data.res_msg,
+                    confirmButtonText: "닫기"
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error); 
+        });
+    }
+</script>
 </th:block>
 </html>

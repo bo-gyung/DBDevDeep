@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.dbdevdeep.approve.domain.ApproDraftDto;
 import com.dbdevdeep.approve.domain.ApproFileDto;
 import com.dbdevdeep.approve.domain.ApproveDto;
 import com.dbdevdeep.approve.domain.ApproveLineDto;
@@ -56,18 +57,6 @@ public class ApproveViewController {
 		List<ApproveDto> resultList = approveService.completeDocuList();
 		model.addAttribute("resultList",resultList);
 		return "approve/completeDocu"; 
-	}
-	
-	// 보고서 목록 조회
-	@GetMapping("/approveDocu")
-	public String selectApproveDocuList(Model model) {
-		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
-		
-		List<ApproveDto> resultList = approveService.selectApproveDocuList(username);
-		model.addAttribute("resultList",resultList);
-		return "approve/approDocuList";
 	}
 	
 	// 결재 요청 받은 보고서 목록 조회
@@ -212,5 +201,18 @@ public class ApproveViewController {
 		model.addAllAttributes(detailMap);
 		return "approve/docuUpdate";
 	}
+	
+	// 보고서 목록 조회
+		@GetMapping("/approveDocu")
+		public String selectApproveDocuList(Model model) {
+			
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String username = authentication.getName();
+			
+			List<ApproveDto> resultList = approveService.selectApproveDocuList(username);
+			model.addAttribute("resultList",resultList);
+			return "approve/approDocuList";
+		}
+	
 	
 }

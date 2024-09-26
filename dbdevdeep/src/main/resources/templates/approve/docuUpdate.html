@@ -552,7 +552,6 @@
         .then(editor => {
             editorInstance = editor;  // CKEditor 인스턴스 저장
             editorInitialized = true;  // CKEditor 초기화 완료 플래그
-            console.log("CKEditor initialized:", editorInstance);
 
             // Hidden input에 있는 appro_content 값 가져오기
             const approContent = document.getElementById('appro_content_hidden').value;
