@@ -48,15 +48,20 @@ public class ChatService {
             params.put("room_no", chatRoom.getRoom_no());
             params.put("emp_id", emp_id);
             
-            String roomPic = chatMapper.otherMemberPic(params);
-
-            if (roomPic != null) {
-                // roomPic값이 있을 경우 room_pic에 설정
-                chatRoom.setRoom_pic(roomPic);
+            List<String> members = chatMapper.otherMemberIds(params);
+            
+            if (members.isEmpty()) {
+            	// 채팅방에 사용자 혼자 있을 경우
+            	chatRoom.setRoom_pic("8b821ba7a513411f8cacf78926ff4d64.png");
+            } else if (members.size() == 1) {
+                // 채팅방에 사용자가 1명인 경우(일대일 채팅방)
+            	Employee e = employeeRepository.findByempId(members.get(0));
+            	chatRoom.setRoom_pic(e.getNewPicName());
             } else {
-                // null일 경우 학교 로고로 room_pic 설정
-                chatRoom.setRoom_pic("8b821ba7a513411f8cacf78926ff4d64.png");
+                // 리스트에 멤버가 2명 이상인 경우(단체채팅방)
+            	chatRoom.setRoom_pic("8b821ba7a513411f8cacf78926ff4d64.png");
             }
+
         }
 		return ccrDtoList;
 	}
@@ -195,9 +200,31 @@ public class ChatService {
 		int result = -1; 
 		
 		result = chatMapper.createChatMsg(vo);
-		// 웹소켓 핸들러 호출
-		webSocketHandler.sendPrivateChatMsg(vo);
+		if(result > 0) {
+			
+			ChatMsgVo newVo = chatMapper.selectChatMsgVo(vo.getMsg_no());
+			
+			// 채팅방 정보 업데이트 (라스트챗, 라스트타임)
+			chatMapper.updateChatRoom(newVo);
+			
+			// 채팅 메세지가 생성된 채팅방의 참여중인 인원 리스트 (메세지 작성자 제외)
+			Map<String, Object> params = new HashMap<>();
+			params.put("room_no", vo.getRoom_no());
+			params.put("emp_id", vo.getWriter_id());
+			
+			List<String> members = chatMapper.otherMemberIds(params);
+			
+			if (members.isEmpty()) {
+				// 혼자 있는 채팅방일때
+			} else if (members.size() > 0) {
+				// 메세지 작정자 이외의 참여자가 존재할때
+				// 웹소켓 핸들러 호출
+				webSocketHandler.sendPrivateChatMsg(members,vo.getRoom_no());
+			}
+		}
 		
+		
+
 		return result;
 	}
 	

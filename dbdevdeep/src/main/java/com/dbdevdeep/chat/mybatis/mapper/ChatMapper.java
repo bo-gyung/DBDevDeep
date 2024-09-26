@@ -19,7 +19,7 @@ public interface ChatMapper {
 	List<CustomChatRoomDto> findAllByfromIdAndtoId(@Param("emp_id") String empId);
 	
 	// 사용자가 참여하고 있는 채팅방의 다른 참여자의 정보를 조회
-	String otherMemberPic(Map<String, Object> params);
+	List<String> otherMemberIds(Map<String, Object> params);
 
 	// 일대일 채팅방 존재 여부 탐색
 	int selectPrivateChatRoom(@Param("admin_id") String admin_id,@Param("emp_id") String emp_id);
@@ -44,4 +44,10 @@ public interface ChatMapper {
 	
 	// 채팅 매세지 생성
 	int createChatMsg(ChatMsgVo vo);
+	
+	// 채팅 메세지 조회
+	ChatMsgVo selectChatMsgVo(@Param("msg_no") int msg_no);
+	
+	// 채팅방 정보 변경(last_chat, last_time)
+	int updateChatRoom(ChatMsgVo vo);
 }

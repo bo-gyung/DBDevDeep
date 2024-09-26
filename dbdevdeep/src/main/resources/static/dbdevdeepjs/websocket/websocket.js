@@ -47,7 +47,27 @@ let socket;
 		
 		        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
 		        document.getElementById('alertDiv').innerHTML += alertHtml;
-		    }
+		        
+		    } else if(message.res_code =='200' && message.res_type =='chat'){
+				// 웹소켓 채팅 관련 이벤트
+				
+				if(message.now_page =='chat'){
+					// 채팅 페이지에 접속한 사용자 : 채팅방 목록 리로드
+					updateChatRoomList();
+					
+					if(message.room_in =='Y'){
+						// 현재 채팅방에 접속해있는 사용자 : 채팅 메세지목록 리로드
+						loadChatroom(message.room_no);
+						
+					} else if(message.room_in =='N'){
+						// 현재 채팅방에 접속하고 있지 않은 사용자 : 채팅방 목록에 배지알림
+						
+					}
+				} else if(message.now_page =='no_chat'){
+					// 채팅 페이지에 접속하고 있지 않은 사용자 : 헤더에 배지알림
+					
+				}
+			}
 		};
 
 

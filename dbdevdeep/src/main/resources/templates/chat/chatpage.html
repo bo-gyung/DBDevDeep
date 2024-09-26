@@ -221,15 +221,16 @@
 	    // Enter 키로 메시지 전송
 	    const messageInput = document.getElementById("messageInput");
 
-        messageInput.addEventListener("keypress", function(event) {
-        	
-        	
-        	// 입력 필드 값이 null이 아니고 빈 문자열이 아닐 때
-            if (event.key === 'Enter' && messageInput.value.trim() !== '') {
-            	sendMessage(); // 메시지 전송 함수 호출
-            } else{
-            	alert("텍스트를 입력하세요.");
-            }
+	    messageInput.addEventListener("keyup", function(event) {
+	        // Enter 키를 눌렀다가 뗐을 때만 이벤트가 실행되도록
+	        if (event.key === 'Enter') {
+	            // 입력 필드 값이 빈 문자열이 아닌 경우에만 전송
+	            if (messageInput.value.trim() !== '') {
+	                sendMessage(); // 메시지 전송 함수 호출
+	            } else {
+	                alert("텍스트를 입력하세요.");
+	            }
+	        }
         });
 
         
@@ -256,10 +257,12 @@
 			.then(response => response.json())
 		    .then(data => {
 		    	if (data.res_code == '200') {
-					// 채팅방 목록 갱신
-		        	loadChatroom(roomNo);
 			    	// 작성 채팅 초기화
 		        	document.getElementById('messageInput').value = "";
+					// 채팅방 대화내용 갱신
+		        	loadChatroom(roomNo);
+					// 참여중인 채팅방 리스트 갱신
+					updateChatRoomList();
 		    	} else {
 		            Swal.fire({
 		                icon: 'error',
@@ -277,10 +280,9 @@
 			const roomNo = element.querySelector('input[type="hidden"]').value;
 			loadChatroom(roomNo);
 			sendRoomNoInfo(roomNo);
-			
 		}
 		
-		// 채팅방 목록 불러오기, 갱신하기
+		// 채팅방 대화내용 불러오기, 갱신하기
 		function loadChatroom(roomNo){
 			// csrf토큰
 			const csrfToken = document.getElementById("csrf_token").value;
@@ -303,13 +305,20 @@
 		// 웹소켓으로 채팅방 정보 전송
 		function sendRoomNoInfo(roomNo) {
 		    // WebSocket 연결이 열려 있는 경우에만 정보 전송
-		    if (socket && socket.readyState === WebSocket.OPEN) {
-		        socket.send(JSON.stringify({
-		            type: "ROOM_NO", // 메시지 타입
-		            roomNo: roomNo   // 현재 페이지 경로 정보
-		        }));
+		    try {
+		        if (socket && socket.readyState === WebSocket.OPEN) {
+		            socket.send(JSON.stringify({
+		                type: "ROOM_NO", // 메시지 타입
+		                roomNo: roomNo   // 현재 채팅방 번호
+		            }));
+		        } else {
+		            console.warn("WebSocket is not open: ", socket.readyState);
+		        }
+		    } catch (error) {
+		        console.error("Failed to send WebSocket message: ", error);
 		    }
-		}
+	    }
+
 		
 		// 스크롤 최하단으로 고정
 		function scrollToBottom() {
