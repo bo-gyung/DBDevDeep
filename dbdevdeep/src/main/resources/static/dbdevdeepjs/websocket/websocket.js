@@ -25,29 +25,57 @@ let socket;
 		    
 		    if (message.alert) {
 		        const alert = message.alert;
+		        
+		        const alertRefName = alert.reference_name;
+        	   
+        	    let title
+        	    let content
+        	   
+        	    if(alertRefName == 'approve') {
+        	 	   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 결재' + alert.alarm_title.split(' ')[2] + '이 있습니다.';
+        	 	   title = '결재'
+        	 	   
+        	 	   console.log(content);
+        	    } else if(alertRefName == 'notice') {
+        	 	   title = '공지';
+        	    }
 		       
 		        const alertHtml = `
-		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2"
-		        		data-alert-no="${alert.id}"
-		        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.id});">
-			        	<div class="btn btn-info rounded-circle btn-circle">
-		              	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
-			        		<circle cx="12" cy="12" r="10"></circle>
-			        		<line x1="12" y1="16" x2="12" y2="12"></line>
-			        		<line x1="12" y1="8" x2="12" y2="8"></line>
-			        	</svg>
-		            </div>
-		            <div class="w-75 d-inline-block v-middle pl-2">
-		                <h6 class="message-title mb-0 mt-1">[${alert.title}]</h6>
-		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-		                    ${alert.content}
-		                </span>
-		                <span class="font-12 text-nowrap d-block text-muted">
-		                    ${new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-		                </span>
-		            </div>
+		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;">
+			        	<div data-alert-no="${alert.alarm_no}"
+			        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});"
+			        		onmouseover="this.style.cursor='pointer'"
+			        		onmouseout="this.style.curosr='auto'"
+		        			class="message-item d-flex align-items-center">
+				        	<div class="btn btn-info rounded-circle btn-circle">
+					        	<i cloass="far fa-file-alt"></i>
+					        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
+					        		<circle cx="12" cy="12" r="10"></circle>
+					        		<line x1="12" y1="16" x2="12" y2="12"></line>
+					        		<line x1="12" y1="8" x2="12" y2="8"></line>
+					        	</svg>
+				            </div>
+				            <div class="w-100 d-inline-block v-middle pl-2">
+				                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
+				                <span class="font-12 text-nowrap d-block text-muted text-truncate">
+				                    ${content}
+				                </span>
+				                <span class="font-12 text-nowrap d-block text-muted">
+				                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+				                </span>
+				            </div>
+			        	</div>
+			            <div class="w-25 d-inline-block v-middle text-center" style="color: lightgray;"
+			            	data-alert-no="${alert.alarm_no}"
+			        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
+		        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
+			        		onmouseout="this.style.color='lightgray'">
+			            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"></i>
+			            </div>
 		          </a>
 		        `;
+		        
+		        
 		
 		        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
 		        document.getElementById('alertDiv').innerHTML += alertHtml;

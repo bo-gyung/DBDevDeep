@@ -387,6 +387,16 @@
 		// 초기 상태에서 LocalStorage에서 알림을 불러와서 화면에 추가
 		window.onload = function() {
 		    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
+		    
+		    var alertDiv = document.getElementById('alertDiv');
+	       	
+	   		// alertDiv 안의 a 태그를 모두 선택
+	   		var anchorTags = alertDiv.getElementsByTagName('a');
+	   	
+	   		// a 태그의 개수 출력
+	   		var count = anchorTags.length;
+	   		
+	   		document.getElementById("alertNum").innerText = count;
 		}
 	</script>
 
@@ -408,27 +418,52 @@
            
            for(let i = 0; i < alertDtoList.length; i++) {
         	   const alert = alertDtoList[i];
+        	   const alertRefName = alert.reference_name;
+        	   
+        	   let title
+        	   let content
+        	   
+        	   if(alertRefName == 'approve') {
+        		   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 결재' + alert.alarm_title.split(' ')[2] + '이 있습니다.';
+        		   title = '결재'
+        	   } else if(alertRefName == 'notice') {
+        		   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 공지가 있습니다.';
+        		   title = '공지';
+        	   }
+        	   
         	   
         	   const alertHtml = `
-		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 "
-		        		data-alert-no="${alert.alarm_no}"
-		        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});">
-			        	<div class="btn btn-info rounded-circle btn-circle">
-			        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
-			        		<circle cx="12" cy="12" r="10"></circle>
-			        		<line x1="12" y1="16" x2="12" y2="12"></line>
-			        		<line x1="12" y1="8" x2="12" y2="8"></line>
-			        	</svg>
-		            </div>
-		            <div class="w-75 d-inline-block v-middle pl-2">
-		                <h6 class="message-title mb-0 mt-1">[${alert.alarm_title}]</h6>
-		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-		                    ${alert.alarm_content}
-		                </span>
-		                <span class="font-12 text-nowrap d-block text-muted">
-		                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-		                </span>
-		            </div>
+		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;">
+			        	<div data-alert-no="${alert.alarm_no}"
+			        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});"
+			        		onmouseover="this.style.cursor='pointer'"
+			        		onmouseout="this.style.curosr='auto'"
+		        			class="w-75 message-item d-flex align-items-center">
+				        	<div class="btn btn-info rounded-circle btn-circle">
+					        	<i cloass="far fa-file-alt"></i>
+					        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
+					        		<circle cx="12" cy="12" r="10"></circle>
+					        		<line x1="12" y1="16" x2="12" y2="12"></line>
+					        		<line x1="12" y1="8" x2="12" y2="8"></line>
+					        	</svg>
+				            </div>
+				            <div class="w-100 d-inline-block v-middle pl-2">
+				                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
+				                <span class="font-12 text-nowrap d-block text-muted text-truncate">
+				                    ${content}
+				                </span>
+				                <span class="font-12 text-nowrap d-block text-muted">
+				                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+				                </span>
+				            </div>
+			        	</div>
+			            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;"
+			            	data-alert-no="${alert.alarm_no}"
+			        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
+		        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
+			        		onmouseout="this.style.color='lightgray'">
+			            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"></i>
+			            </div>
 		          </a>
 		        `;
 		
@@ -470,8 +505,17 @@
 							const alertLink = document.querySelector(`a[data-alert-no="${alertNo}"]`);
 		                    if (alertLink) {
 		                        alertLink.remove();
-		                        window.location.reload();
 		                    }
+		                    
+		                    const alertDiv = document.getElementById('alertDiv');
+		                   	
+		        	   		// alertDiv 안의 a 태그를 모두 선택
+		        	   		const anchorTags = alertDiv.getElementsByTagName('a');
+		        	   	
+		        	   		// a 태그의 개수 출력
+		        	   		const count = anchorTags.length;
+		        	   		
+		        	   		document.getElementById("alertNum").innerText = count;
 						} 
 					});
 		            break;
@@ -486,6 +530,49 @@
 	
 		    // URL로 이동
 		    window.location.href = url;
+		}
+		
+		function alertDeleteFunc(referenceName, alertNo) {
+		    // 테이블 이름에 따라 이동할 URL을 결정합니다.
+		    let url = '';
+	
+		    switch (referenceName) {
+		        case 'approve':
+		            url = '/approve';
+		            fetch('/alert/' + alertNo, {
+		            	method: 'PUT',
+		            	headers: {
+		            		'X-CSRF-TOKEN': csrfToken_header
+		            	}
+		            }) 
+		            .then(response => response.json())
+					.then(data=>{
+						if(data.res_code == '200'){
+							const alertLink = document.querySelector(`a[data-alert-no="${alertNo}"]`);
+		                    if (alertLink) {
+		                        alertLink.remove();
+		                    }
+		                    
+		                    const alertDiv = document.getElementById('alertDiv');
+		                   	
+		        	   		// alertDiv 안의 a 태그를 모두 선택
+		        	   		const anchorTags = alertDiv.getElementsByTagName('a');
+		        	   	
+		        	   		// a 태그의 개수 출력
+		        	   		const count = anchorTags.length;
+		        	   		
+		        	   		document.getElementById("alertNum").innerText = count;
+						} 
+					});
+		            break;
+		        case 'notice':
+		            url = '/notice';
+		            break;
+		        // 추가 테이블에 대한 케이스 추가
+		        default:
+		            console.error('알 수 없는 테이블 이름입니다:', referenceName);
+		            return;
+		    }
 		}
 	</script>
 

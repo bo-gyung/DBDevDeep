@@ -234,7 +234,7 @@ public class ApproveService {
 					} else {
 						alertDto.setAlarm_title("보고서 결재 요청");
 					}
-					alertDto.setAlarm_content("\'" + a.getApprove().getApproTitle() + "\' " + a.getApprove().getEmployee().getEmpName());
+					alertDto.setAlarm_content(a.getApprove().getApproTitle());
 					alertDto.setAlarm_status("N");
 
 					// alert 저장 후 웹 소켓에 데이터 전송
@@ -273,7 +273,7 @@ public class ApproveService {
 							alertDto.setAlarm_title("보고서 결재 반려");
 						}
 					}
-					alertDto.setAlarm_content("\'" + a.getApproTitle() + "\' " + a.getEmployee().getEmpName());
+					alertDto.setAlarm_content(a.getApproTitle());
 					alertDto.setAlarm_status("N");
 
 					Alert alert = alertDto.toEntity(a.getEmployee());
@@ -313,7 +313,7 @@ public class ApproveService {
 			alertDto.setReference_no(alertApprove.getApproNo());
 			alertDto.setAlarm_status("N");
 			alertDto.setAlarm_title("보고서 결재 반려");
-			alertDto.setAlarm_content("\'" + alertApprove.getApproTitle() + "\' " + alertApprove.getEmployee().getEmpName());
+			alertDto.setAlarm_content(alertApprove.getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApprove.getEmployee());
 			try {
@@ -364,7 +364,7 @@ public class ApproveService {
 			alertDto.setReference_no(alertApprove.getApproNo());
 			alertDto.setAlarm_status("N");
 			alertDto.setAlarm_title("휴가 결재 반려");
-			alertDto.setAlarm_content("\'" + alertApprove.getApproTitle() + "\' " + alertApprove.getEmployee().getEmpName());
+			alertDto.setAlarm_content(alertApprove.getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApprove.getEmployee());
 			try {
@@ -847,7 +847,7 @@ public class ApproveService {
 			alertDto.setReference_no(alertApproLine.getApprove().getApproNo());
 			alertDto.setAlarm_title("보고서 결재 요청");
 			alertDto.setAlarm_status("N");
-			alertDto.setAlarm_content("\'" + alertApproLine.getApprove().getApproTitle() + "\' " + alertApproLine.getApprove().getEmployee().getEmpName());
+			alertDto.setAlarm_content(alertApproLine.getApprove().getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApproLine.getEmployee());
 			
@@ -930,7 +930,7 @@ public class ApproveService {
 			} else {
 				alertDto.setAlarm_title("보고서 결재 요청");
 			}
-			alertDto.setAlarm_content("\'" + alertApproveLine.getApprove().getApproTitle() + "\' " + alertApproveLine.getApprove().getEmployee().getEmpName());
+			alertDto.setAlarm_content( alertApproveLine.getApprove().getApproTitle());
  
 			// alert 저장 후 웹 소켓에 데이터 전송
 			Alert alert = alertDto.toEntity(alertApproveLine.getEmployee());
