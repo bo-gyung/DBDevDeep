@@ -191,4 +191,20 @@ public class AttendanceService {
 		}
 		return aDtoList;
 	}
+	
+	// 직원 상세 페이지 근태기록 출력
+	public List<AttendanceDto> findByempId(String empId) {
+		List<AttendanceDto> attendDtoList = new ArrayList<AttendanceDto>();
+		Employee employee = employeeRepository.findByempId(empId);
+		
+		List<Attendance> attendList = attendanceRepository.findByEmpIdList(employee);
+		
+		for(Attendance a : attendList) {
+			AttendanceDto dto = new AttendanceDto().toDto(a);
+			
+			attendDtoList.add(dto);
+		}
+		
+		return attendDtoList;
+	}
 }

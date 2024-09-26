@@ -322,6 +322,7 @@
 									    <input type="text" name="dept_name" th:value="${#authentication.principal.dto.dept_name}" readonly style="border: 0; outline: none;">
 									    <!-- 숨겨진 필드로 dept_code 값을 유지 -->
 									    <input type="hidden" name="dept_code" th:value="${#authentication.principal.dto.dept_code}">
+									    <input type="hidden" name="draft_no" th:value="${dto.draft_no}">
 									</td>
 				                    <td>직급</td>
 									<td>
@@ -579,7 +580,6 @@
     <script>
     // 임시 삭제 
     const draftDelete = function(draftNo) {
-    // 삭제 여부를 Swal로 물어봄
     Swal.fire({
         title: '정말 삭제하시겠습니까?',
         icon: 'warning',
@@ -730,7 +730,7 @@
             return;
         }
 
-        fetch('/docuApproUp', {
+        fetch('/draftApproUp', {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrfToken 
