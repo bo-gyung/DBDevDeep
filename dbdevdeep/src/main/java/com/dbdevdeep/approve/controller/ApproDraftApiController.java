@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -78,6 +80,28 @@ public class ApproDraftApiController {
 	    }
 
 	    return resultMap;
+	}
+	
+	@ResponseBody
+	@DeleteMapping("/draftAppro/{draft_no}")
+	public Map<String, String> deleteDocuAppro(@PathVariable("draft_no") Long draft_no){
+		Map<String, String> map = new HashMap<>();
+		map.put("res_code", "404");
+		map.put("res_msg", "삭제중 오류가 발생하였습니다.");
+		
+		int fileDeleteResult = fileService.approFileDelete(draft_no);
+		
+		if(fileDeleteResult >=0 ) {
+			if(approDraftService.deleteDocuDraft(draft_no) > 0) {
+				map.put("res_code", "200");
+				map.put("res_msg", "삭제되었습니다.");
+			}else {
+				map.put("res_msg", "삭제중 오류 발생 하였습니다.");
+			}
+		} else {
+			map.put("res_msg", "파일 삭제중 오류가 발생하였습니다.");
+		}
+		return map;
 	}
 
 }

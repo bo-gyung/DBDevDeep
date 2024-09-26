@@ -10,8 +10,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dbdevdeep.alert.domain.Alert;
+import com.dbdevdeep.alert.domain.AlertDto;
 import com.dbdevdeep.approve.domain.ApproDraft;
 import com.dbdevdeep.approve.domain.ApproDraftDto;
+import com.dbdevdeep.approve.domain.Approve;
 import com.dbdevdeep.approve.domain.TempEdit;
 import com.dbdevdeep.approve.repository.ApproDraftRepository;
 import com.dbdevdeep.approve.repository.TempEditRepository;
@@ -82,4 +85,17 @@ public class ApproDraftService {
 		return aDto;
 	}
 
+	// 보고서 삭제
+	public int deleteDocuDraft(Long draft_no) {
+		int result = 0;
+		try {
+			
+			approDraftRepository.deleteById(draft_no);
+			
+			result = 1;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
 }
