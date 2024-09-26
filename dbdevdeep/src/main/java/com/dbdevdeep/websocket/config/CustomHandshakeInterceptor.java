@@ -1,4 +1,4 @@
-package com.dbdevdeep.chat.config;
+package com.dbdevdeep.websocket.config;
 
 import java.util.Map;
 

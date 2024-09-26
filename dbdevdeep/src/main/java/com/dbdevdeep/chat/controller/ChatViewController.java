@@ -10,8 +10,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import com.dbdevdeep.chat.dto.ChatRoomDto;
+import com.dbdevdeep.chat.dto.CustomChatContainerDto;
 import com.dbdevdeep.chat.dto.CustomChatRoomDto;
 import com.dbdevdeep.chat.service.ChatService;
 import com.dbdevdeep.employee.domain.EmployeeDto;
@@ -60,10 +61,35 @@ public class ChatViewController {
 	    model.addAttribute("ccrDtoList", ccrDtoList);
 
 	    // fragment만 반환
-	    return "fragments/chatRoomList :: chatRoomList";
+	    return "chat/chatpage :: chatRoomList";
 	}
 	
-	// 채팅방 대화내용 상세조회
+	// 채팅방 입장(채팅방에 속한 메세지 리스트 출력)
+	@GetMapping("/chatrooms/{roomNo}")
+	public String selectChatListFragment(Model model, @PathVariable("roomNo") int roomNo) {
+	    
+		// 로그인한 사용자의 정보 불러오기 (여기서는 로그인한 사용자 ID만 사용)
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    User user = (User) authentication.getPrincipal();
+	    String login_id = user.getUsername();
+	    
+	    
+		// 방이름 가져오기
+	    String roomName = chatService.selectChatRoomName(roomNo, login_id);
+	    model.addAttribute("roomName", roomName);
+	    model.addAttribute("roomNo", roomNo);
+	    
+	    // 읽음확인 -> 나중에
+	    
+		// 메세지 + 상태이력 리스트 가져오기
+	    List<CustomChatContainerDto> combinedList = chatService.selectmsgHistoryList(roomNo, login_id);
+	    model.addAttribute("combinedList", combinedList);
+	    
+		
+		// fragment만 반환
+	    return "chat/chatpage :: chatContainer";
+	    
+	}
 	
 	
 }

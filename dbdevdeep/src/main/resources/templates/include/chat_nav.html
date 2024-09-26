@@ -520,8 +520,8 @@
 			 	// 채팅방 생성하기
 			    // 체크된 노드값 받아오기
 			    const checkedNodes = $('#sidejstree').jstree("get_checked");
-			    
-            	if(checkedNodes.length > 1){
+            	
+			    if(checkedNodes.length > 1){
             		// 단체 채팅방 생성
 			        // createGroupChat(checkedNodes); 단체 채팅방 함수 호출
             	} else if(checkedNodes.length === 1){
@@ -602,10 +602,10 @@
 		    .then(response => response.json())
 		    .then(data => {
 		        if (data.res_code == '200') {
-		        	// 챗룸핸들러로 이동하여 로직 진행
-		        	// 1. 대화상대에게 채팅방이 생성되었음을 알리고 채팅방 목록을 갱신하도록 요청
-		        	// 2. 사용자의 채팅방 목록을 갱신하고 채팅방에 입장
-		            handleChatRoomCreated(data.room_no, selectedMemberId);
+		        	// 1. 참여중인 채팅방 목록을 갱신
+		        	updateChatRoomList();
+		        	// 2. 생성된 채팅방 입장
+		        	enterCreateChatRoom(roomNo);
 		        } else {
 		            Swal.fire({
 		                icon: 'error',
@@ -624,32 +624,58 @@
 	
 	<!-- 챗룸 핸들러 -->
 	<script>
-		function handleChatRoomCreated(roomNo, memberId) {
-			// 1. 대화상대에게 채팅방이 생성되었음을 알리고 채팅방 목록을 갱신하도록 요청
-		    createRoomMessage(memberId);
-			
-		 	// 2-1. 사용자의 채팅방 목록을 갱신 : 채팅방 목록이 위치한 chatpage에 구현
-		    updateChatRoomList();
-		 	// 2-2. 생성된 채팅방 입장 : 채팅방 상세보기가 위치한 chatpage에 구현
-		    enterChatRoom(roomNo);
+
+		// 참여중인 채팅방 목록 갱신
+		function updateChatRoomList(){
+			// csrf토큰
+			const csrfToken = document.getElementById("csrf_token").value;
+
+			fetch('/chatroom/fragment',{
+				method:'GET',
+				headers:{
+					'X-CSRF-TOKEN': csrfToken
+				}
+			})
+			.then(response => response.text()) // 텍스트로 응답을 받음 (HTML 프래그먼트)
+			.then(fragment=>{
+				// 가져온 HTML 프래그먼트를 파싱하여 DOM에 삽입
+		        document.getElementById('chat_room_list').innerHTML = fragment;
+			})
 		}
+		
+		// 채팅방 입장
+		function enterCreateChatRoom(roomNo){
+			// csrf토큰
+			const csrfToken = document.getElementById("csrf_token").value;
+			
+			fetch(`/chatrooms/${roomNo}`,{
+				method:'GET',
+				headers:{
+					'X-CSRF-TOKEN': csrfToken // CSRF 토큰 추가
+				}
+			})
+			.then(response => response.text())
+			.then(fragment=>{
+				// 가져온 HTML 프래그먼트를 파싱하여 DOM에 삽입
+		        document.getElementById('chat_container').innerHTML = fragment;
+		        sendRoomNoInfo(roomNo);
+			})
+		}
+		
 	</script>
 	
 	<!-- 웹소켓으로 채팅방 정보 전송 -->
 	<script>
-		const createRoomMessage = function(memberId){
-			const adminId = document.getElementById("emp_id").value;
-			const message = {
-					type:'CHAT',
-					subType: 'PRIVATE',
-					action: 'CREATE_ROOM',
-					member_id: memberId,
-					msg: '채팅방이 생성되었습니다.'
-			}
+		function sendRoomNoInfo(roomNo) {
+		    // WebSocket 연결이 열려 있는 경우에만 정보 전송
+		    if (socket && socket.readyState === WebSocket.OPEN) {
+		        socket.send(JSON.stringify({
+		            type: "ROOM_NO", // 메시지 타입
+		            roomNo: roomNo   // 현재 페이지 경로 정보
+		        }));
+		    }
 		}
 	</script>
-	
-	<!-- 채팅방 입장하기 -->
 	
 	<!-- 대화상대 프로필 출력 -->
 	<script>

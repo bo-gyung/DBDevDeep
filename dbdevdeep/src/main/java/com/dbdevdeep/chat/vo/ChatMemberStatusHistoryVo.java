@@ -21,5 +21,5 @@ public class ChatMemberStatusHistoryVo {
 	private String member_id;
 	private int member_status;
 	private LocalDateTime change_time;
-	private String change_by_id;
+	private String changed_by_id;
 }

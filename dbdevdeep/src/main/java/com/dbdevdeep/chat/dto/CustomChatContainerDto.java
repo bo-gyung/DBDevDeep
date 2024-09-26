@@ -15,11 +15,13 @@ import lombok.Setter;
 @Setter
 @ToString
 @Builder
-public class CustomChatRoomDto {
-	private int room_no;
-	private String room_name;
-	private String last_chat;
-	private LocalDateTime last_time;
-	private String room_pic;
+public class CustomChatContainerDto {
+	private String type; // me / notMe / history
+	private String writer_id;
+	private String writer_name;
+	private String profilePic;
+	private String content;
+	private LocalDateTime timestamp;
+	// private int readcheck;
 
 }
