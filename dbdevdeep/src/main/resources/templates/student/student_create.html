@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-     layout:decorate="~{include/student_layout}">
+     layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 <style>
 	.addPic {
@@ -248,7 +248,7 @@
 						title : '성공',
 						text : data.res_msg
 					}).then((result)=>{
-						location.href = "/student/list";
+						location.href = "/student/list/emp";
 					});
 				}else{
 					Swal.fire({

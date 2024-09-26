@@ -27,18 +27,14 @@ import com.dbdevdeep.employee.domain.TeacherHistory;
 import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
-import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.ParentDto;
 import com.dbdevdeep.student.domain.Score;
 import com.dbdevdeep.student.domain.ScoreDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
 import com.dbdevdeep.student.domain.SubjectDetailsDto;
-import com.dbdevdeep.student.domain.SubjectDto;
 import com.dbdevdeep.student.repository.ScoreRepository;
 import com.dbdevdeep.student.service.StudentService;
-
-import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
 public class StudentApiController {
@@ -180,7 +176,22 @@ public class StudentApiController {
 		return map;
 	}
 	
-	
+	// 부모 정보 수정
+		@ResponseBody
+		@PostMapping("/student/parent/update/{student_no}")
+		public Map<String,String> updateStudentParent(ParentDto dto){
+			System.out.println(dto);
+			Map<String,String> resultMap = new HashMap<String,String>();
+			resultMap.put("res_code", "404");
+			resultMap.put("res_msg", "부모 정보 수정 중 오류가 발생했습니다.");
+			
+			if(studentService.updateStudentParentInfo(dto) != null) {
+				resultMap.put("res_code", "200");
+				resultMap.put("res_msg", "부모 정보가 성공적으로 수정되었습니다.");
+			}
+			
+			return resultMap;
+		}
 	
 	// 반배정시 학년도에 따른 학년 데이터 가져오기
 	@GetMapping("/student/student_class/selectByYear/{t_year}")

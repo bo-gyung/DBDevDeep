@@ -85,8 +85,21 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 																<td th:text="${parent.parent_name}"></td>
 																<td th:text="${parent.parent_phone}"></td>
 																<td th:text="${parent.parent_birth}"></td>
-																<td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#parent_update_primary-header-modal">수정</button></td>
-																<td><a th:onclick="studentParentDelete([[${parent.parent_no}]])">삭제</a><br></td>
+																<td><button type="button" class="btn btn-primary" 
+														                data-toggle="modal" 
+														                data-target="#parent_update_primary-header-modal"
+														                th:data-parent-no="${parent.parent_no}"
+														                th:data-parent-name="${parent.parent_name}"
+														                th:data-parent-phone="${parent.parent_phone}"
+														                th:data-parent-relation="${parent.parent_relation}"
+														                th:data-parent-birth="${parent.parent_birth}">
+														            수정
+														        </button></td>
+																<td><a href="javascript:void(0);" 
+															       class="delete-btn"
+															       th:data-parent-no="${parent.parent_no}">
+															        삭제
+															    </a><br></td>
 															</tr>
 														</th:block>
 													</tbody>
@@ -109,15 +122,45 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		</div>
 
 		<!-- 부모 정보 수정 모달 -->
-		<!-- <div id="parent_update_primary-header-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="primary-header-modalLabel">
+		<div id="parent_update_primary-header-modal" class="modal fade show" tabindex="-1" role="dialog" aria-labelledby="primary-header-modalLabel" aria-modal="true" style="display: none;">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header modal-colored-header bg-primary">
 						<h4 class="modal-title" id="primary-header-modalLabel">부모 정보 수정</h4>
 					</div>
+					<div class="modal-body">
+						<div class="form-group">
+							<div>
+								<form id="student_parent_update_form" method="post">
+								<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+								<input type="hidden" name="student_no" th:value="${sdto.student_no}">
+								<input type="hidden" name="parent_no"> 
+									<select name="parent_relation">
+										<option value="" disabled selected>관계</option>
+										<option value="부">부</option>
+										<option value="모">모</option>
+									</select> 
+									<label for="parent_name">학부모 성명 : </label>
+									<input type="text" id="parent_name" name="parent_name"> 
+									<label for="parent_phone">연락처</label>
+					                    <input type="text" id="upp1" maxlength="3"> - 
+										<input type="text" id="upp2" maxlength="4"> - 
+										<input type="text" id="upp3" maxlength="4">
+										<input type="hidden" name="parent_phone" id="parent_phone">
+									<label for="parent_birth">생년월일</label>
+									<input type="date" id="parent_birth" name="parent_birth">
+									<div class="modal-footer">
+										<a th:href="@{/student/parent/{student_no}(student_no=${sdto.student_no})}">취소</a>
+										<button type="button" id="updateStudentBtn">수정</button>
+										
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div> -->
+		</div>
 		
 		
 		<!-- 부모 정보 등록 모달 -->
@@ -144,11 +187,11 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 					                    <input type="text" id="pp1" maxlength="3"> - 
 										<input type="text" id="pp2" maxlength="4"> - 
 										<input type="text" id="pp3" maxlength="4">
-										<input type="hidden" name="parent_phone" id="parent_phone">
+										<input type="hidden" name="parent_phone" id="create_parent_phone">
 									<label for="parent_birth">생년월일</label>
 									<input type="date" id="parent_birth" name="parent_birth">
 									<div class="modal-footer">
-										<a th:href="@{/student/parent/@{sdto.student_no}}">취소</a>
+										<a th:href="@{/student/parent/{student_no}(student_no=${sdto.student_no})}">취소</a>
 										<input type="submit" value="등록"><br> 
 									</div>
 								</form>
@@ -184,7 +227,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			    const pp2 = document.getElementById('pp2').value;
 			    const pp3 = document.getElementById('pp3').value;
 			    const fullpp = `${pp1}-${pp2}-${pp3}`;
-			    document.getElementById('parent_phone').value = fullpp;
+			    document.getElementById('create_parent_phone').value = fullpp;
 			    
 				if(vali_check == false){
 					alert('유효성 검사 중 문제가 발생하였습니다.');
@@ -227,6 +270,84 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			});
 		</script>
 		<script>
+			$('#parent_update_primary-header-modal').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget); // 클릭된 버튼을 참조
+			    var parentNo = button.data('parent-no'); // data-parent-no 값 가져오기
+			    var parentName = button.data('parent-name'); // data-parent-name 값 가져오기
+			    var parentPhone = button.data('parent-phone'); // data-parent-phone 값 가져오기
+			    var parentRelation = button.data('parent-relation'); // data-parent-relation 값 가져오기
+			    var parentBirth = button.data('parent-birth'); // data-parent-birth 값 가져오기
+			    
+		 	// parentPhone을 '-'로 분리하여 각각의 값을 넣기
+		    var phoneParts = parentPhone.split('-');
+		    var upp1 = phoneParts[0] || ''; // 첫 번째 부분 (없으면 빈 값)
+		    var upp2 = phoneParts[1] || ''; // 두 번째 부분 (없으면 빈 값)
+		    var upp3 = phoneParts[2] || ''; // 세 번째 부분 (없으면 빈 값)
+		    
+		    // 모달 내부의 input 필드에 데이터 채우기
+		    var modal = $(this);
+		    modal.find('input[name="parent_no"]').val(parentNo);
+		    modal.find('input[name="parent_name"]').val(parentName);
+		    modal.find('input[id="upp1"]').val(upp1);
+		    modal.find('input[id="upp2"]').val(upp2);
+		    modal.find('input[id="upp3"]').val(upp3);
+		    modal.find('select[name="parent_relation"]').val(parentRelation);
+		    modal.find('input[name="parent_birth"]').val(parentBirth);
+		});
+			
+		const updateform=document.getElementById("student_parent_update_form");
+		var studentNo = '[[${sdto.student_no}]]';
+		document.getElementById("updateStudentBtn").addEventListener("click", function(ue) {
+		    ue.preventDefault(); // 이벤트 기본 동작 방지
+		    let vali_check = true;
+		    
+		    // 전화번호 데이터 병합
+		    const upp1 = document.getElementById('upp1').value;
+		    const upp2 = document.getElementById('upp2').value;
+		    const upp3 = document.getElementById('upp3').value;
+		    const ufullpp = `${upp1}-${upp2}-${upp3}`;
+		    document.getElementById('parent_phone').value = ufullpp;
+
+		    if (vali_check == false) {
+		        alert('유효성 검사 중 문제가 발생하였습니다.');
+		        submitButton.disabled = false;
+		    } else {
+		        // new 연산자를 사용하여 FormData 객체 생성
+		        const uformData = new FormData(updateform); // FormData 객체 생성
+		        const csrfToken = document.getElementById('csrf_token').value; // CSRF 토큰 가져오기
+
+		        fetch(`/student/parent/update/${studentNo}`, {
+		            method: "POST",
+		            headers: {
+		                'X-CSRF-TOKEN': csrfToken
+		            },
+		            body: uformData
+		        })
+		        .then(response => response.json())
+		        .then(data => {
+		            if (data.res_code === '200') {
+		                Swal.fire({
+		                    icon: 'success',
+		                    title: '성공',
+		                    text: data.res_msg
+		                }).then((result) => {
+		                    location.href = `/student/parent/${studentNo}`; // 성공 시 상세 페이지로 이동
+		                });
+		            } else {
+		                Swal.fire({
+		                    icon: 'error',
+		                    title: '실패',
+		                    text: data.res_msg
+		                });
+		            }
+		        })
+		        .catch(error => {
+		            console.error('Error:', error);
+		        });
+		    }
+		});
+		</script>
+		<script>
 			$(document).ready(function () {
 			    $('#parent_create_primary-header-modal').on('show.bs.modal', function () {
 			        $(this).css('display', 'block');  // 모달 열릴 때 display 속성 설정
@@ -237,36 +358,59 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			});
 		</script>
 		<script>
+			$(document).ready(function () {
+			    $('#parent_update_primary-header-modal').on('show.bs.modal', function () {
+			        $(this).css('display', 'block');  // 모달 열릴 때 display 속성 설정
+			    });
+			});
+			$('#parent_update_primary-header-modal').on('hide.bs.modal', function () {
+			    $(this).attr('aria-hidden', 'true').attr('inert', '');  // 모달 닫힐 때 설정
+			});
+		</script>
+		<script>
+			document.addEventListener('click', function(event) {
+			    if (event.target.classList.contains('delete-btn')) {
+			        const parentNo = event.target.getAttribute('data-parent-no');
+			        console.log(parentNo);
+			        studentParentDelete(parentNo); // 삭제 함수 호출 시 올바른 parent_no 전달
+			    }
+			});
+	
 			const studentParentDelete = function(parentNo){
-				if(confirm("정말 삭제하시겠습니까?")){
-					const csrfToken = document.getElementById('csrf_token').value;
-					const parentNo = document.querySelector('input[name="parent_no"]').value;
-					 fetch('/student/parent/'+parentNo,{
-						 method : 'delete',
-						 headers : {
-								'X-CSRF-TOKEN':csrfToken}
-					 })
-					 .then(response => response.json())
-					 .then(data => {
-						 if(data.res_code == '200'){
-								Swal.fire({
-									icon :'success',
-									title:'성공',
-									text : data.res_msg ,
-									confirmButtonText:"닫기"
-								}).then((result)=>{
-									location.href=`/student/parent/${studentNo}`;
-								});
-							} else{
-								Swal.fire({
-									icon:'error',
-									title:'실패',
-									text: data.res_msg,
-									confirmButtonText:"닫기"
-						 		});
-							}
-						})
-				}}
+			    if(confirm("정말 삭제하시겠습니까?")){
+			        const csrfToken = document.getElementById('csrf_token').value;
+	
+			        fetch('/student/parent/' + parentNo, {
+			            method: 'delete',
+			            headers: {
+			                'X-CSRF-TOKEN': csrfToken
+			            }
+			        })
+			        .then(response => response.json())
+			        .then(data => {
+			            if (data.res_code == '200') {
+			                Swal.fire({
+			                    icon: 'success',
+			                    title: '성공',
+			                    text: data.res_msg,
+			                    confirmButtonText: "닫기"
+			                }).then(() => {
+			                    location.reload(); // 페이지를 새로고침하여 목록을 업데이트
+			                });
+			            } else {
+			                Swal.fire({
+			                    icon: 'error',
+			                    title: '실패',
+			                    text: data.res_msg,
+			                    confirmButtonText: "닫기"
+			                });
+			            }
+			        })
+			        .catch(error => {
+			            console.error('Error:', error);
+			        });
+			    }
+			}
 		</script>
 	</body>
 </html>

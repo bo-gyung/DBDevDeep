@@ -55,6 +55,14 @@ public class StudentViewController {
 		return "student/student_list";
 	}
 	
+	// 학생 목록 페이지로 이동(직원)
+		@GetMapping("/student/list/emp")
+		public String listStudentPageEmp(Model model, StudentClassDto dto) {
+			List<StudentClassDto> resultList = studentService.selectStudentList(dto);
+			model.addAttribute("resultList",resultList);
+			return "student/student_list_for_emp";
+		}
+	
 	// 학생 정보 상세 페이지로 이동
 	@GetMapping("/student/{student_no}")
 	public String selectStudentOne(Model model,
@@ -68,12 +76,33 @@ public class StudentViewController {
 		return "student/student_detail";
 	}
 	
+	// 학생 정보 상세 페이지로 이동
+	@GetMapping("/student/emp/{student_no}")
+	public String selectStudentOneEmp(Model model,
+			@PathVariable("student_no") Long student_no) {
+		StudentDto dto = studentService.selectStudentOne(student_no);
+		List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
+		List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
+		model.addAttribute("dto",dto);
+		model.addAttribute("pdto",resultList);
+		model.addAttribute("cdto",studentClassResultList);
+		return "student/student_detail_for_emp";
+	}
+	
 	// 학생 정보 수정 페이지로 이동
 	@GetMapping("/student/update/{student_no}")
 	public String updateStudentInfo(@PathVariable("student_no") Long student_no,Model model) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
 		model.addAttribute("dto",dto);
 		return "student/student_update";
+	}
+	
+	// 학생 정보 수정 페이지로 이동
+	@GetMapping("/student/update/emp/{student_no}")
+	public String updateStudentInfoEmp(@PathVariable("student_no") Long student_no,Model model) {
+		StudentDto dto = studentService.selectStudentOne(student_no);
+		model.addAttribute("dto",dto);
+		return "student/student_update_for_emp";
 	}
 	
 	// 학년 이력 정보 수정 페이지로 이동(반배정)

@@ -122,6 +122,21 @@ public class StudentService {
 			return dto;
 	}
 	
+	// 부모 정보 수정을 위한 과정
+	@Transactional
+	public Parent updateStudentParentInfo(ParentDto dto) {
+		System.out.println("서비스 : "+dto);
+		Parent parent = parentRepository.findByParentNo(dto.getParent_no());
+		parent.setParentName(dto.getParent_name());
+	    parent.setParentPhone(dto.getParent_phone());
+	    parent.setParentRelation(dto.getParent_relation());
+	    parent.setParentBirth(dto.getParent_birth());
+	    
+	    Parent result = parentRepository.save(parent);
+	    
+	    return result;
+	}
+	
 	// 수정 정보를 담아 entity로 변환 후에 DB에 저장하는 과정
 	@Transactional
 	public Student updateStudentInfo(StudentDto dto) {
