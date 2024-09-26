@@ -40,7 +40,6 @@ import com.dbdevdeep.approve.repository.ApproveRepository;
 import com.dbdevdeep.approve.repository.ReferenceRepository;
 import com.dbdevdeep.approve.repository.TempEditRepository;
 import com.dbdevdeep.approve.repository.VacationRequestRepository;
-import com.dbdevdeep.chat.config.WebSocketHandler;
 import com.dbdevdeep.employee.domain.Department;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
@@ -51,6 +50,7 @@ import com.dbdevdeep.employee.repository.DepartmentRepository;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.JobRepository;
 import com.dbdevdeep.employee.repository.MySignRepository;
+import com.dbdevdeep.websocket.config.WebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

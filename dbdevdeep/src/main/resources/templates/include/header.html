@@ -305,7 +305,7 @@
 		// 새로 추가된 알림에 클릭 이벤트 리스너 추가
 		function addClickListenerToNotification() {
 		    const notificationItems = document.querySelectorAll('.message-item'); // 모든 알림 항목을 선택
-	
+
 		    notificationItems.forEach(item => {
 		        item.addEventListener('click', function() {
 		            const title = item.getAttribute('data-title'); // data-* 속성에서 title 값을 가져옴

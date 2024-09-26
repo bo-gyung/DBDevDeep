@@ -14,7 +14,6 @@ import com.dbdevdeep.alert.config.AlertMessageHandler;
 import com.dbdevdeep.alert.domain.Alert;
 import com.dbdevdeep.alert.domain.AlertDto;
 import com.dbdevdeep.alert.repository.AlertRepository;
-import com.dbdevdeep.chat.config.WebSocketHandler;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.notice.domain.Notice;
@@ -24,6 +23,7 @@ import com.dbdevdeep.notice.dto.NoticeDto;
 import com.dbdevdeep.notice.repository.NoticeCategoryRepository;
 import com.dbdevdeep.notice.repository.NoticeReadCheckRepository;
 import com.dbdevdeep.notice.repository.NoticeRepository;
+import com.dbdevdeep.websocket.config.WebSocketHandler;
 
 @Service
 public class NoticeService {

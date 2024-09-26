@@ -67,6 +67,13 @@ public class ItemViewController {
 	    
 	    model.addAttribute("dto" ,dto);
 	    
+	    if(dto.getNew_pic_name() != null && !dto.getNew_pic_name().isEmpty()) {
+	    	String imageUrl = "/UploadImg/place/item/" + dto.getNew_pic_name();
+	    	model.addAttribute("imageUrl", imageUrl);
+	    } else {
+	    	model.addAttribute("imageUrl", null);
+	    }
+	    
 	    return "place/item_detail";
 	}
 	
@@ -103,10 +110,10 @@ public class ItemViewController {
 		model.addAttribute("resultList",resultList);
 		
 		// 다른 동적으로 계산된 값도 전달 가능
-				for (ItemDto dto : resultList) {
-					int availableQuantity = dto.getItem_quantity() - dto.getUnuseable_quantity();
-					model.addAttribute("availableQuantity_" + dto.getItem_no(), availableQuantity);
-				}
+		for (ItemDto dto : resultList) {
+			int availableQuantity = (dto.getItem_quantity() - dto.getUnuseable_quantity());
+			model.addAttribute("availableQuantity_" + dto.getItem_no(), availableQuantity);
+		}
 		
 		return "place/item_list";
 	}

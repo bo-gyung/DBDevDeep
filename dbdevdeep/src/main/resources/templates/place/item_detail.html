@@ -189,7 +189,18 @@
 								</div>
                               </div>
 
-                                <!-- 수정 버튼 -->
+								<div class="row mb-3">
+								    <label for="placeImage" class="col-sm-2 col-form-label">이미지</label>
+									    <div class="col-sm-10">
+									        <!-- 이미지 파일을 업로드하는 대신, 이미지를 표시합니다. -->
+									        <img id="itemImage"
+									             th:if="${imageUrl != null}"
+									             th:src="@{${imageUrl}}" 
+									             alt="기자재 이미지" style="max-width: 500px; height: auto;" />
+									    </div>
+                                </div>
+
+                                <!-- 버튼 -->
                                 <div class="row mb-3">
                                     <div class="col-sm-6 text-left">
                                         <button type="button" class="btn btn-outline-secondary" onclick="location.href='/item'">목록</button>
