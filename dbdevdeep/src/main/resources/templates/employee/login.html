@@ -9,23 +9,23 @@
 <title>물망초등학교</title>
 <!-- Custom CSS -->
 <link th:href="@{/dist/css/style.min.css}" rel="stylesheet">
-<style>
-* {
-	user-select: none;
-}
-
-label[for="remember-id"] {
-	cursor: pointer;
-}
-
-#eye_icon_login {
-	display: flex; position: absolute; z-index: 999; left: 320px; bottom: 27px; cursor: pointer;
-}
-
-a {
-	cursor: pointer;
-}
-</style>
+		<style>
+		* {
+			user-select: none;
+		}
+		
+		label[for="remember-id"] {
+			cursor: pointer;
+		}
+		
+		#eye_icon_login {
+			display: flex; position: absolute; z-index: 999; left: 320px; bottom: 27px; cursor: pointer;
+		}
+		
+		a {
+			cursor: pointer;
+		}
+		</style>
 </head>
 <body>
 	<div class="main-wrapper">
@@ -51,7 +51,8 @@ a {
 								</div>
 								<div class="col-lg-12">
 									<div class="form-group">
-										<label class="text-dark" for="pwd">비밀번호</label> <i class="fa fa-eye-slash text-left" id="eye_icon_login"></i> <input class="form-control" id="pwd" name="emp_pw" type="password" onfocus="labelUp(this)" onblur="labelDown(this)" placeholder="비밀번호를 입력하세요" required>
+										<label class="text-dark" for="pwd">비밀번호</label> <i class="fa fa-eye-slash text-left" id="eye_icon_login"></i> 
+										<input class="form-control" id="pwd" name="emp_pw" type="password" autoComplete="off"  onfocus="labelUp(this)" onblur="labelDown(this)" placeholder="비밀번호를 입력하세요" required>
 									</div>
 								</div>
 								<div class="col-lg-5">
@@ -94,55 +95,57 @@ a {
 	</div>
 
 	<script>
-		document
-				.addEventListener(
-						"DOMContentLoaded",
-						function() {
-							// localStorage에 저장
-							const savedUsername = localStorage
-									.getItem('savedUsername');
-							if (savedUsername) { // localStorage에 값이 저장되어 있는 경우
-								document.getElementById('uname').value = savedUsername;
-								document.getElementById('remember-id').checked = true;
-							}
+		document.addEventListener("DOMContentLoaded", function() {
+				// localStorage에 저장
+				const savedUsername = localStorage
+						.getItem('savedUsername');
+				if (savedUsername) { // localStorage에 값이 저장되어 있는 경우
+					document.getElementById('uname').value = savedUsername;
+					document.getElementById('remember-id').checked = true;
+				}
 
-							const savedPwd = localStorage.getItem('savedPwd');
-							if (savedPwd) {
-								document.getElementById('pwd').value = savedPwd;
-								document.getElementById('remember-pw').checked = true;
-							}
+				const savedPwd = localStorage.getItem('savedPwd');
+				if (savedPwd) {
+					document.getElementById('pwd').value = savedPwd;
+					document.getElementById('remember-pw').checked = true;
+				}
 
-							document
-									.querySelector('form[name="login_form"]')
-									.addEventListener(
-											'submit',
-											function() {
-												const username = document
-														.getElementById('uname').value;
-												const rememberId = document
-														.getElementById('remember-id').checked;
-												const pwd = document
-														.getElementById('pwd').value;
-												const rememberPw = document
-														.getElementById('remember-pw').checked;
-												if (rememberId) {
-													localStorage.setItem(
-															'savedUsername',
-															username); // remember-id 체크 시 localStorage에 저장
-												} else {
-													localStorage
-															.removeItem('savedUsername'); // rememeber-id 체크 해제 시 localStorage 값 삭제
-												}
+				document
+						.querySelector('form[name="login_form"]')
+						.addEventListener(
+								'submit',
+								function() {
+									const username = document
+											.getElementById('uname').value;
+									const rememberId = document
+											.getElementById('remember-id').checked;
+									const pwd = document
+											.getElementById('pwd').value;
+									const rememberPw = document
+											.getElementById('remember-pw').checked;
+									if (rememberId) {
+										localStorage.setItem(
+												'savedUsername',
+												username); // remember-id 체크 시 localStorage에 저장
+									} else {
+										localStorage
+												.removeItem('savedUsername'); // rememeber-id 체크 해제 시 localStorage 값 삭제
+									}
 
-												if (rememberPw) {
-													localStorage.setItem(
-															'savedPwd', pwd);
-												} else {
-													localStorage
-															.removeItem('savedPwd');
-												}
-											});
-						});
+									if (rememberPw) {
+										localStorage.setItem(
+												'savedPwd', pwd);
+									} else {
+										localStorage
+												.removeItem('savedPwd');
+									}
+								});
+			});
+	</script>
+	
+	<script>
+		
+	
 	</script>
 
 	<script th:src="@{/assets/libs/jquery/dist/jquery.min.js}"></script>
