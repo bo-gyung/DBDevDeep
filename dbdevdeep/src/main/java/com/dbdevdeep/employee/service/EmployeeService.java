@@ -721,58 +721,70 @@ public class EmployeeService {
 
 		return logDto;
 	}
-	
 	// 사원 정보 변경 기록 등록
-	public void insertAuditLog(Employee employee, AuditLogDto alDto) {	
+		public void insertAuditLog(Employee employee, AuditLogDto alDto) {	
+					
+			Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
+			AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
+			
+			auditLogRepository.save(auditLog);
+		}
+		
+		// 전근 기록 
+		public List<TransferDto> findByTransferAll() {
+			List<TransferDto> dtoList = new ArrayList<TransferDto>();
+
+			List<Transfer> transList = transferRepository.findAll();
+			
+			for(Transfer t : transList) {
+				TransferDto dto = new TransferDto().toDto(t);
 				
-		Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
-		AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
-		
-		auditLogRepository.save(auditLog);
-	}
-	
-	// 전근 기록 
-	public List<TransferDto> findByTransferAll() {
-		List<TransferDto> dtoList = new ArrayList<TransferDto>();
-
-		List<Transfer> transList = transferRepository.findAll();
-		
-		for(Transfer t : transList) {
-			TransferDto dto = new TransferDto().toDto(t);
+				dtoList.add(dto);
+			}
 			
-			dtoList.add(dto);
+			return dtoList;
 		}
 		
-		return dtoList;
-	}
-	
-	//휴직 기록 
-	public List<EmployeeStatusDto> findByRestAll() {
-		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+		//휴직 기록 
+		public List<EmployeeStatusDto> findByRestAll() {
+			List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
 
-		List<EmployeeStatus> restList = employeeStatusRepository.selectRestLogAll();
-		
-		for(EmployeeStatus r : restList) {
-			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+			List<EmployeeStatus> restList = employeeStatusRepository.selectRestLogAll();
 			
-			dtoList.add(dto);
+			for(EmployeeStatus r : restList) {
+				EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+				
+				dtoList.add(dto);
+			}
+			
+			return dtoList;
 		}
 		
-		return dtoList;
-	}
-	
-	//퇴직 기록 
-	public List<EmployeeStatusDto> findByLeaveAll() {
-		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+		//퇴직 기록 
+		public List<EmployeeStatusDto> findByLeaveAll() {
+			List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
 
-		List<EmployeeStatus> leaveList = employeeStatusRepository.selectLeaveLogAll();
-		
-		for(EmployeeStatus r : leaveList) {
-			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+			List<EmployeeStatus> leaveList = employeeStatusRepository.selectLeaveLogAll();
 			
-			dtoList.add(dto);
+			for(EmployeeStatus r : leaveList) {
+				EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+				
+				dtoList.add(dto);
+			}
+			
+			return dtoList;
 		}
-		
-		return dtoList;
-	}
+	
+	
+	// 모든 신청인(직원) 조회
+    public List<Employee> findAllEmployees() {
+        return employeeRepository.findAll();
+    }
+
+    // 특정 직원 조회 (필요 시 사용)
+    public Employee findEmployeeById(String empId) {
+        return employeeRepository.findById(empId)
+                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + empId));
+    }
+	
 }
