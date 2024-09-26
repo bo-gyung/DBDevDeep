@@ -14,12 +14,60 @@ let socket;
         // 웹소켓 연결이 열렸을 때 호출
         socket.onopen = function(event) {
             updateStatus("연결 상태: 연결됨", "green");
+            // 현재 페이지 정보를 서버에 전송
+        	sendPageInfo();
         };
         
     	// 웹소켓 메시지를 수신했을 때 호출
 		socket.onmessage = function(event) {
 		    console.log("서버로부터 메시지 수신: " + event.data);
-		    displayMessage(event.data);
+		    /*displayMessage(event.data);*/
+		    
+		    const message = JSON.parse(event.data);
+		    
+		    if (message.alert) {
+		        const alert = message.alert;
+		       
+		        const alertHtml = `
+		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2">
+			        	<div class="btn btn-danger rounded-circle btn-circle">
+		              <i data-feather="info" class="text-white"></i>
+		            </div>
+		            <div class="w-75 d-inline-block v-middle pl-2">
+		                <h6 class="message-title mb-0 mt-1">[${alert.title}]</h6>
+		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
+		                    '${alert.content}'
+		                </span>
+		                <span class="font-12 text-nowrap d-block text-muted">
+		                    ${new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+		                </span>
+		            </div>
+		          </a>
+		        `;
+		
+		        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
+		        document.getElementById('alertDiv').innerHTML += alertHtml;
+		        
+		    } else if(message.res_code =='200' && message.res_type =='chat'){
+				// 웹소켓 채팅 관련 이벤트
+				
+				if(message.now_page =='chat'){
+					// 채팅 페이지에 접속한 사용자 : 채팅방 목록 리로드
+					updateChatRoomList();
+					
+					if(message.room_in =='Y'){
+						// 현재 채팅방에 접속해있는 사용자 : 채팅 메세지목록 리로드
+						loadChatroom(message.room_no);
+						
+					} else if(message.room_in =='N'){
+						// 현재 채팅방에 접속하고 있지 않은 사용자 : 채팅방 목록에 배지알림
+						
+					}
+				} else if(message.now_page =='no_chat'){
+					// 채팅 페이지에 접속하고 있지 않은 사용자 : 헤더에 배지알림
+					
+				}
+			}
 		};
 
 
@@ -34,7 +82,7 @@ let socket;
         };
     }
 
-    // 연결 상태 업데이트 함수
+    // 헤더의 연결 상태 업데이트 함수
     function updateStatus(message, color) {
         const statusElement = document.getElementById("status");
         if (statusElement) {
@@ -42,11 +90,31 @@ let socket;
             statusElement.style.color = color;
         }
     }
+    
+    // 현재 페이지 정보를 WebSocket을 통해 서버에 전송하는 함수
+	function sendPageInfo() {
+	    const pageUrl = window.location.pathname; // 현재 페이지 경로 가져오기
+	
+	    // WebSocket 연결이 열려 있는 경우에만 정보 전송
+	    if (socket && socket.readyState === WebSocket.OPEN) {
+	        socket.send(JSON.stringify({
+	            type: "PAGE_INFO", // 메시지 타입
+	            pageUrl: pageUrl   // 현재 페이지 경로 정보
+	        }));
+	    }
+	}
 
     // 페이지를 떠날 때 웹소켓 연결 종료
     window.onbeforeunload = function() {
         if (socket && socket.readyState === WebSocket.OPEN) {
             // 웹소켓 연결 종료.
+		    // WebSocket 연결이 열려 있는 경우에만 정보 전송
+		    if (socket && socket.readyState === WebSocket.OPEN) {
+		        socket.send(JSON.stringify({
+		            type: "ROOM_NO", // 메시지 타입
+		            roomNo: 0   // 현재 페이지 경로 정보
+		        }));
+		    }
             socket.close();
         }
     };

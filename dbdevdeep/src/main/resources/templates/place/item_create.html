@@ -236,20 +236,48 @@
 
 
 <script>
-//중복 검사 결과를 저장하는 변수
+// 초기 상태 설정
+document.addEventListener('DOMContentLoaded', function () {
+    toggleUnusableFields(); // 사용 불가능 여부에 따라 필드 표시
+});
+
+// 사용 불가능 필드 표시 함수
+function toggleUnusableFields() {
+    const isUsable = document.getElementById('usable').checked;
+    const unusableFields = document.getElementById('unusableFields');
+
+    if (!isUsable) {
+        unusableFields.style.display = 'block';
+        document.getElementById('unuseable_quantity').required = true;
+        document.getElementById('unuseable_reason').required = true;
+        document.getElementById('unuseable_start_date').required = true;
+        document.getElementById('unuseable_end_date').required = true;
+    } else {
+        unusableFields.style.display = 'none';
+        document.getElementById('unuseable_quantity').required = false;
+        document.getElementById('unuseable_reason').required = false;
+        document.getElementById('unuseable_start_date').required = false;
+        document.getElementById('unuseable_end_date').required = false;
+    }
+}
+
+// 중복 검사 결과를 저장하는 변수
 let isSerialValid = false;
+let vali_check = false;
+let vali_text = "";
 
 // 일련번호 입력 필드에서 'blur' 이벤트 시 중복 검사 수행
-document.getElementById('item_serial_no').addEventListener('blur', function() {
+document.getElementById('item_serial_no').addEventListener('blur', function () {
     const serialNoInput = document.getElementById('item_serial_no');
-    const serialNo = serialNoInput.value.trim(); // 입력값의 앞뒤 공백 제거
+    const serialNo = serialNoInput.value.trim();
     const placeNo = document.getElementById('placeName').value;
 
     // 일련번호 형식 검사
-    const regex = /^[A-Z][0-9]{2,3}$/;  // 정규식: 첫 글자는 대문자, 그 뒤로 숫자 두 개 또는 세 개
+    const regex = /^[A-Z][0-9]{2,3}$/;
 
     if (!regex.test(serialNo)) {
         document.getElementById('serialError').style.display = 'block';
+        document.getElementById('duplicateError').style.display = 'none';
         isSerialValid = false;
         return;
     } else {
@@ -283,168 +311,130 @@ document.getElementById('item_serial_no').addEventListener('blur', function() {
         isSerialValid = false;
     });
 });
-
-// 폼 제출 시 이벤트 핸들러
-document.getElementById('item_createForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // 폼의 기본 제출 동작 방지
-
-    const serialNoInput = document.getElementById('item_serial_no');
-    const serialNo = serialNoInput.value.trim();
-    const placeNo = document.getElementById('placeName').value;
-
-    // 일련번호 형식 검사
-    const regex = /^[A-Z][0-9]{2,3}$/;
-
-    if (!regex.test(serialNo)) {
-        alert('일련번호 형식이 올바르지 않습니다.');
-        serialNoInput.focus();
-        return;
-    }
-
-    // 서버로 중복 검사 요청
-    fetch('/item/check-serial', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.getElementById('csrf_token').value
-        },
-        body: JSON.stringify({
-            place_no: placeNo,
-            item_serial_no: serialNo
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.exists) {
-            alert('이미 존재하는 일련번호입니다.');
-            serialNoInput.focus();
-            return;
-        } else {
-            // 일련번호가 99로 끝나는 경우 자동으로 다음 알파벳으로 변경
-            if (serialNo.endsWith('99')) {
-                serialNoInput.value = getNextSerial(serialNo);
-            }
-            // 폼 데이터를 서버로 제출
-            submitForm();
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('서버와 통신 중 오류가 발생했습니다.');
-    });
-});
-
-function getNextSerial(serial) {
-    const letter = serial.charAt(0);
-    const number = parseInt(serial.slice(1), 10);
-
-    if (number === 99) {
-        const nextLetter = String.fromCharCode(letter.charCodeAt(0) + 1);
-        return nextLetter + '01';
-    }
-    return letter + String(number + 1).padStart(2, '0');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    toggleUnusableFields(); // 초기 상태 설정
-});
-
-function toggleUnusableFields() {
-    const isUnusable = document.getElementById('unusable').checked; // '사용 불가능' 선택 여부 확인
-
-    // 사용 불가능일 때만 사유, 기간, 갯수 필드 표시
-    const unusableFields = document.getElementById('unusableFields');
-    if (isUnusable) {
-        unusableFields.style.display = 'block';
-        document.getElementById('unuseable_quantity').required = true;
-        document.getElementById('unuseable_reason').required = true;
-        document.getElementById('unuseable_start_date').required = true;
-        document.getElementById('unuseable_end_date').required = true;
-    } else {
-        unusableFields.style.display = 'none';
-        document.getElementById('unuseable_quantity').required = false;
-        document.getElementById('unuseable_reason').required = false;
-        document.getElementById('unuseable_start_date').required = false;
-        document.getElementById('unuseable_end_date').required = false;
-    }
-}
-
+// 등록 폼
 const form = document.getElementById('item_createForm');
-
 form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    let obj = {};
-    const formData = new FormData(form);
-    // 날짜 필드에서 가져온 값
-    let startDate = formData.get("unuseable_start_date");
-    let endDate = formData.get("unuseable_end_date");
-    
-    // 날짜 형식 확인 후 변환
-    if (startDate) {
-        formData.set("unuseable_start_date", formatDate(startDate));
-    }
-    if (endDate) {
-        formData.set("unuseable_end_date", formatDate(endDate));
-    }
-    
-    formData.forEach(function(value, key) {
-        obj[key] = value;  // FormData 값을 JSON 객체로 변환
-    });
-
-    const jsonData = JSON.stringify(obj);  // JSON 객체로 변환
-
-    // CSRF 토큰 추가
-    const csrfToken = document.getElementById('csrf_token').value;
-
-    fetch('/item', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',  // JSON 형식으로 전송
-            'X-CSRF-TOKEN': csrfToken  // CSRF 토큰 헤더 추가
-        },
-        body: jsonData  // JSON 형식의 데이터를 전송
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.res_code === '200') {
-            Swal.fire({
-                icon: 'success',
-                title: '성공',
-                text: data.res_msg,
-                confirmButtonText: '닫기'
-            }).then(() => {
-                location.href = "/item";
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: '실패',
-                text: data.res_msg,
-                confirmButtonText: "닫기"
-            });
-        }
-    })
-    .catch(error => {
+	e.preventDefault();
+	 
+	// 유효성 검사 초기화
+    vali_check = false; 
+    vali_text = ""; // 에러 메시지 초기화
+	
+	// 사용가능 상황일때
+	const isUsable = document.getElementById('usable').checked;
+	// 시작일과 종료일 가져오기
+	const startDate = form.unuseable_start_date.value;
+	const endDate = form.unuseable_end_date.value;
+	
+	// 유효성 검사
+	if(form.placeName.value === ''){
+		vali_text += '장소를 고르세요';
+		form.placeName.focus();
+	} else if (form.item_serial_no.value === ''){
+		vali_text += '일련번호를 입력하세요';
+		form.item_serial_no.focus();
+	} else if(form.item_name.value === ''){
+		vali_text += '기자재명을 입력하세요';
+		form.item_name.focus();
+	} else if(form.item_content.value === ''){
+		vali_text += '기자재 내용을 입력하세요';
+		form.item_content.focus();
+	} else if(form.item_quantity.value === ''){
+		vali_text += '기자재 갯수를 입력하세요.';
+		form.item_quantity.focus();
+	} else if(!isUsable){
+		if(form.unuseable_quantity.value === ''){
+			vali_text += '사용불가 갯수를 입력하세요.';
+			form.unuseable_quantity.focus();
+		} else if(form.unuseable_reason.value === ''){
+			vali_text += '사유를 입력해주세요.';
+			form.unuseable_reason.focus();
+		} else if (startDate === '' || endDate === ''){
+			vali_text += '시작일을 입력해주세요.';
+			form.unuseable_start_date.focus();
+		} else{
+			// 날짜 비교 (Date 객체로 변환 후 비교)
+			const start = new Date(startDate);
+			const end = new Date(endDate);
+			
+			if (start > end) {
+				vali_text += '종료일은 시작일보다 이후여야 합니다.';
+				form.unuseable_end_date.focus();
+			} else {
+				vali_check = true;
+			}
+		}
+	} else {
+		vali_check = true;
+	}
+	
+	// 유효성 검사가 실패하면 경고 메시지 표시
+    if (!vali_check) {
         Swal.fire({
             icon: 'error',
             title: '실패',
-            text: '서버와 통신 중 오류가 발생했습니다.',
-            confirmButtonText: "닫기"
+            text: vali_text,
+            confirmButtonText: '닫기'
         });
-        console.error('Error:', error);
-    });
+    } else {
+        const formData = new FormData(form);
+        
+     // 사용 가능일 때 불필요한 필드 제거
+        if (isUsable) {
+            formData.delete('unuseable_quantity');
+            formData.delete('unuseable_reason');
+            formData.delete('unuseable_start_date');
+            formData.delete('unuseable_end_date');
+        }
+
+        const csrfToken = document.getElementById('csrf_token').value;
+
+        fetch('/item', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('서버 응답에 오류가 있습니다.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.res_code === '200') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '성공',
+                    text: data.res_msg,
+                    confirmButtonText: '닫기'
+                }).then(() => {
+                    location.href = "/item";
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '실패',
+                    text: data.res_msg,
+                    confirmButtonText: '닫기'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: '실패',
+                text: '서버와의 통신 오류가 발생했습니다.',
+                confirmButtonText: '닫기'
+            });
+        });
+    }
 });
 
-//날짜 형식을 yyyy-MM-dd에서 yyyy.MM.dd로 변환하는 함수
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}.${month}.${day}`;
-}
 </script>
+
 
 
 

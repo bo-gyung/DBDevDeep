@@ -68,9 +68,7 @@ public class ChatMessageHandler {
     	alertMap.put("emp_id", emp_id);
     	alertMap.put("msg", "chat");
     	
-    	// 헤더의 채팅아이콘에 알림 발생
-    	
-    	// 대화상대가 채팅방에 접속한 상태라면 채팅방 리스트 갱신
+    	// 대화상대가 채팅방 목록 페이지에 접속중인 상태라면 채팅방 리스트 갱신
     }
 
     private void sendPrivateChatMessage(WebSocketSession session, Map<String, Object> messageMap) {

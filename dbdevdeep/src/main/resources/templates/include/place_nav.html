@@ -26,11 +26,14 @@
               </ul>
             </li>
 
-            <li class="sidebar-item"> <a class="sidebar-link has-arrow" href="javascript:void(0)"
-                aria-expanded="false"><span class="hide-menu">일정 관리</span></a>
+            <li class="sidebar-item">
+             <a class="sidebar-link has-arrow active" href="javascript:void(0)"
+                aria-expanded="false">
+                <span class="hide-menu">일정 관리</span></a>
               <ul aria-expanded="false" class="collapse  first-level base-level-line">
-                <li class="sidebar-item"><a href="#" class="sidebar-link"><span class="hide-menu"> 캘린더
-                    </span></a>
+                <li class="sidebar-item">
+                	<a th:href="@{/place_schedule}" class="sidebar-link">
+                	<span class="hide-menu"> 캘린더 </span></a>
                 </li>
                 <li class="sidebar-item"><a href="#" class="sidebar-link"><span class="hide-menu"> 일정 현황
                     </span></a>

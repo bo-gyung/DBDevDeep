@@ -1,54 +1,53 @@
 package com.dbdevdeep.alert.config;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.dbdevdeep.alert.domain.Alert;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 @Component
 public class AlertMessageHandler {
 
-//	public void handleAlertMessage(WebSocketSession session, Map<String, Object> messageMap) {
-//		String subType = (String) messageMap.get("subType");
-//
-//		switch (subType) {
-//		case "PRIVATE":
-//			handlePrivateChat(session, messageMap);
-//			break;
-//		case "GROUP":
-//			handleGroupChat(session, messageMap);
-//			break;
-//		default:
-//			// 기본 처리 로직
-//			break;
-//		}
-//	}
-//
-//	private void handlePrivateChat(WebSocketSession session, Map<String, Object> messageMap) {
-//		String action = (String) messageMap.get("action");
-//		switch (action) {
-//		case "CREATE_ROOM":
-//			createPrivateChatRoom(session, messageMap);
-//			break;
-//		case "SEND_MESSAGE":
-//			sendPrivateChatMessage(session, messageMap);
-//			break;
-//		default:
-//			break;
-//		}
-//	}
-//
-//	private void handleGroupChat(WebSocketSession session, Map<String, Object> messageMap) {
-//		String action = (String) messageMap.get("action");
-//		switch (action) {
-//		case "CREATE_ROOM":
-//			createGroupChatRoom(session, messageMap);
-//			break;
-//		case "SEND_MESSAGE":
-//			sendGroupChatMessage(session, messageMap);
-//			break;
-//		default:
-//			break;
-//		}
-//	}
+	private final ObjectMapper objectMapper;
+
+	public String sendAlertMessageToUser(Alert alert) {
+		// mapper 생성
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		// 부모 node 생성
+		ObjectNode root = objectMapper.createObjectNode();
+
+		// 자식 node 생성
+		ObjectNode child = objectMapper.createObjectNode();
+		// 자식 key, value 추가
+		child.put("id", alert.getAlarmNo());
+		child.put("title", alert.getAlarmTitle());
+		child.put("content", alert.getAlarmContent());
+		child.put("timestamp", alert.getAlarmTime().toString());
+		child.put("status", alert.getAlarmStatus());
+
+		// 자식을 부모에 추가
+		root.set("alert", child);
+
+		String jsonString = null;
+		
+		try {
+			// json 형식으로 변형
+			jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+			
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+		return jsonString;
+	}
 }
