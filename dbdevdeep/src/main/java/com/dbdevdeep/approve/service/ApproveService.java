@@ -116,7 +116,15 @@ public class ApproveService {
 				
 				alertDto.setAlarm_status("X");
 				Alert a = alertDto.toEntity(alert.getEmployee());
-				alertRepository.save(a);
+				
+				try {
+					alertRepository.delete(a);
+					
+					webSocketHandler.sendAlert(a);
+					
+				} catch (IOException except) {
+					except.printStackTrace();
+				}
 			}
 			
 			result = 1;
@@ -180,7 +188,14 @@ public class ApproveService {
 				
 				alertDto.setAlarm_status("X");
 				Alert a = alertDto.toEntity(alert.getEmployee());
-				alertRepository.save(a);
+				
+				try {
+					alertRepository.delete(a);
+					
+					webSocketHandler.sendAlert(a);
+				} catch (IOException except) {
+					except.printStackTrace();
+				}
 			}
 			
 			result = 1;
@@ -674,6 +689,24 @@ public class ApproveService {
 		approve = approveRepository.save(approve);
 
 		approveLineRepository.deleteByApprove(approve);
+		
+		List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("approve", approve.getApproNo());
+		
+		for(Alert alert : alertList) {
+			AlertDto alertDto = new AlertDto().toDto(alert);
+			
+			alertDto.setAlarm_status("X");
+			Alert a = alertDto.toEntity(alert.getEmployee());
+			
+			try {
+				alertRepository.save(a);
+				
+				webSocketHandler.sendAlert(a);
+			} catch (IOException except) {
+				except.printStackTrace();
+			}
+		}
+		
 		for (ApproveLineDto lineDto : approveLineDtos) {
 			lineDto.setAppro_no(approve.getApproNo());
 
@@ -684,7 +717,28 @@ public class ApproveService {
 			}
 
 			ApproveLine approveLine = lineDto.toEntity(approve, lineEmployee);
-			approveLineRepository.save(approveLine);
+			ApproveLine a = approveLineRepository.save(approveLine);
+			
+			if (a != null) {
+				AlertDto alertDto = new AlertDto();
+				alertDto.setReference_name("approve");
+				alertDto.setReference_no(a.getApprove().getApproNo());
+				if(a.getApprove().getApproType() == 0) {
+					alertDto.setAlarm_title("휴가 결재 요청");						
+				} else {
+					alertDto.setAlarm_title("보고서 결재 요청");
+				}
+				alertDto.setAlarm_content(a.getApprove().getApproTitle());
+				alertDto.setAlarm_status("N");
+
+				// alert 저장 후 웹 소켓에 데이터 전송
+				Alert alert = alertDto.toEntity(a.getEmployee());
+				try {
+					webSocketHandler.sendAlert(alertRepository.save(alert));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		if (approFileDto != null && approFileDto.getOri_file() != null && !approFileDto.getOri_file().isEmpty()) {
@@ -731,6 +785,24 @@ public class ApproveService {
 
 		// 3. approve_Line 테이블에 저장
 		approveLineRepository.deleteByApprove(approve);
+		
+		List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("approve", approve.getApproNo());
+		
+		for(Alert alert : alertList) {
+			AlertDto alertDto = new AlertDto().toDto(alert);
+			
+			alertDto.setAlarm_status("X");
+			Alert a = alertDto.toEntity(alert.getEmployee());
+			
+			try {
+				alertRepository.save(a);
+				
+				webSocketHandler.sendAlert(a);
+			} catch (IOException except) {
+				except.printStackTrace();
+			}
+		}
+		
 		for (ApproveLineDto lineDto : approveLineDtos) {
 			lineDto.setAppro_no(approve.getApproNo());
 
@@ -741,7 +813,29 @@ public class ApproveService {
 			}
 
 			ApproveLine approveLine = lineDto.toEntity(approve, lineEmployee);
-			approveLineRepository.save(approveLine);
+			
+			ApproveLine a = approveLineRepository.save(approveLine);
+			
+			if (a != null) {
+				AlertDto alertDto = new AlertDto();
+				alertDto.setReference_name("approve");
+				alertDto.setReference_no(a.getApprove().getApproNo());
+				if(a.getApprove().getApproType() == 0) {
+					alertDto.setAlarm_title("휴가 결재 요청");						
+				} else {
+					alertDto.setAlarm_title("보고서 결재 요청");
+				}
+				alertDto.setAlarm_content(a.getApprove().getApproTitle());
+				alertDto.setAlarm_status("N");
+
+				// alert 저장 후 웹 소켓에 데이터 전송
+				Alert alert = alertDto.toEntity(a.getEmployee());
+				try {
+					webSocketHandler.sendAlert(alertRepository.save(alert));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		// 4. reference 테이블에 저장

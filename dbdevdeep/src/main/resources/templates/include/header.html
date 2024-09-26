@@ -396,7 +396,7 @@
 	   		// a 태그의 개수 출력
 	   		var count = anchorTags.length;
 	   		
-	   		document.getElementById("alertNum").innerText = count;
+	   		document.getElementById("alertNum").innerText = count == 0? '' : count;
 		}
 	</script>
 
@@ -433,9 +433,9 @@
         	   
         	   
         	   const alertHtml = `
-		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;">
+		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;" data-a-alert-no="${alert.alarm_no}">
 			        	<div data-alert-no="${alert.alarm_no}"
-			        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});"
+			        		onclick="alertMoveFunc('${alert.reference_name}', '${alert.alarm_no}', '${alert.reference_no}');"
 			        		onmouseover="this.style.cursor='pointer'"
 			        		onmouseout="this.style.curosr='auto'"
 		        			class="w-75 message-item d-flex align-items-center">
@@ -479,20 +479,48 @@
 	   		// a 태그의 개수 출력
 	   		const count = anchorTags.length;
 	   		
-	   		document.getElementById("alertNum").innerText = count;
+	   		document.getElementById("alertNum").innerText = count == 0 ? '' : count;
         } 
     })
     .catch(error => console.error('Error:', error));
 	</script>
 	
 	<script>
-		function alertMoveFunc(referenceName, alertNo) {
+		function alertMoveFunc(referenceName, alertNo, refNo) {
 		    // 테이블 이름에 따라 이동할 URL을 결정합니다.
 		    let url = '';
 	
 		    switch (referenceName) {
 		        case 'approve':
 		            url = '/approve';
+		            fetch('/alert/' + alertNo, {
+		            	method: 'PUT',
+		            	headers: {
+		            		'X-CSRF-TOKEN': csrfToken_header
+		            	}
+		            }) 
+		            .then(response => response.json())
+					.then(data=>{
+						if(data.res_code == '200'){
+							const alertLink = document.querySelector(`a[data-a-alert-no="${alertNo}"]`);
+		                    if (alertLink) {
+		                        alertLink.remove();
+		                    }
+		                    
+		                    const alertDiv = document.getElementById('alertDiv');
+		                   	
+		        	   		// alertDiv 안의 a 태그를 모두 선택
+		        	   		const anchorTags = alertDiv.getElementsByTagName('a');
+		        	   	
+		        	   		// a 태그의 개수 출력
+		        	   		const count = anchorTags.length;
+		        	   		
+		        	   		document.getElementById("alertNum").innerText = count == 0? '' : count;
+						} 
+					});
+		            break;
+		        case 'notice':
+		            url = '/notice/' + refNo;
 		            fetch('/alert/' + alertNo, {
 		            	method: 'PUT',
 		            	headers: {
@@ -515,12 +543,9 @@
 		        	   		// a 태그의 개수 출력
 		        	   		const count = anchorTags.length;
 		        	   		
-		        	   		document.getElementById("alertNum").innerText = count;
+		        	   		document.getElementById("alertNum").innerText = count == 0? '' : count;
 						} 
 					});
-		            break;
-		        case 'notice':
-		            url = '/notice';
 		            break;
 		        // 추가 테이블에 대한 케이스 추가
 		        default:
@@ -561,7 +586,7 @@
 		        	   		// a 태그의 개수 출력
 		        	   		const count = anchorTags.length;
 		        	   		
-		        	   		document.getElementById("alertNum").innerText = count;
+		        	   		document.getElementById("alertNum").innerText = count == 0 ? '' : count;
 						} 
 					});
 		            break;
