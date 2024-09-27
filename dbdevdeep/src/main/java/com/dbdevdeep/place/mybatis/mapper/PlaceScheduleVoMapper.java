@@ -11,6 +11,12 @@ public interface PlaceScheduleVoMapper {
 
 	
 	
+	
+	
+	
+	// 등록
+	int insertPlaceSchedule(PlaceItemScheduleVo vo);
+	
 	//전체 일정 조회
 	List<PlaceItemScheduleVo> getTotalScheduleList();
 }

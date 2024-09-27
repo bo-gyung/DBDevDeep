@@ -25,8 +25,7 @@ private Long place_schedule_no;
 	// join
 	private Long place_no;
 	private String place_name;
-	private Long item_no;
-
+	private Long item_no;  
 	private String item_name;
 	private int item_quantity;
 	private String item_serial_no;

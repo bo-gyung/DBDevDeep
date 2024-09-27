@@ -54,6 +54,17 @@ public class PlaceScheduleViewController {
 		
 	
 		
+		
+		// 일정 겹침 메소드 ajax
+		@GetMapping("/checkScheduleOverlap")
+		@ResponseBody
+		public boolean checkScheduleOverlap(@RequestParam(name = "placeNo") Long placeNo,
+		                                    @RequestParam(name= "startDate") String startDate,
+		                                    @RequestParam(name= "startTime") String startTime,
+		                                    @RequestParam(name= "endDate") String endDate,
+		                                    @RequestParam(name= "endTime") String endTime) {
+		    return placeScheduleService.isScheduleOverlapping(placeNo, startDate, startTime, endDate, endTime);
+		}
 	
 	
 	
@@ -64,8 +75,8 @@ public class PlaceScheduleViewController {
 	        User user = (User)authentication.getPrincipal();
 	        
 	        // 필요한 데이터를 모두 모델에 추가 (장소, 기자재, 신청인 데이터)
-	        List<Place> placeList = placeService.getAllPlaces();
-	        List<Item> itemList = itemService.getAllItems();
+	        List<Place> placeList = placeService.getAvaliablePlaces();
+	        List<Item> itemList = itemService.getAvailableItems();
 	        List<Employee> employeeList = employeeService.findAllEmployees();
 	        List<TeacherHistory> thList = teacherHistoryService.findAllTeachers();
 	        
@@ -90,8 +101,7 @@ public class PlaceScheduleViewController {
 		@ResponseBody  // JSON 응답을 위해 추가
 		public List<PlaceItemScheduleVo> totalScheduleData(){
 	        List<PlaceItemScheduleVo> totalSchedule = placeScheduleService.selectTotalScheduleList();
-	        
-	        
+     
 	        return totalSchedule; // 일정 조회 결과를 VO로 반환
 		}
 	

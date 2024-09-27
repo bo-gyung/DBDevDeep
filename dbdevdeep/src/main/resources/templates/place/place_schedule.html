@@ -14,6 +14,97 @@
     <link href="/dist/css/style.min.css" rel="stylesheet">
     <style>
     
+    #calendar {
+	  width: 100%; /* 부모 요소의 너비를 캘린더에 적용 */
+	  height: 800px; /* 높이는 자동으로 설정 */
+	}
+	
+    
+    /* 이벤트 상자의 최소 높이 설정 */
+    .fc-time-grid-event {
+        min-height: 40px; /* 이벤트 상자의 최소 높이를 늘림 */
+    }
+
+    /* 이벤트 내부 텍스트의 패딩 조정 */
+    .fc-time-grid-event .fc-content {
+        padding: 5px; /* 이벤트 상자 내부의 여백을 추가 */
+        white-space: normal; /* 텍스트가 길 경우 줄바꿈 허용 */
+    }
+
+    /* 이벤트 텍스트 크기 조정 */
+    .fc-time-grid-event .fc-title,
+    .fc-time-grid-event .fc-time {
+        font-size: 12px; /* 이벤트 텍스트 크기를 조정 */
+        color : black;
+    }
+
+    /* 이벤트가 겹치는 경우 내부 여백을 줄여 텍스트 표시 가능하게 함 */
+    .fc-event {
+        padding: 3px;
+        color: black !important;
+    }
+    
+    
+    /* 주간/일간 뷰에서 이벤트 텍스트 크기 줄이기 */
+    .fc-time-grid-event .fc-title, 
+    .fc-time-grid-event .fc-time {
+        font-size: 12px;  /* 이벤트 제목과 시간의 폰트 크기 조정 */
+    }
+
+    /* 이벤트 상자의 백그라운드 높이 줄이기 */
+    .fc-time-grid-event {
+        padding: 3px; /* 이벤트 상자 내부 여백 줄이기 */
+    }
+
+    /* 월간 뷰에서 이벤트 텍스트 크기 조정 */
+    .fc-day-grid-event .fc-title {
+        font-size: 12px; /* 이벤트 제목의 폰트 크기 */
+    }
+
+    /* 월간/주간/일간 뷰에서 백그라운드 높이 줄이기 */
+    .fc-event {
+        min-height: 20px; /* 이벤트 상자의 최소 높이 설정 */
+    }
+
+    /* 월간 뷰에서 이벤트 박스 높이 줄이기 */
+    .fc-day-grid-event {
+        padding: 3px;  /* 이벤트 상자 내부 여백 */
+    }
+    
+    /* 일정 동그라미표시 */
+    .fc-daygrid-event-dot {
+	border-width: 7px;
+	
+}
+    
+    /* FullCalendar 일정 이벤트 텍스트 색상을 검정으로 설정 */
+.fc-event, .fc-event-dot {
+	color: black !important; /* 텍스트 색상을 검정으로 강제 설정 */
+	text-decoration: none !important; /* 링크 밑줄 제거 */
+}
+
+.fc-dayGridMonth-view .fc-event-title-container {
+	height: 20px !important; /* 원하는 높이로 조정 */
+	line-height: 20px !important; /* 텍스트가 중앙에 오도록 설정 */
+}
+
+.fc-event-title {
+	font-weight: normal !important; /* 제목 글씨를 일반 두께로 설정 */
+}
+
+.fc-dayGridMonth-view .fc-daygrid-event {
+	margin-left: 1px !important;
+	margin-right: 1px !important;
+	margin-bottom: 0px !important;
+}
+
+.fc-daygrid-day-bottom {
+	padding-right: 5px !important;
+	padding-left: 5px !important;
+}
+
+    
+    
     	.fc-timegrid-allday {
 	    display: none; /* All-day 행을 숨깁니다 */
 			}
@@ -113,7 +204,7 @@
                     <i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
                     일정 등록
                 </div>
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                <button type="button" class="close" data-dismiss="modal" >
                     <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
                 </button>
             </div>
@@ -193,7 +284,7 @@
 								                <input type="checkbox" id="deselect-all"> 전체 해제
 								            </label>
 			                            <label class="mr-2" th:each="item : ${itemList}">
-			                                <input type="checkbox" name="item_no[]" th:value="${item.itemNo}" th:text="${item.itemName}">
+			                                <input type="checkbox" id = "create_item_no" name="item_no" th:value="${item.itemNo}" th:text="${item.itemName}">
 			                            </label>
 			                            
 			                        </div>
@@ -251,7 +342,7 @@
                 <div class="modal-content" style="height:72%;">
                     <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
                         <div class="modal-title" id="scheduleEditModalLabel">일정 수정</div>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                        <button type="button" class="close" data-dismiss="modal" >X</button>
                     </div>
                     <form id="scheduleEditFrm">
                         <div class="modal-body" style="padding:0px;">
@@ -271,8 +362,8 @@
     </div>
 
 <script>
+let calendar;  // 전역 변수로 선언
 
-// 등록폼 노출시키는 영역
 $(document).ready(function () {
     // 처음 페이지 로드 시 체크박스 영역을 숨김.
     $('#item-checkboxes').hide();
@@ -280,7 +371,6 @@ $(document).ready(function () {
     // 장소 선택이 변경되었을 때 호출되는 함수
     $('#create_place_no').on('change', function() {
         const placeNo = $(this).val();  // 선택된 장소 번호
-        
 
         // 선택된 값이 0이 아니면 AJAX 요청을 보냄
         if (!isNaN(placeNo) && placeNo !== '') {
@@ -291,14 +381,12 @@ $(document).ready(function () {
                 contentType: 'application/json; charset=utf-8',  // JSON 형식으로 데이터를 전송
                 dataType: 'json',  // 서버에서 받을 데이터 형식을 JSON으로 지정
                 success: function(data) {
-                    
                     // 기자재 체크박스 업데이트
                     updateCheckboxes(data);
                     // 기자재가 있을 경우 체크박스 영역을 표시
                     $('#item-checkboxes').show();
                 },
                 error: function(xhr, status, error) {
-                    console.error("Error: ", status, error);
                     alert("기자재 정보를 불러오는데 실패했습니다.");
                 }
             });
@@ -322,7 +410,7 @@ $(document).ready(function () {
         items.forEach(function(item) {
             checkboxesHtml += `
                 <label class="mr-2">
-                    <input type="checkbox" class="item-checkbox" name="item_no[]" value="${item.itemNo || item.item_no}">
+                    <input type="checkbox" class="item-checkbox" name="item_no_list" value="${item.itemNo || item.item_no}">
                     ${item.itemName || item.item_name}
                 </label>
             `;
@@ -358,22 +446,24 @@ $(document).ready(function () {
             $('#deselect-all').prop('checked', checkedItems === 0);
         });
     }
-});
 
-
-// 전체 조회(캘린더 폼)
-
-$(document).ready(function () {
+    // 캘린더 초기화
     let calendarEl = document.getElementById('calendar');
-    let calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',  // 기본 월간 뷰
+
+    // 장소 번호에 따른 색상을 저장할 객체
+    let placeColorMap = {};
+    let fixedColors = ['#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3', '#FFC0CB', '#A52A2A', '#FFD700', '#00FFFF', '#8B4513'];
+    let colorIndex = 0;
+
+    calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
         headerToolbar: {
-            left: 'prev,next today',  // 왼쪽에 이전, 다음, 오늘 버튼
-            center: 'title',          // 가운데 날짜 타이틀
-            right: ''                 // FullCalendar 내장 버튼 비활성화 (HTML로 관리)
+            left: 'prev,next today',
+            center: 'title',
+            right: ''
         },
         locale: 'ko',
-        buttonText: {  // 버튼 텍스트를 한국어로 설정
+        buttonText: {
             today: '오늘',
             month: '월간',
             week: '주간',
@@ -381,86 +471,85 @@ $(document).ready(function () {
             prev: '이전',
             next: '다음'
         },
-        displayEventTime: false, // 시간 및 날짜 숨기기
+        displayEventTime: true,
+        eventTimeFormat: {
+            hour: 'numeric',
+            minute: '2-digit',
+            meridiem: false
+        },
+        slotEventOverlap: false,
+        eventOverlap: false,
         dayHeaderClassNames: function(arg) {
-            // 요일 헤더에 클래스 추가
-            if (arg.date.getDay() === 0) {
-                return ['fc-day-sun'];
-            }
-            if (arg.date.getDay() === 6) {
-                return ['fc-day-sat'];
-            }
+            if (arg.date.getDay() === 0) return ['fc-day-sun'];
+            if (arg.date.getDay() === 6) return ['fc-day-sat'];
         },
         dayCellClassNames: function(arg) {
-            // 날짜 셀에 클래스 추가
-            if (arg.date.getDay() === 0) {
-                return ['fc-day-sun'];
-            }
-            if (arg.date.getDay() === 6) {
-                return ['fc-day-sat'];
-            }
+            if (arg.date.getDay() === 0) return ['fc-day-sun'];
+            if (arg.date.getDay() === 6) return ['fc-day-sat'];
         },
-        views: {
-                // 주간 뷰에서 All-day 행 숨김
-            timeGridWeek: {
-                allDaySlot: false, 
-                eventTimeFormat : {}
-            },
-            timeGridDay: {
-                // 일간 뷰에서 All-day 행 숨김
-                allDaySlot: false,
-                eventTimeFormat: {}
-            }
-        },
-        
         events: function(fetchInfo, successCallback, failureCallback) {
             $.ajax({
-                url: '/totalSchedule',  // 데이터 조회 URL
+                url: '/totalSchedule',
                 type: 'GET',
                 success: function(data) {
-                	// FullCalendar에서 요구하는 형식으로 데이터 변환
                     let events = data.map(function(schedule) {
-                    	let gradeClass = schedule.grade + "학년 " + schedule.gradeClass + "반";  // 학급(grade) + 반(gradeClass)
-                        let place = schedule.place_name;  // 장소명
-                        let title = schedule.place_schedule_title;  // 일정 제목
-                    	
+                        let placeNo = schedule.place_no;
+                        let backgroundColor = placeColorMap[placeNo] || fixedColors[colorIndex++ % fixedColors.length];
+                        placeColorMap[placeNo] = backgroundColor;
                         return {
                             id: schedule.place_schedule_no,
-                            title: gradeClass + " " + place + " " + title,  // 세 가지 정보 결합
-                            start: schedule.start_date + 'T' + schedule.start_time,  // 시작일과 시간 결합
-                            end: schedule.end_date + 'T' + schedule.end_time,      // 종료일과 시간 결합
-                            description: schedule.place_schedule_content,         // 추가 설명
-                            empName: schedule.emp_name                            // 신청자명
-                            
+                            title: `${schedule.place_name} ${schedule.place_schedule_title}`,
+                            start: `${schedule.start_date}T${schedule.start_time}`,
+                            end: `${schedule.end_date}T${schedule.end_time}`,
+                            description: schedule.place_schedule_content,
+                            empName: schedule.emp_name,
+                            backgroundColor: backgroundColor
                         };
                     });
-                    console.log("Formatted events for FullCalendar: ", events);  // 이벤트 데이터를 FullCalendar 형식으로 변환 후 출력
-                    // FullCalendar에 이벤트 등록
                     successCallback(events);
                 },
                 error: function() {
                     failureCallback();
                 }
             });
+        },
+        eventDidMount: function(info) {
+            info.el.style.color = 'black';
+            info.el.style.fontWeight = 'bold';
+            const eventTitleElements = info.el.querySelectorAll('.fc-event-title, .fc-event-time');
+            eventTitleElements.forEach(function(titleEl) {
+                titleEl.style.color = 'black';
+            });
         }
     });
 
     calendar.render();
-	
-    
- // 등록 모달창 열기
+
+    // 뷰 전환 버튼 이벤트 추가
+    $('#month-view-button').on('click', function() {
+        calendar.changeView('dayGridMonth');
+    });
+
+    $('#week-view-button').on('click', function() {
+        calendar.changeView('timeGridWeek');
+    });
+
+    $('#day-view-button').on('click', function() {
+        calendar.changeView('timeGridDay');
+    });
+
+    // 등록 모달창 열기
     $('#register-button').on('click', function() {
         $('#scheduleCreateModal').modal('show');
     });
 
-    // 일정 등록 폼 제출
+    // 일정 등록 폼 제출 이벤트 핸들러
     $('#scheduleCreateFrm').on('submit', function(e) {
-        e.preventDefault();  // 기본 제출 동작 방지
+        e.preventDefault();
 
-        // 유효성 검사 초기화
         let vali_check = false; 
         let vali_text = '';
-        let form =  document.getElementById('scheduleCreateFrm');
+        let form = document.getElementById('scheduleCreateFrm');
 
         // 유효성 검사
         if (form.create_start_date.value === '') {
@@ -481,11 +570,22 @@ $(document).ready(function () {
         } else if (form.create_place_no.value === '') {
             vali_text += '장소를 선택해주세요.\n';
             form.create_place_no.focus();
+        } else if ($('.item-checkbox:checked').length === 0) {
+            vali_text += '최소 하나의 기자재를 선택하세요.';
+        } else if (form.create_emp_id.value === '') {
+            vali_text += '신청인을 선택해주세요.';
+            form.create_emp_id.focus();
         } else {
-            vali_check = true;  // 유효성 검사가 통과된 경우
+            const startDateTime = new Date(form.create_start_date.value + 'T' + form.create_start_time.value);
+            const endDateTime = new Date(form.create_end_date.value + 'T' + form.create_end_time.value);
+
+            if (startDateTime >= endDateTime) {
+                vali_text += '종료 날짜와 시간이 시작 날짜와 시간보다 이전이거나 같습니다.\n';
+            } else {
+                vali_check = true;
+            }
         }
 
-        // 유효성 검사가 실패하면 경고 메시지 표시
         if (!vali_check) {
             Swal.fire({
                 icon: 'error',
@@ -493,70 +593,62 @@ $(document).ready(function () {
                 text: vali_text,
                 confirmButtonText: "닫기"
             });
-        } else {
-            // 유효성 검사가 통과된 경우 폼 데이터를 FormData로 전송
-            const formData = new FormData(form);  // FormData 사용
-            // 확인용 로그
-            for (let pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
-            }
-            
-         
-            
-            
-            const csrfToken = document.getElementById('csrf_token').value;  // CSRF 토큰
+            return;
+        }
 
-            fetch('/place_schedule', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': csrfToken  // CSRF 토큰 추가
-                },
-                body: formData  // FormData로 폼 데이터 전송
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.res_code === '200') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '성공',
-                        text: data.res_msg,
-                        confirmButtonText: '닫기'
-                    }).then((result) => {
-                    	 calendar.refetchEvents();  // 캘린더의 데이터를 새로 불러옴
-                        location.href = "/place_schedule";  // 성공 후 페이지 이동
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: '실패',
-                        text: data.res_msg,
-                        confirmButtonText: "닫기"
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
+        const formData = new FormData(form);
+        const selectedItems = [];
+        $('.item-checkbox:checked').each(function() {
+            selectedItems.push($(this).val());
+        });
+
+        formData.append('item_no', selectedItems.join(',')); 
+
+        const csrfToken = document.getElementById('csrf_token').value;
+
+        fetch('/place_schedule', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.res_code === '200') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '성공',
+                    text: data.res_msg,
+                    confirmButtonText: '닫기'
+                }).then((result) => {
+                    if (calendar) {
+                        calendar.refetchEvents();
+                    }
+                    location.href = "/place_schedule";
+                });
+            } else {
                 Swal.fire({
                     icon: 'error',
-                    title: '서버 오류',
-                    text: '일정 등록 중 오류가 발생했습니다.',
+                    title: '실패',
+                    text: data.res_msg,
                     confirmButtonText: "닫기"
                 });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: '서버 오류',
+                text: '일정 등록 중 오류가 발생했습니다.',
+                confirmButtonText: "닫기"
             });
-        }
-    });
-    
-    // HTML에서 클릭 이벤트 추가
-    $('#month-view-button').on('click', function() {
-        calendar.changeView('dayGridMonth');
-    });
-
-    $('#week-view-button').on('click', function() {
-        calendar.changeView('timeGridWeek');
-    });
-
-    $('#day-view-button').on('click', function() {
-        calendar.changeView('timeGridDay');
+        });
     });
 });
 </script>
