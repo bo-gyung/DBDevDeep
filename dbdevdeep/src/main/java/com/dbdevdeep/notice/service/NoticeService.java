@@ -25,8 +25,6 @@ import com.dbdevdeep.notice.repository.NoticeReadCheckRepository;
 import com.dbdevdeep.notice.repository.NoticeRepository;
 import com.dbdevdeep.websocket.config.WebSocketHandler;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class NoticeService {
 	
@@ -35,6 +33,7 @@ public class NoticeService {
 	private final EmployeeRepository employeeRepository;
 	private final NoticeCategoryRepository noticeCategoryRepository;
 	private final WebSocketHandler webSocketHandler;
+	private final AlertMessageHandler alertMessageHandler;
 	private final AlertRepository alertRepository;
 	
 	@Autowired
@@ -42,6 +41,7 @@ public class NoticeService {
 			NoticeReadCheckRepository noticeReadCheckRepository, 
 			EmployeeRepository employeeRepository,
 			NoticeCategoryRepository noticeCategoryRepository,
+			AlertMessageHandler alertMessageHandler,
 			WebSocketHandler webSocketHandler,
 			AlertRepository alertRepository) {
 		this.noticeRepository = noticeRepository;
@@ -49,6 +49,7 @@ public class NoticeService {
 		this.employeeRepository = employeeRepository;
 		this.noticeCategoryRepository = noticeCategoryRepository;
 		this.webSocketHandler = webSocketHandler;
+		this.alertMessageHandler = alertMessageHandler;
 		this.alertRepository = alertRepository;
 	}
 	
@@ -129,14 +130,12 @@ public class NoticeService {
 					.build();
 			
 			noticeReadCheckRepository.save(newNrc);
-			
 			result=1;
 		}
 		return result;
 	}
 	
 	// 공지사항 게시글 작성
-	@Transactional
 	public int createNotice(NoticeDto dto) {
 		int result = -1;
 		
@@ -218,29 +217,10 @@ public class NoticeService {
 	}
 	
 	// 공지사항 게시글 삭제
-	@Transactional
 	public int deleteNotice(Long notice_no) {
 		int result = -1;
 		try {
 			noticeRepository.deleteById(notice_no);
-			
-			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("notice", notice_no);
-			
-			for(Alert alert : alertList) {
-				AlertDto alertDto = new AlertDto().toDto(alert);
-				
-				alertDto.setAlarm_status("X");
-				Alert a = alertDto.toEntity(alert.getEmployee());
-				
-				try {
-					alertRepository.delete(a);
-					
-					webSocketHandler.sendAlert(a);
-				} catch (IOException except) {
-					except.printStackTrace();
-				}
-			}
-			
 			result = 1;
 		} catch(Exception e) {
 			e.printStackTrace();

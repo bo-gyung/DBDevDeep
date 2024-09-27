@@ -395,6 +395,8 @@
 			
 			const payload = new FormData(form);
 			
+			console.log(form);
+			
 			const csrfToken = document.getElementById("csrf_token").value;
 			
 			fetch('/mypage/edit', {

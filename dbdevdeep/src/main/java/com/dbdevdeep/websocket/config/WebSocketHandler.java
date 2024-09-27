@@ -45,6 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	    private WebSocketSession session;
 	    private String nowPage;
 	    private int nowRoomNo;
+
     }
 	
 
@@ -179,11 +180,11 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
 	// 특정 사용자에게 알림을 보내는 메서드
 	public void sendAlert(Alert alert) throws IOException {
-		UserSessionInfo userSessionInfo = clients.get(alert.getEmployee().getEmpId());
-		if (userSessionInfo != null && userSessionInfo.getSession().isOpen()) {
+		WebSocketSession session = clients.get(alert.getEmployee().getEmpId()).getSession();
+		if (session != null && session.isOpen()) {
 			try {
 				String alertJson = alertMessageHandler.sendAlertMessageToUser(alert);
-				userSessionInfo.getSession().sendMessage(new TextMessage(alertJson));
+				session.sendMessage(new TextMessage(alertJson));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -8,26 +8,12 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
-public class MyLoginFailureHandler implements AuthenticationFailureHandler {
-
-	private final String empId = "emp_id";
-	private final String empPw = "emp_pw";
+public class MyLoginFailureHandler implements AuthenticationFailureHandler{
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		
-		String username = request.getParameter(empId);
-		String userpw = request.getParameter(empPw);
-		
-		request.setAttribute(empId, username);
-		request.setAttribute(empPw, userpw);
-		
 		response.sendRedirect("/login");
 	}
 }
