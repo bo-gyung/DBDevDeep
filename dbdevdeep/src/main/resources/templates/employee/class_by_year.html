@@ -234,7 +234,10 @@
                         title: '성공',
                         text: data.res_msg,
                         confirmButtonText: "닫기"
-                    });
+                    })
+                    .then(() => {
+                    	location.href="/grade-class/list";
+                    })
                 } else {
                     Swal.fire({
                         icon: 'error',

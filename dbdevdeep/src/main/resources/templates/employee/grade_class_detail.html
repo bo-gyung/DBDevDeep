@@ -392,10 +392,10 @@
 					const csrfToken = document.getElementById('csrf_token').value;
 					
 					const obj = {};
-          payload.forEach((value, key) => {
-          	obj[key] = value;
-          });
-          const jsonData = JSON.stringify(obj);
+		          payload.forEach((value, key) => {
+		          	obj[key] = value;
+		          });
+		          const jsonData = JSON.stringify(obj);
 
 					fetch('/grade-class/' + obj.t_year, {
 						method: 'PUT',
@@ -408,7 +408,6 @@
 					})
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
 						if(data.res_code == '200'){
 								Swal.fire({
 									icon :'success',
@@ -416,7 +415,7 @@
 									text : data.res_msg,
 									confirmButtonText:"닫기"
 								}).then((result)=>{
-									location.href="/grade-class/" + editClassForm.t_year.value;
+									location.href="/grade-class/list";
 								});
 							} else {
 								Swal.fire({

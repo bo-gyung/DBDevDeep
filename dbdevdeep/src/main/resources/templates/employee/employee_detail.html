@@ -455,7 +455,11 @@
 															</tr>
 														</th:block>
 														<th:block th:if="${!#lists.isEmpty(attendDtoList)}">
-															<tr th:each="attend, attendStat : ${attendDtoList}">
+															<tr th:each="attend, attendStat : ${attendDtoList}"
+																data-attendNo="${atten}"
+																class="attend_history"
+																data-toggle="modal" 
+																data-target="#attend_modal">
 																<td scope="row" th:text="${attendStat.count}"></td>
 																<td th:text="${attend.attend_date}"></td>
 																<td th:text="${#temporals.format(attend.check_in_time, 'HH:mm:ss')}"></td>
@@ -809,6 +813,90 @@
 						<div class="form-group">
 							<label for="stop_reason_L">퇴직 사유 <span style="color: red;">*</span></label> 
 							<input type="text" class="form-control" placeholder="퇴직 사유를 33자 이내로 입력하세요." id="stop_reason_L" name="stop_reason" maxlength="33">
+							<div id="stop_reason_L_feedback" class="mt-2"></div>
+						</div>
+						<div class="col-12 d-flex justify-content-end">
+							<button type="button" class="btn waves-effect waves-light btn-light m-1" data-dismiss="modal" aria-hidden="true">취소</button>
+							<button type="submit" disabled="disabled" class="btn waves-effect waves-light btn-primary m-1" id="leaveBtn">퇴직</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /.modal -->
+	
+	<!-- attend 모달창 -->
+	<div id="attend_modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header modal-colored-header bg-info">
+					<h4 class="modal-title" id="info-header-modalLabel">전근</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="modal-body">
+					<div class="col-12">
+
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-6">
+									<label>교육청관리번호</label> 
+									<input type="text" class="form-control" id="gov_id" name="gov_id" placeholder="00000000000" maxlength="11" th:value="${'N - ' + empDto.gov_id}" readonly>
+								</div>
+								<div class="col-md-6">
+									<label>재직상태</label> 
+									<input type="text" class="form-control" readonly th:value="${empDto.ent_status == 'Y' ? '재직' : 
+										empDto.ent_status == 'N' ? '퇴직' : empDto.ent_status == 'R' ? '휴직' : 
+										empDto.ent_status == 'L' ? '전근' : '-'}">
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-6">
+									<label for="gov_id">이름</label> 
+									<input type="text" class="form-control" id="emp_name" name="emp_name" placeholder="홍길동" th:value="${empDto.emp_name}" readonly>
+								</div>
+								<div class="col-md-6">
+									<label for="gov_id">직원번호</label> 
+									<input type="text" class="form-control" id="emp_id" name="emp_id" th:value="${empDto.emp_id}" placeholder="00000000000" maxlength="11" readonly>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-6">
+									<label>부서</label> <input type="text" class="form-control" readonly th:value="${empDto.dept_name}">
+								</div>
+								<div class="col-md-6">
+									<label>직급</label> <input type="text" class="form-co
+									ntrol" readonly th:value="${empDto.job_name}">
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<form class="pl-3 pr-3" id="leaveFrm">
+						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="status_type" value="N">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
+						<div class="form-group">
+							<label for="attend_date">근무일</label> 
+							<input type="date" class="form-control" id="attend_date" name="attend_date">
+							<div id="stop_date_L_feedback" class="mt-2"></div>
+						</div>
+						<div class="form-group">
+							<label for="check_in_time">출근시간</label> 
+							<input type="time" class="form-control" id="check_in_time" maxlength="33">
+							<input type="datetime-local" name="check_in">
+							<div id="stop_reason_L_feedback" class="mt-2"></div>
+						</div>
+						<div class="form-group">
+							<label for="check_out_time">출근시간</label> 
+							<input type="time" class="form-control" id="check_out_time" name="check_out_time" maxlength="33">
 							<div id="stop_reason_L_feedback" class="mt-2"></div>
 						</div>
 						<div class="col-12 d-flex justify-content-end">
