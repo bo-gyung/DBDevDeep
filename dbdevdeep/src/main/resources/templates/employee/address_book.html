@@ -54,7 +54,7 @@
 								</div>
 								<div class="col d-flex justify-content-end" style="height: 20px;"></div>
 								<div class="table-responsive">
-									<table id="address_book" class="table table-hover table-bordered no-wrap" style="width:100%">
+									<table id="address_book" class="table table-bordered no-wrap" style="width:100%">
 										<thead>
 											<tr>
 												<th scope="col">번호</th>
@@ -109,37 +109,35 @@
 			</footer>
 			<script>
 				document.addEventListener("DOMContentLoaded", function() {
-					var table = $('#address_all_book').DataTable();
+					var table = $('#address_book').DataTable();
 
 					// 담당 셀 업데이트 함수
 					function updateStatusCells() {
 						var cells = document.querySelectorAll('.status-cell');
 
-						cells
-								.forEach(function(cell) {
-									var dept_code = cell
-											.getAttribute('data-dept-code');
+						cells.forEach(function(cell) {
+							var dept_code = cell.getAttribute('data-dept-code');
 
-									if (!cell.textContent.trim()) {
-										switch (dept_code) {
-										case 'D4':
-											cell.textContent = '미배정';
-											break;
-										case 'D3':
-											cell.textContent = '행정업무';
-											break;
-										case 'D2':
-											cell.textContent = '교감업무';
-											break;
-										case 'D1':
-											cell.textContent = '교장업무';
-											break;
-										default:
-											cell.textContent = '알 수 없음'; // 기본값 처리
-											break;
-										}
-									}
-								});
+							if (!cell.textContent.trim()) {
+								switch (dept_code) {
+								case 'D4':
+									cell.textContent = '미배정';
+									break;
+								case 'D3':
+									cell.textContent = '행정업무';
+									break;
+								case 'D2':
+									cell.textContent = '교감업무';
+									break;
+								case 'D1':
+									cell.textContent = '교장업무';
+									break;
+								default:
+									cell.textContent = '알 수 없음'; // 기본값 처리
+									break;
+								}
+							}
+						});
 					}
 
 					// 페이지 변경, 정렬, 필터링, 데이터 로드 후 호출
