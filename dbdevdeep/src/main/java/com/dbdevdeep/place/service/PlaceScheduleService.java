@@ -1,5 +1,6 @@
 package com.dbdevdeep.place.service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,22 @@ public class PlaceScheduleService {
 		this.placeScheduleRepository = placeScheduleRepository;
 	}
 	
+	// 날짜포맷팅
+	public List<PlaceItemScheduleVo> scheduleList() {
+	    List<PlaceItemScheduleVo> totalSchedule = placeScheduleVoMapper.getTotalScheduleList();
+	    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
+	    for (PlaceItemScheduleVo schedule : totalSchedule) {
+	        if (schedule.getReg_date() != null) {
+	            String formattedDate = schedule.getReg_date().format(dateFormatter);
+	            schedule.setFormattedRegDate(formattedDate);
+	            
+	        }
+	    }
+
+	    return totalSchedule;
+	}
+
 	//일정 삭제
 	  public int deletePlaceSchedule(Long place_schedule_no) {
 		  try {

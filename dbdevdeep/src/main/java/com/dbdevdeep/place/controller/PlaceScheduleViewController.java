@@ -46,6 +46,17 @@ public class PlaceScheduleViewController {
 	}
 	
 	
+	// 일정등록 목록 조회
+	@GetMapping("schedule_list")
+		public String scheduleList(Model model) {
+			List<PlaceItemScheduleVo> totalSchedule = placeScheduleService.scheduleList();
+			
+			model.addAttribute("resultList", totalSchedule);
+			
+			return "place/schedule_list";
+		}
+	
+	
 	
 		
 	// 일정 상세 조회 (AJAX 요청용)
