@@ -14,6 +14,11 @@
     <link href="/dist/css/style.min.css" rel="stylesheet">
     <style>
     
+ /* 기존 .event-clickable을 포함한 다른 가능한 요소들에 적용 */
+.fc-event, .event-clickable {
+    cursor: pointer !important;
+}
+    
     #calendar {
 	  width: 100%; /* 부모 요소의 너비를 캘린더에 적용 */
 	  height: 800px; /* 높이는 자동으로 설정 */
@@ -350,7 +355,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn waves-effect waves-light btn-outline-secondary public-btn" data-dismiss="modal">닫기</button>
-                <button type="button" class="btn waves-effect waves-light btn-primary public-btn" id="deleteButton">삭제</button>
+                <button type="button" class="btn waves-effect waves-light btn-primary public-btn" id="delete-schedule-button">삭제</button>
             </div>
             <!-- CSRF 토큰 추가 -->
             <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
@@ -832,6 +837,11 @@ $(document).ready(function () {
                         </table>
                     </div>
                 `;
+                
+                 // 삭제 버튼 클릭 이벤트 등록
+            $('#delete-schedule-button').on('click', function() {
+                deleteSchedule(data.place_schedule_no);
+            });
 
                 // 모달을 화면에 표시
                 $('#scheduleDetailModal').modal('show');
@@ -841,6 +851,46 @@ $(document).ready(function () {
             }
         });
     }
+ 
+ // 일정 삭제
+    function deleteSchedule(place_schedule_no) {
+        Swal.fire({
+            title: '삭제하시겠습니까?',
+            text: '삭제하면 복구할 수 없습니다.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '삭제',
+            cancelButtonText: '취소'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // CSRF 토큰 가져오기
+                const csrfToken = document.getElementById('csrf_token').value;
+
+                $.ajax({
+                    url: '/place_schedule/delete/' + place_schedule_no,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken // CSRF 토큰을 헤더에 포함
+                    },
+                    success: function(response) {
+                        if (response.res_code === '200') {
+                            Swal.fire('삭제 완료', response.res_msg, 'success');
+                            $('#scheduleDetailModal').modal('hide');
+                            if (calendar) {
+                                calendar.refetchEvents();
+                            }
+                        } else {
+                            Swal.fire('실패', response.res_msg, 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('실패', '일정 삭제 중 오류가 발생하였습니다.', 'error');
+                    }
+                });
+            }
+        });
+    }
+ 
 });
 </script>
 

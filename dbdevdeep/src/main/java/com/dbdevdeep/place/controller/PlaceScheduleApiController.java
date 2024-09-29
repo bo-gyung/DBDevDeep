@@ -1,17 +1,16 @@
 package com.dbdevdeep.place.controller;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.dbdevdeep.place.domain.Item;
 import com.dbdevdeep.place.repository.ItemRepository;
 import com.dbdevdeep.place.service.ItemService;
 import com.dbdevdeep.place.service.PlaceScheduleService;
@@ -32,7 +31,21 @@ public class PlaceScheduleApiController {
 	}
 	
 	
-	
+	// 삭제
+	@ResponseBody
+	@DeleteMapping("/place_schedule/delete/{place_schedule_no}")
+	public Map<String, String> deletePlaceSchedule(@PathVariable("place_schedule_no") Long place_schedule_no){
+		Map<String, String> resultMap = new HashMap<String, String>();
+		
+		resultMap.put("res_code", "404");
+		resultMap.put("res_msg", "일정 삭제중 오류가 발생하였습니다.");
+		
+		if(placeScheduleService.deletePlaceSchedule(place_schedule_no) > 0) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "일정 삭제에 성공했습니다.");
+		}
+		return resultMap;
+	}
 	
 	
 	// 등록

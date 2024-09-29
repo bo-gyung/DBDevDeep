@@ -3,6 +3,7 @@ package com.dbdevdeep.place.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.dbdevdeep.employee.domain.Employee;
@@ -42,6 +43,22 @@ public class PlaceScheduleService {
 		this.teacherHistoryRepository = teacherHistoryRepository;
 		this.placeScheduleRepository = placeScheduleRepository;
 	}
+	
+	//일정 삭제
+	  public int deletePlaceSchedule(Long place_schedule_no) {
+		  try {
+	            // 삭제 수행
+	            placeScheduleRepository.deleteById(place_schedule_no);
+	            return 1; // 성공적으로 삭제된 경우 1 반환
+	        } catch (EmptyResultDataAccessException e) {
+	            // 이미 존재하지 않는 경우 예외 처리
+	            return 0; // 삭제할 일정이 존재하지 않는 경우 0 반환
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            return 0; // 다른 오류 발생 시 0 반환
+	        }
+	    }
+	
 	
 	
 	// 일정상세조회
