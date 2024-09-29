@@ -45,7 +45,8 @@ public class PlaceScheduleService {
 		this.placeScheduleRepository = placeScheduleRepository;
 	}
 	
-	// 날짜포맷팅
+	
+	// 일정현황리스트
 	public List<PlaceItemScheduleVo> scheduleList() {
 	    List<PlaceItemScheduleVo> totalSchedule = placeScheduleVoMapper.getTotalScheduleList();
 	    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
@@ -56,11 +57,24 @@ public class PlaceScheduleService {
 	            schedule.setFormattedRegDate(formattedDate);
 	            
 	        }
+	        // 학년/반 정보 설정 및 제목 구성
+	        String formattedTitle = schedule.getPlace_schedule_title(); // 기본 제목 설정
+
+	        if (schedule.getEmp_id() != null) {
+	            TeacherHistory latestHistory = teacherHistoryRepository.selectLatestTeacherHistoryByEmployee(schedule.getEmp_id());
+
+	            if (latestHistory != null && latestHistory.getGrade() > 0 && latestHistory.getGradeClass() > 0) {
+	                // grade와 gradeClass가 유효한 경우만 학년/반을 추가
+	                formattedTitle = latestHistory.getGrade() + "학년 " + latestHistory.getGradeClass() + "반 - " + schedule.getPlace_schedule_title();
+	            }
+	        }
+	        
+	        // 구성된 제목을 VO에 설정
+	        schedule.setPlace_schedule_title(formattedTitle);
 	    }
 
 	    return totalSchedule;
 	}
-
 	//일정 삭제
 	  public int deletePlaceSchedule(Long place_schedule_no) {
 		  try {
@@ -78,35 +92,52 @@ public class PlaceScheduleService {
 	
 	
 	
-	// 일정상세조회
-	public PlaceItemScheduleVo getScheduleDetail(Long placeScheduleNo) {
-		
-		PlaceItemSchedule pis = placeScheduleRepository.findByPlaceScheduleNo(placeScheduleNo);
-		
-		if(pis == null) {
-			 throw new IllegalArgumentException("해당 일정이 존재하지 않습니다: " + pis);
+	  public PlaceItemScheduleVo getScheduleDetail(Long placeScheduleNo) {
+		    PlaceItemSchedule pis = placeScheduleRepository.findByPlaceScheduleNo(placeScheduleNo);
+		    
+		    if (pis == null) {
+		        throw new IllegalArgumentException("해당 일정이 존재하지 않습니다: " + placeScheduleNo);
+		    }
+
+		    PlaceItemScheduleVo pisv = PlaceItemScheduleVo.builder()
+		        .place_schedule_no(pis.getPlaceScheduleNo())
+		        .place_schedule_title(pis.getPlaceScheduleTitle())
+		        .place_no(pis.getPlace().getPlaceNo())
+		        .place_name(pis.getPlace().getPlaceName())
+		        .emp_id(pis.getEmployee().getEmpId())
+		        .emp_name(pis.getEmployee().getEmpName())
+		        .start_date(pis.getStartDate())
+		        .start_time(pis.getStartTime())
+		        .end_date(pis.getEndDate())
+		        .end_time(pis.getEndTime())
+		        .item_no(pis.getItem().getItemNo())
+		        .item_name(pis.getItem().getItemName())
+		        .item_quantity(pis.getItem().getItemQuantity())
+		        .place_schedule_content(pis.getPlaceScheduleContent())
+		        .reg_date(pis.getRegDate()) // 등록 날짜 추가
+		        .build();
+
+		    // 날짜와 시간 포맷팅
+		    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+		    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+		    // 등록 날짜 포맷팅
+		    if (pisv.getReg_date() != null) {
+		        pisv.setFormattedRegDate(pisv.getReg_date().format(dateFormatter));
+		    }
+
+		    // 이용 시간 포맷팅
+		    if (pisv.getStart_date() != null && pisv.getStart_time() != null 
+		            && pisv.getEnd_date() != null && pisv.getEnd_time() != null) {
+		        String formattedUsageTime = pisv.getStart_date().format(dateFormatter) + " "
+		                + pisv.getStart_time().format(timeFormatter) + " ~ "
+		                + pisv.getEnd_date().format(dateFormatter) + " "
+		                + pisv.getEnd_time().format(timeFormatter);
+		        pisv.setFormattedUsageTime(formattedUsageTime);
+		    }
+
+		    return pisv;
 		}
-	
-		PlaceItemScheduleVo pisv = PlaceItemScheduleVo.builder()
-			.place_schedule_no(pis.getPlaceScheduleNo())
-			.place_schedule_title(pis.getPlaceScheduleTitle())
-			.place_no(pis.getPlace().getPlaceNo())
-			.place_name(pis.getPlace().getPlaceName())
-			.emp_id(pis.getEmployee().getEmpId())
-			.emp_name(pis.getEmployee().getEmpName())
-			.start_date(pis.getStartDate())
-			.start_time(pis.getStartTime())
-			.end_date(pis.getEndDate())
-			.end_time(pis.getEndTime())
-			.item_no(pis.getItem().getItemNo())
-			.item_name(pis.getItem().getItemName())
-			.item_quantity(pis.getItem().getItemQuantity())
-			.place_schedule_content(pis.getPlaceScheduleContent())
-			.build();
-		
-		return pisv;
-		
-	}
 	
 	
 	// 일정 겹침 여부 확인하는 메소드

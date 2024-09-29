@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{include/place_layout}">
+<th:block layout:fragment="content">
+
+    <style>
+        .modal-container {
+            max-width: 60%; /* 폼 너비를 줄입니다. */
+            width: 60%;
+            height: auto;
+            margin: 80px auto; /* 상단과 좌우 여백을 줍니다. */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            padding: 20px;
+            position: relative;
+            left: 5%; /* 오른쪽으로 이동 */
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 24px;
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+        }
+
+        .modal-body {
+            padding: 40px;
+            font-size: 16px;
+        }
+
+        .table-bordered {
+            border: 1px solid #e8eef3;
+            width: 100%;
+            margin: 30px 0;
+        }
+
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #e8eef3;
+            padding: 15px;
+            font-size: 16px;
+        }
+
+        .table-bordered th {
+            background-color: #f2f2f2;
+            width: 30%;
+            text-align: center;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px;
+            border-top: 1px solid #e8eef3;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        .btn-outline-secondary {
+            margin-right: 15px;
+        }
+    </style>
+
+    <div class="modal-container">
+        <div class="modal-header modal-colored-header bg-primary">
+            <div>일정 상세 정보</div>
+            <button type="button" class="close" onclick="window.history.back();">
+                <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th>일정 제목</th>
+                        <td th:text="${scheduleDetail.place_schedule_title}"></td>
+                    </tr>
+                    <tr>
+                        <th>일정 내용</th>
+                        <td th:text="${scheduleDetail.place_schedule_content}"></td>
+                    </tr>
+                    <tr>
+                        <th>장소</th>
+                        <td th:text="${scheduleDetail.place_name}"></td>
+                    </tr>
+                    <tr>
+                        <th>기자재</th>
+                        <td th:text="${scheduleDetail.item_name}"></td>
+                    </tr>
+                    <tr>
+                        <th>관리번호</th>
+                        <td th:text="${scheduleDetail.management_no}"></td>
+                    </tr>
+                    <tr>
+                        <th>이용 시간</th>
+                        <td th:text="${scheduleDetail.formattedUsageTime}"></td>
+                    </tr>
+                    <tr>
+                        <th>신청인</th>
+                        <td th:text="${scheduleDetail.emp_name}"></td>
+                    </tr>
+                    <tr>
+                        <th>등록 날짜</th>
+                        <td th:text="${scheduleDetail.formattedRegDate}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" onclick="window.history.back();">취소</button>
+            <button type="button" class="btn btn-primary" onclick="window.history.back();">삭제</button>
+        </div>
+    </div>
+
+		<!-- JavaScript 파일 로딩 -->
+	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/dist/js/app-style-switcher.js"></script>
+    <script src="/dist/js/feather.min.js"></script>
+    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+    <script src="/dist/js/sidebarmenu.js"></script>
+    <script src="/dist/js/custom.min.js"></script>
+</th:block>
+</html>

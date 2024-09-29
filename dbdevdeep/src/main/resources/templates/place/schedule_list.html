@@ -168,7 +168,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											</tr>
 										</th:block>
 										<th:block th:if="${!#lists.isEmpty(resultList)}">
-											<tr th:each="schedule : ${resultList}">
+											<tr th:each="schedule : ${resultList}" th:data-schedule-no="${schedule.place_schedule_no}">
 												<td th:text="${schedule.place_schedule_title}"></td>
 												<td th:text="${schedule.place_name}"></td>
 												<td th:text="${schedule.item_name}"></td>
@@ -235,13 +235,14 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		<script src="assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 		<script src="dist/js/pages/datatable/datatable-basic.init.js"></script>
 		 <script>
-			$('#schedule_list').on('click', 'td', function(){
-				let placeScheduleNo = $(this).closest('tr').find('td:nth-child(1)').text();
-				
-				if(placeScheduleNo){
-					window.location.href = '/schedule_list/' + placeScheduleNo;
-				}
-			});
+			// 일정 항목을 클릭했을 때 상세 조회 페이지로 이동
+		    $('#schedule_list').on('click', 'tr', function () {
+		        let scheduleNo = $(this).data('schedule-no'); // data-* 속성을 통해 scheduleNo 가져오기
+
+		        if (scheduleNo) {
+		            window.location.href = '/schedule/detail/' + scheduleNo;
+		        }
+		    });
 		</script> 
 	
 	

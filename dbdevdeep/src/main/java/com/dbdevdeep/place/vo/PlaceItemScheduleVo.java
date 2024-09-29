@@ -50,5 +50,5 @@ private Long place_schedule_no;
 	private LocalDateTime mod_date;
 	
 	private String formattedRegDate; // 날짜 포맷팅 결과를 담을 필드
-	
+	private String formattedUsageTime;  // 이용 시간을 포맷팅한 결과를 저장
 }

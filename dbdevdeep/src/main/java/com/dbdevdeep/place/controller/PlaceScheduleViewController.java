@@ -45,16 +45,29 @@ public class PlaceScheduleViewController {
 		this.employeeService = employeeService;
 	}
 	
+	// 일정등록목록 상세조회
+	@GetMapping("/schedule/detail/{placeScheduleNo}")
+	public String getScheduleDetail(@PathVariable("placeScheduleNo") Long placeScheduleNo, Model model) {
+		  // Service를 통해 일정 상세 정보 가져오기
+	    PlaceItemScheduleVo scheduleDetail = placeScheduleService.getScheduleDetail(placeScheduleNo);
+	    
+	    // 모델에 상세 정보를 담아서 뷰로 전달
+	    model.addAttribute("scheduleDetail", scheduleDetail);
+	    
+	    return "place/schedule_detail"; // 상세 정보 페이지로 이동
+	}
+	
+	
 	
 	// 일정등록 목록 조회
 	@GetMapping("schedule_list")
-		public String scheduleList(Model model) {
-			List<PlaceItemScheduleVo> totalSchedule = placeScheduleService.scheduleList();
-			
-			model.addAttribute("resultList", totalSchedule);
-			
-			return "place/schedule_list";
-		}
+	public String scheduleList(Model model) {
+		List<PlaceItemScheduleVo> totalSchedule = placeScheduleService.scheduleList();
+		
+		model.addAttribute("resultList", totalSchedule);
+		
+		return "place/schedule_list";
+	}
 	
 	
 	
