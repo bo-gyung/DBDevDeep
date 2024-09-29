@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -43,7 +44,26 @@ public class PlaceScheduleViewController {
 		this.teacherHistoryService = teacherHistoryService;
 		this.employeeService = employeeService;
 	}
+	
+	
+	
 		
+	// 일정 상세 조회 (AJAX 요청용)
+	@ResponseBody
+	@GetMapping("/place_schedule/detail/{placeScheduleNo}")
+	public PlaceItemScheduleVo getScheduleDetailForAjax(@PathVariable("placeScheduleNo") Long placeScheduleNo) {
+	    // 서비스에서 일정 상세 정보 가져오기
+	    PlaceItemScheduleVo scheduleDetail = placeScheduleService.getScheduleDetail(placeScheduleNo);
+	    
+	    // 가져온 데이터를 JSON 형태로 반환
+	    return scheduleDetail;
+		
+		
+	}
+	
+	
+	
+	
 		@GetMapping("/getItemsForPlace")
 		@ResponseBody
 		public List<ItemDto> getItemsForPlace(@RequestParam("placeNo") Long placeNo) {

@@ -7,6 +7,32 @@
 
 
 	
+	
+	<!-- 일정 상세 조회를 위한 쿼리 -->
+    <select id="selectScheduleDetail" parameterType="long" resultType="com.dbdevdeep.place.vo.PlaceItemScheduleVo">
+        SELECT 
+            ps.place_schedule_no AS placeScheduleNo,
+            ps.place_schedule_title AS placeScheduleTitle,
+            ps.place_schedule_content AS placeScheduleContent,
+            ps.start_date AS startDate,
+            ps.start_time AS startTime,
+            ps.end_date AS endDate,
+            ps.end_time AS endTime,
+            p.place_name AS placeName,
+            e.emp_name AS empName,
+            i.item_name AS itemName,
+            i.item_quantity AS itemQuantity
+        FROM 
+            place_item_schedule ps
+        JOIN 
+            place p ON ps.place_no = p.place_no
+        JOIN 
+            employee e ON ps.emp_id = e.emp_id
+        JOIN 
+            item i ON ps.item_no = i.item_no
+        WHERE 
+            ps.place_schedule_no = #{placeScheduleNo}
+    </select>
 
 	
 

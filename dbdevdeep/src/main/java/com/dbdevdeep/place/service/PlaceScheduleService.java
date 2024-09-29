@@ -43,9 +43,46 @@ public class PlaceScheduleService {
 		this.placeScheduleRepository = placeScheduleRepository;
 	}
 	
+	
+	// 일정상세조회
+	public PlaceItemScheduleVo getScheduleDetail(Long placeScheduleNo) {
+		
+		PlaceItemSchedule pis = placeScheduleRepository.findByPlaceScheduleNo(placeScheduleNo);
+		
+		if(pis == null) {
+			 throw new IllegalArgumentException("해당 일정이 존재하지 않습니다: " + pis);
+		}
+	
+		PlaceItemScheduleVo pisv = PlaceItemScheduleVo.builder()
+			.place_schedule_no(pis.getPlaceScheduleNo())
+			.place_schedule_title(pis.getPlaceScheduleTitle())
+			.place_no(pis.getPlace().getPlaceNo())
+			.place_name(pis.getPlace().getPlaceName())
+			.emp_id(pis.getEmployee().getEmpId())
+			.emp_name(pis.getEmployee().getEmpName())
+			.start_date(pis.getStartDate())
+			.start_time(pis.getStartTime())
+			.end_date(pis.getEndDate())
+			.end_time(pis.getEndTime())
+			.item_no(pis.getItem().getItemNo())
+			.item_name(pis.getItem().getItemName())
+			.item_quantity(pis.getItem().getItemQuantity())
+			.place_schedule_content(pis.getPlaceScheduleContent())
+			.build();
+		
+		return pisv;
+		
+	}
+	
+	
 	// 일정 겹침 여부 확인하는 메소드
 	public boolean isScheduleOverlapping(Long placeNo, String newStartDate, String newStartTime,
 			String newEndDate, String newEndTime) {
+		
+		// place_no가 0인 경우 겹침 검사를 하지 않고 바로 false 반환
+	    if (placeNo == 0) {
+	        return false; // 운동장은 겹침 검사 없이 항상 사용 가능
+	    }
 		
 		List<PlaceItemScheduleVo> existingSchedules = placeScheduleVoMapper.getTotalScheduleList();
 		
@@ -66,10 +103,7 @@ public class PlaceScheduleService {
 		return false;
 	}
 	
-	private String generateManagementNo(Long placeNo, String itemSerialNo) {
-	    // 장소 번호와 단일 기자재 일련번호를 결합하여 관리번호 생성 (예: 01-A01)
-	    return placeNo + "-" + itemSerialNo;
-	}
+	
 	
 	
 
@@ -78,7 +112,7 @@ public class PlaceScheduleService {
 	public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
 	    try {
 	        Place place = placeRepository.findByplaceNo(vo.getPlace_no());
-	        if (place == null) {
+	        if (place == null && vo.getPlace_no() != 0) {
 	            throw new IllegalArgumentException("해당 장소를 찾을 수 없습니다: " + vo.getPlace_no());
 	        }
 
@@ -93,23 +127,26 @@ public class PlaceScheduleService {
 	        }
 
 	        // 문자열 빌더를 사용해 아이템 번호와 관리 번호를 결합
-	        StringBuilder itemNoBuilder = new StringBuilder();
 	        StringBuilder serialNoBuilder = new StringBuilder();
 	        
 	        // 선언 위치를 for 루프 바깥으로 이동합니다.
 	        Item item = null;
-
-	        for (Long itemNo : vo.getItemNoList()) {
-	            item = itemRepository.findByitemNo(itemNo);
-	            if (item == null) {
-	                throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
-	            }
-
-	            // 아이템 일련번호를 ','로 결합하여 management_no 생성에 사용
-	            if (serialNoBuilder.length() > 0) {
-	                serialNoBuilder.append(",");
-	            }
-	            serialNoBuilder.append(item.getItemSerialNo());
+	        
+	        // place_no가 0이 아닌 경우에만 item_no 검증수행
+	        if(vo.getPlace_no() != 0) {
+	        	
+	        	for (Long itemNo : vo.getItemNoList()) {
+	        		item = itemRepository.findByitemNo(itemNo);
+	        		if (item == null) {
+	        			throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
+	        		}
+	        		
+	        		// 아이템 일련번호를 ','로 결합하여 management_no 생성에 사용
+	        		if (serialNoBuilder.length() > 0) {
+	        			serialNoBuilder.append(",");
+	        		}
+	        		serialNoBuilder.append(item.getItemSerialNo());
+	        	}
 	        }
 
 	        String managementNo = vo.getPlace_no() + "-" + serialNoBuilder.toString(); // 예: "01-A01,A02,A03"
