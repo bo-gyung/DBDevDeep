@@ -35,6 +35,7 @@ public class AlertMessageHandler {
 		child.put("alarm_time", alert.getAlarmTime().toString());
 		child.put("alarm_status", alert.getAlarmStatus());
 		child.put("reference_name", alert.getReferenceName());
+		child.put("reference_no", alert.getReferenceNo());
 
 		// 자식을 부모에 추가
 		root.set("alert", child);

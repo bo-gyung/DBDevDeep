@@ -30,4 +30,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>{
 	
 	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee")
 	List<Attendance> findByEmpIdList(@Param("employee") Employee employee);
+
+	Attendance findByattendNo(Long attend_no);
 }

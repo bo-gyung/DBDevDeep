@@ -33,7 +33,6 @@ public class NoticeService {
 	private final EmployeeRepository employeeRepository;
 	private final NoticeCategoryRepository noticeCategoryRepository;
 	private final WebSocketHandler webSocketHandler;
-	private final AlertMessageHandler alertMessageHandler;
 	private final AlertRepository alertRepository;
 	
 	@Autowired
@@ -41,7 +40,6 @@ public class NoticeService {
 			NoticeReadCheckRepository noticeReadCheckRepository, 
 			EmployeeRepository employeeRepository,
 			NoticeCategoryRepository noticeCategoryRepository,
-			AlertMessageHandler alertMessageHandler,
 			WebSocketHandler webSocketHandler,
 			AlertRepository alertRepository) {
 		this.noticeRepository = noticeRepository;
@@ -49,7 +47,6 @@ public class NoticeService {
 		this.employeeRepository = employeeRepository;
 		this.noticeCategoryRepository = noticeCategoryRepository;
 		this.webSocketHandler = webSocketHandler;
-		this.alertMessageHandler = alertMessageHandler;
 		this.alertRepository = alertRepository;
 	}
 	
@@ -221,6 +218,24 @@ public class NoticeService {
 		int result = -1;
 		try {
 			noticeRepository.deleteById(notice_no);
+			
+			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("notice", notice_no);
+			for (Alert alert : alertList) {
+				AlertDto alertDto = new AlertDto().toDto(alert);
+
+				alertDto.setAlarm_status("X");
+				Alert a = alertDto.toEntity(alert.getEmployee());
+				alertRepository.delete(alert);
+
+				// alert_status를 x로 처리하여 websocket_handler로 전송
+				// 이미 전송된 websocket 알람을 삭제하기 위함
+				try {
+					webSocketHandler.sendAlert(a); 
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
 			result = 1;
 		} catch(Exception e) {
 			e.printStackTrace();

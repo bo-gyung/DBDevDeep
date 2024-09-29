@@ -108,6 +108,7 @@
 												<th scope="col">번호</th>
 												<th scope="col">직원번호</th>
 												<!-- <th scope="col">직원성명</th> -->
+												<th scope="col">작업내용</th>
 												<th scope="col">작업유형</th>
 												<th scope="col">행정직원번호</th>
 												<!-- <th scope="col">행정직원성명</th> -->
@@ -123,10 +124,11 @@
 											<th:block th:if="${!#lists.isEmpty(logDtoList)}">
 												<tr th:each="log, logStat : ${logDtoList}" th:data-audit_no="${log.audit_no}" class="log-employee" style="cursor: pointer;">
 													<td scope="row" th:text="${logStat.count}"></td>
-													<td th:text="${log.emp_id}"></td>
+													<td th:text="${log.emp_name + '(' + log.emp_id + ')'}"></td>
 													<!-- <td th:text="${log.emp_name}"></td> -->
+													<td th:text="${log.changed_item == 'emp_info' ? '직원정보' : '근태'}"></td>
 													<td th:text="${log.audit_type == 'U' ? '수정' : '등록'}"></td>
-													<td th:text="${log.admin_id}"></td>
+													<td th:text="${log.admin_name + '(' + log.admin_id + ')'}"></td>
 													<!-- <td th:text="${log.admin_name}"></td> -->
 													<td th:text="${#temporals.format(log.reg_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
 												</tr>

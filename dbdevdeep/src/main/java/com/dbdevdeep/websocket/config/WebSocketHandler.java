@@ -180,14 +180,18 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
 	// 특정 사용자에게 알림을 보내는 메서드
 	public void sendAlert(Alert alert) throws IOException {
-		WebSocketSession session = clients.get(alert.getEmployee().getEmpId()).getSession();
-		if (session != null && session.isOpen()) {
-			try {
-				String alertJson = alertMessageHandler.sendAlertMessageToUser(alert);
-				session.sendMessage(new TextMessage(alertJson));
-			} catch (Exception e) {
-				e.printStackTrace();
+		UserSessionInfo userSessionInfo = clients.get(alert.getEmployee().getEmpId());
+        
+        if (userSessionInfo != null && userSessionInfo.getSession().isOpen()) {
+        	WebSocketSession session = userSessionInfo.getSession();
+			if (session != null && session.isOpen()) {
+				try {
+					String alertJson = alertMessageHandler.sendAlertMessageToUser(alert);
+					session.sendMessage(new TextMessage(alertJson));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-		}
+        }
 	}
 }

@@ -194,15 +194,28 @@ public class EmployeeViewController {
 		AuditLogDto logDto = employeeService.selectAuditLogDto(audit_no);
 
 		try {
-			if(logDto.getOri_data() != null) {
-				EmployeeDto oriData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
+			if("emp_info".equals(logDto.getChanged_item())) {
+				if(logDto.getOri_data() != null) {
+					EmployeeDto oriData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
+					
+					model.addAttribute("oriData", oriData);
+				}
 				
-				model.addAttribute("oriData", oriData);
+				EmployeeDto newData = objectMapper.readValue(logDto.getNew_data(), EmployeeDto.class);
+				
+				model.addAttribute("newData", newData);				
+			} else {
+				if(logDto.getOri_data() != null) {
+					AttendanceDto oriData = objectMapper.readValue(logDto.getOri_data(), AttendanceDto.class);
+					
+					model.addAttribute("oriData", oriData);
+				}
+				
+				AttendanceDto newData = objectMapper.readValue(logDto.getNew_data(), AttendanceDto.class);
+				
+				model.addAttribute("newData", newData);	
 			}
 			
-			EmployeeDto newData = objectMapper.readValue(logDto.getNew_data(), EmployeeDto.class);
-
-			model.addAttribute("newData", newData);
 
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();

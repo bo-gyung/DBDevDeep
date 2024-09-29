@@ -432,12 +432,13 @@ $('#log-employee').DataTable({
 	// 컬럼 width 비율 조절
 	"columnDefs": [
 		{ "width": "10%", "targets": 0, "className": "text-center" },
-		{ "width": "10%", "targets": 1, "className": "text-center" },
+		{ "width": "15%", "targets": 1, "className": "text-center" },
 		{ "width": "10%", "targets": 2, "className": "text-center" },
 		{ "width": "10%", "targets": 3, "className": "text-center" },
-		{ "width": "10%", "targets": 4, "className": "text-center" }
+		{ "width": "15%", "targets": 4, "className": "text-center" },
+		{ "width": "20%", "targets": 5, "className": "text-center" }
 	],
-	"order": [[4, "desc"]],
+	"order": [[5, "desc"]],
 	// 정보 표시 해제
 	info: false,
 	// DataTables의 DOM 구조를 재정의

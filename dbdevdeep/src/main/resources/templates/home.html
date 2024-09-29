@@ -4,12 +4,10 @@
 <th:block layout:fragment="content">
 	<style>
 .content {
-	display: -webkit-box;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
-	-webkit-line-clamp: 1; /* 최대 줄 수 */
-	text-overflow: ellipsis; /* '...' 표시 */
-	white-space: normal; /* 줄바꿈 허용 */
+	display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 1; /* 최대 줄 수 */ text-overflow: ellipsis; /* '...' 표시 */ white-space: normal; /* 줄바꿈 허용 */
+}
+.weather_pic_div {
+	width: 80px; height: 80px; background-size: cover;
 }
 </style>
 	<div class="page-wrapper">
@@ -34,7 +32,6 @@
 						<div class="card-body">
 							<div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
 								<h4 class="card-title" style="margin: 0px;">캘린더</h4>
-
 							</div>
 							<hr>
 							<div id="" class="mt-2" style="height: 28.5vh; width: 100%;"></div>
@@ -46,10 +43,75 @@
 						<div class="card-body">
 							<div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
 								<h4 class="card-title" style="margin: 0px;">오늘의 날씨</h4>
-
 							</div>
 							<hr>
-							<div id="" class="mt-2" style="height: 28.5vh; width: 100%;"></div>
+							<div id="" class="row" style="height: 28.5vh; width: 100%; margin-left: 4px;">
+								<div class="col-lg-12 col-md-12">
+									<div class="row">
+										<div class="col-lg-6 col-md-12 d-flex" style="justify-content: center; align-items: center; ">
+												<div th:if="${resultMap.PTY == '0' && resultMap.WSD == '0' && resultMap.SKY == '1'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-sun.png');"></div>
+												<div th:if="${resultMap.PTY == '0' && resultMap.WSD == '0' && resultMap.SKY == '3'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-sun-cloud.png');"></div>
+												<div th:if="${resultMap.PTY == '0' && resultMap.WSD == '0' && resultMap.SKY == '4'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-cloud.png');"></div>
+												<div th:if="${resultMap.PTY == '0' && (resultMap.WSD == '1' || resultMap.WSD == '2' || resultMap.WSD == '3')}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-wind.png');"></div>
+												<div th:if="${(resultMap.PTY == '1' || resultMap.PTY == '2') && (resultMap.WSD == '0' || resultMap.WSD == '1')}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-heavy-rain.png');"></div>
+												<div th:if="${(resultMap.PTY == '1' || resultMap.PTY == '2') && (resultMap.WSD == '2' || resultMap.WSD == '3')}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-wind-rain.png');"></div>
+												<div th:if="${resultMap.PTY == '3'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-snow.png');"></div>
+												<div th:if="${resultMap.PTY == '4'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-rain.png');"></div>
+										</div>
+										<div class="col-lg-6 col-md-12">
+											<div>
+												<div style="font-size: 30px;" th:text="${resultMap.TMP + ' ℃'}"></div>
+												<div th:text="${'습도 ' + resultMap.REH + '%'}"></div>
+												<div th:text="${'풍속 ' + resultMap.WSDV + 'm/s'}"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-12 col-md-12">
+									<div class="row">
+										<div class="col-lg-6 col-md-12">
+											<table style="width: 100%; background-color: #e8eaec; margin-bottom: 20px; border-radius: 2px;">
+												<tr>
+													<th style="padding: 6px; text-align: center;">최저기온</th>
+												</tr>
+												<tr>
+													<td style="padding: 6px; text-align: center;" th:text="${resultMap.TMN + ' ℃'}"></td>
+												</tr>
+											</table>									
+										</div>
+										<div class="col-lg-6 col-md-12">
+											<table style="width: 100%; background-color: #e8eaec; margin-bottom: 20px; border-radius: 2px;">
+												<tr>
+													<th style="padding: 6px; text-align: center;">강수확률</th>
+												</tr>
+												<tr>
+													<td style="padding: 6px; text-align: center;" th:text="${resultMap.POP + ' %'}"></td>
+												</tr>
+											</table>
+										</div>
+										<div class="col-lg-6 col-md-12">
+											<table style="width: 100%; background-color: #e8eaec;border-radius: 2px;">
+												<tr>
+													<th style="padding: 6px; text-align: center;">최고기온</th>
+												</tr>
+												<tr>
+													<td style="padding: 6px; text-align: center;" th:text="${resultMap.TMX + ' ℃'}"></td>
+												</tr>
+											</table>
+										</div>
+										<div class="col-lg-6 col-md-12">
+											<table style="width: 100%; background-color: #e8eaec; border-radius: 2px;">
+												<tr>
+													<th style="padding: 6px; text-align: center;">강수량</th>
+												</tr>
+												<tr>
+													<td style="padding: 6px; text-align: center;" th:text="${resultMap.PCP == '강수없음'? resultMap.PCP : resultMap.PCP + 'mm'}"></td>
+												</tr>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

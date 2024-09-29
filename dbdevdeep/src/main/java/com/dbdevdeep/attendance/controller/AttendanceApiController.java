@@ -13,10 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dbdevdeep.attendance.domain.Attendance;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.service.AttendanceService;
 
@@ -81,5 +83,24 @@ public class AttendanceApiController {
 			attendanceList = new ArrayList<>();
 		}
 		return ResponseEntity.ok(attendanceList);
+	}
+	
+	@ResponseBody
+	@PutMapping("/employee/attend")
+	public Map<String, String> employeeAttendanceChange(AttendanceDto dto, @RequestParam("admin_id") String admin_id) {
+		Map<String, String> resultMap = new HashMap<String, String>();
+		
+		resultMap.put("res_code", "404");
+		resultMap.put("res_msg", "근태 수정 중 오류가 발생하였습니다.");
+		
+		
+		Attendance attend = attendanceService.employeeAttendanceChange(dto, admin_id);
+		
+		if(attend != null) {
+			resultMap.put("res_code", "200");
+			resultMap.put("res_msg", "근태 수정에 성공하였습니다.");
+		}
+		
+		return resultMap;
 	}
 }

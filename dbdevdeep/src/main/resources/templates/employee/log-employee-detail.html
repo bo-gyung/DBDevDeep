@@ -43,7 +43,7 @@
 									<table class="table needCenter">
 										<thead>
 											<tr class="bg-lilghtblue text-dark">
-												<th colspan="6" class="font-weight-bolder">기록</th>
+												<th colspan="7" class="font-weight-bolder">기록</th>
 											</tr>
 										</thead>
 										<tbody>
@@ -52,21 +52,22 @@
 												<th>직원성명</th>
 												<th>행정직원번호</th>
 												<th>행정직원성명</th>
+												<th>기록내용</th>
 												<th>기록유형</th>
 												<th>기록시간</th>
-
 											</tr>
 											<tr>
 												<td th:text="${logDto.emp_id}"></td>
 												<td th:text="${logDto.emp_name}"></td>
 												<td th:text="${logDto.admin_id}"></td>
 												<td th:text="${logDto.admin_id}"></td>
+												<td th:text="${logDto.changed_item == 'emp_id' ? '직원정보' : '근태'}"></td>
 												<td th:text="${logDto.audit_type == 'U' ? '수정' : '등록'}"></td>
 												<td th:text="${#temporals.format(logDto.reg_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
 											</tr>
 										</tbody>
 									</table>
-									<table class="table" th:if="${logDto.audit_type == 'U'}">
+									<table class="table" th:if="${logDto.audit_type == 'U' && logDto.changed_item == 'emp_info'}">
 										<colgroup>
 											<col style="width: 10%;">
 											<col style="width: 40%;">
@@ -167,9 +168,79 @@
 											</tr>
 										</th:block>
 									</table>
+									
+									<!-- 근태 -->
+									<table class="table" th:if="${logDto.audit_type == 'U' && logDto.changed_item == 'attend'}">
+										<colgroup>
+											<col style="width: 10%;">
+											<col style="width: 40%;">
+											<col style="width: 10%;">
+											<col style="width: 40%;">
+										</colgroup>
+										<thead>
+											<tr class="bg-lilghtblue text-dark">
+												<th colspan="4" class="font-weight-bolder">수정내용</th>
+											</tr>
+										</thead>
+										<th:block th:if="${newData.check_in_time != null && newData.check_in_time != oriData.check_in_time}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">출근시간</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${#temporals.format(oriData.check_in_time, 'HH:mm')}"></td>
+												<td>수정 후</td>
+												<td th:text="${#temporals.format(newData.check_in_time, 'HH:mm')}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.check_out_time != null && newData.check_out_time != oriData.check_out_time}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">퇴근시간</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${#temporals.format(oriData.check_out_time, 'HH:mm')}"></td>
+												<td>수정 후</td>
+												<td th:text="${#temporals.format(newData.check_out_time, 'HH:mm')}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.work_status != null && newData.work_status != oriData.work_status}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">근무상태</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.work_status}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.work_status}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.late_status != null && newData.late_status != oriData.late_status}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">지각상태</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.late_status}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.late_status}"></td>
+											</tr>
+										</th:block>
+										<th:block th:if="${newData.overtime_sum != null && newData.overtime_sum != oriData.overtime_sum}">
+											<tr class="bg-light">
+												<th colspan="4" style="text-align: center;">초가근무 합</th>
+											</tr>
+											<tr>
+												<td>수정 전</td>
+												<td th:text="${oriData.overtime_sum}"></td>
+												<td>수정 후</td>
+												<td th:text="${newData.overtime_sum}"></td>
+											</tr>
+										</th:block>
+									</table>
 
 									<!-- 등록기록 -->
-									<table th:if="${logDto.audit_type == 'I'}" class="table">
+									<table th:if="${logDto.audit_type == 'I' && logDto.changed_item == 'emp_info'}" class="table">
 										<tbody>
 											<tr class="bg-lilghtblue text-dark">
 												<th colspan="4" class="font-weight-bolder">등록기록</th>
@@ -219,6 +290,8 @@
 											</tr>
 										</tbody>
 									</table>
+									
+									
 									</div>
 								</div>
 							</div>

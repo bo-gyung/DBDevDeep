@@ -57,12 +57,12 @@ public class EmployeeService {
 
 	// 교육청관리번호 중복 확인
 	public EmployeeDto govIdCheck(String govId) {
-		
+
 		EmployeeDto dto = null;
-		
+
 		Employee e = employeeRepository.findBygovId(govId);
-	
-		if(e != null) {
+
+		if (e != null) {
 			dto = new EmployeeDto().toDto(e);
 		}
 
@@ -82,13 +82,13 @@ public class EmployeeService {
 
 		try {
 			dto.setEmp_pw(passwordEncoder.encode(dto.getEmp_pw()));
-			
+
 			dto.setAccount_status("Y");
 			dto.setLogin_yn("N");
 			dto.setEnt_status("Y");
 			dto.setVacation_hour(120);
 
-			if(dto.getEmp_id() == null) {
+			if (dto.getEmp_id() == null) {
 				String currentYear = String.valueOf(dto.getHire_date()).substring(0, 4);
 
 				int count = Integer.parseInt(employeeRepository.findByempIdWhen(currentYear));
@@ -105,7 +105,6 @@ public class EmployeeService {
 				}
 				dto.setEmp_id(emp_id);
 			}
-
 
 			Employee e = dto.toEntityWithJoin(dept, job);
 
@@ -460,8 +459,9 @@ public class EmployeeService {
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("R");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
-																							// 데이터 저장
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status
+																								   // 테이블에 전근
+			// 데이터 저장
 		}
 
 		return employeeStatus;
@@ -508,8 +508,9 @@ public class EmployeeService {
 		if (employee.getEntStatus().equals("R")) {
 			dto.setStatus_type("Y");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
-																							// // 데이터 저장
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status
+																								   // 테이블에 전근
+			// // 데이터 저장
 		}
 
 		return employeeStatus;
@@ -526,8 +527,9 @@ public class EmployeeService {
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("N");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
-																							// // 데이터 저장
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status
+																								   // 테이블에 전근
+			// // 데이터 저장
 		}
 
 		return employeeStatus;
@@ -704,79 +706,79 @@ public class EmployeeService {
 
 		return logDtoList;
 	}
-	
+
 	// 사원정보 변경 기록 하나
 	public AuditLogDto selectAuditLogDto(Long audit_no) {
 		AuditLog log = auditLogRepository.selectByAuditNoOne(audit_no);
-		
+
 		AuditLogDto logDto = new AuditLogDto().toDto(log);
 
 		return logDto;
 	}
+
 	// 사원 정보 변경 기록 등록
-		public void insertAuditLog(Employee employee, AuditLogDto alDto) {	
-					
-			Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
-			AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
-			
-			auditLogRepository.save(auditLog);
-		}
-		
-		// 전근 기록 
-		public List<TransferDto> findByTransferAll() {
-			List<TransferDto> dtoList = new ArrayList<TransferDto>();
+	public void insertAuditLog(Employee employee, AuditLogDto alDto) {
 
-			List<Transfer> transList = transferRepository.findAll();
-			
-			for(Transfer t : transList) {
-				TransferDto dto = new TransferDto().toDto(t);
-				
-				dtoList.add(dto);
-			}
-			
-			return dtoList;
-		}
-		
-		//휴직 기록 
-		public List<EmployeeStatusDto> findByRestAll() {
-			List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+		Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
+		AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
 
-			List<EmployeeStatus> restList = employeeStatusRepository.selectRestLogAll();
-			
-			for(EmployeeStatus r : restList) {
-				EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
-				
-				dtoList.add(dto);
-			}
-			
-			return dtoList;
-		}
-		
-		//퇴직 기록 
-		public List<EmployeeStatusDto> findByLeaveAll() {
-			List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+		auditLogRepository.save(auditLog);
+	}
 
-			List<EmployeeStatus> leaveList = employeeStatusRepository.selectLeaveLogAll();
-			
-			for(EmployeeStatus r : leaveList) {
-				EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
-				
-				dtoList.add(dto);
-			}
-			
-			return dtoList;
+	// 전근 기록
+	public List<TransferDto> findByTransferAll() {
+		List<TransferDto> dtoList = new ArrayList<TransferDto>();
+
+		List<Transfer> transList = transferRepository.findAll();
+
+		for (Transfer t : transList) {
+			TransferDto dto = new TransferDto().toDto(t);
+
+			dtoList.add(dto);
 		}
-	
-	
+
+		return dtoList;
+	}
+
+	// 휴직 기록
+	public List<EmployeeStatusDto> findByRestAll() {
+		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+
+		List<EmployeeStatus> restList = employeeStatusRepository.selectRestLogAll();
+
+		for (EmployeeStatus r : restList) {
+			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+
+			dtoList.add(dto);
+		}
+
+		return dtoList;
+	}
+
+	// 퇴직 기록
+	public List<EmployeeStatusDto> findByLeaveAll() {
+		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+
+		List<EmployeeStatus> leaveList = employeeStatusRepository.selectLeaveLogAll();
+
+		for (EmployeeStatus r : leaveList) {
+			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+
+			dtoList.add(dto);
+		}
+
+		return dtoList;
+	}
+
 	// 모든 신청인(직원) 조회
-    public List<Employee> findAllEmployees() {
-        return employeeRepository.findAll();
-    }
+	public List<Employee> findAllEmployees() {
+		return employeeRepository.findAll();
+	}
 
-    // 특정 직원 조회 (필요 시 사용)
-    public Employee findEmployeeById(String empId) {
-        return employeeRepository.findById(empId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + empId));
-    }
-	
+	// 특정 직원 조회 (필요 시 사용)
+	public Employee findEmployeeById(String empId) {
+		return employeeRepository.findById(empId)
+				.orElseThrow(() -> new IllegalArgumentException("Employee not found: " + empId));
+	}
+
 }
