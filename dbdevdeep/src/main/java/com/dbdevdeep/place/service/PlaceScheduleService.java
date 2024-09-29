@@ -76,7 +76,6 @@ public class PlaceScheduleService {
 	
 	// 일정 등록 메소드
 	public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
-	    PlaceItemSchedule lastSavedSchedule = null; // 마지막으로 저장한 객체를 추적할 변수
 	    try {
 	        Place place = placeRepository.findByplaceNo(vo.getPlace_no());
 	        if (place == null) {
@@ -93,36 +92,47 @@ public class PlaceScheduleService {
 	            throw new IllegalArgumentException("해당 교사를 찾을 수 없습니다: " + vo.getTeacher_no());
 	        }
 
-	        // 선택된 아이템에 대해 반복적으로 처리
+	        // 문자열 빌더를 사용해 아이템 번호와 관리 번호를 결합
+	        StringBuilder itemNoBuilder = new StringBuilder();
+	        StringBuilder serialNoBuilder = new StringBuilder();
+	        
+	        // 선언 위치를 for 루프 바깥으로 이동합니다.
+	        Item item = null;
+
 	        for (Long itemNo : vo.getItemNoList()) {
-	            Item item = itemRepository.findByitemNo(itemNo);
+	            item = itemRepository.findByitemNo(itemNo);
 	            if (item == null) {
 	                throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
 	            }
 
-	            String managementNo = generateManagementNo(vo.getPlace_no(), item.getItemSerialNo());
-
-	            lastSavedSchedule = PlaceItemSchedule.builder()
-	                    .employee(employee)
-	                    .place(place)
-	                    .item(item)
-	                    .teacherHistory(teacherHistory)
-	                    .placeScheduleTitle(vo.getPlace_schedule_title())
-	                    .placeScheduleContent(vo.getPlace_schedule_content())
-	                    .startDate(vo.getStart_date())
-	                    .endDate(vo.getEnd_date())
-	                    .startTime(vo.getStart_time())
-	                    .endTime(vo.getEnd_time())
-	                    .managementNo(managementNo)
-	                    .regDate(vo.getReg_date())
-	                    .modDate(vo.getMod_date())
-	                    .build();
-
-	            // 데이터베이스에 저장
-	            placeScheduleRepository.save(lastSavedSchedule);
+	            // 아이템 일련번호를 ','로 결합하여 management_no 생성에 사용
+	            if (serialNoBuilder.length() > 0) {
+	                serialNoBuilder.append(",");
+	            }
+	            serialNoBuilder.append(item.getItemSerialNo());
 	        }
 
-	        return lastSavedSchedule; // 마지막으로 저장한 객체 반환
+	        String managementNo = vo.getPlace_no() + "-" + serialNoBuilder.toString(); // 예: "01-A01,A02,A03"
+
+	        // PlaceItemSchedule 객체 생성
+	        PlaceItemSchedule placeItemSchedule = PlaceItemSchedule.builder()
+	                .employee(employee)
+	                .place(place)
+	                .item(item) // 이 부분은 이제 for 루프 밖에서 선언된 item을 사용합니다.
+	                .teacherHistory(teacherHistory)
+	                .placeScheduleTitle(vo.getPlace_schedule_title())
+	                .placeScheduleContent(vo.getPlace_schedule_content())
+	                .startDate(vo.getStart_date())
+	                .endDate(vo.getEnd_date())
+	                .startTime(vo.getStart_time())
+	                .endTime(vo.getEnd_time())
+	                .managementNo(managementNo) // 결합된 관리 번호 저장
+	                .regDate(vo.getReg_date())
+	                .modDate(vo.getMod_date())
+	                .build();
+
+	        // 데이터베이스에 저장
+	        return placeScheduleRepository.save(placeItemSchedule);
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
