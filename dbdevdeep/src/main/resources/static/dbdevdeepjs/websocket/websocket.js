@@ -20,7 +20,6 @@ let socket;
         
     	// 웹소켓 메시지를 수신했을 때 호출
 		socket.onmessage = function(event) {
-		    console.log("서버로부터 메시지 수신: " + event.data);
 		    /*displayMessage(event.data);*/
 		    
 		    const message = JSON.parse(event.data);

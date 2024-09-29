@@ -24,6 +24,11 @@ public interface ChatMapper {
 	// 일대일 채팅방 존재 여부 탐색
 	int selectPrivateChatRoom(@Param("admin_id") String admin_id,@Param("emp_id") String emp_id);
 	
+	// 단체 채팅방 존재 여부 탐색
+	int selectGroupChatRoom(@Param("admin_id") String adminId, 
+							@Param("emp_id_list") List<String> empIdList, 
+							@Param("empCount") int empCount);
+	
 	// 일대일 채팅방 생성
 	int createPrivateChatRoom(ChatRoomVo chatRoomVo);
 	
@@ -37,13 +42,16 @@ public interface ChatMapper {
 	String selectChatRoomName(ChatMemberInfoVo cmiVo);
 	
 	// 메세지 리스트 조회
-	List<ChatMsgVo> selectChatMsgList(@Param("room_no") int room_no);
+	List<ChatMsgVo> selectChatMsgList(@Param("room_no") int room_no, @Param("emp_id") String emp_id);
 	
 	// 상태이력 리스트 조회
-	List<ChatMemberStatusHistoryVo> selectHistoryList(@Param("room_no") int roomNo);
+	List<ChatMemberStatusHistoryVo> selectHistoryList(@Param("room_no") int room_no, @Param("emp_id") String emp_id);
 	
 	// 채팅 매세지 생성
 	int createChatMsg(ChatMsgVo vo);
+	
+	// 채팅 이미지 생성
+	int createChatPic(ChatMsgVo vo);
 	
 	// 채팅 메세지 조회
 	ChatMsgVo selectChatMsgVo(@Param("msg_no") int msg_no);

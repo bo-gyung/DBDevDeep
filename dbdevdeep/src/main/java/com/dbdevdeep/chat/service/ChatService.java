@@ -9,7 +9,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dbdevdeep.chat.dto.ChatMsgDto;
 import com.dbdevdeep.chat.dto.CustomChatContainerDto;
 import com.dbdevdeep.chat.dto.CustomChatRoomDto;
 import com.dbdevdeep.chat.mybatis.mapper.ChatMapper;
@@ -75,8 +74,18 @@ public class ChatService {
 		return result;
 	}
 	
-	// 일대일 채팅방 생성
-	public int createPrivateChatRoom(String admin_id, String emp_id) {
+	// 그룹 채팅방 조회
+	public int selectGroupChatRoom(String admin_id, List<String> emp_id_list) {
+		int result = -1;
+		
+		int empCount = emp_id_list.size() + 1; // 관리자 포함한 인원 수
+		result = chatMapper.selectGroupChatRoom(admin_id, emp_id_list, empCount);
+		
+		return result;
+	}
+	
+	// 채팅방 생성
+	public int createChatRoom() {
 		
 		String lastChatMessage = "";
 		ChatRoomVo crVo = new ChatRoomVo();
@@ -88,33 +97,18 @@ public class ChatService {
 	}	
 	
 	// 채팅방 참여 정보 생성
-	public int createChatMemberInfo(String admin_id, String emp_id, int room_no) {
+	public int createChatMemberInfo(String my_id, String room_name, int room_no,int is_admin) {
 		
 		int result = -1;
 		
-		// 방장(로그인한 사용자)
-		ChatMemberInfoVo adminCmiVo = new ChatMemberInfoVo();
-		adminCmiVo.setMember_id(admin_id);
-		adminCmiVo.setRoom_no(room_no);
-		
-		Employee emp = employeeRepository.findByempId(emp_id);
-		adminCmiVo.setRoom_name(emp.getEmpName());
-		
-		adminCmiVo.setIs_admin(1);
-		int admin = chatMapper.createChatMemberInfo(adminCmiVo);
-		
-		// 참여자(로그인한 사용자가 선택한 사용자)
 		ChatMemberInfoVo memberCmiVo = new ChatMemberInfoVo();
-		memberCmiVo.setMember_id(emp_id);
+		memberCmiVo.setMember_id(my_id);
 		memberCmiVo.setRoom_no(room_no);
-		
-		Employee ad = employeeRepository.findByempId(admin_id);
-		memberCmiVo.setRoom_name(ad.getEmpName());
-		
-		memberCmiVo.setIs_admin(0);
+		memberCmiVo.setRoom_name(room_name);
+		memberCmiVo.setIs_admin(is_admin);
 		int member = chatMapper.createChatMemberInfo(memberCmiVo);
 		
-		if(admin>0 && member>0) {
+		if(member>0) {
 			result = 1;
 		}
 		
@@ -149,9 +143,9 @@ public class ChatService {
 	// 메세지+상태이력 리스트 조회
 	public List<CustomChatContainerDto> selectmsgHistoryList(int roomNo, String login_id){
 		// 메세지 리스트 조회
-		List<ChatMsgVo> msgList = chatMapper.selectChatMsgList(roomNo);
+		List<ChatMsgVo> msgList = chatMapper.selectChatMsgList(roomNo, login_id);
 		// 상태이력 리스트 조회
-		List<ChatMemberStatusHistoryVo> historyList = chatMapper.selectHistoryList(roomNo);
+		List<ChatMemberStatusHistoryVo> historyList = chatMapper.selectHistoryList(roomNo, login_id);
 		
 		// 통합 리스트 생성
 	    List<CustomChatContainerDto> combinedList = new ArrayList<>();
@@ -167,6 +161,8 @@ public class ChatService {
 	            e.getEmpName(),
 	            messageType.equals("notMe") ? e.getNewPicName() : "",
 	            msg.getChat_content(),  // 메시지 내용
+	            msg.getOri_pic_name(),
+	            msg.getNew_pic_name(),
 	            msg.getReg_time()  // 타임스탬프
 	        );
 	        combinedList.add(dto);
@@ -182,6 +178,8 @@ public class ChatService {
 	            e.getEmpName(),
 	            "",
 	            String.valueOf(history.getMember_status()),  // 상태 이력 내용 (입장, 퇴장, 초대 등)
+	            "",
+	            "",
 	            history.getChange_time()  // 타임스탬프
 	        );
 	        combinedList.add(dto);
@@ -222,8 +220,37 @@ public class ChatService {
 				webSocketHandler.sendPrivateChatMsg(members,vo.getRoom_no());
 			}
 		}
+
+		return result;
+	}
+	
+	// 채팅 이미지 생성
+	public int createChatPic(ChatMsgVo vo) {
+		int result = -1; 
 		
-		
+		result = chatMapper.createChatPic(vo);
+		if(result > 0) {
+			
+			ChatMsgVo newVo = chatMapper.selectChatMsgVo(vo.getMsg_no());
+			
+			// 채팅방 정보 업데이트 (라스트챗, 라스트타임)
+			chatMapper.updateChatRoom(newVo);
+			
+			// 채팅 메세지가 생성된 채팅방의 참여중인 인원 리스트 (메세지 작성자 제외)
+			Map<String, Object> params = new HashMap<>();
+			params.put("room_no", vo.getRoom_no());
+			params.put("emp_id", vo.getWriter_id());
+			
+			List<String> members = chatMapper.otherMemberIds(params);
+			
+			if (members.isEmpty()) {
+				// 혼자 있는 채팅방일때
+			} else if (members.size() > 0) {
+				// 메세지 작정자 이외의 참여자가 존재할때
+				// 웹소켓 핸들러 호출
+				webSocketHandler.sendPrivateChatMsg(members,vo.getRoom_no());
+			}
+		}
 
 		return result;
 	}
