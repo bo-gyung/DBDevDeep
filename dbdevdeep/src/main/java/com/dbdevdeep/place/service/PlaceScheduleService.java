@@ -75,55 +75,59 @@ public class PlaceScheduleService {
 
 	
 	// 일정 등록 메소드
-    public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
-        try {
-            // 필요한 엔티티 조회 및 검증
-            Place place = placeRepository.findByplaceNo(vo.getPlace_no());
-            if (place == null) {
-                throw new IllegalArgumentException("해당 장소를 찾을 수 없습니다: " + vo.getPlace_no());
-            }
-            
-            Item item = itemRepository.findByitemNo(vo.getItem_no());
-            if (item == null) {
-                throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + vo.getItem_no());
-            }
+	public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
+	    PlaceItemSchedule lastSavedSchedule = null; // 마지막으로 저장한 객체를 추적할 변수
+	    try {
+	        Place place = placeRepository.findByplaceNo(vo.getPlace_no());
+	        if (place == null) {
+	            throw new IllegalArgumentException("해당 장소를 찾을 수 없습니다: " + vo.getPlace_no());
+	        }
 
-            Employee employee = employeeRepository.findByempId(vo.getEmp_id());
-            if (employee == null) {
-                throw new IllegalArgumentException("해당 신청인을 찾을 수 없습니다: " + vo.getEmp_id());
-            }
+	        Employee employee = employeeRepository.findByempId(vo.getEmp_id());
+	        if (employee == null) {
+	            throw new IllegalArgumentException("해당 신청인을 찾을 수 없습니다: " + vo.getEmp_id());
+	        }
 
-            TeacherHistory teacherHistory = teacherHistoryRepository.findByteacherNo(vo.getTeacher_no());
-            if (teacherHistory == null) {
-                throw new IllegalArgumentException("해당 교사를 찾을 수 없습니다: " + vo.getTeacher_no());
-            }
+	        TeacherHistory teacherHistory = teacherHistoryRepository.findByteacherNo(vo.getTeacher_no());
+	        if (teacherHistory == null) {
+	            throw new IllegalArgumentException("해당 교사를 찾을 수 없습니다: " + vo.getTeacher_no());
+	        }
 
-            // Management No 생성: place_no와 item_serial_no를 결합하여 생성
-            String managementNo = generateManagementNo(vo.getPlace_no(), item.getItemSerialNo());
+	        // 선택된 아이템에 대해 반복적으로 처리
+	        for (Long itemNo : vo.getItemNoList()) {
+	            Item item = itemRepository.findByitemNo(itemNo);
+	            if (item == null) {
+	                throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
+	            }
 
-            // PlaceItemSchedule 엔티티 생성 및 필요한 값 설정
-            PlaceItemSchedule placeItemSchedule = PlaceItemSchedule.builder()
-                    .employee(employee)
-                    .place(place)
-                    .item(item)
-                    .teacherHistory(teacherHistory)
-                    .placeScheduleTitle(vo.getPlace_schedule_title())
-                    .placeScheduleContent(vo.getPlace_schedule_content())
-                    .startDate(vo.getStart_date())
-                    .endDate(vo.getEnd_date())
-                    .startTime(vo.getStart_time())
-                    .endTime(vo.getEnd_time())
-                    .managementNo(managementNo)  // 생성된 management_no 설정
-                    .regDate(vo.getReg_date())
-                    .modDate(vo.getMod_date())
-                    .build();
+	            String managementNo = generateManagementNo(vo.getPlace_no(), item.getItemSerialNo());
 
-            // 데이터베이스에 저장
-            return placeScheduleRepository.save(placeItemSchedule);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+	            lastSavedSchedule = PlaceItemSchedule.builder()
+	                    .employee(employee)
+	                    .place(place)
+	                    .item(item)
+	                    .teacherHistory(teacherHistory)
+	                    .placeScheduleTitle(vo.getPlace_schedule_title())
+	                    .placeScheduleContent(vo.getPlace_schedule_content())
+	                    .startDate(vo.getStart_date())
+	                    .endDate(vo.getEnd_date())
+	                    .startTime(vo.getStart_time())
+	                    .endTime(vo.getEnd_time())
+	                    .managementNo(managementNo)
+	                    .regDate(vo.getReg_date())
+	                    .modDate(vo.getMod_date())
+	                    .build();
+
+	            // 데이터베이스에 저장
+	            placeScheduleRepository.save(lastSavedSchedule);
+	        }
+
+	        return lastSavedSchedule; // 마지막으로 저장한 객체 반환
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
     }
     
     

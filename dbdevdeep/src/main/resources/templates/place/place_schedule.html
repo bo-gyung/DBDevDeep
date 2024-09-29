@@ -284,7 +284,8 @@
 								                <input type="checkbox" id="deselect-all"> 전체 해제
 								            </label>
 			                            <label class="mr-2" th:each="item : ${itemList}">
-			                                <input type="checkbox" id = "create_item_no" name="item_no" th:value="${item.itemNo}" th:text="${item.itemName}">
+			                                 <input type="checkbox" class="item-checkbox" name="itemNoList" th:value="${item.itemNo}">
+  												  <span th:text="${item.itemName}"></span>
 			                            </label>
 			                            
 			                        </div>
@@ -602,7 +603,7 @@ $(document).ready(function () {
             selectedItems.push($(this).val());
         });
 
-        formData.append('item_no', selectedItems.join(',')); 
+        formData.append('itemNoList', selectedItems); 
 
         const csrfToken = document.getElementById('csrf_token').value;
 
