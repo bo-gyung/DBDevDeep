@@ -201,7 +201,7 @@ public class ApproveService {
 				}
 			}
 		} else { // 최종 승인
-			if (approve != null) {
+			if (approve != null) { 
 				ApproveDto aDto = new ApproveDto().toDto(approve);
 				aDto.setAppro_no(approNo);
 				aDto.setAppro_status(1);
