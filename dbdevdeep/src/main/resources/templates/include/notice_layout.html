@@ -30,5 +30,21 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 	<th:block layout:fragment="content">
 	</th:block>
 	</div>
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+		    // 모든 nav-link 요소들을 선택합니다.
+		    const navItems = document.querySelectorAll('.nav-item');
+	
+		    // 다섯 번째 nav-link에 active 클래스를 추가합니다 (인덱스는 0부터 시작하므로 4가 다섯 번째).
+		    if (navItems[2]) { // 다섯 번째 요소가 존재하는지 확인
+		    	navItems[2].classList.add('active');
+		    }
+		});
+	</script>
+	
+	<!-- 웹소켓 연결 설정 js -->
+    <script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
+
 </body>
 </html>
