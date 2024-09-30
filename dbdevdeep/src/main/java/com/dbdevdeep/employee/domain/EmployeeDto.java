@@ -1,6 +1,7 @@
 package com.dbdevdeep.employee.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -52,6 +53,8 @@ public class EmployeeDto {
 	private int account_status;
 	private String chat_status_msg;
 	
+	private LocalDateTime account_time;
+	
 	// GrantedAuthority: 시큐리티에서 권한들의 목록을 담아놓는 곳
 	private List<GrantedAuthority> authorities;
 	
@@ -64,6 +67,7 @@ public class EmployeeDto {
 				.empInternalPhone(emp_internal_phone).vacationHour(vacation_hour)
 				.hireDate(hire_date).endDate(end_date).entStatus(ent_status)
 				.loginYn(login_yn).accountStatus(account_status).chatStatusMsg(chat_status_msg).department(department).job(job)
+				.accountTime(account_time)
 				.build();	
 	}
 	
@@ -76,6 +80,7 @@ public class EmployeeDto {
 				.empInternalPhone(emp_internal_phone).vacationHour(vacation_hour)
 				.hireDate(hire_date).endDate(end_date).entStatus(ent_status)
 				.loginYn(login_yn).accountStatus(account_status).chatStatusMsg(chat_status_msg).department(d).job(j)
+				.accountTime(account_time)
 				.build();	
 	}
 	
@@ -97,6 +102,7 @@ public class EmployeeDto {
 				.job_name(employee.getJob().getJobName())
 				.dept_code(employee.getDepartment().getDeptCode())
 				.dept_name(employee.getDepartment().getDeptName())
+				.account_time(employee.getAccountTime())
 				.build();
 	}
 	
@@ -124,6 +130,7 @@ public class EmployeeDto {
 				.chat_status_msg(employee.getChat_status_msg())
 				.job_code(employee.getJob_code())
 				.dept_code(employee.getDept_code())
+				.account_time(employee.getAccount_time())
 				.build();
 	}
 	

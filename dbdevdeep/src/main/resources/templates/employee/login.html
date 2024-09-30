@@ -51,8 +51,17 @@ a {
 								</div>
 								<div class="col-lg-12">
 									<div class="form-group">
-										<label class="text-dark" for="pwd">비밀번호</label> <i class="fa fa-eye-slash text-left" id="eye_icon_login"></i> <input class="form-control" id="pwd" name="emp_pw" type="password" onfocus="labelUp(this)" onblur="labelDown(this)" placeholder="비밀번호를 입력하세요" required>
+										<label class="text-dark" for="pwd">비밀번호</label> <i class="fa fa-eye-slash text-left" id="eye_icon_login"></i> 
+										<input class="form-control" id="pwd" name="emp_pw" type="password" onfocus="labelUp(this)" onblur="labelDown(this)" placeholder="비밀번호를 입력하세요" required autoComplete="off">
 									</div>
+								</div>
+								<div class="col-lg-12" th:if="${error}">
+									<th:block th:if="${errorNum >= 5}">
+								   	<p id="valid" style="color: red; font-size:12px;"><a th:text="${errorNum + '회 틀리셨습니다. 계정이 20분동안 잠깁니다.'}"></a></p>
+								  </th:block>
+								  <th:block th:unless="${errorNum >= 5}">
+								   	<p id="valid" style="color: red; font-size:12px;"><a th:text="${errorNum + '회 틀리셨습니다. 5회 이상 틀릴 시 계정이 20분동안 잠깁니다.'}"></a></p>
+								  </th:block>
 								</div>
 								<div class="col-lg-5">
 									<input type="checkbox" id="remember-id" name="remember-id"> <label for="remember-id">아이디 저장</label>

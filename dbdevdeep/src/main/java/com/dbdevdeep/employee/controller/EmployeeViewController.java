@@ -29,6 +29,7 @@ import com.dbdevdeep.employee.service.TeacherHistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -41,8 +42,36 @@ public class EmployeeViewController {
 	private final AttendanceService attendanceService;
 	private final AlertService alertService;
 	
+//	@GetMapping("/login")
+//	public String loginPage(Model model, @RequestParam(value = "error", required = false) String error) {
+//		
+//		if(error != null) {
+//			model.addAttribute("error", error);
+//			System.out.println("error: " + error);
+//		}
+//		
+//		return "employee/login";
+//	}
+	
 	@GetMapping("/login")
-	public String loginPage() {
+	public String login(HttpServletRequest request, Model model) {
+		
+		Object errorNum = request.getSession().getAttribute("loginErrorNum");
+		
+		request.getSession().removeAttribute("loginError"); // 메시지를 사용한 후 세션에서 제거
+		request.getSession().removeAttribute("loginErrorNum");
+		
+		model.addAttribute("error", false);
+		
+		if(errorNum != null) {
+			int errNum = (int) errorNum;
+			
+			if (errNum != 0) {
+				model.addAttribute("error", true);
+				model.addAttribute("errorNum", errNum);
+			}
+		}
+		
 		
 		return "employee/login";
 	}
