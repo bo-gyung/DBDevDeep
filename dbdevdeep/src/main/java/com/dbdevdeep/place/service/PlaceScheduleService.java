@@ -91,12 +91,29 @@ public class PlaceScheduleService {
 	    }
 	
 	
-	
+	// 일정 상세조회
 	  public PlaceItemScheduleVo getScheduleDetail(Long placeScheduleNo) {
 		    PlaceItemSchedule pis = placeScheduleRepository.findByPlaceScheduleNo(placeScheduleNo);
 		    
 		    if (pis == null) {
 		        throw new IllegalArgumentException("해당 일정이 존재하지 않습니다: " + placeScheduleNo);
+		    }
+
+		    // place_no가 0인 경우에만 item 관련 처리
+		    Long itemNo = null;
+		    String itemName = null;
+		    Integer itemQuantity = null;
+		    
+		    if (pis.getPlace().getPlaceNo() == 0) {
+		        // item이 null일 수 있기 때문에 이를 고려하여 처리
+		        itemNo = (pis.getItem() != null) ? pis.getItem().getItemNo() : null;
+		        itemName = (pis.getItem() != null) ? pis.getItem().getItemName() : "N/A";  // 기본값으로 "N/A" 설정
+		        itemQuantity = (pis.getItem() != null) ? pis.getItem().getItemQuantity() : 0;  // 기본값으로 0 설정
+		    } else {
+		        // place_no가 0이 아닌 경우 기존 로직 그대로 사용
+		        itemNo = pis.getItem().getItemNo();
+		        itemName = pis.getItem().getItemName();
+		        itemQuantity = pis.getItem().getItemQuantity();
 		    }
 
 		    PlaceItemScheduleVo pisv = PlaceItemScheduleVo.builder()
@@ -110,9 +127,9 @@ public class PlaceScheduleService {
 		        .start_time(pis.getStartTime())
 		        .end_date(pis.getEndDate())
 		        .end_time(pis.getEndTime())
-		        .item_no(pis.getItem().getItemNo())
-		        .item_name(pis.getItem().getItemName())
-		        .item_quantity(pis.getItem().getItemQuantity())
+		        .item_no(itemNo)  // 처리된 itemNo 사용
+		        .item_name(itemName)  // 처리된 itemName 사용
+		        .item_quantity(itemQuantity)  // 처리된 itemQuantity 사용
 		        .place_schedule_content(pis.getPlaceScheduleContent())
 		        .reg_date(pis.getRegDate()) // 등록 날짜 추가
 		        .build();
@@ -138,7 +155,7 @@ public class PlaceScheduleService {
 
 		    return pisv;
 		}
-	
+
 	
 	// 일정 겹침 여부 확인하는 메소드
 	public boolean isScheduleOverlapping(Long placeNo, String newStartDate, String newStartTime,
@@ -176,16 +193,19 @@ public class PlaceScheduleService {
 	// 일정 등록 메소드
 	public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
 	    try {
+	        // Place 조회 및 유효성 검사
 	        Place place = placeRepository.findByplaceNo(vo.getPlace_no());
 	        if (place == null && vo.getPlace_no() != 0) {
 	            throw new IllegalArgumentException("해당 장소를 찾을 수 없습니다: " + vo.getPlace_no());
 	        }
 
+	        // Employee 조회 및 유효성 검사
 	        Employee employee = employeeRepository.findByempId(vo.getEmp_id());
 	        if (employee == null) {
 	            throw new IllegalArgumentException("해당 신청인을 찾을 수 없습니다: " + vo.getEmp_id());
 	        }
 
+	        // TeacherHistory 조회 및 유효성 검사
 	        TeacherHistory teacherHistory = teacherHistoryRepository.findByteacherNo(vo.getTeacher_no());
 	        if (teacherHistory == null) {
 	            throw new IllegalArgumentException("해당 교사를 찾을 수 없습니다: " + vo.getTeacher_no());
@@ -193,28 +213,36 @@ public class PlaceScheduleService {
 
 	        // 문자열 빌더를 사용해 아이템 번호와 관리 번호를 결합
 	        StringBuilder serialNoBuilder = new StringBuilder();
-	        
+
 	        // 선언 위치를 for 루프 바깥으로 이동합니다.
 	        Item item = null;
-	        
-	        // place_no가 0이 아닌 경우에만 item_no 검증수행
-	        if(vo.getPlace_no() != 0) {
-	        	
-	        	for (Long itemNo : vo.getItemNoList()) {
-	        		item = itemRepository.findByitemNo(itemNo);
-	        		if (item == null) {
-	        			throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
-	        		}
-	        		
-	        		// 아이템 일련번호를 ','로 결합하여 management_no 생성에 사용
-	        		if (serialNoBuilder.length() > 0) {
-	        			serialNoBuilder.append(",");
-	        		}
-	        		serialNoBuilder.append(item.getItemSerialNo());
-	        	}
+
+	        // place_no가 0인 경우에는 itemNoList가 비어 있어도 등록 가능
+	        if (vo.getPlace_no() == 0) {
+	            // 이 경우에는 itemNoList를 무시하고 바로 진행
+	            serialNoBuilder.append("공용");
+	        } else {
+	            // place_no가 0이 아닌 경우에만 itemNoList 처리
+	            if (vo.getItemNoList() != null && !vo.getItemNoList().isEmpty()) {
+	                for (Long itemNo : vo.getItemNoList()) {
+	                    item = itemRepository.findByitemNo(itemNo);
+	                    if (item == null) {
+	                        throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
+	                    }
+
+	                    // 아이템 일련번호를 ','로 결합하여 management_no 생성에 사용
+	                    if (serialNoBuilder.length() > 0) {
+	                        serialNoBuilder.append(",");
+	                    }
+	                    serialNoBuilder.append(item.getItemSerialNo());
+	                }
+	            } else {
+	                // place_no가 0이 아닌데 itemNoList가 비어 있는 경우 예외 처리
+	                throw new IllegalArgumentException("place_no가 0이 아닐 경우에는 적어도 하나의 item_no를 선택해야 합니다.");
+	            }
 	        }
 
-	        String managementNo = vo.getPlace_no() + "-" + serialNoBuilder.toString(); // 예: "01-A01,A02,A03"
+	        String managementNo = vo.getPlace_no() + "-" + serialNoBuilder.toString(); // 예: "01-A01,A02,A03" 또는 "0-default"
 
 	        // PlaceItemSchedule 객체 생성
 	        PlaceItemSchedule placeItemSchedule = PlaceItemSchedule.builder()
@@ -240,7 +268,8 @@ public class PlaceScheduleService {
 	        e.printStackTrace();
 	        return null;
 	    }
-    }
+	}
+
     
     
 	    
@@ -252,9 +281,17 @@ public class PlaceScheduleService {
     
     
 
-    // 전체 일정 조회 (VO 사용)
-    public List<PlaceItemScheduleVo> selectTotalScheduleList() {
-        // Mapper를 통해 데이터베이스에서 모든 일정을 조회 (VO로 바로 반환)
-        return placeScheduleVoMapper.getTotalScheduleList();
-    }
+	public List<PlaceItemScheduleVo> selectTotalScheduleList() {
+	    // Mapper를 통해 데이터베이스에서 모든 일정을 조회 (VO로 바로 반환)
+	    List<PlaceItemScheduleVo> totalSchedule = placeScheduleVoMapper.getTotalScheduleList();
+
+	    for (PlaceItemScheduleVo schedule : totalSchedule) {
+	        // item 정보가 없을 때 기본값 설정
+	        if (schedule.getItem_no() == null) {
+	            schedule.setItem_name("공용"); // item_no가 없을 때 표시할 기본값 설정
+	        }
+	    }
+
+	    return totalSchedule;
+	}
 }

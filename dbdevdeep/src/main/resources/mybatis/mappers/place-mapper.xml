@@ -68,11 +68,11 @@
         JOIN
             place p ON s.place_no = p.place_no
         JOIN
-            item i ON s.item_no = i.item_no
-        JOIN
             employee e ON s.emp_id = e.emp_id
         JOIN
             teacher_history th ON s.teacher_no = th.teacher_no
+      	LEFT JOIN
+            item i ON s.item_no = i.item_no
 
 
 	
