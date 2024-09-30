@@ -41,10 +41,7 @@ public class MyLoginFailureHandler implements AuthenticationFailureHandler{
             failureCount++; // 실패 횟수 증가
         }
 		
-		System.out.println("emp_id: " + request.getParameter("emp_id"));
-		
 		Employee e = employeeRepository.findByempId(request.getParameter("emp_id"));
-		System.out.println(e.getAccountStatus());
 		
 		response.sendRedirect("/login");
 	}
