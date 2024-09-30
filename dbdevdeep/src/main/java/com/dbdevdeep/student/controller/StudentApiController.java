@@ -27,12 +27,14 @@ import com.dbdevdeep.employee.domain.TeacherHistory;
 import com.dbdevdeep.employee.domain.TeacherHistoryDto;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
 import com.dbdevdeep.employee.service.TeacherHistoryService;
+import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.ParentDto;
 import com.dbdevdeep.student.domain.Score;
 import com.dbdevdeep.student.domain.ScoreDto;
 import com.dbdevdeep.student.domain.StudentClassDto;
 import com.dbdevdeep.student.domain.StudentDto;
 import com.dbdevdeep.student.domain.SubjectDetailsDto;
+import com.dbdevdeep.student.domain.SubjectDto;
 import com.dbdevdeep.student.repository.ScoreRepository;
 import com.dbdevdeep.student.service.StudentService;
 
@@ -54,6 +56,7 @@ public class StudentApiController {
 		this.fileService = fileService;
 		this.scoreRepository = scoreRepository;
 	}
+	
 	
 	// 학생 등록
 	@ResponseBody
@@ -367,6 +370,7 @@ public class StudentApiController {
 
 		    return resultMap;
 		}
+
 
 
 

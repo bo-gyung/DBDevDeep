@@ -4,10 +4,37 @@
 	layout:decorate="~{include/student_layout}">
 <th:block layout:fragment="content">
 	<style>
+			div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+		  white-space: nowrap;
+		  justify-content: center;
+		  margin-top:25px !important;
+		}
+	
+		/* DataTables 검색 영역을 Flexbox로 설정하여 수평 및 수직 정렬 */
+		div.dataTables_wrapper div.dataTables_filter {
+		  display: flex; /* Flexbox 사용 */
+		  align-items: center; /* 수직 가운데 정렬 */
+		  justify-content: flex-end; /* 오른쪽 정렬 */
+		  margin-bottom: 0; /* 하단 여백 제거 */
+		}
+		/* 검색 input 필드 스타일 */
+		div.dataTables_wrapper div.dataTables_filter input {
+		  margin-left: 0.5em; /* 왼쪽 여백 추가 */
+		  display: inline-block; /* 인라인 블록 설정 */
+		  width: auto; /* 너비 자동 설정 */
+		  height: 30px; /* input 높이 설정 */
+		  vertical-align: middle; /* 수직 정렬 */
+		  box-sizing: border-box; /* 박스 크기 설정 */
+		}
         body {
             font-family: Arial, sans-serif;
         }
-
+			/* 첫 번째 td를 수평 및 수직 가운데 정렬 */
+		.bordered tbody tr td.align-center {
+		    text-align: center; /* 수평 가운데 정렬 */
+		    vertical-align: middle;
+		    padding-bottom:8px;
+		}
         /* 탭 메뉴 스타일 */
         .tab-menu {
             display: flex;
@@ -52,6 +79,66 @@
             padding: 8px;
             text-align: center;
         }
+        /* datatable css */
+		div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+		  margin: 2px 0;
+		  white-space: nowrap;
+		  justify-content: center;
+		}
+		/* a 태그 속성 제거 */
+		a {
+		    text-decoration: none; /* 밑줄 제거 */
+		    color: inherit;        /* 기본 색상 제거, 부모 요소의 색상 사용 */
+		    cursor: pointer;       /* 커서 스타일 변경 */
+		}	
+		/* a 태그 호버 시 스타일 */
+		a:hover {
+		    text-decoration: none; /* 호버 시 밑줄 추가 */
+		    color: inherit;           /* 호버 시 색상 변경 */
+		}
+		
+		/* th의 텍스트와 아이콘을 가운데 정렬하고 함께 붙이기 */
+		table.dataTable thead th {
+		  text-align: center; /* 텍스트와 아이콘을 가운데 정렬 */
+		  position: relative; /* 아이콘 위치를 상대적으로 설정 */
+		  padding-right: 20px; /* 오른쪽 패딩을 조정하여 아이콘 간격 조절 */
+		}
+		
+		/* 정렬 아이콘의 위치 및 정렬 설정 */
+		table.dataTable thead .sorting:before,
+		table.dataTable thead .sorting:after,
+		table.dataTable thead .sorting_asc:before,
+		table.dataTable thead .sorting_asc:after,
+		table.dataTable thead .sorting_desc:before,
+		table.dataTable thead .sorting_desc:after,
+		table.dataTable thead .sorting_asc_disabled:before,
+		table.dataTable thead .sorting_asc_disabled:after,
+		table.dataTable thead .sorting_desc_disabled:before,
+		table.dataTable thead .sorting_desc_disabled:after {
+		  display: inline-block; /* 아이콘을 인라인 블록으로 설정 */
+		  position: relative; /* 아이콘 위치를 텍스트 옆으로 설정 */
+		  margin-left: 10px; /* 텍스트와 아이콘 사이의 간격을 조정 */
+		  bottom: 0; /* 아이콘을 텍스트 높이에 맞추기 위해 위치 설정 */
+		  opacity: 0.7; /* 아이콘의 불투명도 설정 */
+		  content: ''; /* 정렬 아이콘을 CSS로 설정 */
+		}
+		
+		table.dataTable thead .sorting:after,
+		table.dataTable thead .sorting_asc:after,
+		table.dataTable thead .sorting_desc:after,
+		table.dataTable thead .sorting_asc_disabled:after,
+		table.dataTable thead .sorting_desc_disabled:after {
+		  content: "\25BC"; /* 아래쪽 화살표 */
+		}
+		
+		/* 정렬 아이콘 활성화 시 스타일 */
+		table.dataTable thead .sorting_asc:after {
+		  content: "\25B2"; /* 위쪽 삼각형 화살표 */
+		}
+		
+		table.dataTable thead .sorting_desc:after {
+		  content: "\25BC"; /* 아래쪽 삼각형 화살표 */
+		}
     </style>
 	<body>
 		<body>
@@ -204,7 +291,7 @@
 		
 		        // 학생 상세 페이지로 이동합니다.
 		        if (studentNo) {
-		            window.location.href = '/score/student/' + studentNo;
+		            window.location.href = '/student/score/student/' + studentNo;
 		        }
 		    });
 		</script>
@@ -213,7 +300,7 @@
 			    var subjectNo = $(this).find('td:nth-child(1)').text(); // 첫 번째 열의 subjectNo 추출
 			    
 			    if (subjectNo && subjectNo !== "") {
-			        window.location.href = '/score/subject/' + subjectNo;
+			        window.location.href = '/student/score/subject/' + subjectNo;
 			    }
 			});
 		</script>

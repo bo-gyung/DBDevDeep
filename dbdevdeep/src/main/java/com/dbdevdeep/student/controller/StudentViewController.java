@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -150,7 +153,7 @@ public class StudentViewController {
 	}
 
 	// 과목 정보 상세 페이지로 이동
-		@GetMapping("/subject/{subject_no}")
+		@GetMapping("/student/subject/{subject_no}")
 		public String selectSubjectOne(Model model, @PathVariable("subject_no") Long subject_no) {
 			SubjectDto dto = studentService.selectSubjectOne(subject_no);
 			List<CurriculumDto> cdto = studentService.selectCurriOne(subject_no);
@@ -162,7 +165,7 @@ public class StudentViewController {
 		}
 
 	// 과목 등록 페이지로 이동
-		@GetMapping("/subject/create")
+		@GetMapping("/student/subject/create")
 		public String createSubjectPage() {
 			return "student/subject_create";
 		}
@@ -178,9 +181,12 @@ public class StudentViewController {
 		}
 		
 	// 과목 별 성적 등록 페이지로 이동
-		@GetMapping("/score/subject/{subject_no}")
+		@GetMapping("/student/score/subject/{subject_no}")
 		public String scoreSubjectOne(Model model, @PathVariable("subject_no") Long subject_no, SubjectDto sdto, StudentClassDto cdto) {
-			List<StudentClassDto> resultList = studentService.selectStudentList(cdto);
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication(); 
+			String username = authentication.getName();
+			
+			List<StudentClassDto> resultList = studentService.selectStudentListBySubject(subject_no);
 			SubjectDto subjectDto = studentService.selectSubjectOne(subject_no);
 			List<CurriculumDto> curriDto = studentService.selectCurriOne(subject_no);
 			List<ScoreDto> scoreList = studentService.selectScoreBySubject(subject_no);
@@ -197,8 +203,10 @@ public class StudentViewController {
 			    // studentNo에 해당하는 curriculumNo와 score를 저장
 			    scoreMap.get(studentNo).put(curriculumNo, scoreValue);
 			}
-
+			System.out.println(username);
+			System.out.println(subjectDto.getTeacher_history().getEmployee().getEmpId());
 			// 모델에 scoreMap을 추가
+			model.addAttribute("username",username);
 			model.addAttribute("scoreList", scoreMap);
 			model.addAttribute("subject",subjectDto);
 			model.addAttribute("resultList",resultList);
@@ -207,13 +215,14 @@ public class StudentViewController {
 		}
 		
 	// 학생 별 성적 등록 페이지로 이동
-		@GetMapping("/score/student/{student_no}")
+		@GetMapping("/student/score/student/{student_no}")
 		public String scoreStudentOne(Model model, @PathVariable("student_no") Long student_no, SubjectDto sdto, StudentClassDto cdto) {
 			StudentDto studentDto = studentService.selectStudentOne(student_no);
-			List<SubjectDto> subjectList = studentService.mySubjectList();
+			List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
+			List<SubjectDto> subjectList = studentService.studentSubjectList(studentClassResultList);
 			List<CurriculumDto> curriList = studentService.selectCurriAll();
 			List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
-			
+			System.out.println(subjectList);
 			Map<Long, String> scoreMap = new HashMap<>();
 		    for (ScoreDto score : scoreList) {
 		        scoreMap.put(score.getCurriculum_no(), score.getScore());
@@ -241,13 +250,40 @@ public class StudentViewController {
 			StudentDto dto = studentService.selectStudentOne(student_no);
 			List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
 			List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
-			List<SubjectDto> subjectList = studentService.mySubjectList();
+			List<SubjectDto> subjectList = studentService.studentSubjectList(studentClassResultList);
 			List<CurriculumDto> curriList = studentService.selectCurriAll();
 			List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
+			
 			
 			Map<Long, String> scoreMap = new HashMap<>();
 		    for (ScoreDto score : scoreList) {
 		        scoreMap.put(score.getCurriculum_no(), score.getScore());
+		    }
+		    
+		    
+		    double totalScore = 0;
+		    Map<Long, String> totalScoreMap = new HashMap<>();
+
+		    // 각 과목별로 총점을 계산
+		    for (SubjectDto subject : subjectList) {
+		        totalScore = 0;  // 과목별 총점 초기화
+
+		        // 해당 과목의 커리큘럼을 필터링하여 총점 계산
+		        for (CurriculumDto curri : curriList) {
+		            if (curri.getSubject().getSubjectNo().equals(subject.getSubject_no())) {
+		                // 해당 커리큘럼의 점수를 누적하여 계산
+		                for (ScoreDto score : scoreList) {
+		                    if (score.getCurriculum_no().equals(curri.getCurriculum_no())) {
+		                        // 총점을 누적 ( += 사용하여 점수를 더함)
+		                        totalScore += ((Double.parseDouble(score.getScore())) 
+		                                      / (Double.parseDouble(curri.getCurriculum_max_score())))
+		                                      * (Double.parseDouble(curri.getCurriculum_ratio()));  // 반영 비율 적용
+		                    }
+		                }
+		            }
+		        }
+		        // 계산된 총점을 문자열로 변환하여 Map에 저장
+		        totalScoreMap.put(subject.getSubject_no(), String.format("%.2f", totalScore));
 		    }
 		    
 		    model.addAttribute("scoreList",scoreMap);
@@ -256,7 +292,15 @@ public class StudentViewController {
 			model.addAttribute("dto",dto);
 			model.addAttribute("pdto",resultList);
 			model.addAttribute("cdto",studentClassResultList);
+			model.addAttribute("totalScoreMap", totalScoreMap);
+			
 			return "student/student_record_detail";
+		}
+		
+		// 통계 페이지로 이동
+		@GetMapping("/student/stat")
+		public String studentStatisticPage() {
+			return "student/student_statistic";
 		}
 
 }

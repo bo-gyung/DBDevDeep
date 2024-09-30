@@ -260,6 +260,26 @@ public class StudentService {
 		return subjectDtoList;
 	}
 	
+	// 학생을 기준으로 과목 리스트 페이지에서 목록 조회
+		public List<SubjectDto> studentSubjectList(List<StudentClassDto> scdtoList){
+			List<SubjectDto> subjectDtoList = new ArrayList<>();
+
+	        // StudentClassDto 리스트에서 각각의 teacher_history 값으로 조회
+	        for (StudentClassDto scdto : scdtoList) {
+	            TeacherHistory teacherHistory = scdto.getTeacher_history();
+	            
+	            // teacherHistory와 일치하는 과목을 찾음
+	            List<Subject> subjectList = subjectRepository.findByTeacherHistory(teacherHistory);
+	            
+	            // Subject를 SubjectDto로 변환 후 리스트에 추가
+	            for (Subject subject : subjectList) {
+	                SubjectDto subjectDto = new SubjectDto().toDto(subject);
+	                subjectDtoList.add(subjectDto);
+	            }
+	        }
+			return subjectDtoList;
+		}
+	
 	// 과목 정보 상세 조회시 과목 정보 조회
 		public SubjectDto selectSubjectOne(Long subject_no) {
 			Subject subjectDetail = subjectRepository.findBySubjectNo(subject_no);
@@ -390,6 +410,18 @@ public class StudentService {
 		    return savedScores; // 저장된 성적 목록 반환
 		}
 		
+		// 과목 수강 중인 학생 리스트 조회
+		public List<StudentClassDto> selectStudentListBySubject(Long subject_no){
+			List<StudentClass> scList = studentClassRepository.findBySubjectNoWithMatchingTeacherHistory(subject_no);
+			List<StudentClassDto> scdtoList = new ArrayList<StudentClassDto>();
+			for(StudentClass sc : scList) {
+				StudentClassDto scdto = new StudentClassDto().toDto(sc);
+				scdtoList.add(scdto);
+			}
+			return scdtoList;
+		}
+
+		
 		// 학생 기준 성적 데이터 불러오기
 		public List<ScoreDto> selectScoreByStudent(Long student_no){
 			List<Score> score = scoreRepository.findByStudent_StudentNo(student_no);
@@ -450,6 +482,6 @@ public class StudentService {
 
 		    return result;
 		}
-
+		
 
 }

@@ -97,7 +97,7 @@
 		  const studentNo = document.getElementById("student_no").value; 
 	    
 	    $('#download_excel').on('click', function () {
-	      const url = '/excel/download/' + studentNo; // studentNo를 URL에 추가
+	      const url = '/excel/download/student/' + studentNo; // studentNo를 URL에 추가
 	      window.location.href = url;  // 해당 URL로 요청하여 다운로드
 	    });
 	  });
