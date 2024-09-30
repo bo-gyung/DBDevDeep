@@ -17,5 +17,6 @@ import lombok.ToString;
 @Builder
 public class CopyRequestDto {
 	private List<Long> fileNos;     // 파일 번호 리스트
+	private List<Long> folderNos;
 	private Long targetFolderNo;    // 이동될 폴더 번호
 }

@@ -232,7 +232,7 @@
 									    <!-- 등록/취소 버튼 -->
 									    <div id="form-container" style="float:right; display: flex; align-items: center;">
 									        <button type="button" id="cancel-delete-button" class="btn waves-effect waves-light btn-light" style="width:80px; height:40px;">취소</button>
-									        <button type="submit" class="btn waves-effect waves-light btn-primary m-1" style="width:80px; height:40px;">등록</button>
+									        <button type="submit" id="create-update-button" class="btn waves-effect waves-light btn-primary m-1" style="width:80px; height:40px;">등록</button>
 									    </div>
 									    </form>
 									</div>
@@ -350,12 +350,15 @@
 	        
 	     	// 삭제 버튼 참조
 	        const deleteButton = document.getElementById('cancel-delete-button');
+	     	const updateButton = document.getElementById('create-update-button');
 
 	        // 기본 범주인지 확인하여 삭제 버튼 활성화/비활성화
 	        if (categoryData.is_default === 'Y') {
 	            deleteButton.disabled = true;  // 삭제 버튼 비활성화
+	            updateButton.disabled = true;
 	        } else {
 	            deleteButton.disabled = false; // 삭제 버튼 활성화
+	            updateButton.disabled = false;
 	        }
 
 	        // 경고 메시지 div가 이미 있는지 확인하여 제거
@@ -374,7 +377,7 @@
 	            alertDiv.style.color = '#FF7373';
 	            alertDiv.style.marginRight = '15px';
 	            alertDiv.style.fontSize = '16px';
-	            alertDiv.innerHTML = '<i data-feather="alert-circle" style="color: #FF7373; margin-right: 5px; width:16px;"></i>기본 범주는 범주명 수정과 삭제가 불가능합니다.';
+	            alertDiv.innerHTML = '<i data-feather="alert-circle" style="color: #FF7373; margin-right: 5px; width:16px;"></i>기본 범주는 수정과 삭제가 불가능합니다.';
 				
 	         	// form-container 내의 취소 버튼 왼쪽에 추가
 	            const formContainer = document.getElementById('form-container'); // form-container 요소 찾기

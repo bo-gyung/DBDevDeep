@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import com.dbdevdeep.employee.domain.Employee;
@@ -184,8 +182,8 @@ public class ScheduleService {
 		return result;
 	}
 	
-	// 매 분마다 실행하여 알림 체크
-    @Scheduled(cron = "0 * * * * *") // 매 분의 0초에 실행
+	// 매초 실행하여 초 단위 알림을 체크
+    @Scheduled(cron = "*/1 * * * * *") // 매 1초마다 실행
     public void checkForAlerts() {
         alertDataList.clear(); // 매번 새롭게 데이터를 저장하기 위해 리스트를 비움
 
@@ -231,10 +229,66 @@ public class ScheduleService {
     
     // 클라이언트 요청 시 알림 데이터를 반환하는 메서드
     public List<Map<String, Object>> getAlerts(String empId) {
-    	
         return alertDataList.stream()
             .filter(alert -> empId.equals(alert.get("emp_id")))
             .collect(Collectors.toList());
     }
+
+    public List<ScheduleDto> selectTodaySchedule(String empId) {
+        LocalDate today = LocalDate.now();  // 오늘의 날짜
+
+        // 오늘 날짜의 공용 일정 가져오기 (calendarType = 0)
+        List<Schedule> publicSchedules = scheduleRepository.findSchedulesForToday(0, today);
+
+        // 오늘 날짜의 개인 일정 가져오기 (calendarType = 1)
+        List<Schedule> privateSchedules = scheduleRepository.findSchedulesForToday(1, empId, today);
+
+        // 두 목록 합치기
+        List<Schedule> combinedSchedules = new ArrayList<>();
+        combinedSchedules.addAll(publicSchedules);
+        combinedSchedules.addAll(privateSchedules);
+
+        // 기간 일정과 시간 일정을 분리
+        List<Schedule> periodSchedules = new ArrayList<>();
+        List<Schedule> singleDaySchedules = new ArrayList<>();
+
+        for (Schedule s : combinedSchedules) {
+            if (s.getIsAllDay().equals("Y") || (s.getStartDate().isBefore(today) && s.getEndDate().isAfter(today))) {
+                // 종일 일정 또는 오늘 진행 중인 기간 일정 -> 기간 일정으로 처리
+                periodSchedules.add(s);
+            } else if (s.getStartDate().equals(today)) {
+                // 오늘 시작하는 기간 일정 -> 시작 시간을 기준으로
+                singleDaySchedules.add(s);
+            } else if (s.getEndDate().equals(today)) {
+                // 오늘 종료하는 기간 일정 -> 종료 시간을 기준으로
+                singleDaySchedules.add(s);
+            } else {
+                // 오늘 해당하는 시간이 없을 경우 시간 일정에 추가
+                singleDaySchedules.add(s);
+            }
+        }
+
+        // 시간 일정은 start_time 또는 end_time 기준으로 정렬
+        singleDaySchedules.sort(Comparator.comparing(schedule -> {
+            if (schedule.getStartDate().equals(today)) {
+                return schedule.getStartTime();
+            } else if (schedule.getEndDate().equals(today)) {
+                return schedule.getEndTime();
+            }
+            return schedule.getStartTime();
+        }));
+
+        // 기간 일정(종일 일정 포함) + 시간 일정 합치기 (기간 일정이 먼저 나오도록)
+        List<Schedule> sortedSchedules = new ArrayList<>(periodSchedules);  // 기간 일정을 먼저 추가
+        sortedSchedules.addAll(singleDaySchedules);  // 시간 일정 추가
+
+        // DTO로 변환
+        List<ScheduleDto> scheduleDtoList = sortedSchedules.stream()
+            .map(schedule -> new ScheduleDto().toDto(schedule))
+            .collect(Collectors.toList());
+
+        return scheduleDtoList;
+    }
+
 
 }

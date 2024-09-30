@@ -14,12 +14,14 @@ public interface FolderRepository extends JpaRepository<Folder, Long>{
 
 	Folder findByFolderNo(Long folderNo);
 
-	List<Folder> findByParentFolder(Folder folder);
-
 	Folder findByFolderTypeAndEmployee_EmpIdIsNull(int folderType);
 
 	List<Folder> findByParentFolderAndEmployee_EmpId(Folder rootFolder, String empId);
 
 	Folder findByFolderNoAndEmployee_EmpId(Long folderNo, String empId);
+
+	List<Folder> findByParentFolder(Folder folderToMove);
+
+	Folder findByFolderName(String folderName);
 
 }

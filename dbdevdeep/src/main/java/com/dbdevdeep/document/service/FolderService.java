@@ -10,8 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import com.dbdevdeep.FileService;
 import com.dbdevdeep.document.domain.FileDto;
 import com.dbdevdeep.document.domain.FileEntity;
 import com.dbdevdeep.document.domain.Folder;
@@ -29,11 +32,15 @@ public class FolderService {
 	private final FolderRepository folderRepository;
 	private final FileRepository fileRepository;
 	private final EmployeeRepository employeeRepository;
+	private final FileService fileService;
 	
-	public FolderService(FolderRepository folderRepository, FileRepository fileRepository, EmployeeRepository employeeRepository) {
+	@Autowired
+	public FolderService(FolderRepository folderRepository, FileRepository fileRepository, EmployeeRepository employeeRepository
+			, @Lazy FileService fileService) {
 		this.folderRepository = folderRepository;
 		this.fileRepository = fileRepository;
 		this.employeeRepository = employeeRepository;
+		this.fileService = fileService;
 	}
 
     // 공용 폴더 목록 가져오기
@@ -48,7 +55,7 @@ public class FolderService {
 	    Folder rootFolder = folderRepository.findByFolderTypeAndEmployee_EmpIdIsNull(1);
 	    
 	    // 2. 해당 사용자의 하위 폴더 목록 가져오기
-	    List<Folder> folderList = folderRepository.findByParentFolderAndEmployee_EmpId(rootFolder, empId);
+	    List<Folder> folderList = folderRepository.findByFolderTypeAndEmployee_EmpId(1, empId);
 	    
 	    folderList.add(0, rootFolder);  // 루트 폴더를 맨 앞에 추가
 	    
@@ -147,32 +154,16 @@ public class FolderService {
         Folder folder = folderRepository.findById(folderNo)
             .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 폴더 ID"));
 
-        // 공용문서함 처리 (folderType == 1)
+        // 공용문서함 처리 (folderType == 0)
         if (folder.getFolderType() == 0) {
-            // 공용 폴더의 파일 크기를 합산
-            totalSize = fileRepository.getTotalFileSizeByFolderNo(folderNo);
-            totalSize = totalSize == null ? 0L : totalSize;
-
-            // 공용 폴더의 하위 폴더를 재귀적으로 계산
-            List<Folder> subFolders = folderRepository.findByParentFolder(folder);
-            for (Folder subFolder : subFolders) {
-                totalSize += calculateFolderTotalSize(subFolder.getFolderNo(), null);
-            }
+        	totalSize = fileRepository.getTotalFileSizeWithSubFolders(folderNo);
         } 
-        // 개인문서함 처리 (folderType == 6)
+        // 개인문서함 처리 (folderType == 1)
         else if (folder.getFolderType() == 1) {
-            // 개인 폴더의 파일 크기를 합산 (empId로 필터링)
-            Long folderFileSize = fileRepository.getTotalFileSizeByFolderNoAndEmployee_EmpId(folderNo, empId);
-            totalSize += folderFileSize == null ? 0L : folderFileSize;
-
-            // 개인 폴더의 하위 폴더를 재귀적으로 계산
-            List<Folder> subFolders = folderRepository.findByParentFolderAndEmployee_EmpId(folder, empId);
-            for (Folder subFolder : subFolders) {
-                totalSize += calculateFolderTotalSize(subFolder.getFolderNo(), empId);
-            }
+        	totalSize = fileRepository.getTotalFileSizeWithSubFoldersByEmpId(folderNo, empId);
         }
 
-        return totalSize;
+        return totalSize == null ? 0L : totalSize;
     }
     
 	public String getFolderPath(Long folderNo) {
@@ -261,11 +252,17 @@ public class FolderService {
 	        } else {
 	            throw new RuntimeException("이동할 폴더의 경로를 찾을 수 없습니다.");
 	        }
-	        
+
+	        // 데이터베이스에서 상위 폴더 업데이트
 	        folderToMove.setParentFolder(targetFolder);
 	        folderToMove.setModTime(LocalDateTime.now());
-	        		
 	        folderRepository.save(folderToMove);  // DB에서 상위 폴더 업데이트
+
+	        // 현재 폴더 내 하위 폴더들도 재귀적으로 이동
+	        List<Folder> subFolders = folderRepository.findByParentFolder(folderToMove);
+	        for (Folder subFolder : subFolders) {
+	            moveFolder(subFolder.getFolderNo(), folderToMove.getFolderNo());  // 재귀적으로 하위 폴더 이동
+	        }
 
 	        result = 1;  // 성공
 
@@ -277,5 +274,91 @@ public class FolderService {
 	    return result;
 	}
 
+	public int copyFolder(Long folderNo, Long targetFolderNo, String empId) {
+	    int result = -1;
+
+	    try {
+	        Employee employee = employeeRepository.findByempId(empId);
+
+	        // 1. 복사할 폴더 정보 가져오기
+	        Folder folderToCopy = folderRepository.findByFolderNo(folderNo);
+	        Folder targetFolder = folderRepository.findByFolderNo(targetFolderNo);
+
+	        if (folderToCopy == null || targetFolder == null) {
+	            throw new RuntimeException("복사할 폴더 또는 대상 폴더를 찾을 수 없습니다.");
+	        }
+
+	        // 2. 대상 폴더의 현재 사용 용량 계산
+	        Long currentUsedSize = calculateFolderTotalSize(targetFolderNo, empId);
+
+	        // 3. 복사할 폴더 내 모든 파일들의 용량 합산
+	        Long totalSizeToCopy = 0L;
+	        List<FileEntity> filesInFolder = fileRepository.findByFolder(folderToCopy);
+	        for (FileEntity file : filesInFolder) {
+	            totalSizeToCopy += file.getFileSize();
+	        }
+
+	        // 4. 개인문서함의 총 용량 가져오기 (예: 100GB)
+	        Long totalCapacity = fileService.getFolderTotalCapacity();
+
+	        // 5. 용량 비교 (현재 사용 용량 + 복사할 용량 > 총 용량)
+	        if (currentUsedSize + totalSizeToCopy > totalCapacity) {
+	            throw new RuntimeException("개인문서함의 용량을 초과하여 폴더를 복사할 수 없습니다.");
+	        }
+
+	        // 6. 새로운 폴더 정보 생성 및 데이터베이스에 저장 (폴더 복사)
+	        Folder copiedFolder = Folder.builder()
+	        		.folderName(folderToCopy.getFolderName())
+	        		.folderType(1)
+	        		.parentFolder(targetFolder)
+	        		.employee(employee)
+	        		.regTime(LocalDateTime.now())
+	        		.modTime(LocalDateTime.now())
+	        		.build();
+	        folderRepository.save(copiedFolder);
+	        
+	        // 실제 경로에 폴더 생성
+	        String targetFolderPath = getFolderPath(targetFolderNo);
+	        String newFolderPath = fileDir + "document\\" + targetFolderPath + "\\" + copiedFolder.getFolderName();
+	        Path newFolderPathAsPath = Paths.get(newFolderPath);
+
+	        // 폴더가 존재하지 않으면 생성
+	        if (!Files.exists(newFolderPathAsPath)) {
+	            Files.createDirectories(newFolderPathAsPath);  // 대상 폴더가 없으면 생성
+	        }
+
+	        // 7. 폴더 내 파일 복사 처리
+	        for (FileEntity file : filesInFolder) {
+	            // 파일 복사 (복사된 폴더로)
+	            fileService.copyFile(file.getFileNo(), copiedFolder.getFolderNo(), empId);
+	        }
+
+	        // 8. 폴더 내 하위 폴더들도 재귀적으로 복사
+	        List<Folder> subFolders = folderRepository.findByParentFolder(folderToCopy);
+	        for (Folder subFolder : subFolders) {
+	            // 하위 폴더 복사 (재귀적으로 처리)
+	            copyFolder(subFolder.getFolderNo(), copiedFolder.getFolderNo(), empId);
+	        }
+
+	        result = 1;  // 성공
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        result = 0;  // 실패 시
+	    }
+
+	    return result;
+	}
+
+	public Long getTotalSizeOfFolders(List<Long> folderNos) {
+	    Long totalSize = 0L;
+
+	    for (Long folderNo : folderNos) {
+	        // 폴더에 속한 모든 파일들의 크기 합산
+	        totalSize += fileRepository.getTotalFileSizeWithSubFolders(folderNo);  // 폴더 내 파일들의 총 크기 계산
+	    }
+
+	    return totalSize;
+	}
 
 }

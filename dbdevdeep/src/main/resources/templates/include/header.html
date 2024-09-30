@@ -18,40 +18,7 @@
 		.schedule-message-item:hover {
 	    	color: inherit !important; /* 기본 텍스트 색상 유지 */
 	    }
-	</style>
-	<header class="topbar" data-navbarbg="skin6">
-		<div class="preloader">
-			<div class="lds-ripple">
-				<div class="lds-pos"></div>
-				<div class="lds-pos"></div>
-			</div>
-		</div>
-      <nav class="navbar top-navbar navbar-expand-md">
-        <div class="navbar-header" data-logobg="skin6">
-          <!-- sidebar toggle -->
-          <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
-              class="ti-menu ti-close"></i></a>
-          <!-- 로고 -->
-          <div class="navbar-brand">
-            <a th:href="@{/}" style="margin-top:-12px;">
-              <b class="logo-icon">
-                <img src="/assets/images/MulMang_logo.png" style="width: 45px;" alt="homepage" class="dark-logo" />
-              </b>
-              <span class="logo-text">
-                <img src="/assets/images/MulMang_logo_text.png" style="width: 145px;" alt="homepage" class="dark-logo" />
-              </span>
-            </a>
-          </div>
-          <!-- Toggle -->
-          <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
-            data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-            aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
-        </div>
-        <!-- ============================================================== -->
-        <!-- 헤더 -->
-        <!-- ============================================================== -->
-        <style>
-          /* 기본 스타일 */
+	              /* 기본 스타일 */
 		  .left-nav {
 		    margin-right: 20px;
 		  }
@@ -87,52 +54,50 @@
           .nav-item.active .nav_text {
 			  color: #0031AE; /* 활성화된 항목의 글씨 색 */
 			  font-weight: bold; /* 활성화된 항목의 글씨 굵기 */
-			}
-          	body{
-				font-family: 'NanumSquareNeo';
-			}
-        </style>
-        <script>
-	        document.addEventListener('DOMContentLoaded', function () {
-	            const navItems = document.querySelectorAll('.navbar-nav .nav-item'); // 모든 nav-item을 선택
-	
-	            navItems.forEach(function (item) {
-	                const link = item.querySelector('.nav-link'); // 각 nav-item의 링크를 선택
-	
-	                if (link && link.href === window.location.href) { // 링크의 href와 현재 페이지 URL이 일치하면
-	                    item.classList.add('active'); // active 클래스 추가
-	                }
-	            });
-	        });
-	        
-	        $(".preloader ").fadeOut();
-        </script>
+		  }
+          body{
+			font-family: 'NanumSquareNeo';
+		  }
+	</style>
+	<header class="topbar" data-navbarbg="skin6">
+		<div class="preloader">
+			<div class="lds-ripple">
+				<div class="lds-pos"></div>
+				<div class="lds-pos"></div>
+			</div>
+		</div>
+      <nav class="navbar top-navbar navbar-expand-md">
+        <div class="navbar-header" data-logobg="skin6">
+          <!-- sidebar toggle -->
+          <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
+              class="ti-menu ti-close"></i></a>
+          <!-- 로고 -->
+          <div class="navbar-brand">
+            <a th:href="@{/}" style="margin-top:-12px;">
+              <b class="logo-icon">
+                <img src="/assets/images/MulMang_logo.png" style="width: 45px;" alt="homepage" class="dark-logo" />
+              </b>
+              <span class="logo-text">
+                <img src="/assets/images/MulMang_logo_text.png" style="width: 145px;" alt="homepage" class="dark-logo" />
+              </span>
+            </a>
+          </div>
+          <!-- Toggle -->
+          <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+            data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
+        </div>
+
         <div class="navbar-collapse collapse" id="navbarSupportedContent">
           <ul class="navbar-nav float-left mr-auto ml-3 pl-1">
-            <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/approve}" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">전자결재</span>
-              </a>
-            </li>
-            <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/attendance}" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">근태관리</span>
-              </a>
-            </li>
             <li class="nav-item left-nav">
               <a class="nav-link" th:href="@{/notice}" role="button" aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text">공지사항</span>
               </a>
-            </li>
+            </li>          
             <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/schedule}" role="button"
-                aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">일정관리</span>
-              </a>
-            </li>
-            <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/place}" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">자원관리</span>
+              <a class="nav-link" th:href="@{/approve}" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">전자결재</span>
               </a>
             </li>
             <li class="nav-item left-nav" sec:authorize="hasAnyAuthority('D4')">
@@ -148,11 +113,27 @@
               </a>
             </li>
             <li class="nav-item left-nav">
+              <a class="nav-link" th:href="@{/place}" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">자원관리</span>
+              </a>
+            </li>               
+            <li class="nav-item left-nav">
+              <a class="nav-link" th:href="@{/schedule}" role="button"
+                aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">일정관리</span>
+              </a>
+            </li>
+            <li class="nav-item left-nav">
               <a class="nav-link" th:href="@{/file}" role="button"
                 aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text">문서관리</span>
               </a>
             </li>
+            <li class="nav-item left-nav">
+              <a class="nav-link" th:href="@{/attendance}" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">근태관리</span>
+              </a>
+            </li>            
             <li class="nav-item left-nav">
               <a class="nav-link" th:href="@{/addressbook}" role="button"
                 aria-haspopup="true" aria-expanded="false">
@@ -252,8 +233,8 @@
 	        .catch(error => console.error('Error fetching alerts:', error));
 	}
 	
-	// 1분마다 서버에 요청을 보냄
-	setInterval(fetchAlerts, 60000); // 60,000ms = 1분
+	// 10초마다 서버에 요청을 보냄
+	setInterval(fetchAlerts, 10000); // 60,000ms = 1분
 	
 	// 알림을 화면에 추가하는 함수
 	function addScheduleNotification(title, message, time) {
@@ -391,7 +372,9 @@
 	window.onload = function() {
 	    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
 	}
+	
+    $(".preloader ").fadeOut();
 </script>
 
-    </th:block>
+</th:block>
 </html>

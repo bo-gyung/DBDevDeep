@@ -157,6 +157,21 @@
 	        const holidayNameInputEdit = $('#edit_holiday_name');
 	        const csrfToken = $('#csrf_token').val();
 	        
+	        // 휴일명 30글자 제한 함수
+	        function limitHolidayNameInput(inputField) {
+	            inputField.on('input', function () {
+	                let maxLength = 30;
+	                let currentVal = $(this).val();
+	                if (currentVal.length > maxLength) {
+	                    $(this).val(currentVal.substring(0, maxLength)); // 30글자를 초과하면 자름
+	                }
+	            });
+	        }
+	        
+	        // 휴일명 30글자 제한 적용 (생성 및 수정용 필드)
+	        limitHolidayNameInput(holidayNameInputCreate);
+	        limitHolidayNameInput(holidayNameInputEdit);
+	        
 	        // 공통 함수: 날짜 입력 필드 활성화/비활성화 설정
 	        function updateDateInputs(singleDateInput, startDateInput, endDateInput, dateOption1Checked) {
 	            if (dateOption1Checked) {

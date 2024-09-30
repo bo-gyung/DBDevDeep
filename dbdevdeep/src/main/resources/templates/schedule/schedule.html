@@ -4,19 +4,18 @@
 	layout:decorate="~{include/schedule_layout}">
 <head>
 <!-- FullCalendar CSS -->
-<link
-	href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css"
-	rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
 <!-- FullCalendar JavaScript -->
-<script
-	src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
-<script
-	src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
-<!-- Google API Client Library -->
-<script src="https://apis.google.com/js/api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
 <!-- Custom CSS -->
 <link href="/dist/css/style.min.css" rel="stylesheet">
 <style>
+
+.modal-body{
+	padding: 0px !important;
+	flex: 0 !important;
+}
 
 /* FullCalendar 일정 이벤트 텍스트 색상을 검정으로 설정 */
 .fc-event, .fc-event-dot {
@@ -36,6 +35,17 @@ input[title] {
 	word-wrap: break-word; /* 긴 단어를 줄바꿈 */
 	overflow-x: auto; /* 가로 스크롤 필요시 스크롤바 표시 */
 	background-color: white !important;
+	opacity: 1 !important; /* 투명도 설정 */
+}
+
+.fc-theme-standard .fc-popover-header {
+ 	background: #E8EAEC !important; /* 투명도 없이 불투명한 배경색 설정 */
+    background: var(--fc-neutral-bg-color, #E8EAEC) !important; /* 불투명한 배경 설정 */
+}
+
+.fc-theme-standard .fc-popover-body {
+ 	background: white !important; /* 투명도 없이 불투명한 배경색 설정 */
+    background: var(--fc-neutral-bg-color, white) !important; /* 불투명한 배경 설정 */
 }
 
 .required-indicator {
@@ -80,6 +90,10 @@ input[title] {
 	border-left: 1px solid #e8eef3;
 	border-top: 1px solid #e8eef3;
 	border-right: 1px solid #e8eef3;
+}
+
+.bordered th, .bordered tr:last-child td{
+	border-bottom: 1px solid #e8eef3;
 }
 
 /* 첫 번째 td를 수평 및 수직 가운데 정렬 */
@@ -484,8 +498,8 @@ body {
 									role="dialog" aria-labelledby="scheduleCreateModalLabel">
 									<div
 										class="modal-dialog modal-dialog-centered custom-modal-size"
-										style="max-width: 54%; width: 54%; height: 72%;">
-										<div class="modal-content" style="height: 72%;">
+										style="max-width: 54%; width: 54%; height: 68.5vh;">
+										<div class="modal-content" style="height: 68.5vh;">
 											<div class="modal-header modal-colored-header bg-primary"
 												style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
 												<div class="modal-title" id="scheduleCreateModalLabel">
@@ -506,8 +520,11 @@ body {
 														<tbody id="scheduleCreateContent">
 															<!-- 날짜 선택 -->
 															<tr>
-																<td class="align-center" style="width: 20%;"><span
-																	class="required-indicator"></span> <!-- 필수 입력 표시 --> <label>기간</label>
+																<td class="align-center" style="width: 20%;">
+																	<div style="margin-right:0.8vw !important;">
+																		<span class="required-indicator"></span> <!-- 필수 입력 표시 --> 
+																		<label>기간</label>
+																	</div>
 																</td>
 																<td style="width: 80%;">
 																	<div class="form-inline">
@@ -537,8 +554,11 @@ body {
 
 															<!-- 제목 입력 -->
 															<tr>
-																<td class="align-center" style="width: 20%;"><span
-																	class="required-indicator"></span> <!-- 필수 입력 표시 --> <label>제목</label>
+																<td class="align-center" style="width: 20%;">
+																	<div style="margin-right:0.8vw !important;">
+																		<span class="required-indicator"></span> <!-- 필수 입력 표시 --> 
+																		<label>제목</label>
+																	</div>
 																</td>
 																<td style="width: 80%;">
 																	<div
@@ -660,7 +680,7 @@ body {
 														</tbody>
 													</table>
 												</div>
-												<div class="modal-footer" style="margin-top: -16px;">
+												<div class="modal-footer" style="margin-top: -1vh; border-top:none !important;">
 													<button type="button"
 														class="btn waves-effect waves-light btn-outline-secondary public-btn"
 														data-dismiss="modal">취소</button>
@@ -677,8 +697,8 @@ body {
 									role="dialog" aria-labelledby="scheduleDetailModalLabel">
 									<div
 										class="modal-dialog modal-dialog-centered custom-modal-size"
-										style="max-width: 54%; width: 54%; height: 72%;">
-										<div class="modal-content" style="height: 72%;"
+										style="max-width: 54%; width: 54%; height: 68.5vh;">
+										<div class="modal-content" style="height: 68.5vh;"
 											id="scheduleDetailContent">
 											<input type="hidden" id="csrf_token"
 												th:value="${_csrf.token}">
@@ -691,8 +711,8 @@ body {
 									role="dialog" aria-labelledby="scheduleEditModalLabel">
 									<div
 										class="modal-dialog modal-dialog-centered custom-modal-size"
-										style="max-width: 54%; width: 54%; height: 72%;">
-										<div class="modal-content" style="height: 72%;">
+										style="max-width: 54%; width: 54%; height: 68.5vh;">
+										<div class="modal-content" style="height: 68.5vh;">
 											<div class="modal-header modal-colored-header bg-primary"
 												style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
 												<div class="modal-title" id="scheduleEditModalLabel">
@@ -713,8 +733,11 @@ body {
 														<tbody id="scheduleCreateContent">
 															<!-- 날짜 선택 -->
 															<tr>
-																<td class="align-center" style="width: 20%;"><span
-																	class="required-indicator"></span> <!-- 필수 입력 표시 --> <label>기간</label>
+																<td class="align-center" style="width: 20%;">
+																	<div style="margin-right:0.8vw !important;">
+																		<span class="required-indicator"></span> <!-- 필수 입력 표시 --> 
+																		<label>기간</label>
+																	</div>
 																</td>
 																<td style="width: 80%;">
 																	<div class="form-inline">
@@ -743,8 +766,11 @@ body {
 
 															<!-- 제목 입력 -->
 															<tr>
-																<td class="align-center" style="width: 20%;"><span
-																	class="required-indicator"></span> <!-- 필수 입력 표시 --> <label>제목</label>
+																<td class="align-center" style="width: 20%;">
+																	<div style="margin-right:0.8vw !important;">
+																		<span class="required-indicator"></span> <!-- 필수 입력 표시 --> 
+																		<label>제목</label>
+																	</div>
 																</td>
 																<td style="width: 80%;">
 																	<div
@@ -866,7 +892,7 @@ body {
 														</tbody>
 													</table>
 												</div>
-												<div class="modal-footer" style="margin-top: -16px;">
+												<div class="modal-footer" style="margin-top: -1vh; border-top:none !important;">
 													<button type="button"
 														class="btn waves-effect waves-light btn-outline-secondary public-btn"
 														data-dismiss="modal">취소</button>
@@ -1352,8 +1378,7 @@ body {
     }
 </script>
 
-
-		<script>
+<script>
 	// 전역 변수로 현재 범주 유형 설정
 	let currentCategoryType = 0; // 기본값: 전체 (0)
 	
@@ -1444,7 +1469,7 @@ body {
 	});
 </script>
 
-		<script>
+<script>
 	let currentEventData = null;
 
     // FullCalendar 초기화 함수
@@ -1567,7 +1592,7 @@ body {
 
                 // 날짜 셀에서 마우스가 벗어날 때 버튼 숨기기
                 arg.el.addEventListener('mouseleave', function () {
-                    addButton.style.display = 'none';
+                    addButton.style.display = 'none'
                 });
 
                 // 날짜 셀에 버튼 추가
@@ -1969,7 +1994,7 @@ body {
 		            </tbody>
                 </table>
             </div>
-            <div class="modal-footer" style="margin-top:-15px;">
+            <div class="modal-footer" style="margin-top: -1vh; border-top:none !important;">
 	            <button type="button" class="btn btn-primary public-btn" id="editButton">수정</button>
 	            <button type="button" class="btn btn-light public-btn" id="deleteButton">삭제</button>
 	            <button type="button" class="btn btn-outline-secondary public-btn" data-dismiss="modal" id="closeButton">닫기</button>
@@ -2367,8 +2392,8 @@ body {
                                         allDay: isAllDayEvent, // 날짜 차이에 따라 종일 일정 여부 결정
                                         backgroundColor: backgroundColor, // 배경색 설정
                                         textColor: 'black',
-                                        editable: schedule.category_no !== 3, // 드래그 가능
-                                        classNames: [schedule.category_no === 3 ? 'fc-vacation' : 'fc-schedule'], // category_no에 따라 클래스 추가
+                                        editable: schedule.category_no !== 3 && schedule.category_no !== 8, // 드래그 가능
+                                        classNames: [ (schedule.category_no === 3 || schedule.category_no === 8) ? 'fc-vacation' : 'fc-schedule'], // category_no에 따라 클래스 추가
                                         extendedProps: {
                                             category_no: schedule.category_no // category_no를 extendedProps에 추가
                                         }

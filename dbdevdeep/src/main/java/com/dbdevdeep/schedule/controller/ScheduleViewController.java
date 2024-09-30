@@ -64,20 +64,21 @@ public class ScheduleViewController {
     @GetMapping("/getTotalScheduleData")
     @ResponseBody
     public List<ScheduleDto> getTotalScheduleData(){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User)authentication.getPrincipal();
         String empId = user.getUsername();
         
         List<ScheduleDto> combinedSchedule = new ArrayList<>();
 
-        // 전체 일정 데이터 가져오기
+        // 개인 일정 데이터 가져오기
         List<ScheduleDto> totalSchedules = scheduleService.selectTotalScheduleList(empId);
-        combinedSchedule.addAll(totalSchedules); // 기존 전체 일정 추가
+        combinedSchedule.addAll(totalSchedules); // 기존 개인 일정 추가
 
-        // 휴가 요청 데이터 가져오기
+        // 개인의 휴가 요청 데이터 가져오기
         List<VacationRequestDto> vacationRequest = approveService.selectApprovedVacationRequest(empId);
         for (VacationRequestDto vacation : vacationRequest) {
             ScheduleDto vacationSchedule = new ScheduleDto();
+            
             vacationSchedule.setEmp_id(vacation.getApprove().getEmployee().getEmpId());
             vacationSchedule.setSchedule_title(getVacationTypeTitle(vacation.getVac_type())); // 휴가 유형 제목
 
@@ -87,13 +88,40 @@ public class ScheduleViewController {
             vacationSchedule.setEnd_date(vacation.getEnd_time().toLocalDate());
             vacationSchedule.setEnd_time(vacation.getEnd_time().toLocalTime());
             vacationSchedule.setIs_all_day("Y");
-            
+
             vacationSchedule.setCategory_color("81B3FF");
-            vacationSchedule.setCalendar_type(1); // 기본값
+            vacationSchedule.setCalendar_type(1); // 개인 일정
             vacationSchedule.setCategory_no((long) 3); // 기본값
             combinedSchedule.add(vacationSchedule); // 휴가 요청 추가
         }
-        
+
+        // 모든 사용자의 휴가 요청 데이터 가져오기 (empId 없이)
+        List<VacationRequestDto> allVacationRequests = approveService.selectAllApprovedVacationRequest();
+        for (VacationRequestDto vacation : allVacationRequests) {
+        	// 이미 추가된 개인 휴가 일정(empId와 일치하는 일정)은 중복 추가하지 않음
+            if (!vacation.getApprove().getEmployee().getEmpId().equals(empId)) {
+                ScheduleDto vacationSchedule = new ScheduleDto();
+                vacationSchedule.setEmp_id(vacation.getApprove().getEmployee().getEmpId());
+
+                // 직원 이름과 휴가 유형을 제목으로 설정
+                String empName = vacation.getApprove().getEmployee().getEmpName();
+                String vacType = getVacationTypeTitle(vacation.getVac_type());
+                vacationSchedule.setSchedule_title(empName + " " + vacType); // "김철수 연차" 형식
+
+                // start_time과 end_time에서 DATE와 TIME으로 쪼개기
+                vacationSchedule.setStart_date(vacation.getStart_time().toLocalDate());
+                vacationSchedule.setStart_time(vacation.getStart_time().toLocalTime());
+                vacationSchedule.setEnd_date(vacation.getEnd_time().toLocalDate());
+                vacationSchedule.setEnd_time(vacation.getEnd_time().toLocalTime());
+                vacationSchedule.setIs_all_day("Y");
+
+                vacationSchedule.setCategory_color("81B3FF");
+                vacationSchedule.setCalendar_type(0); // 전체 사용자 휴가 일정
+                vacationSchedule.setCategory_no((long) 8); // 기본값
+                combinedSchedule.add(vacationSchedule); // 모든 사용자 휴가 일정 추가
+            }
+        }
+
         return combinedSchedule;
     }
     
@@ -101,7 +129,34 @@ public class ScheduleViewController {
     @GetMapping("/getPublicScheduleData")
     @ResponseBody // JSON 형태로 반환
     public List<ScheduleDto> getPublicScheduleData() {
-        return scheduleService.selectPublicScheduleList(); // 공용 일정 데이터를 JSON으로 반환
+    	 // 공용 일정 데이터 가져오기
+        List<ScheduleDto> combinedSchedule = scheduleService.selectPublicScheduleList(); // 공용 일정 데이터 추가
+
+        // 모든 사용자의 휴가 요청 데이터 가져오기 (empId 필요 없음)
+        List<VacationRequestDto> allVacationRequests = approveService.selectAllApprovedVacationRequest();
+        for (VacationRequestDto vacation : allVacationRequests) {
+            ScheduleDto vacationSchedule = new ScheduleDto();
+            vacationSchedule.setEmp_id(vacation.getApprove().getEmployee().getEmpId());
+
+            // 직원 이름과 휴가 유형을 제목으로 설정
+            String empName = vacation.getApprove().getEmployee().getEmpName();
+            String vacType = getVacationTypeTitle(vacation.getVac_type());
+            vacationSchedule.setSchedule_title(empName + " " + vacType); // "김철수 연차" 형식
+
+            // start_time과 end_time에서 DATE와 TIME으로 쪼개기
+            vacationSchedule.setStart_date(vacation.getStart_time().toLocalDate());
+            vacationSchedule.setStart_time(vacation.getStart_time().toLocalTime());
+            vacationSchedule.setEnd_date(vacation.getEnd_time().toLocalDate());
+            vacationSchedule.setEnd_time(vacation.getEnd_time().toLocalTime());
+            vacationSchedule.setIs_all_day("Y");
+
+            vacationSchedule.setCategory_color("81B3FF");
+            vacationSchedule.setCalendar_type(0); // 전체 사용자 휴가 일정
+            vacationSchedule.setCategory_no((long) 8); // 기본값
+            combinedSchedule.add(vacationSchedule); // 모든 사용자 휴가 일정 추가
+        }
+
+        return combinedSchedule; // 공용 일정과 모든 사용자의 휴가 일정이 결합된 결과 반환
     }
 
     // 개인 일정 데이터 반환 메서드
