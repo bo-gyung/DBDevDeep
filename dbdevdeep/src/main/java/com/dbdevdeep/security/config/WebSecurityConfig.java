@@ -32,7 +32,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/error/404", "/error/500", "/error/error").permitAll()
                 .requestMatchers("/employee/**").hasAnyAuthority("D3")
                 .requestMatchers("/log/**").hasAnyAuthority("D3")
-                .requestMatchers("/employee/**").hasAnyAuthority("D4")
+                .requestMatchers("/student/**").hasAnyAuthority("D4")
                 .anyRequest().hasAnyAuthority("Y")  // 나머지 모든 요청은 인증 필요
             )
             // 로그인 설정
