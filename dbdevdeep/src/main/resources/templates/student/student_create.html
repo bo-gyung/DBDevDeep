@@ -3,6 +3,59 @@
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
      layout:decorate="~{include/student_layout}">
 <th:block layout:fragment="content">
+<style>
+	.addPic {
+	background-color: gainsboro;
+	width: 100%;
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+	border: none;
+	font-size: 25px;
+	}
+	
+	.addPic, .littleButton {
+		transition: background-color 0.3s ease;
+	}
+	
+	.addPic:hover, .littleButton:hover {
+		background-color: rgb(189, 189, 189);
+		cursor: pointer;
+	}
+	
+	.littleButton {
+		background-color: gainsboro;
+		width: 35px;
+		height: 35px;
+		border-radius: 50%;
+		border: none;
+		font-size: 15px;
+		text-align: center;
+		position: relative;
+		bottom: 35px;
+		left: 85px;
+	}
+	
+	.preview-container {
+		border-radius: 50%;
+		overflow: hidden;
+		width: 100%;
+		aspect-ratio: 1/1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px solid lightgray;
+	}
+	
+	#imagePreview {
+		width: 100%;
+		aspect-ratio: 1/1;
+		object-fit: cover;
+	}
+	
+	.hidden {
+		display: none;
+	}
+</style>
 <body>
 		<div class="page-wrapper">
 			<div class="page-breadcrumb">
@@ -12,36 +65,54 @@
 			            <h3>1 학생 정보 등록</h3>
 			            <div class="form-section">
 			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+			            
+			                <div class="form-group">
+			                    <label>사진</label>
+			                    <div class="row">
+									<div class="preview-container hidden" id="preview-container">
+										<img id="imagePreview" src="">
+									</div>
+									<input type="button" class="addPic" id="addPic" value="+">
+								</div>
+			                </div>
+			                
 			                <div class="form-group">
 			                    <label for="name">이름</label>
 			                    <input type="text" id="name" name="student_name" placeholder="이름을 입력하세요.">
 			                </div>
+			                
 			                <div class="form-group">
 			                    <label for="student_status">재학 여부</label>
 									<select id="student_status" name="student_status">
 					                        <option value="재학">재학</option>
 					                        <option value="휴학">휴학</option>
 					                        <option value="전학">전학</option>
+					                        <option value="졸업">졸업</option>
 					                        <option value="퇴학">퇴학</option>
 					                </select>
 			                </div>
+			                
 			                <div class="form-group">
 			                    <label for="student_birth">생년월일</label>
 			                    <input type="date" name="student_birth" id="student_birth">
 			                </div>
+			                
 			                <div class="form-group">
 			                    <label for="zipcode">우편번호</label>
 			                    <input type="text" id="zipcode" name="student_post_code">
 			                    <input type="button" id="student_location" value="우편찾기">
 			                </div>
+			                
 			                <div class="form-group">
 			                    <label for="address">주소</label>
 			                    <input type="text" id="student_address" name="student_addr">
 			                </div>
+			                
 			                <div class="form-group">
 			                    <label for="address-detail">상세주소</label>
 			                    <input type="text" id="address-detail" name="student_detail_addr">
 			                </div>
+			                
 			                <div class="form-group">
 			                    <label for="phone">전화번호</label>
 			                    <input type="text" id="sp1" maxlength="3"> - 
@@ -49,10 +120,7 @@
 								<input type="text" id="sp3" maxlength="4">
 								<input type="hidden" name="student_phone" id="student_phone">
 			                </div>
-			                <div class="form-group">
-			                    <label for="photo">사진</label>
-			                    <input type="file" id="photo" name="file">
-			                </div>
+			                
 			                <div class="form-group">
 			                    <label>성별</label>
 			                    <input type="radio" id="male" name="student_gender" value="M"> 남자
@@ -64,6 +132,7 @@
 				                <input type="button" value="취소" th:onclick="|location.href='@{/student}'|">
 				                <input type="submit" value="등록">
 				            </div>
+				            <input type="file" class="custom-file-input" id="inputGroupFile04" name="file">
 	            		</form>
 					</div>
             
@@ -95,7 +164,56 @@
 	    });
 	}
 	</script>
+		<!-- 사진 등록 -->
+	<script>
+	    const fileInput = document.getElementById('inputGroupFile04');
+	    const imagePreview = document.getElementById('imagePreview');
+	    const addPicButton = document.getElementById('addPic');
+	    const previewContainer = document.getElementById('preview-container');
 	
+	    addPicButton.addEventListener('click', () => {
+	        fileInput.click();
+	    });
+	
+	    fileInput.addEventListener('change', (event) => {
+	        const file = event.target.files[0];
+	
+	        if (file) {
+	            const validExtensions = ['jpg', 'jpeg', 'png', 'jfif'];
+	            const fileExtension = file.name.split('.').pop().toLowerCase();
+	
+	            if (validExtensions.includes(fileExtension)) {
+	                const reader = new FileReader();
+	
+	                reader.onload = (e) => {
+	                    imagePreview.src = e.target.result;
+	                    addPicButton.classList.remove('addPic');
+	                    addPicButton.classList.add('littleButton');
+	                    previewContainer.classList.remove('hidden');
+	                };
+	
+	                reader.readAsDataURL(file);
+	            } else {
+	                Swal.fire({
+	                	icon:'error',
+						title:'실패',
+						text: '이미지 파일만 선택할 수 있습니다.',
+						confirmButtonText:"닫기"
+	                });
+	                fileInput.value = ''; 
+	                imagePreview.src = '';
+	                addPicButton.classList.add('addPic');
+	                addPicButton.classList.remove('littleButton');
+	                previewContainer.classList.add('hidden');
+	            }
+	        } else {
+	            imagePreview.src = '';
+	            addPicButton.classList.add('addPic');
+	            addPicButton.classList.remove('littleButton');
+	            previewContainer.classList.add('hidden');
+	        }
+	    });
+	</script>
 	<script>
 	const form=document.getElementById("student_create_form");
 	form.addEventListener('submit',(e)=>{
@@ -130,7 +248,7 @@
 						title : '성공',
 						text : data.res_msg
 					}).then((result)=>{
-						location.href = "/student";
+						location.href = "/student/list";
 					});
 				}else{
 					Swal.fire({

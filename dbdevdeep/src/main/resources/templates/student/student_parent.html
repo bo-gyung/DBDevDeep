@@ -94,6 +94,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											</li>
 											<li>
 												<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#parent_create_primary-header-modal">등록</button>
+												<a th:href="@{/student/{student_no}(student_no=${sdto.student_no})}">취소</a>
 											</li>		
 										</ul>
 										
@@ -148,7 +149,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									<input type="date" id="parent_birth" name="parent_birth">
 									<div class="modal-footer">
 										<a th:href="@{/student/parent/@{sdto.student_no}}">취소</a>
-										<input type="submit" value="등록">
+										<input type="submit" value="등록"><br> 
 									</div>
 								</form>
 							</div>
@@ -254,7 +255,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									text : data.res_msg ,
 									confirmButtonText:"닫기"
 								}).then((result)=>{
-									location.href=`/student/class/${studentNo}`;
+									location.href=`/student/parent/${studentNo}`;
 								});
 							} else{
 								Swal.fire({

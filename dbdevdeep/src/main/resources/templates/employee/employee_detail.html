@@ -2,46 +2,120 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
-.preview-container {
-	border-radius: 50%; overflow: hidden; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
-}
-
-#imagePreview {
-	width: 80%; aspect-ratio: 1/1; object-fit: cover;
-}
-
-.hidden {
-	display: none;
-}
-
-.centered-container {
-	display: flex; justify-content: center; align-items: center;
-}
-
-input:read-only {
-	border: none;
-}
-
-.tooltip-container {
-	position: relative; display: inline-block;
-}
-
-.tooltip-trigger {
-	padding: 10px; font-size: 16px;
-}
-
-.tooltip {
-	visibility: hidden; width: 350px; border: 2px solid lightgray; color: black; text-align: center; border-radius: 6px; padding: 5px 10px; position: absolute; z-index: 1; bottom: 125%; /* 위치 조정 */ left: 50%; margin-left: -120px; /* 툴팁의 중앙 정렬을 위한 조정 */ opacity: 0; transition: opacity 0.3s; color: black
-}
-
-.tooltip::after {
-	content: ""; position: absolute; top: 100%; /* 위치 조정 */ left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: lightgray transparent transparent transparent;
-}
-
-.tooltip-container:hover .tooltip {
-	visibility: visible; opacity: 1;
-}
-</style>
+		.preview-container {
+			border-radius: 50%; overflow: hidden; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
+		}
+		
+		#imagePreview {
+			width: 80%; aspect-ratio: 1/1; object-fit: cover;
+		}
+		
+		.hidden {
+			display: none;
+		}
+		
+		.centered-container {
+			display: flex; justify-content: center; align-items: center;
+		}
+		
+		input:read-only {
+			border: none;
+		}
+		
+		.tooltip-container {
+			position: relative; display: inline-block;
+		}
+		
+		.tooltip-trigger {
+			padding: 10px; font-size: 16px;
+		}
+		
+		.tooltip {
+			visibility: hidden; width: 350px; border: 2px solid lightgray; color: black; text-align: center; border-radius: 6px; padding: 5px 10px; position: absolute; z-index: 1; bottom: 125%; /* 위치 조정 */ left: 50%; margin-left: -120px; /* 툴팁의 중앙 정렬을 위한 조정 */ opacity: 0; transition: opacity 0.3s; color: black
+		}
+		
+		.tooltip::after {
+			content: ""; position: absolute; top: 100%; /* 위치 조정 */ left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: lightgray transparent transparent transparent;
+		}
+		
+		.tooltip-container:hover .tooltip {
+			visibility: visible; opacity: 1;
+		}
+		
+		th, td {
+			 text-align: center;
+		}
+	</style>
+	
+	<style>
+		/* datatable css */
+		div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+			margin: 2px 0; white-space: nowrap; justify-content: center; margin-top: 8px;
+		}
+		/* a 태그 속성 제거 */
+		a {
+			text-decoration: none; /* 밑줄 제거 */ color: inherit; /* 기본 색상 제거, 부모 요소의 색상 사용 */ cursor: pointer; /* 커서 스타일 변경 */
+		}
+		/* a 태그 호버 시 스타일 */
+		a:hover {
+			text-decoration: none; /* 호버 시 밑줄 추가 */ color: inherit; /* 호버 시 색상 변경 */
+		}
+		
+		/* 첫 번째 td를 수평 및 수직 가운데 정렬 */
+		.bordered tbody tr td.align-center {
+			text-align: center; /* 수평 가운데 정렬 */ vertical-align: middle; padding-bottom: 8px;
+		}
+		
+		/* 정렬 아이콘의 위치 및 정렬 설정 */
+		table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {
+			display: inline-block; /* 아이콘을 인라인 블록으로 설정 */ position: relative; /* 아이콘 위치를 텍스트 옆으로 설정 */ margin-left: 10px !important; /* 텍스트와 아이콘 사이의 간격을 조정 */ bottom: 0; /* 아이콘을 텍스트 높이에 맞추기 위해 위치 설정 */ opacity: 0.7; /* 아이콘의 불투명도 설정 */ content: ''; /* 정렬 아이콘을 CSS로 설정 */
+		}
+		
+		table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+			content: "\25BC"; /* 아래쪽 화살표 */
+		}
+		
+		/* 정렬 아이콘 활성화 시 스타일 */
+		table.dataTable thead .sorting_asc:after {
+			content: "\25B2"; /* 위쪽 삼각형 화살표 */
+		}
+		
+		table.dataTable thead .sorting_desc:after {
+			content: "\25BC"; /* 아래쪽 삼각형 화살표 */
+		}
+		
+		.filter {
+			border-collapse: separate; border-spacing: 0; width: 100%;
+		}
+		
+		.pad {
+			height: 5px; background: none;
+		}
+		
+		.filter tr {
+			background-color: #e9ecef; border-radius: 50px;
+		}
+		
+		.filter td, th {
+			padding: 8px;
+		}
+		
+		.filter th {
+			border-bottom-left-radius: 5px; border-top-left-radius: 5px; padding-left: 20px;
+		}
+		
+		.filter td:last-child {
+			border-bottom-right-radius: 5px; border-top-right-radius: 5px; padding-right: 20px;
+		}
+		
+		.filter input[type="checkbox"] {
+			border: 1px solid #e9ecef; width: 16px; height: 16px; margin: 0px 5px;
+		}
+		
+		.filter label {
+			display: flex; align-items: center; margin: 0px auto;
+		}
+	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
@@ -64,6 +138,8 @@ input:read-only {
 							</a></li>
 							<li class="nav-item"><a href="#employee-status" data-toggle="tab" aria-expanded="false" class="nav-link"> <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">재직이력</span>
 							</a></li>
+							<li class="nav-item"><a href="#attendance" data-toggle="tab" aria-expanded="false" class="nav-link"> <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">근태이력</span>
+							</a></li>
 							<li class="ml-auto">
 								<div class="col d-flex justify-content-end">
 									<button class="btn waves-effect waves-light btn-info" style="margin: 4px;" data-toggle="modal" data-target="#trans_modal">전근</button>
@@ -82,7 +158,7 @@ input:read-only {
 											<div class="form-group" style="margin-top: 20px;">
 												<div class="row">
 													<div class="preview-container" id="preview-container">
-														<img id="imagePreview" th:src="@{'/UploadImg/employee/' + ${empDto.new_pic_name}}" width="100px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1/1">
+														<img id="imagePreview" th:src="@{'/UploadImg/employee/' + ${empDto.new_pic_name}}" width="100px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1/1"  onerror="this.onerror=null; this.src='/assets/images/users/user-profile.png';">
 													</div>
 												</div>
 											</div>
@@ -92,10 +168,12 @@ input:read-only {
 											<div class="form-group" style="margin-top: 40px;">
 												<div class="row">
 													<div class="col-md-3">
-														<label>직원번호</label> <input type="text" class="form-control" id="emp_id" name="emp_id" th:value="${empDto.emp_id}" placeholder="00000000000" maxlength="11" readonly>
+														<label>직원번호</label> 
+														<input type="text" class="form-control" id="emp_id" name="emp_id" th:value="${empDto.emp_id}" placeholder="00000000000" maxlength="11" readonly>
 													</div>
 													<div class="col-md-3">
-														<label>교육청관리번호</label> <input type="text" class="form-control" id="gov_id" name="gov_id" placeholder="00000000000" maxlength="11" th:value="${'N - ' + empDto.gov_id}" readonly><br>
+														<label>교육청관리번호</label> 
+														<input type="text" class="form-control" id="gov_id" name="gov_id" placeholder="00000000000" maxlength="11" th:value="${'N - ' + empDto.gov_id}" readonly><br>
 													</div>
 												</div>
 											</div>
@@ -183,7 +261,7 @@ input:read-only {
 									<div class="row">
 										<div class="col-md-8" style="margin-top: 40px;">
 											<div class="table-responsive">
-												<table id="employee_teacher_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table  class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 30%;">
@@ -225,7 +303,7 @@ input:read-only {
 										<div class="col-md-8" style="margin-top: 40px;">
 											<label>전근</label>
 											<div class="table-responsive">
-												<table id="employee_transfer_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 30%;">
@@ -263,7 +341,7 @@ input:read-only {
 										<div class="col-md-8" style="margin-top: 40px;">
 											<label>휴직</label>
 											<div class="table-responsive">
-												<table id="employee_rest_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 20%;">
@@ -314,7 +392,7 @@ input:read-only {
 										<div class="col-md-8" style="margin-top: 40px;">
 											<label>퇴직</label>
 											<div class="table-responsive">
-												<table id="employee_leave_history_list" class="table table-bordered no-wrap" style="width: 100%">
+												<table class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 40%;">
@@ -338,6 +416,66 @@ input:read-only {
 																<td scope="row" th:text="${historyStat.count}"></td>
 																<td th:text="${history.stop_date}"></td>
 																<td th:text="${history.stop_reason}"></td>
+															</tr>
+														</th:block>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane" id="attendance">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-12" style="margin-top: 40px;">
+											<div class="table-responsive">
+												<table id="employee-attend" class="table table-bordered no-wrap" style="width: 100%">
+													<colgroup>
+														<col style="width: 10%;">
+														<col style="width: 30%;">
+														<col style="width: 30%;">
+														<col style="width: 30%;">
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col">번호</th>
+															<th scope="col">근무일</th>
+															<th scope="col">출근시간</th>
+															<th scope="col">퇴근시간</th>
+															<th scope="col">출근상태</th>
+															<th scope="col">지각여부</th>
+															<th scope="col">초과근무 합산</th>
+														</tr>
+													</thead>
+													<tbody>
+														<th:block th:if="${#lists.isEmpty(attendDtoList)}">
+															<tr>
+																<td colspan="7">근태이력이 없습니다.</td>
+															</tr>
+														</th:block>
+														<th:block th:if="${!#lists.isEmpty(attendDtoList)}">
+															<tr th:each="attend, attendStat : ${attendDtoList}">
+																<td scope="row" th:text="${attendStat.count}"></td>
+																<td th:text="${attend.attend_date}"></td>
+																<td th:text="${#temporals.format(attend.check_in_time, 'HH:mm:ss')}"></td>
+																<!-- 퇴근시간 start -->
+																<th:block th:if="${attend.check_in_time == attend.check_out_time}">
+																	<th:block th:if="${now == attend.attend_date}">
+																		<td>-</td>
+																	</th:block>
+																	<th:block th:unless="${now == attend.attend_date}">
+																		<td>16:00:00</td>
+																	</th:block>
+																</th:block>
+																<th:block th:unless="${attend.check_in_time == attend.check_out_time}">
+																	<td th:text="${#temporals.format(attend.check_out_time, 'HH:mm:ss')}"></td>
+																</th:block>
+																<!-- 퇴근시간 end -->
+																<td th:text="${attend.work_status == 0? '출근전' : attend.work_status == 1? '출근' : '퇴근'}"></td>
+																<td th:if="${attend.late_status == 'Y'}"><i class="fas fa-check"></i></td>
+																<td th:unless="${attend.late_status == 'Y'}"></td>
+																<td th:text="${attend.overtime_sum}"></td>
 															</tr>
 														</th:block>
 													</tbody>
@@ -407,13 +545,18 @@ input:read-only {
 					</div>
 					<hr>
 					<form class="pl-3 pr-3" id="transFrm">
-						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> <input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> <input type="hidden" name="trans_type" value="T">
+						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="trans_type" value="T">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<div class="form-group">
-							<label for="trans_date">전근일 <span style="color: red;">*</span></label> <input type="date" class="form-control" id="trans_date" name="trans_date">
+							<label for="trans_date">전근일 <span style="color: red;">*</span></label> 
+							<input type="date" class="form-control" id="trans_date" name="trans_date">
 							<div id="trans_date_feedback" class="mt-2"></div>
 						</div>
 						<div class="form-group">
-							<label for="trans_school_id">전근 학교 코드 <span style="color: red;">*</span></label> <input type="text" class="form-control" placeholder="전근갈 학교의 코드를 입력하세요." id="trans_school_id" name="trans_school_id" maxlength="7">
+							<label for="trans_school_id">전근 학교 코드 <span style="color: red;">*</span></label> 
+							<input type="text" class="form-control" placeholder="전근갈 학교의 코드를 입력하세요." id="trans_school_id" name="trans_school_id" maxlength="7">
 							<div id="trans_school_id_feedback" class="mt-2"></div>
 						</div>
 						<div class="col-12 d-flex justify-content-end">
@@ -481,6 +624,7 @@ input:read-only {
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
 						<input type="hidden" name="status_type" th:value="${'R'}">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 
 						<div class="form-group">
 							<label for="stop_date">휴직일 <span style="color: red;">*</span></label> 
@@ -563,7 +707,8 @@ input:read-only {
 					<form class="pl-3 pr-3" id="returnFrm">
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="status_no" id="status_no"> 
-						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<input type="hidden" name="status_type" th:value="${'R'}">
 						
 						<div class="form-group">
@@ -655,6 +800,7 @@ input:read-only {
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
 						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
 						<input type="hidden" name="status_type" value="N">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<div class="form-group">
 							<label for="stop_date_L">퇴직일 <span style="color: red;">*</span></label> 
 							<input type="date" class="form-control" id="stop_date_L" name="stop_date">
@@ -675,7 +821,6 @@ input:read-only {
 		</div>
 	</div>
 	<!-- /.modal -->
-	
 
 	<script>
 		// script.js
@@ -890,7 +1035,7 @@ input:read-only {
 						text : data.res_msg,
 						confirmButtonText:"닫기"
 					}).then(() => {
-						location.href="/employee/detail/" + document.getElementById('restFrm').emp_id.value;
+						location.href="/employee/list/" + document.getElementById('restFrm').emp_id.value;
 					})
 					
 				} else{
@@ -964,7 +1109,7 @@ input:read-only {
 						text : data.res_msg,
 						confirmButtonText:"닫기"
 					}).then(() => {
-						location.href="/employee/detail/" + document.getElementById('leaveFrm').emp_id.value;
+						location.href="/employee/list/" + document.getElementById('leaveFrm').emp_id.value;
 					})
 					
 				} else{
@@ -1037,7 +1182,7 @@ input:read-only {
 						text : data.res_msg,
 						confirmButtonText:"닫기"
 					}).then(() => {
-						location.href="/employee/detail/" + document.getElementById('returnFrm').emp_id.value;
+						location.href="/employee/list/" + document.getElementById('returnFrm').emp_id.value;
 					})
 					
 				} else{

@@ -130,8 +130,9 @@
                                         <thead>
                                             <tr>
 												<th scope="col">학년도</th>
-												<th scope="col">학년</th>
 												<th scope="col">학기</th>
+												<th scope="col">학년</th>
+												<th scope="col">반</th>
 												<th scope="col">과목명</th>
 												<th scope="col">담당 교사</th>
                                             </tr>
@@ -139,15 +140,16 @@
                                         <tbody>
                                         	<th:block th:if="${#lists.isEmpty(subjectList)}">
 												<tr>
-													<td colspan="5">존재하는 과목 정보가 없습니다.</td>
+													<td colspan="6">존재하는 과목 정보가 없습니다.</td>
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(subjectList)}">
 											    <tr th:each="subject, subjectStat : ${subjectList}">
 											        <td style="display:none;" th:text="${subject.subject_no}"></td>
 													<td th:text="${subject.teacher_history.getTYear}"></td>
-													<td th:text="${subject.teacher_history.getGrade}"></td>
 											        <td th:text="${subject.subject_semester}"></td>
+													<td th:text="${subject.teacher_history.getGrade}"></td>
+													<td th:text="${subject.teacher_history.getGradeClass}"></td>
 											        <td th:text="${subject.subject_name}"></td>
 											        <td th:text="${subject.teacher_history.getEmployee().getEmpName()}"></td>
 											    </tr>

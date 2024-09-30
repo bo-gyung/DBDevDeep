@@ -31,6 +31,8 @@ public class ScoreDto {
 		return ScoreDto.builder()
 				.score_no(score.getScoreNo())
 				.score(score.getScore())
+				.student_no(score.getStudent().getStudentNo())
+				.curriculum_no(score.getCurriculum().getCurriculumNo())
 				.build();
 	}
 	

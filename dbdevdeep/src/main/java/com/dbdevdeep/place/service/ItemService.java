@@ -3,9 +3,9 @@ package com.dbdevdeep.place.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -35,7 +35,35 @@ public class ItemService {
 		this.placeRepository = placeRepository;
 		this.fileService = fileService;
 	}
-	// 일련번호 중복방지
+	
+	
+	 // 특정 장소 번호에 해당하는 기자재 목록을 가져오는 메서드
+    public List<ItemDto> getItemsByPlaceNo(Long placeNo) {
+        List<Item> items = itemRepository.findByPlacePlaceNo(placeNo);
+        return items.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+    }
+
+    // Item -> ItemDto 변환 메서드
+    private ItemDto convertToDto(Item item) {
+        return ItemDto.builder()
+                .item_no(item.getItemNo())
+                .place_no(item.getPlace().getPlaceNo())
+                .place_name(item.getPlace().getPlaceName())
+                .item_name(item.getItemName())
+                .item_quantity(item.getItemQuantity())
+                .item_status(item.getItemStatus())
+                .item_serial_no(item.getItemSerialNo())
+                .build();
+    }
+	
+	 // 모든 기자재 조회
+    public List<Item> getAllItems() {
+        return itemRepository.findAll();
+    }
+    
+    
 	
 	
 	
@@ -46,7 +74,7 @@ public class ItemService {
 		try {
 			  Item item = itemRepository.findByitemNo(item_no);
 	            if (item.getNewPicName() != null) {
-	                fileService.placeDelete(item_no);  // 파일 삭제
+	                fileService.itemDelete(item_no);  // 파일 삭제
 	            }
 	            itemRepository.deleteById(item_no);  // 기자재 삭제
 	            result = 1;
@@ -58,85 +86,83 @@ public class ItemService {
 	}
 	
 	// 수정하기
-	public int updateItem(ItemDto dto, MultipartFile file) {
-	    int result = -1;
+    public int updateItem(ItemDto dto, MultipartFile file) {
+        int result = -1;
 
-	    try {
-	        Place p = placeRepository.findByplaceNo(dto.getPlace_no());
-	        if (dto.getItem_content() == null || dto.getItem_content().isEmpty()) {
-	            throw new IllegalArgumentException("item_content 값이 null이거나 비어있습니다.");
-	        }
-	        // item_serial_no null 체크 추가
-	        if (dto.getItem_serial_no() == null || dto.getItem_serial_no().isEmpty()) {
-	            throw new IllegalArgumentException("item_serial_no 값이 null이거나 비어있습니다.");
-	        }
+        try {
+            Item existingItem = itemRepository.findByitemNo(dto.getItem_no());
+            Place p = placeRepository.findByplaceNo(dto.getPlace_no());
 
+            // 필수 필드 검증
+            if (dto.getItem_content() == null || dto.getItem_content().isEmpty()) {
+                throw new IllegalArgumentException("기자재 내용은 필수 입력 항목입니다.");
+            }
+            if (dto.getItem_serial_no() == null || dto.getItem_serial_no().isEmpty()) {
+                throw new IllegalArgumentException("일련번호는 필수 입력 항목입니다.");
+            }
 
-	        // 새 파일이 업로드되면 기존 파일 삭제
-	        if (file != null && !file.isEmpty()) {
-	            if (p.getNewPicName() != null) {
-	                fileService.placeDelete(p.getPlaceNo());  // 기존 파일 삭제
-	            }
-	            String newPicName = fileService.placeUpload(file);  // 새 파일 업로드
-	            dto.setNew_pic_name(newPicName);
-	            dto.setOri_pic_name(file.getOriginalFilename());
-	        }
+            // 파일이 있을 경우 처리
+            if (file != null && !file.isEmpty()) {
+                String originalFilename = file.getOriginalFilename();
+                if (originalFilename != null && !originalFilename.isEmpty()) {
+                    // 새로운 파일 업로드
+                    String savedFileName = fileService.itemUpload(file);
+                    if (savedFileName != null) {
+                        // 기존 파일 삭제
+                        if (existingItem.getNewPicName() != null && !existingItem.getNewPicName().isEmpty()) {
+                            fileService.itemDelete(existingItem.getItemNo());
+                        }
+                        // 새로운 파일 정보 업데이트
+                        dto.setOri_pic_name(originalFilename);
+                        dto.setNew_pic_name(savedFileName);
+                    } else {
+                        throw new RuntimeException("파일 업로드 중 오류가 발생했습니다.");
+                    }
+                }
+            } else {
+                // 파일이 없으면 기존 파일 정보 유지
+                dto.setOri_pic_name(existingItem.getOriPicName());
+                dto.setNew_pic_name(existingItem.getNewPicName());
+            }
 
-	        // 만약 상태가 "사용가능"이라면 사용 불가 날짜를 null로 설정
-	        if ("Y".equals(dto.getItem_status())) {
-	            dto.setUnuseable_start_date(null);
-	            dto.setUnuseable_end_date(null);
-	            dto.setUnuseable_reason(null);
-	            dto.setUnuseable_quantity(0);
-	        } else {
-	            // 날짜 형식 변환 (예외 처리 추가)
-	            try {
-	                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // 서버에서의 기본 형식
-	                if (dto.getUnuseable_start_date() != null && !dto.getUnuseable_start_date().isEmpty()) {
-	                    String formattedStartDate = LocalDate.parse(dto.getUnuseable_start_date(), inputFormatter)
-	                                                         .toString();
-	                    dto.setUnuseable_start_date(formattedStartDate);
-	                }
+            // 상태가 "사용 가능"이면 사용 불가 관련 필드 초기화
+            if ("Y".equals(dto.getItem_status())) {
+                dto.setUnuseable_start_date(null);
+                dto.setUnuseable_end_date(null);
+                dto.setUnuseable_reason(null);
+                dto.setUnuseable_quantity(0);
+            }
 
-	                if (dto.getUnuseable_end_date() != null && !dto.getUnuseable_end_date().isEmpty()) {
-	                    String formattedEndDate = LocalDate.parse(dto.getUnuseable_end_date(), inputFormatter)
-	                                                         .toString();
-	                    dto.setUnuseable_end_date(formattedEndDate);
-	                }
-	            } catch (DateTimeParseException e) {
-	                // 날짜 변환 실패 처리
-	                e.printStackTrace();
-	                return -1;  // 실패 시 -1 반환
-	            }
-	        }
+            // Item 객체를 빌드하여 수정
+            Item updatedItem = Item.builder()
+                    .itemNo(dto.getItem_no())
+                    .place(p)
+                    .itemName(dto.getItem_name())
+                    .itemSerialNo(dto.getItem_serial_no())
+                    .itemQuantity(dto.getItem_quantity())
+                    .itemContent(dto.getItem_content())
+                    .itemStatus(dto.getItem_status())
+                    .unuseableQuantity(dto.getUnuseable_quantity())
+                    .unuseableReason(dto.getUnuseable_reason())
+                    .unuseableStartDate(dto.getUnuseable_start_date())
+                    .unuseableEndDate(dto.getUnuseable_end_date())
+                    .oriPicName(dto.getOri_pic_name())
+                    .newPicName(dto.getNew_pic_name())
+                    .regDate(existingItem.getRegDate())
+                    .modDate(LocalDateTime.now())
+                    .build();
 
-	        Item i = Item.builder()
-	                .itemNo(dto.getItem_no())
-	                .place(p)
-	                .itemName(dto.getItem_name())
-	                .itemSerialNo(dto.getItem_serial_no())
-	                .itemQuantity(dto.getItem_quantity())
-	                .itemContent(dto.getItem_content())
-	                .itemStatus(dto.getItem_status())
-	                .unuseableQuantity(dto.getUnuseable_quantity())
-	                .unuseableReason(dto.getUnuseable_reason())
-	                .unuseableStartDate(dto.getUnuseable_start_date())
-	                .unuseableEndDate(dto.getUnuseable_end_date())
-	                .oriPicName(dto.getOri_pic_name() != null ? dto.getOri_pic_name() : "Default oriPicName")
-	                .newPicName(dto.getNew_pic_name() != null ? dto.getNew_pic_name() : "Default newPicName")
-	                .regDate(dto.getReg_date())
-	                .modDate(LocalDateTime.now())
-	                .build();
+            itemRepository.save(updatedItem);
+            result = 1;
 
-	        itemRepository.save(i);
-	        result = 1;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("기자재 수정 중 오류가 발생했습니다.", e);
+        }
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
-	    
-	    return result;
-	}
+        return result;
+    }
+
 	
 	
 	// 상세 조회
@@ -199,14 +225,27 @@ public class ItemService {
 	
 	// 등록
 	
-	public int createItem(ItemDto dto) {
+	public int createItem(ItemDto dto, MultipartFile file) {
 			int result = -1;
 		try {
 			
 			Place p = placeRepository.findByplaceNo(dto.getPlace_no());
+			// 파일 업로드 처리
+			String newPicName = null;
+			String oriPicName = null;
+			
+			if (file != null && !file.isEmpty()) {
+                // 파일이 존재하는 경우
+                oriPicName = file.getOriginalFilename();  // 원본 파일 이름
+                newPicName = fileService.itemUpload(file);  // 파일 업로드 후 새로운 파일 이름 반환
+            } else {
+                // 파일이 없는 경우 기본값 설정
+                oriPicName = "Default oriPicName";
+                newPicName = "Default newPicName";
+            }
 			
 			Item i = Item.builder()
-					
+			
 					.place(p)
 					.itemSerialNo(dto.getItem_serial_no())
 					.itemName(dto.getItem_name())
@@ -217,8 +256,8 @@ public class ItemService {
 					.unuseableQuantity(dto.getUnuseable_quantity())
 					.unuseableStartDate(dto.getUnuseable_start_date())
 					.unuseableEndDate(dto.getUnuseable_end_date())
-					.oriPicName(dto.getOri_pic_name() != null ? dto.getOri_pic_name() : "Default oriPicname")
-	                .newPicName(dto.getNew_pic_name() != null ? dto.getNew_pic_name() : "Default newPicname")
+					.oriPicName(oriPicName)
+	                .newPicName(newPicName)
 					.regDate(dto.getReg_date())
 					.modDate(dto.getMod_date())
 					.build();

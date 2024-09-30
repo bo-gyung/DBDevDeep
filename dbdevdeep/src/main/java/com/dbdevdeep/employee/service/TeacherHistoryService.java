@@ -14,8 +14,6 @@ import com.dbdevdeep.employee.mybatis.mapper.TeacherHistoryVoMapper;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
 import com.dbdevdeep.employee.vo.GradeClassGroup;
-import com.dbdevdeep.student.domain.Student;
-import com.dbdevdeep.student.domain.StudentDto;
 
 @Service
 public class TeacherHistoryService {
@@ -135,6 +133,22 @@ public class TeacherHistoryService {
 
 		return teacherHistoryDtoList;
 	}
+	
+	public List<String> selectClassByOrderLastesListForAddressBook() {
+		String recentYear = teacherHistoryRepository.findMostRecentYear();
+
+		List<TeacherHistory> teacherHistoryList = teacherHistoryRepository.findByClassByYear(recentYear);
+
+		List<String> teacherHistoryDtoList = new ArrayList<>();
+		
+		for (TeacherHistory t : teacherHistoryList) {
+			String list = t.getEmployee().getEmpId();
+
+			teacherHistoryDtoList.add(list);
+		}
+
+		return teacherHistoryDtoList;
+	}
 
 	public TeacherHistoryDto selectHistoryOne(EmployeeDto dto) {
 		TeacherHistoryDto resultDto = null;
@@ -219,5 +233,14 @@ public class TeacherHistoryService {
 		}
 		return teacherHistoryDtoList;
 	}
+	
+	// 모든 신청인(직원) 조회
+    public List<TeacherHistory> findAllTeachers() {
+        return teacherHistoryRepository.findAll();
+    }
+    
+   
+
+    
 
 }

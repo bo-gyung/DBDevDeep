@@ -35,4 +35,9 @@ public interface EmployeeStatusRepository extends JpaRepository<EmployeeStatus, 
 	@Query("SELECT es FROM EmployeeStatus es WHERE es.returnDate = :yesterday AND es.statusType = 'R'")
 	List<EmployeeStatus> findReturnsToProcess(@Param("yesterday") LocalDate yesterday);
 	
+	@Query("SELECT es FROM EmployeeStatus es WHERE es.statusType = 'R'")
+	List<EmployeeStatus> selectRestLogAll();
+	
+	@Query("SELECT es FROM EmployeeStatus es WHERE es.statusType = 'N'")
+	List<EmployeeStatus> selectLeaveLogAll();
 }

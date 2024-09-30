@@ -16,11 +16,12 @@
 		}	
 		
 		h6 {
-    margin-left: 50px;
+    margin-left: 40px;
+    margin-right: 0px;
 		}
 
 		h2 {
-    margin-right: 20px;
+    margin-right: 10px;
 		}
 		.dt-center {
     text-align: center;
@@ -71,7 +72,7 @@
 										    <div class="col-md-3">
 										        <input type="month" id="searchYandM" name="searchYandM" class="form-control" value="">
 										    </div>
-                                        	<div th:utext="${#authentication.principal.dto.emp_name} +'님의 잔여 연차는 <strong style=&quot;color:black;&quot;>' + ${result.vacation_hour} + '</strong> 시간 입니다.'"></div>
+                                        	<div th:utext="${#authentication.principal.dto.emp_name} +'님의 잔여 연차는 <strong style=&quot;font-size: 24px; font-weight: bold; color:black;&quot;>' + ${result.vacation_hour} + '</strong> 시간 입니다.'"></div>
 										</div>
 										    <br>
 										    <div class="card-group">
@@ -113,8 +114,11 @@
 											            <div class="d-flex d-lg-flex d-md-block align-items-center">
 											                <div style="display: flex; justify-content: space-evenly; align-items: center; width: 100%;">
 											                    <h6 class="text-muted font-weight-normal mb-0 w-100 text-truncate">초과근무</h6>
-											                    <h2 class="text-dark mb-1 font-weight-medium"></h2>
-											                    <h5 class="text-dark mb-1 font-weight-medium">시간</h5>
+											                    <h2 id="maxOvertime" class="text-dark mb-1 font-weight-medium"></h2>
+											                    <div style="display: flex; align-items: center;">
+												                    <h5 class="text-dark mb-1 font-weight-medium">시</h5>
+												                    <h5 class="text-dark mb-1 font-weight-medium">간</h5>
+											                    </div>
 											                </div>
 											            </div>
 											        </div>

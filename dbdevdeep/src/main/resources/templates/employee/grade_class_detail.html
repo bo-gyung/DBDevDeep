@@ -1,11 +1,65 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
-	<style>
+		<style>
+		/* datatable css */
 		div.dataTables_wrapper div.dataTables_paginate ul.pagination {
-			margin: 2px 0; white-space: nowrap; justify-content: center;
+			margin: 2px 0; white-space: nowrap; justify-content: center; margin-top: 8px;
+		}
+		/* 첫 번째 td를 수평 및 수직 가운데 정렬 */
+		.bordered tbody tr td.align-center {
+			text-align: center; /* 수평 가운데 정렬 */ vertical-align: middle; padding-bottom: 8px;
 		}
 		
+		/* 정렬 아이콘의 위치 및 정렬 설정 */
+		table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {
+			display: inline-block; /* 아이콘을 인라인 블록으로 설정 */ position: relative; /* 아이콘 위치를 텍스트 옆으로 설정 */ margin-left: 10px !important; /* 텍스트와 아이콘 사이의 간격을 조정 */ bottom: 0; /* 아이콘을 텍스트 높이에 맞추기 위해 위치 설정 */ opacity: 0.7; /* 아이콘의 불투명도 설정 */ content: ''; /* 정렬 아이콘을 CSS로 설정 */
+		}
+		
+		table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+			content: "\25BC"; /* 아래쪽 화살표 */
+		}
+		
+		/* 정렬 아이콘 활성화 시 스타일 */
+		table.dataTable thead .sorting_asc:after {
+			content: "\25B2"; /* 위쪽 삼각형 화살표 */
+		}
+		
+		table.dataTable thead .sorting_desc:after {
+			content: "\25BC"; /* 아래쪽 삼각형 화살표 */
+		}
+		
+		.filter {
+			border-collapse: separate; border-spacing: 0; width: 100%;
+		}
+		
+		.pad {
+			height: 5px; background: none;
+		}
+		
+		.filter tr {
+			background-color: #e9ecef; border-radius: 50px;
+		}
+		
+		.filter td, th {
+			padding: 8px;
+		}
+		
+		.filter th {
+			border-bottom-left-radius: 5px; border-top-left-radius: 5px; padding-left: 20px;
+		}
+		
+		.filter td:last-child {
+			border-bottom-right-radius: 5px; border-top-right-radius: 5px; padding-right: 20px;
+		}
+		
+		.filter input[type="checkbox"] {
+			border: 1px solid #e9ecef; width: 16px; height: 16px; margin: 0px 5px;
+		}
+		
+		.filter label {
+			display: flex; align-items: center; margin: 0px auto;
+		}
 		td span {
 			display: block; width: 100%; height: 56px; box-sizing: border-box; cursor: pointer; text-align: center; line-height: 56px;
 		}
@@ -16,20 +70,21 @@
 			<div class="row">
 				<div class="col-12">
 					<div class="card">
-						<div class="card-body">
-							<h3 class="card-title" th:text="${resultList[0].t_year + ' 년도'}"></h3>
-							<hr>
+						<div class="card-body" style="padding: 50px;">
+							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+								<div style="font-size: 30px;">학년도 별 반배정</div>
+							</div>
 							<div class="row mb-2">
 								<div class="col-6 d-flex justify-content-start">
-									<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/grade-class';">목록</button>
 								</div>
 								<div class="col-6 d-flex justify-content-end">
+									<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/grade-class/list';">목록</button>
 									<button type="button" class="btn waves-effect waves-light btn-primary m-1" data-toggle="modal" data-target="#class_edit_modal">반 수정</button>
 
 								</div>
 							</div>
 							<div class="table-responsive">
-								<table id="class_by_year" class="table table-bordered no-wrap" style="width: 100%">
+								<table id="class_by_year_detail" class="table table-bordered no-wrap" style="width: 100%">
 									<thead>
 										<th:block th:if="${#lists.isEmpty(resultList)}">
 											<tr>
@@ -78,6 +133,7 @@
 				</div>
 			</div>
 
+			<!-- 교직원 추가 -->
 			<div id="addClass" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog">
 					<div class="modal-content">
@@ -92,10 +148,11 @@
 								<input type="hidden" name="teacher_no" id="add_teacher_no">
 
 								<div class="form-group">
+									<label for="emailaddress">직원명</label>
 									<select class="form-control" name="teach_emp_id">
 										<option value="0">직원을 선택하세요</option>
 										<th:block th:each="emp : ${empList}">
-											<option th:text="${emp.emp_name}" th:value="${emp.emp_id}"></option>
+											<option th:text="${emp.emp_name + '(' + emp.emp_id + ')'}" th:value="${emp.emp_id}"></option>
 										</th:block>
 									</select>
 								</div>
@@ -126,6 +183,7 @@
 			</div>
 			<!-- /.modal -->
 
+			<!-- 교직원 수정 -->
 			<div id="editClass" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog">
 					<div class="modal-content">
@@ -135,9 +193,7 @@
 						</div>
 						<div class="modal-body">
 							<form class="pl-3 pr-3" id="editClassFrm">
-								<div class="form-group">
-									<input class="form-control" type="text" name="teacher_no" id="edit_teacher_no">
-								</div>
+									<input class="form-control" type="hidden" name="teacher_no" id="edit_teacher_no">
 
 								<div class="form-group">
 									<label for="emailaddress">직원명</label>
@@ -145,7 +201,7 @@
 									<select class="form-control" name="teach_emp_id">
 										<option id="selectTeacher"></option>
 										<th:block th:each="emp : ${empList}">
-											<option th:text="${emp.emp_name}" th:value="${emp.emp_id}"></option>
+											<option th:text="${emp.emp_name} + '(' + ${emp.emp_id} + ')'" th:value="${emp.emp_id}"></option>
 										</th:block>
 									</select>
 								</div>
@@ -226,7 +282,7 @@
 			        $('#edit_t_year').val(year);
 			        $('#edit_grade').val(grade);
 			        $('#edit_grade_class').val(classNumber);
-			        $('#selectTeacher').text(empName);
+			        $('#selectTeacher').text(empName + '(' + empId + ')');
 			        $('#selectTeacher').val(empId);
 			        $('#edit_teacher_no').val(teacher_no);
 			    });
@@ -352,7 +408,6 @@
 					})
 					.then(response => response.json())
 					.then(data => {
-						console.log(data);
 						if(data.res_code == '200'){
 								Swal.fire({
 									icon :'success',
@@ -370,9 +425,7 @@
 									confirmButtonText:"닫기"
 								});
 							}
-					}).catch(error => {
-				        console.error('Error:', error);
-				    });
+					})
 				});
 				
 			</script>
