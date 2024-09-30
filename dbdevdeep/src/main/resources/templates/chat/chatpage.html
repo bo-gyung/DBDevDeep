@@ -12,17 +12,16 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="imgModalLabel">작성자 이름</h4>
-                    <h6>작성시간</h6>
+                    <h4 class="modal-title" id="imgModalLabel">사진 상세보기</h4>
                 </div>
                 <div class="modal-body text-center">
-                    <img id="modalImage" src="" class="img-fluid">
+                    <img id="modalImage" src="" alt="" class="img-fluid">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light"
                         data-dismiss="modal">닫기</button>
-                    <a id="downloadBtn" href="" download class="btn btn-primary">저장하기</a>
-                </div>
+                    <a id="downloadBtn" href="" download class="btn btn-primary" style="display:none;">저장하기</a>
+				</div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
@@ -126,13 +125,16 @@
 				                                                 <li class="chat-item odd list-style-none mt-3">
 				                                                 	<!-- 사진파일이 존재한다면 -->
 				                                                 	<th:block th:if="${chat.new_pic_name != null}">
+					                                                 	<th:block th:if="${chat.new_pic_name != null}">
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
 						                                                 			th:alt="${chat.ori_pic_name}" 
 						                                                 			style="max-width: 12.5vw; height: auto;" 
+							                                                        onerror="this.onerror=null; 
+							                                                        		this.src='/assets/images/noimage.png';
+							                                                        		this.alt='no image';" 
 						                                                 			onload="scrollToBottom()" 
 				                                                 				 	data-toggle="modal" data-target="#imgModal" 
-							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';" 
 							                                                        onclick="openModal(this)">
 					                                                 	</div>
 				                                                 	</th:block>
@@ -155,8 +157,7 @@
 					                                                <div class="chat-img d-inline-block">
 					                                                	<img th:src="@{'/UploadImg/employee/' + ${chat.profile_pic}}" alt="user"
 					                                                        class="rounded-circle" 
-					                                                        style="aspect-ratio: 1/1; object-fit: cover;" 
-					                                                        width="50"
+					                                                        style="aspect-ratio: 1/1; object-fit: cover;" width="50"
 					                                                        onerror="this.onerror=null; this.src='/assets/images/users/user-profile.png';">
 					                                                </div>
 					                                                <div class="chat-content d-inline-block pl-3">
@@ -167,9 +168,11 @@
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
 						                                                 			th:alt="${chat.ori_pic_name}" 
 						                                                 			style="max-width: 12.5vw; height: auto;" 
+							                                                        onerror="this.onerror=null; 
+							                                                        		this.src='/assets/images/noimage.png';
+							                                                        		this.alt='no image';" 
 						                                                 			onload="scrollToBottom()" 
 					                                                 				data-toggle="modal" data-target="#imgModal" 
-							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';" 
 							                                                        onclick="openModal(this)">
 					                                                 	</th:block>
 					                                                 	<!-- 사진파일이 존재하지 않는다면 -->
@@ -475,6 +478,14 @@
 	        const downloadBtn = document.getElementById('downloadBtn');
 	        downloadBtn.href = selectImgSrc;
 	        downloadBtn.download = selectImgAlt;
+	        
+	     	// 이미지의 alt가 'missing image'이면 저장하기 버튼을 숨김
+	        if (selectImgAlt === 'no image') {
+	        	downloadBtn.style.display = 'none';  // 저장하기 버튼 숨기기
+	        } else {
+	        	downloadBtn.style.display = 'inline-block';  // 저장하기 버튼 표시
+	        }
+	     	
 		}
 
 	</script>
