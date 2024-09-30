@@ -1,17 +1,23 @@
 package com.dbdevdeep.attendance.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
+import com.dbdevdeep.approve.service.RestHolidayService;
 import com.dbdevdeep.attendance.domain.Attendance;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.repository.AttendanceRepository;
@@ -24,6 +30,7 @@ import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+@EnableScheduling
 @Service
 public class AttendanceService {
 
@@ -31,15 +38,16 @@ public class AttendanceService {
 	private final EmployeeRepository employeeRepository;
 	private final ObjectMapper objectMapper;
 	private final AuditLogRepository auditLogRepository;
+	private final RestHolidayService restHolidayService;
 
 	@Autowired
 	public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository,
-			ObjectMapper objectMapper,
-			AuditLogRepository auditLogRepository) {
+			ObjectMapper objectMapper, AuditLogRepository auditLogRepository, RestHolidayService restHolidayService) {
 		this.attendanceRepository = attendanceRepository;
 		this.employeeRepository = employeeRepository;
 		this.objectMapper = objectMapper;
 		this.auditLogRepository = auditLogRepository;
+		this.restHolidayService = restHolidayService;
 	}
 
 	public int employeeCheckIn(String empId) {
@@ -212,23 +220,23 @@ public class AttendanceService {
 
 		Attendance oriDataEntity = attendanceRepository.findByattendNo(dto.getAttend_no());
 		AttendanceDto oriDataDto = new AttendanceDto().toDto(oriDataEntity);
-		
+
 		Attendance attendance = attendanceRepository.save(attend);
-		
+
 		String oriData = convertDtoToJson(oriDataDto);
 		String newData = convertDtoToJson(dto);
-		
+
 		AuditLogDto auditDto = new AuditLogDto();
-		
+
 		auditDto.setAudit_type("U");
 		auditDto.setChanged_item("attend");
 		auditDto.setNew_data(newData);
 		auditDto.setOri_data(oriData);
-		
+
 		AuditLog auditLog = auditDto.toEntityWithJoin(employee, admin);
-		
+
 		auditLogRepository.save(auditLog);
- 
+
 		return attendance;
 	}
 
@@ -240,5 +248,47 @@ public class AttendanceService {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	@Scheduled(cron = "0 1 16 * * *")
+	public void noCheckIn() {
+		LocalDate today = LocalDate.now();
+		int overtime = 0;
+		int year = today.getYear();
+		int month = today.getMonthValue();
+		int date = today.getDayOfMonth();
+
+		Set<LocalDate> holidays = new HashSet<>(restHolidayService.getHolidays(today.getYear(), today.getMonthValue()));
+
+		List<Employee> employees = employeeRepository.findAll();
+
+		for (Employee employee : employees) {
+			if (isWeekendOrHoliday(today, new ArrayList<>(holidays))) {
+				continue;
+			}
+
+			Attendance attendance = attendanceRepository.findByEmpAndDate(employee, today);
+			if (date == 1) {
+				overtime = 0;
+			} else {
+				overtime = attendanceRepository.findByLastInfo(employee, year, month).orElse(0);
+			}
+
+			if (attendance == null) {
+				Attendance newAttendance = Attendance.builder().employee(employee).attendDate(today).checkInTime(null)
+						.checkOutTime(null).workStatus(3).lateStatus("N").overtimeSum(overtime).build();
+
+				attendanceRepository.save(newAttendance);
+			}
+		}
+	}
+
+	private boolean isWeekendOrHoliday(LocalDate date, List<LocalDate> holidays) {
+		DayOfWeek dayOfWeek = date.getDayOfWeek();
+		if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+			return true;
+		}
+
+		return holidays.contains(date);
 	}
 }
