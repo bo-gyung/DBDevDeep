@@ -233,7 +233,7 @@ public class EmployeeViewController {
 				EmployeeDto newData = objectMapper.readValue(logDto.getNew_data(), EmployeeDto.class);
 				
 				model.addAttribute("newData", newData);				
-			} else {
+			} else if("attend".equals(logDto.getChanged_item())){
 				if(logDto.getOri_data() != null) {
 					AttendanceDto oriData = objectMapper.readValue(logDto.getOri_data(), AttendanceDto.class);
 					
@@ -243,6 +243,11 @@ public class EmployeeViewController {
 				AttendanceDto newData = objectMapper.readValue(logDto.getNew_data(), AttendanceDto.class);
 				
 				model.addAttribute("newData", newData);	
+			} else {
+				if(logDto.getOri_data() != null) {					
+					model.addAttribute("oriData", "****");
+				}
+				model.addAttribute("newData", "****");	
 			}
 			
 

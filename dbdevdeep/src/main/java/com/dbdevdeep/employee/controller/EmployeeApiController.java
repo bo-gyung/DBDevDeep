@@ -82,6 +82,8 @@ public class EmployeeApiController {
 	public Map<String, String> signup(EmployeeDto dto, @RequestParam("file") MultipartFile file,
 			@RequestParam(name = "trans_school_id", required = false) String trans_school_id,
 			@RequestParam(name = "admin_id") String admin_id, @RequestParam(name = "dup_emp_id") String dup_emp_id) {
+		
+		System.out.println("dto: " + dto);
 
 		Map<String, String> resultMap = new HashMap<String, String>();
 		resultMap.put("res_code", "404");
@@ -90,12 +92,14 @@ public class EmployeeApiController {
 		String savedFileName = fileService.employeePicUpload(file);
 		
 		LocalDate trans_date = dto.getHire_date();
+		
+		System.out.println("dup_emp_id: " + dup_emp_id);
 
 		if (savedFileName != null) {
 			dto.setOri_pic_name(file.getOriginalFilename());
 			dto.setNew_pic_name(savedFileName);
 			
-			if(dup_emp_id != null) {
+			if(!"".equals(dup_emp_id)) {
 				dto.setEmp_id(dup_emp_id);
 				EmployeeDto empDto = employeeService.govIdCheck(dto.getGov_id());
 				dto.setHire_date(empDto.getHire_date());
@@ -344,18 +348,18 @@ public class EmployeeApiController {
 	// 비밀번호 초기화
 	@ResponseBody
 	@PutMapping("/reset-pw")
-	public Map<String, String> editMyPw(@RequestParam("emp_id") String emp_id, @RequestParam("emp_pw") String emp_pw) {
+	public Map<String, String> editMyPw(@RequestParam("emp_id") String emp_id, @RequestParam("emp_pw") String emp_pw,
+			@RequestParam("admin_id")String admin_id) {
 		Map<String, String> resultMap = new HashMap<String, String>();
 
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "비밀번호 초기화 중 오류가 발생했습니다.");
 
-		Employee e = employeeService.resetPw(emp_id, emp_pw);
+		Employee e = employeeService.resetPw(emp_id, emp_pw, admin_id);
 
 		if (e != null) {
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "비밀번호가 성공적으로 초기화되었습니다.");
-
 		}
 
 		return resultMap;

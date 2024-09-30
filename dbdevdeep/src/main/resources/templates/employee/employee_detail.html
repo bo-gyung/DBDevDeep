@@ -233,7 +233,9 @@
 													</div>
 													<div class="col-4">
 														<form id="resetPw">
-															<input type="hidden" class="form-control" id="pw" name="emp_pw" th:value="${#strings.replace(empDto.emp_rrn, '-', '')}"> <input type="hidden" class="form-control" id="empId" name="emp_id" th:value="${empDto.emp_id}">
+															<input type="hidden" class="form-control" id="pw" name="emp_pw" th:value="${#strings.replace(empDto.emp_rrn, '-', '')}"> 
+															<input type="hidden" class="form-control" id="empId" name="emp_id" th:value="${empDto.emp_id}">
+															<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 															<div class="tooltip-container">
 																<button class="btn btn-info tooltip-trigger">비밀번호 초기화</button>
 																<div class="tooltip">이 버튼을 클릭하면 해당 계정의 비밀번호가 주민등록번호로 초기화됩니다. 신중하게 클릭하세요.</div>

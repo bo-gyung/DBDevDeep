@@ -345,7 +345,8 @@ public class EmployeeService {
 	}
 
 	// 직원 비밀번호 초기화
-	public Employee resetPw(String emp_id, String emp_pw) {
+	@Transactional
+	public Employee resetPw(String emp_id, String emp_pw, String admin_id) {
 		Employee e = null;
 
 		Employee employee = employeeRepository.findByempId(emp_id);
@@ -365,6 +366,24 @@ public class EmployeeService {
 				.chatStatusMsg(temp.getChat_status_msg()).job(job).department(dept).build();
 
 		e = employeeRepository.save(emp);
+		
+		Employee admin = employeeRepository.findByempId(admin_id);
+		AuditLogDto logDto = new AuditLogDto();
+		logDto.setAudit_type("U");
+		logDto.setChanged_item("pw");
+		
+		try {
+			String oriData = objectMapper.writeValueAsString(employee.getEmpPw());
+			String newData = objectMapper.writeValueAsString(e.getEmpPw());
+			logDto.setOri_data(oriData);
+			logDto.setNew_data(newData);
+		} catch (JsonProcessingException excetp) {
+			excetp.printStackTrace();
+		}
+		
+		AuditLog log = logDto.toEntityWithJoin(employee, admin);
+		
+		auditLogRepository.save(log);
 
 		return e;
 	}

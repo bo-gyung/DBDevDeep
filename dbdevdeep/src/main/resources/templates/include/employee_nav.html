@@ -2,6 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:fragment="employeeNavLayout">
+	<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 현재 페이지 URL 가져오기
+            const currentUrl = window.location.pathname;
+
+
+            // 사이드바 내비게이션 항목을 선택
+            const navItems = document.querySelectorAll('.sidebar-item a');
+            navItems.forEach(item => {
+                // 링크의 href 속성과 현재 URL을 비교
+                if (currentUrl.includes(item.getAttribute('href'))) {
+                		const gGrandLi = item.parentNode.parentNode.parentNode;
+                		const grandA = gGrandLi.querySelector('a');
+                		const grandUi = gGrandLi.querySelector('ul');
+                		const parentLi = item.parentNode;
+                		
+                    gGrandLi.classList.add('selected');
+                    grandA.classList.add('active');
+                    grandUi.classList.add('in', 'collapse');
+                    parentLi.classList.add('active');
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
 
 	<aside class="left-sidebar" data-sidebarbg="skin6">
 		<!-- Sidebar scroll-->
@@ -61,7 +86,7 @@
 						</a>
 						<ul aria-expanded="false" class="collapse  first-level base-level-line">
 							<li class="sidebar-item">
-								<a th:href="@{/grade-class/list}" class="sidebar-link">
+								<a th:href="@{/grade-class}" class="sidebar-link">
 									<span class="hide-menu"> 반 목록 </span>
 								</a>
 							</li>
@@ -69,7 +94,7 @@
 					</li>
 					
 					<!-- 기록 Nav -->
-					<li class="sidebar-item">
+					<li class="sidebar-item" >
 						<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
 							<span class="hide-menu">기록</span>
 						</a>
