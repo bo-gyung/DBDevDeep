@@ -154,6 +154,7 @@ public class ApproveService {
 		Department department = departmentRepository.findByDeptCode(deptCode);
 		Job job = jobRepository.findByJobCode(jobCode);
 		ApproveLine approveLine = approveLineRepository.findByApproveIdAndEmpId(approNo, principalId);
+		VacationRequest vacationRequest = vacationRequestRepository.findByApprove(approve);
 		
 		ApproveLineDto alDto = new ApproveLineDto().toDto(approveLine);
 		alDto.setAppro_line_no(approveLine.getApproLineNo());
@@ -208,6 +209,8 @@ public class ApproveService {
 				Approve finalApprove = aDto.toEntity(employee, department, job, null);
 				Approve a = approveRepository.save(finalApprove);
 
+				createAttendance(employee, vacationRequest);
+				
 				// 승인 시 alert에 저장
 				// 최종 승인 시 결재 요청자에게 alert
 				if (a != null) {
@@ -715,5 +718,75 @@ public class ApproveService {
 		return vacationRequestDtoList;
 	}
 
+	private void createAttendance(Employee employee, VacationRequest vacationRequest) {
+		LocalDate startDate = vacationRequest.getStartTime().toLocalDate();
+		LocalDate endDate = vacationRequest.getEndTime().toLocalDate();
+		int vacType = vacationRequest.getVacType();
+		
+		for(LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+			Attendance attendance = attendanceRepository.findByEmpAndDate(employee, date);
+			
+			int overtime = overTimeSum(employee, date);
+			
+			if(attendance !=null) {
+				Attendance updatedAttendance = updateAttendance(attendance , vacType , overtime);
+				attendanceRepository.save(updatedAttendance);
+			}else {
+				Attendance newAttendance = createNewAttendance(employee, date , vacType , overtime);
+				attendanceRepository.save(newAttendance);
+			}
+		}
+	}
 	
+	private int overTimeSum(Employee employee, LocalDate attendDate) {
+		int overtime = 0;
+		int year = attendDate.getYear();
+		int month = attendDate.getMonthValue();
+		int date = attendDate.getDayOfMonth();
+		
+		if(date == 1) {
+			overtime = 0;
+		}else {
+			overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
+		}
+		return overtime;
+	}
+	
+	private Attendance updateAttendance(Attendance attendance, int vacType , int overtime) {
+		return Attendance.builder()
+		          .employee(attendance.getEmployee())
+		          .attendNo(attendance.getAttendNo())
+		          .attendDate(attendance.getAttendDate())
+		          .checkInTime(attendance.getCheckInTime())
+		          .checkOutTime(attendance.getCheckOutTime() != null ? attendance.getCheckOutTime() : null )
+		          .workStatus(changeType(vacType))
+		          .lateStatus("N")
+		          .overtimeSum(overtime)
+		          .build();
+	}
+	
+	private Attendance createNewAttendance(Employee employee , LocalDate date , int vacType, int overtime) {
+		return Attendance.builder()
+				.employee(employee)
+				.attendDate(date)
+				.checkInTime(null)
+				.checkOutTime(null)
+				.workStatus(changeType(vacType))
+				.lateStatus("N")
+				.overtimeSum(overtime)
+				.build();
+	}
+	
+	private int changeType(int vacType) {
+		switch (vacType) {
+		case 0: return 4;
+		case 1: return 5;
+		case 2: return 6;
+		case 3: return 7;
+		case 4: return 8;
+		case 5: return 9;
+		case 6: case 7: return 10;
+		default: return 3;
+		}
+	}
 }
