@@ -4,6 +4,30 @@
      layout:decorate="~{include/chat_layout}">
 <th:block layout:fragment="content">
 <body>
+	
+	<!-- 사진 상세보기 모달창 시작 -->
+	<!-- sample modal content -->
+    <div id="imgModal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="imgModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="imgModalLabel">작성자 이름</h4>
+                    <h6>작성시간</h6>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalImage" src="" class="img-fluid">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light"
+                        data-dismiss="modal">닫기</button>
+                    <a id="downloadBtn" href="" download class="btn btn-primary">저장하기</a>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+	<!-- 사진 상세보기 모달창 끝 -->
+
 
         <!-- ============================================================== -->
         <!-- Page wrapper  -->
@@ -103,10 +127,13 @@
 				                                                 	<!-- 사진파일이 존재한다면 -->
 				                                                 	<th:block th:if="${chat.new_pic_name != null}">
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
-						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" alt="Attached photo" 
+						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
+						                                                 			th:alt="${chat.ori_pic_name}" 
 						                                                 			style="max-width: 12.5vw; height: auto;" 
-						                                                 			onload="scrollToBottom()"
-							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';">
+						                                                 			onload="scrollToBottom()" 
+				                                                 				 	data-toggle="modal" data-target="#imgModal" 
+							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';" 
+							                                                        onclick="openModal(this)">
 					                                                 	</div>
 				                                                 	</th:block>
 				                                                 	<!-- 사진파일이 존재하지 않는다면 -->
@@ -137,10 +164,13 @@
 					                                                    <h6 class="font-weight-medium" th:text="${chat.writer_name}"></h6>
 				                                                    	<!-- 사진파일이 존재한다면 -->
 					                                                 	<th:block th:if="${chat.new_pic_name != null}">
-						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" alt="Attached photo" 
+						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
+						                                                 			th:alt="${chat.ori_pic_name}" 
 						                                                 			style="max-width: 12.5vw; height: auto;" 
 						                                                 			onload="scrollToBottom()" 
-							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';">
+					                                                 				data-toggle="modal" data-target="#imgModal" 
+							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';" 
+							                                                        onclick="openModal(this)">
 					                                                 	</th:block>
 					                                                 	<!-- 사진파일이 존재하지 않는다면 -->
 					                                                 	<th:block th:if="${chat.new_pic_name == null || chat.new_pic_name.isEmpty()}">
@@ -429,7 +459,23 @@
 		    chatContainer.scrollTop = chatContainer.scrollHeight; // 스크롤을 최하단으로 설정
 		}
 			
-
+		
+		// 모달창에서 이미지 출력 및 다운로드
+		const openModal = function(image){
+			// 클릭한 이미지 src정보 가져오기
+			const selectImgSrc = image.src;
+			const selectImgAlt = image.alt;
+			
+			// 모달 창 안의 이미지 요소를 찾아 src 설정
+			const modalImg = document.getElementById("modalImage");
+			modalImg.src = selectImgSrc;
+			modalImg.alt = selectImgAlt;
+			
+			// 다운로드 버튼 설정
+	        const downloadBtn = document.getElementById('downloadBtn');
+	        downloadBtn.href = selectImgSrc;
+	        downloadBtn.download = selectImgAlt;
+		}
 
 	</script>
     <!-- ============================================================== -->
