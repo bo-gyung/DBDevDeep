@@ -66,8 +66,6 @@ public class HomeController {
 	    String realDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 	    String baseTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH"))+"00";
 	    
-	    System.out.println(baseDate + ", " + realDate + ", " + baseTime);
-	    
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst"); /*URL*/
         urlBuilder.append("?" + URLEncoder.encode("serviceKey","UTF-8") + "=7pawedG81MlCdHRRrEnYTSiXAO5AlMzn2IzPrz5je848GT8xvkGfn0ulwyO7M6nWbOj9gsqZ6mDCas%2FxOE2eUQ%3D%3D"); /*Service Key*/
         urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
@@ -104,65 +102,39 @@ public class HomeController {
 			for (int i = 0; i < items.length(); i++) {
 			    JSONObject item = items.getJSONObject(i);
 			    if ("TMN".equals(item.getString("category"))) { 
-			        System.out.println("TMN: " + Math.round(Double.parseDouble(item.getString("fcstValue"))));
 			        resultMap.put("TMN", Math.round(Double.parseDouble(item.getString("fcstValue"))) + "");
 			    }
 			    if ("TMX".equals(item.getString("category"))) {
-			        System.out.println("TMX: " + Math.round(Double.parseDouble(item.getString("fcstValue"))));
 			        resultMap.put("TMX", Math.round(Double.parseDouble(item.getString("fcstValue"))) + "");
 			    }
 			    if ("SKY".equals(item.getString("category")) && baseTime.equals(item.getString("fcstTime")) && realDate.equals(item.getString("fcstDate"))) {
-			    	String sky = "";
-			    	switch(item.getString("fcstValue")) {
-			    	case "1": sky = "맑음1"; break;
-			    	case "3": sky = "구름많음3"; break;
-			    	case "4": sky = "흐림4"; break;
-			    	}
-			    	System.out.println("SKY: " + sky);
 			    	resultMap.put("SKY", item.getString("fcstValue"));
 			    }
 			    if ("TMP".equals(item.getString("category")) && baseTime.equals(item.getString("fcstTime")) && realDate.equals(item.getString("fcstDate"))) {
-			    	System.out.println("TMP: " + Math.round(Double.parseDouble(item.getString("fcstValue"))) + " " + item.getString("fcstDate") +" " + item.getString("fcstTime"));
 			    	resultMap.put("TMP", Math.round(Double.parseDouble(item.getString("fcstValue"))) + "");
 			    }
 			    if ("PTY".equals(item.getString("category")) && baseTime.equals(item.getString("fcstTime")) && realDate.equals(item.getString("fcstDate"))) {
-			    	String pty = "";
-			    	switch(item.getString("fcstValue")) {
-			    	case "0": pty = "맑음0"; break;
-			    	case "1": pty = "비1"; break;
-			    	case "2": pty = "비/눈2"; break;
-			    	case "3": pty = "눈3"; break;
-			    	case "4": pty = "소나기4"; break;
-			    	}
-			    	System.out.println("PTY: " + pty);
 			    	resultMap.put("PTY", item.getString("fcstValue"));
 			    }
 			    if ("WSD".equals(item.getString("category")) && baseTime.equals(item.getString("fcstTime")) && realDate.equals(item.getString("fcstDate"))) {
 			    	resultMap.put("WSDV", item.getString("fcstValue"));
 			    	if(Double.parseDouble(item.getString("fcstValue")) < 4) {
-			    		System.out.println("WSD: " + "약0");
 			    		resultMap.put("WSD", "0");
 			    	} else if (Double.parseDouble(item.getString("fcstValue")) < 9) {
-			    		System.out.println("WSD: " + "약강1");
 			    		resultMap.put("WSD", "1");
 			    	} else if (Double.parseDouble(item.getString("fcstValue")) < 14) {
-			    		System.out.println("WSD: " + "강2");
 			    		resultMap.put("WSD", "2");
 			    	} else {
-			    		System.out.println("WSD: " + "강강3");
 			    		resultMap.put("WSD", "3");
 			    	}
 			    }
 			    if ("POP".equals(item.getString("category")) && baseTime.equals(item.getString("fcstTime")) && realDate.equals(item.getString("fcstDate"))) {
-			    	System.out.println("POP: " + item.getString("fcstValue"));
 			    	resultMap.put("POP", item.getString("fcstValue"));
 			    }
 			    if ("PCP".equals(item.getString("category")) && baseTime.equals(item.getString("fcstTime")) && realDate.equals(item.getString("fcstDate"))) {
-			    	System.out.println("PCP: " + item.getString("fcstValue"));
 			    	resultMap.put("PCP", item.getString("fcstValue"));
 			    }
 			    if ("REH".equals(item.getString("category")) && baseTime.equals(item.getString("fcstTime")) && realDate.equals(item.getString("fcstDate"))) {
-			    	System.out.println("REH: " + item.getString("fcstValue"));
 			    	resultMap.put("REH", item.getString("fcstValue"));
 			    }
 			    

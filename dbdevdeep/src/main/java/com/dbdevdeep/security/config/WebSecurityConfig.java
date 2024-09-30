@@ -26,6 +26,10 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/assets/**", "/dbdevdeepcss/**", "/dbdevdeepjs/**", "/dist/**", "/docs/**", "/scss/**", "/login.js").permitAll()
                 .requestMatchers("/signup").hasAnyAuthority("D3")
+                .requestMatchers("/error/404", "/error/500", "/error/error").permitAll()
+                .requestMatchers("/employee/**").hasAnyAuthority("D3")
+                .requestMatchers("/log/**").hasAnyAuthority("D3")
+                .requestMatchers("/employee/**").hasAnyAuthority("D4")
                 .anyRequest().hasAnyAuthority("Y")  // 나머지 모든 요청은 인증 필요
             )
             // 로그인 설정

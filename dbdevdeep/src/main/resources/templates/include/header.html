@@ -313,6 +313,8 @@
 		            const time = item.getAttribute('data-time'); // data-* 속성에서 time 값을 가져옴
 		            
 		            removeAlertAndHide(item, title, message, time); // 클릭 시 알림 제거 및 LocalStorage에서 삭제
+		            document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
+	      	   		document.getElementById("alertNum").style.color = '#0031AE';
 		        });
 		    });
 		}
@@ -529,8 +531,8 @@
       	   		
       	   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
       	   		document.getElementById("alertNum").style.color = '#0031AE';
-						} 
-					});
+				} 
+			});
 		    
 	
 		    // URL로 이동
