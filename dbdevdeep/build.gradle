@@ -59,3 +59,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+task deleteJar(type: Delete) {
+    delete 'build/libs/*.jar'
+}

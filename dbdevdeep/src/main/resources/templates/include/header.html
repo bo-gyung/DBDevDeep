@@ -14,41 +14,11 @@
 		.notifications{
 			width:360px;
 		}
-	</style>
-	<header class="topbar" data-navbarbg="skin6">
-		<input type="hidden" id="csrf_token_header" th:value="${_csrf.token}">
-		<div class="preloader">
-			<div class="lds-ripple">
-				<div class="lds-pos"></div>
-				<div class="lds-pos"></div>
-			</div>
-		</div>
-      <nav class="navbar top-navbar navbar-expand-md">
-        <div class="navbar-header" data-logobg="skin6">
-          <!-- sidebar toggle -->
-          <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
-              class="ti-menu ti-close"></i></a>
-          <!-- 로고 -->
-          <div class="navbar-brand">
-            <a th:href="@{/}" style="margin-top:-12px;">
-              <b class="logo-icon">
-                <img src="/assets/images/MulMang_logo.png" style="width: 45px;" alt="homepage" class="dark-logo" />
-              </b>
-              <span class="logo-text">
-                <img src="/assets/images/MulMang_logo_text.png" style="width: 145px;" alt="homepage" class="dark-logo" />
-              </span>
-            </a>
-          </div>
-          <!-- Toggle -->
-          <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
-            data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-            aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
-        </div>
-        <!-- ============================================================== -->
-        <!-- 헤더 -->
-        <!-- ============================================================== -->
-        <style>
-          /* 기본 스타일 */
+		
+		.schedule-message-item:hover {
+	    	color: inherit !important; /* 기본 텍스트 색상 유지 */
+	    }
+	              /* 기본 스타일 */
 		  .left-nav {
 		    margin-right: 20px;
 		  }
@@ -84,52 +54,51 @@
           .nav-item.active .nav_text {
 			  color: #0031AE; /* 활성화된 항목의 글씨 색 */
 			  font-weight: bold; /* 활성화된 항목의 글씨 굵기 */
-			}
-          	body{
-				font-family: 'NanumSquareNeo';
-			}
-        </style>
-        <script>
-	        document.addEventListener('DOMContentLoaded', function () {
-	            const navItems = document.querySelectorAll('.navbar-nav .nav-item'); // 모든 nav-item을 선택
-	
-	            navItems.forEach(function (item) {
-	                const link = item.querySelector('.nav-link'); // 각 nav-item의 링크를 선택
-	
-	                if (link && link.href === window.location.href) { // 링크의 href와 현재 페이지 URL이 일치하면
-	                    item.classList.add('active'); // active 클래스 추가
-	                }
-	            });
-	        });
-	        
-	        $(".preloader ").fadeOut();
-        </script>
+		  }
+          body{
+			font-family: 'NanumSquareNeo';
+		  }
+	</style>
+
+	<header class="topbar" data-navbarbg="skin6">
+		<div class="preloader">
+			<div class="lds-ripple">
+				<div class="lds-pos"></div>
+				<div class="lds-pos"></div>
+			</div>
+		</div>
+      <nav class="navbar top-navbar navbar-expand-md">
+        <div class="navbar-header" data-logobg="skin6">
+          <!-- sidebar toggle -->
+          <a class="nav-toggler waves-effect waves-light d-block d-md-none" href="javascript:void(0)"><i
+              class="ti-menu ti-close"></i></a>
+          <!-- 로고 -->
+          <div class="navbar-brand">
+            <a th:href="@{/}" style="margin-top:-12px;">
+              <b class="logo-icon">
+                <img src="/assets/images/MulMang_logo.png" style="width: 45px;" alt="homepage" class="dark-logo" />
+              </b>
+              <span class="logo-text">
+                <img src="/assets/images/MulMang_logo_text.png" style="width: 145px;" alt="homepage" class="dark-logo" />
+              </span>
+            </a>
+          </div>
+          <!-- Toggle -->
+          <a class="topbartoggler d-block d-md-none waves-effect waves-light" href="javascript:void(0)"
+            data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation"><i class="ti-more"></i></a>
+        </div>
+
         <div class="navbar-collapse collapse" id="navbarSupportedContent">
           <ul class="navbar-nav float-left mr-auto ml-3 pl-1">
-            <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/approve}" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">전자결재</span>
-              </a>
-            </li>
-            <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/attendance}" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">근태관리</span>
-              </a>
-            </li>
             <li class="nav-item left-nav">
               <a class="nav-link" th:href="@{/notice}" role="button" aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text">공지사항</span>
               </a>
-            </li>
+            </li>          
             <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/schedule}" role="button"
-                aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">일정관리</span>
-              </a>
-            </li>
-            <li class="nav-item left-nav">
-              <a class="nav-link" th:href="@{/place}" role="button" aria-haspopup="true" aria-expanded="false">
-                <span class="nav_text">자원관리</span>
+              <a class="nav-link" th:href="@{/approve}" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">전자결재</span>
               </a>
             </li>
             <li class="nav-item left-nav" sec:authorize="hasAnyAuthority('D4')">
@@ -145,11 +114,27 @@
               </a>
             </li>
             <li class="nav-item left-nav">
+              <a class="nav-link" th:href="@{/place}" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">자원관리</span>
+              </a>
+            </li>               
+            <li class="nav-item left-nav">
+              <a class="nav-link" th:href="@{/schedule}" role="button"
+                aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">일정관리</span>
+              </a>
+            </li>
+            <li class="nav-item left-nav">
               <a class="nav-link" th:href="@{/file}" role="button"
                 aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text">문서관리</span>
               </a>
             </li>
+            <li class="nav-item left-nav">
+              <a class="nav-link" th:href="@{/attendance}" role="button" aria-haspopup="true" aria-expanded="false">
+                <span class="nav_text">근태관리</span>
+              </a>
+            </li>            
             <li class="nav-item left-nav">
               <a class="nav-link" th:href="@{/addressbook}" role="button"
                 aria-haspopup="true" aria-expanded="false">
@@ -157,6 +142,7 @@
               </a>
             </li>
           </ul>
+          <input type="hidden" id="csrf_token_header" th:value="${_csrf.token}">
           <ul class="navbar-nav float-right">
             <!-- 알림 -->
             <li class="nav-item dropdown">
@@ -232,8 +218,10 @@
         </div>
       </nav>
     </header>
+    
     <!-- 웹소켓 연결 설정 js -->
     <script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
+	
 	<script>
 		// 서버에서 주기적으로 알림을 가져오는 함수
 		function fetchAlerts() {
@@ -249,8 +237,8 @@
 		        .catch(error => console.error('Error fetching alerts:', error));
 		}
 		
-		// 1분마다 서버에 요청을 보냄
-		setInterval(fetchAlerts, 60000); // 60,000ms = 1분
+		// 10초마다 서버에 요청을 보냄
+		setInterval(fetchAlerts, 10000); // 60,000ms = 1분
 		
 		// 알림을 화면에 추가하는 함수
 		function addScheduleNotification(title, message, time) {
@@ -258,7 +246,7 @@
 		    const bellElement = document.querySelector('#bell'); // <a> 태그 요소
 		
 		    const notificationHTML = `
-		        <a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2" 
+		        <a href="javascript:void(0)" class="schedule-message-item message-item d-flex align-items-center border-bottom px-3 py-2" 
 		            data-title="${title}" data-message="${message}" data-time="${time}">
 		            <span class="btn btn-success text-white rounded-circle btn-circle">
 		                <i data-feather="calendar" class="text-white"></i>
@@ -304,8 +292,8 @@
 		
 		// 새로 추가된 알림에 클릭 이벤트 리스너 추가
 		function addClickListenerToNotification() {
-		    const notificationItems = document.querySelectorAll('.message-item'); // 모든 알림 항목을 선택
-
+		    const notificationItems = document.querySelectorAll('.schedule-message-item'); // 모든 알림 항목을 선택
+	
 		    notificationItems.forEach(item => {
 		        item.addEventListener('click', function() {
 		            const title = item.getAttribute('data-title'); // data-* 속성에서 title 값을 가져옴
@@ -313,15 +301,24 @@
 		            const time = item.getAttribute('data-time'); // data-* 속성에서 time 값을 가져옴
 		            
 		            removeAlertAndHide(item, title, message, time); // 클릭 시 알림 제거 및 LocalStorage에서 삭제
-		            document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
-	      	   		document.getElementById("alertNum").style.color = '#0031AE';
+		            
+		            const alertDiv = document.getElementById('alertDiv');
+		           	
+			   		// alertDiv 안의 a 태그를 모두 선택
+			   		const anchorTags = alertDiv.getElementsByTagName('a');
+			   	
+			   		// a 태그의 개수 출력
+			   		const count = anchorTags.length;
+			   		
+			   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
+			   		document.getElementById("alertNum").style.color = '#0031AE';
 		        });
 		    });
 		}
 		
 		// 중복된 알림이 있는지 확인하는 함수
 		function isNotificationDuplicate(title, message, time) {
-		    const existingAlerts = document.querySelectorAll('.message-item');
+		    const existingAlerts = document.querySelectorAll('.schedule-message-item');
 		    
 		    for (let alert of existingAlerts) {
 		        const alertTitle = alert.querySelector('h6').textContent.trim();
@@ -389,17 +386,9 @@
 		// 초기 상태에서 LocalStorage에서 알림을 불러와서 화면에 추가
 		window.onload = function() {
 		    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
-		    
-		    var alertDiv = document.getElementById('alertDiv');
-	       	
-	   		// alertDiv 안의 a 태그를 모두 선택
-	   		var anchorTags = alertDiv.getElementsByTagName('a');
-	   	
-	   		// a 태그의 개수 출력
-	   		var count = anchorTags.length;
-	   		
-	   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
 		}
+		
+	    $(".preloader ").fadeOut();
 	</script>
 
 	<script>
@@ -414,7 +403,7 @@
 	    }
 	})
 	.then(response => response.json())
-  .then(data => {
+  	.then(data => {
       if (data.res_code === "200") {
          let alertDtoList = data.res_msg;
          
@@ -478,13 +467,13 @@
            const alertDiv = document.getElementById('alertDiv');
        	
 			   		// alertDiv 안의 a 태그를 모두 선택
-		   		const anchorTags = alertDiv.getElementsByTagName('a');
-		   	
-		   		// a 태그의 개수 출력
-		   		const count = anchorTags.length;
-		   		
-		   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
-		   		document.getElementById("alertNum").style.color = '#0031AE';
+	   		const anchorTags = alertDiv.getElementsByTagName('a');
+	   	
+	   		// a 태그의 개수 출력
+	   		const count = anchorTags.length;
+	   		
+	   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
+	   		document.getElementById("alertNum").style.color = '#0031AE';
         } 
     })
     .catch(error => console.error('Error:', error));
@@ -545,35 +534,10 @@
 		    switch (referenceName) {
 		        case 'approve':
 		            url = '/approve';
-		            /* fetch('/alert/' + alertNo, {
-		            	method: 'PUT',
-		            	headers: {
-		            		'X-CSRF-TOKEN': csrfToken_header
-		            	}
-		            }) 
-		            .then(response => response.json())
-								.then(data=>{
-									if(data.res_code == '200'){
-										const alertLink = document.querySelector(`a[data-alert-no="${alertNo}"]`);
-              			if (alertLink) {
-			                  alertLink.remove();
-			              }
-			              const alertDiv = document.getElementById('alertDiv');
-			                  	
-			       	   		// alertDiv 안의 a 태그를 모두 선택
-			       	   		const anchorTags = alertDiv.getElementsByTagName('a');
-			       	   	
-			       	   		// a 태그의 개수 출력
-			       	   		const count = anchorTags.length;
-			       	   		
-			       	   		document.getElementById("alertNum").innerText = count;
-									} 
-								}); */
 		            break;
 		        case 'notice':
 		            url = '/notice';
 		            break;
-		        // 추가 테이블에 대한 케이스 추가
 		        default:
 		            console.error('알 수 없는 테이블 이름입니다:', referenceName);
 		            return;
@@ -608,5 +572,5 @@
 		}
 	</script>
 
-    </th:block>
+</th:block>
 </html>

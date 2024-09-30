@@ -46,7 +46,7 @@ public class EmployeeVo {
 	private LocalDate end_date;
 	private String ent_status;
 	private String login_yn;
-	private String account_status;
+	private int account_status;
 	private String chat_status_msg;
 
 	public EmployeeVo EntityToVo(Employee employee) {

@@ -18,8 +18,8 @@ $(document).ready(function() {
 	        class: 'btn waves-effect waves-light btn-outline-secondary m-1',
 	        style: 'width: 170px; height: 45px;',
 	        click: function() {
-	            // 버튼 클릭 시 복사 기능 처리
-	            console.log("개인문서함으로 복사 버튼 클릭됨");
+				// 복사 모달창 열기 및 개인문서함 로드
+				openCopyModal();
 	        }
 	    }).insertBefore('#uploadButton'); // '업로드' 버튼 앞에 추가
 	}
@@ -44,13 +44,17 @@ $(document).ready(function() {
         console.error('Error loading folder tree:', error);
     });
 
-    $('#public-button').on('click', function() {
+    $('#public-tab').on('click', function() {
         displayFolders(folderData.publicFolderList, 1);
         $(this).addClass('active');
-        $('#private-button').removeClass('active');
+        $('#private-tab').removeClass('active');
 		$('#storage_name').text('공용문서함');
 		// 공용문서함 폴더 번호를 사용해 폴더 용량을 계산
 		getFolderTotalSize(publicFolderNo);
+		
+		// 전체 및 개별 체크박스 해제
+		$('#selectAllCheckbox').prop('checked', false);  // 전체 선택 체크박스 해제
+		$('.folderAndFileCheckbox').prop('checked', false);  // 모든 개별 체크박스 해제
 		
 		if ($('#copyButton').length === 0) {
 		    $('<button/>', {
@@ -59,20 +63,24 @@ $(document).ready(function() {
 		        class: 'btn waves-effect waves-light btn-outline-secondary m-1',
 		        style: 'width: 170px; height: 45px;',
 		        click: function() {
-		            // 버튼 클릭 시 복사 기능 처리
-		            console.log("개인문서함으로 복사 버튼 클릭됨");
+					// 복사 모달창 열기 및 개인문서함 로드
+					openCopyModal();
 		        }
 		    }).insertBefore('#uploadButton'); // '업로드' 버튼 앞에 추가
 		}
     });
 
-    $('#private-button').on('click', function() {
+    $('#private-tab').on('click', function() {
         displayFolders(folderData.privateFolderList, 1);
         $(this).addClass('active');
-        $('#public-button').removeClass('active');
+        $('#public-tab').removeClass('active');
 		$('#storage_name').text('개인문서함');
 		// 개인문서함 폴더 번호를 사용해 폴더 용량을 계산
 		getFolderTotalSize(privateFolderNo);
+		
+		// 전체 및 개별 체크박스 해제
+		$('#selectAllCheckbox').prop('checked', false);  // 전체 선택 체크박스 해제
+		$('.folderAndFileCheckbox').prop('checked', false);  // 모든 개별 체크박스 해제
 		
 		// '개인문서함으로 복사' 버튼이 존재하면 제거
 		$('#copyButton').remove();
@@ -88,6 +96,7 @@ $(document).ready(function() {
                     'icons': true
                 }
             },
+			'state': { 'opened': true }, // 트리의 모든 폴더가 열린 상태로 표시
             'types': {
                 'default': {
                     'icon': '/assets/images/yellow_folder.png'
@@ -118,8 +127,191 @@ $(document).ready(function() {
 			
 			// 폴더 번호도 숨겨진 필드에 저장
 			$('#folder_no').val(folderNo); // 폴더 번호를 숨겨진 input에 저장
+			$('#currentfolder_no').val(folderNo);
         });
     }
+	
+	// 복사 모달창 열기 및 개인문서함 폴더 목록 표시
+	function openCopyModal() {
+	    // 개인문서함 폴더 목록을 로드하여 jstree에 표시
+	    $('#copy_folder_list').jstree('destroy').empty();
+	    $('#copy_folder_list').jstree({
+	        'core': {
+	            'data': folderData.privateFolderList,
+	            'themes': {
+	                'icons': true
+	            }
+	        },
+	        'types': {
+	            'default': {
+	                'icon': '/assets/images/yellow_folder.png'
+	            },
+	            'file': {
+	                'icon': '/assets/images/yellow_folder.png'
+	            }
+	        }
+	    }).on('ready.jstree', function() {
+	        let tree = $('#copy_folder_list').jstree(true);
+			
+			// 모든 폴더를 펼침
+			tree.open_all();
+		}).on('select_node.jstree', function(e, data) {
+		    const folderNo = data.node.id;
+
+		    // 서버에 선택된 폴더 번호를 전송할 준비
+		    $('#selectedCopyFolderNo').val(folderNo); // 폴더 번호를 숨겨진 input에 저장
+		});
+		
+		const selectedFileNos = [];  // 파일 번호를 저장할 배열
+        const selectedFolderNos = [];  // 폴더 번호를 저장할 배열
+        
+        // 체크된 폴더 및 파일 항목의 value 값 가져오기
+        $('.folderAndFileCheckbox:checked').each(function() {
+            const value = $(this).val();
+
+            // 'file_'로 시작하는 경우 파일, 'folder_'로 시작하는 경우 폴더로 구분
+            if (value.startsWith('file_')) {
+                selectedFileNos.push(value.replace('file_', ''));  // 'file_' 제거 후 번호 저장
+            } else if (value.startsWith('folder_')) {
+				selectedFolderNos.push(value.replace('folder_', ''));  // 'folder_' 제거 후 번호 저장
+			}
+        });
+		
+		// 체크박스가 선택되지 않았을 때 경고 메시지 표시
+		if (selectedFileNos.length === 0 && selectedFolderNos.length === 0) {
+		    showAlert('warning', '경고', '복사할 폴더나 파일을 선택해주세요!');
+		    return;
+		}
+		
+		// 개인문서함의 현재 용량과 총 용량을 서버에서 가져와 비교
+		fetch(`/api/privateTotalSize`)
+		    .then(response => response.json())
+		    .then(folderData => {
+		        const currentFolderSize = folderData.usedSize; 
+		        const totalFolderCapacity = folderData.totalCapacity;
+				
+		        // 복사할 파일들의 용량 계산
+		        return fetch('/file/size', {
+		            method: 'POST',
+		            headers: {
+		                'Content-Type': 'application/json',
+		                'X-CSRF-TOKEN': $('#csrf_token').val()
+		            },
+					body: JSON.stringify(selectedFileNos)  // 파일 번호 배열을 JSON으로 전송
+		        })
+		        .then(response => response.json())
+		        .then(fileSizes => {
+					let totalCopyFileSize = fileSizes.reduce((acc, fileSize) => acc + fileSize, 0);  // 선택한 파일들의 총 용량
+
+			            // 선택한 폴더 내 파일들의 용량도 서버에서 가져와 계산
+			            if (selectedFolderNos.length > 0) {
+			                return fetch('/folder/size', {
+			                    method: 'POST',
+			                    headers: {
+			                        'Content-Type': 'application/json',
+			                        'X-CSRF-TOKEN': $('#csrf_token').val()
+			                    },
+			                    body: JSON.stringify(selectedFolderNos)  // 폴더 번호 배열을 JSON으로 전송
+			                })
+			                .then(response => response.json())
+			                .then(folderTotalSize => {
+			                    totalCopyFileSize += folderTotalSize;  // 폴더 내 파일들의 크기를 총 용량에 더함
+
+			                    // 개인문서함의 총 용량과 비교
+			                    if (currentFolderSize + totalCopyFileSize > totalFolderCapacity) {
+			                        showAlert('warning', '경고', '개인문서함의 용량을 초과하여 파일을 복사할 수 없습니다.');
+			                        return;
+			                    }
+
+			                    // 복사 모달창을 열기
+			                    $('#copyModal').modal('show');
+			                });
+			            } else {
+			                // 폴더가 선택되지 않은 경우 바로 용량 비교
+			                if (currentFolderSize + totalCopyFileSize > totalFolderCapacity) {
+			                    showAlert('warning', '경고', '개인문서함의 용량을 초과하여 파일을 복사할 수 없습니다.');
+			                    return;
+			                }
+
+			                // 복사 모달창을 열기
+			                $('#copyModal').modal('show');
+			            }
+		        });
+		    })
+		    .catch(error => {
+		        console.error('Error fetching folder size or file sizes:', error);
+		        showAlert('error', '오류', '용량 정보를 불러오는 중 오류가 발생했습니다.');
+		    });
+
+	    // 복사 폴더 선택 및 서버 전송 로직 추가
+	    $('#copyFrm').on('submit', function(e) {
+	        e.preventDefault();
+			
+			// 폴더 선택이 안 된 경우 경고 메시지 표시
+			const targetFolderNo = $('#selectedCopyFolderNo').val(); // 이동될 대상 폴더 번호
+			if (!targetFolderNo) {
+			    showAlert('warning', '경고', '복사할 대상 폴더를 선택해주세요!');
+			    return;
+			}
+
+			// 이동 확인 메시지
+            Swal.fire({
+                title: '복사하시겠습니까?',
+                text: '선택된 파일이 복사됩니다.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5f76e8',
+                cancelButtonColor: '#e8eaec',
+                confirmButtonText: '복사',
+                cancelButtonText: '취소',
+                customClass: {
+                    cancelButton: 'custom-cancel-button'
+                }
+	        }).then((result) => {
+	            if (result.isConfirmed) {
+	                fetch('/file/copy', {
+	                    method: 'POST',
+	                    headers: {
+	                        'Content-Type': 'application/json',
+	                        'X-CSRF-TOKEN': $('#csrf_token').val()
+	                    },
+	                    body: JSON.stringify({
+	                        targetFolderNo: targetFolderNo,
+	                        fileNos: selectedFileNos,
+							folderNos: selectedFolderNos
+	                    })
+	                })
+	                .then(response => response.json())
+	                .then(data => {
+	                    if (data.file_res_code === '200' || data.folder_res_code === '200') {
+	                        showAlert('success', '성공', '선택한 폴더나 파일이 성공적으로 이동되었습니다.', () => location.reload());
+	                    } else {
+	                        showAlert('error', '실패', '복사 중 오류가 발생했습니다.');
+	                    }
+	                })
+	                .catch(error => {
+	                    console.error('Error during copy:', error);
+	                    showAlert('error', '실패', '복사 중 오류가 발생했습니다.');
+	                });
+	            }
+	        });
+	    });
+	}
+	
+	// showAlert 함수 정의
+	function showAlert(icon, title, text, callback = null) {
+	    Swal.fire({
+	        icon: icon,
+	        title: title,
+	        text: text,
+	        confirmButtonText: '확인',
+	        customClass: {
+	            confirmButton: 'swal-custom-button'
+	        }
+	    }).then(() => {
+	        if (callback) callback();
+	    });
+	}
 
     function openNodeToDepth(tree, node, maxDepth, currentDepth = 1) {
         if (currentDepth < maxDepth) {
@@ -137,7 +329,9 @@ $(document).ready(function() {
         return items.map(item => {
             const updatedItem = {
                 ...item,
-                icon: '/assets/images/yellow_folder.png'
+                icon: '/assets/images/yellow_folder.png',
+				// 여기서 item의 children이 올바르게 연결되어 있는지 확인
+				children: item.children ? addIconToItemsRecursively(item.children) : []
             };
             if (item.children && item.children.length > 0) {
                 updatedItem.children = addIconToItemsRecursively(item.children);
@@ -188,10 +382,12 @@ $(document).ready(function() {
 	
 	// 폴더 번호를 서버에 보내고 용량을 받아오는 함수
 	function getFolderTotalSize(folderNo) {
+		$('#spinner').show();
+		
 	    fetch(`/api/totalSize?folder_no=${folderNo}`)
 	        .then(response => response.json())
 	        .then(data => {
-	            updateStorageInfo(data);  // 받은 데이터를 기반으로 용량 정보 업데이트
+	            updateStorageInfo(data.usedSize);  // 받은 데이터를 기반으로 용량 정보 업데이트
 	        })
 	        .catch(error => {
 	            console.error('Error fetching folder size:', error);
@@ -433,20 +629,30 @@ $(document).ready(function() {
 				});
 			},
 			"initComplete": function () {
-					var searchBoxContainer = $('<div class="custom-dataTables_filter" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px;"></div>');
-					var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="height: 46px; padding: 8px 12px; width: 300px; box-sizing: border-box;">');
-					var searchButton = $('<button class="btn btn-primary ml-2" style="height:46px; width:72px;">검색</button>');
-	
+				var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
+				var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
+				var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
+				var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
+
 				searchButton.on('click', function() {
 					var searchTerm = searchInput.val();  // 검색어 가져오기
-					$('#file_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+					$('#address_all_book').DataTable().search(searchTerm).draw();  // 검색어로 필터링
 				});
-	
+
+				// Enter 키로 검색하기
+				searchInput.on('keypress', function(e) {
+					if (e.which === 13) {  // Enter 키 코드
+						e.preventDefault();  // 기본 Enter 동작 방지
+						searchButton.click();  // 검색 버튼 클릭 이벤트 호출
+					}
+				});
+
 				searchBoxContainer.append(searchInput).append(searchButton);
-	
+				searchBoxWrapper.append(searchBoxContainer);
+
 				// 페이징 밑에 검색 박스 추가
 				$('.dataTables_paginate').after(searchBoxContainer);
-	
+
 				// DataTables 기본 검색창 숨기기
 				$('div.dataTables_filter').hide();
 			}

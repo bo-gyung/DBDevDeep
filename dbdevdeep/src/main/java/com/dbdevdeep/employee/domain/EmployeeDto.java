@@ -49,7 +49,7 @@ public class EmployeeDto {
 	private LocalDate end_date;
 	private String ent_status;
 	private String login_yn;
-	private String account_status;
+	private int account_status;
 	private String chat_status_msg;
 	
 	// GrantedAuthority: 시큐리티에서 권한들의 목록을 담아놓는 곳

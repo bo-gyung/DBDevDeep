@@ -15,10 +15,13 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 	
 	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+	private final MyLoginFailureHandler myLoginFailureHandler;
 
   @Autowired
-  public WebSecurityConfig(CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+  public WebSecurityConfig(CustomLogoutSuccessHandler customLogoutSuccessHandler,
+		  MyLoginFailureHandler myLoginFailureHandler) {
       this.customLogoutSuccessHandler = customLogoutSuccessHandler;
+      this.myLoginFailureHandler = myLoginFailureHandler;
   }
 
     @Bean
@@ -40,7 +43,7 @@ public class WebSecurityConfig {
                 .passwordParameter("emp_pw")
                 .permitAll()  // 로그인 접근 혀용
                 .successHandler(new MyLoginSuccessHandler())
-                .failureHandler(new MyLoginFailureHandler())
+                .failureHandler(myLoginFailureHandler)
             )
             // 로그아웃 설정
             .logout(logout -> logout

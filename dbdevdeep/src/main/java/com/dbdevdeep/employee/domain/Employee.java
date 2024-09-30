@@ -101,7 +101,7 @@ public class Employee {
 	private String loginYn;
 
 	@Column(name = "account_status")
-	private String accountStatus;
+	private int accountStatus;
 
 	@Column(name = "chat_status_msg")
 	private String chatStatusMsg;

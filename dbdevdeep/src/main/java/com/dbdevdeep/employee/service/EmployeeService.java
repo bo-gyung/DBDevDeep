@@ -83,7 +83,7 @@ public class EmployeeService {
 		try {
 			dto.setEmp_pw(passwordEncoder.encode(dto.getEmp_pw()));
 
-			dto.setAccount_status("Y");
+			dto.setAccount_status(0);
 			dto.setLogin_yn("N");
 			dto.setEnt_status("Y");
 			dto.setVacation_hour(120);

@@ -2,6 +2,9 @@ package com.dbdevdeep.document.controller;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,13 +33,21 @@ public class FileViewController {
     @GetMapping("/folderList")
     @ResponseBody
     public List<FolderDto> getFolderList(@RequestParam("folder_no") Long folderNo) {
-        return folderService.getChildFolders(folderNo);
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    User user = (User) authentication.getPrincipal();
+	    String empId = user.getUsername();
+    	
+        return folderService.getChildFolders(folderNo, empId);
     }
 
     @GetMapping("/fileList")
     @ResponseBody
     public List<FileDto> getFileList(@RequestParam("folder_no") Long folderNo) {
-        return folderService.getFilesInFolder(folderNo);
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    User user = (User) authentication.getPrincipal();
+	    String empId = user.getUsername();
+    	
+        return folderService.getFilesInFolder(folderNo, empId);
     }
 	
 }
