@@ -25,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -781,5 +782,28 @@ public class FileService {
 	            .collect(Collectors.toList());
 	}
 	
+	public ResponseEntity<Object> approDownload(Long approNo){
+		try {
+			Approve approve = approveRepository.findByApproNo(approNo);
+			ApproFile f = approFileRepository.findByApprove(approve);
+			
+			String newFile = f.getNewFile();
+			String oriFile = URLEncoder.encode(f.getOriFile(),"UTF-8");
+			String downDir = fileDir + "approve\\" + newFile;
+			
+			Path filePath = Paths.get(downDir);
+			Resource resource = new InputStreamResource(Files.newInputStream(filePath));
+			
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentDisposition(ContentDisposition.builder("attachment").filename(oriFile).build());
+			headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			
+			return new ResponseEntity<Object>(resource, headers, HttpStatus.OK);
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<Object>(null,HttpStatus.CONFLICT);
+		}
+	}
+	
 }
-

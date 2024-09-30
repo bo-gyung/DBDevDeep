@@ -189,7 +189,9 @@
                                             <tr>
                                                 <td>첨부파일</td>
                                                 <td colspan="3">
-                                                	<input type="file" name="file_name"></td>
+                                                	<input type="hidden" name="file_name" th:value="${fDto != null ? fDto.ori_file : ''}">
+                                                	<a th:if="${fDto != null}" th:text="${fDto.ori_file}" th:href="@{/approDownload/{no}(no=${aDto.appro_no})}" style="text-decoration:underline;"></a>
+    												<span th:if="${fDto == null}"></span>
                                             </tr>
                                         </tbody>
                                     </table>
