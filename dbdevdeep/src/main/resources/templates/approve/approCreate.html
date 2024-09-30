@@ -4,18 +4,6 @@
      layout:decorate="~{include/approve_layout}">
      
 <head>
-	<meta charset="UTF-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<!-- CSRF Token -->
-	<meta name="_csrf" th:content="${_csrf.token}" />
-	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
-	<!-- Favicon icon -->
-	<link rel="icon" type="image/png" sizes="16x16" th:href="@{/assets/images/MulMang_logo.png}">
-	<title>물망초등학교</title>
-	<!-- Custom CSS -->
-	<link th:href="@{/dist/css/style.min.css}" rel="stylesheet">
-	
     <!-- jQuery는 최상단에서 한 번만 로드 -->
 	<!-- jQuery 3.5.1 버전 로드 -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -23,12 +11,6 @@
 	<!-- jsTree는 jQuery 이후에 로드 -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
-
-	<!-- Bootstrap 및 다른 라이브러리 -->
-	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> 
-
-
 <script>
     var $j = jQuery.noConflict();
 

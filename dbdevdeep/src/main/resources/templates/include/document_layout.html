@@ -16,6 +16,7 @@
     <link href="/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
     <link href="/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
     <!-- Custom CSS -->
+    <link href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
     <link href="/dist/css/style.min.css" rel="stylesheet">
     
     <!-- jstree -->
@@ -28,11 +29,22 @@
 	<th:block th:replace="~{include/document_tree_nav :: documentTreeNavLayout}"></th:block>
 	<th:block layout:fragment="content"></th:block>
 	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+		    // 모든 nav-link 요소들을 선택합니다.
+		    const navItems = document.querySelectorAll('.nav-item');
+	
+		    // 다섯 번째 nav-link에 active 클래스를 추가합니다 (인덱스는 0부터 시작하므로 4가 다섯 번째).
+		    if (navItems[6]) { // 다섯 번째 요소가 존재하는지 확인
+		    	navItems[6].classList.add('active');
+		    }
+		});
+	</script>
 	
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<!-- Bootstrap tether Core JavaScript -->
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
-	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
 	<!-- apps -->
 	<script src="/dist/js/app-style-switcher.js"></script>

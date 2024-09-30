@@ -22,7 +22,7 @@
                 aria-expanded="false"><span class="hide-menu">범주관리</span></a>
             </li>
 
-			<li class="sidebar-item"> <a class="sidebar-link" th:href="@{/holiday}"
+			<li class="sidebar-item" sec:authorize="hasAnyAuthority('D3')"> <a class="sidebar-link" th:href="@{/holiday}"
                 aria-expanded="false"><span class="hide-menu">휴일관리</span></a>
             </li>
             
