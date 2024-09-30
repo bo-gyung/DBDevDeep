@@ -49,7 +49,6 @@ public class RestHolidayService {
                     holidays.add(LocalDate.parse(holiday.getLocdate(), formatter));
                 }
             } else {
-                System.out.println("Response body or body items is null");
             }
         } else {
             System.out.println("API call failed with status code: " + response.getStatusCode());

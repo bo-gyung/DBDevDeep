@@ -1729,6 +1729,9 @@ $(document).ready(function() {
             },
                 { "data": "check_in_time", 
                 "render" : function(data, type, row){
+					if (data === null || data === undefined) {
+			            return "";  // 데이터가 null 또는 undefined인 경우 빈 문자열 반환
+			        }
                     let date = new Date(data);
                     let hours = String(date.getHours()).padStart(2, '0');
                     let minutes = String(date.getMinutes()).padStart(2, '0');

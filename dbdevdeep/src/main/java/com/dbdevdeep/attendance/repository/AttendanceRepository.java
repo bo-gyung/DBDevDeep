@@ -31,6 +31,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>{
 	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee")
 	List<Attendance> findByEmpIdList(@Param("employee") Employee employee);
 	
-	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee AND a.startDate = :startDate")
-	Attendance findByEmpIdANDLd(@Param("employee") Employee employee, @Param("startDate") LocalDate startDate); 
+	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee AND a.attendDate = :attendDate")
+	Attendance findByEmpAndDate(@Param("employee") Employee employee , @Param("attendDate") LocalDate attendDate);
 }
