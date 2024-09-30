@@ -1,5 +1,6 @@
 package com.dbdevdeep.place.service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -107,7 +108,7 @@ public class PlaceScheduleService {
 		    if (pis.getPlace().getPlaceNo() == 0) {
 		        // item이 null일 수 있기 때문에 이를 고려하여 처리
 		        itemNo = (pis.getItem() != null) ? pis.getItem().getItemNo() : null;
-		        itemName = (pis.getItem() != null) ? pis.getItem().getItemName() : "N/A";  // 기본값으로 "N/A" 설정
+		        itemName = (pis.getItem() != null) ? pis.getItem().getItemName() : "전체";  // 
 		        itemQuantity = (pis.getItem() != null) ? pis.getItem().getItemQuantity() : 0;  // 기본값으로 0 설정
 		    } else {
 		        // place_no가 0이 아닌 경우 기존 로직 그대로 사용
@@ -158,32 +159,67 @@ public class PlaceScheduleService {
 
 	
 	// 일정 겹침 여부 확인하는 메소드
-	public boolean isScheduleOverlapping(Long placeNo, String newStartDate, String newStartTime,
-			String newEndDate, String newEndTime) {
-		
-		// place_no가 0인 경우 겹침 검사를 하지 않고 바로 false 반환
-	    if (placeNo == 0) {
-	        return false; // 운동장은 겹침 검사 없이 항상 사용 가능
-	    }
-		
-		List<PlaceItemScheduleVo> existingSchedules = placeScheduleVoMapper.getTotalScheduleList();
-		
-		// 일정 겹침 검사
-		for(PlaceItemScheduleVo schedule : existingSchedules) {
-			if(schedule.getPlace_no().equals(placeNo)) {
-				String existingStartDateTime = schedule.getStart_date() + " " + schedule.getStart_time();
-                String existingEndDateTime = schedule.getEnd_date() + " " + schedule.getEnd_time();
-                String newStartDateTime = newStartDate + " " + newStartTime;
-                String newEndDateTime = newEndDate + " " + newEndTime;
-                
-                // 기존 일정과 새 일정의 겹침 여부를 검사
-                if (!(newEndDateTime.compareTo(existingStartDateTime) <= 0 || newStartDateTime.compareTo(existingEndDateTime) >= 0)) {
-                    return true; // 겹침이 발생할 경우 true 반환
-                }
-			}
+	  public boolean isScheduleOverlapping(Long placeNo, List<Long> itemNoList, String newStartDate, String newStartTime, String newEndDate, String newEndTime) {
+		    // 날짜 및 시간 포맷터
+		    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+		    // 새로 등록할 일정의 시작 및 종료 시간
+		    LocalDateTime newStartDateTime = LocalDateTime.parse(newStartDate + " " + newStartTime, dateTimeFormatter);
+		    LocalDateTime newEndDateTime = LocalDateTime.parse(newEndDate + " " + newEndTime, dateTimeFormatter);
+
+		    // 기존 일정 조회
+		    List<PlaceItemScheduleVo> existingSchedules = placeScheduleVoMapper.getTotalScheduleList();
+
+		    for (PlaceItemScheduleVo schedule : existingSchedules) {
+		        // 예외 처리: place_no = 0이고 item_no가 null인 경우, 일정이 겹쳐도 등록 가능
+		        if (placeNo == 0 && (itemNoList == null || itemNoList.isEmpty())) {
+		            continue; // 이 경우 겹침 검사를 하지 않고 다음 일정으로 넘어갑니다.
+		        }
+
+		        // 1. 같은 장소일 경우에만 검사 진행
+		        if (schedule.getPlace_no().equals(placeNo)) {
+		            // 2. 같은 장소에 같은 기자재를 사용할 경우 검사 진행
+		            boolean hasSameItem = false;
+
+		            // itemNoList가 비어있지 않으면 기자재 검사 진행
+		            if (itemNoList != null && !itemNoList.isEmpty()) {
+		                for (Long itemNo : itemNoList) {
+		                    if (schedule.getItem_no() != null && schedule.getItem_no().equals(itemNo)) {
+		                        hasSameItem = true;
+		                        break;
+		                    }
+		                }
+		            }
+
+		            // 1단계: 장소만 겹침 여부 확인
+		            if (!hasSameItem) {
+		                // 같은 장소일 경우 시간 겹침 여부 검사
+		                LocalDateTime existingStartDateTime = LocalDateTime.parse(schedule.getStart_date() + " " + schedule.getStart_time(), dateTimeFormatter);
+		                LocalDateTime existingEndDateTime = LocalDateTime.parse(schedule.getEnd_date() + " " + schedule.getEnd_time(), dateTimeFormatter);
+
+		                // 시간대 겹침 검사
+		                if (newStartDateTime.isBefore(existingEndDateTime) && newEndDateTime.isAfter(existingStartDateTime)) {
+		                    // 같은 장소에서 시간대가 겹침
+		                    return true;
+		                }
+		            }
+
+		            // 2단계: 장소와 기자재 모두 겹침 여부 확인
+		            if (hasSameItem) {
+		                // 같은 장소와 같은 기자재가 사용되는 경우 시간 겹침 여부 검사
+		                LocalDateTime existingStartDateTime = LocalDateTime.parse(schedule.getStart_date() + " " + schedule.getStart_time(), dateTimeFormatter);
+		                LocalDateTime existingEndDateTime = LocalDateTime.parse(schedule.getEnd_date() + " " + schedule.getEnd_time(), dateTimeFormatter);
+
+		                // 시간대 겹침 검사
+		                if (newStartDateTime.isBefore(existingEndDateTime) && newEndDateTime.isAfter(existingStartDateTime)) {
+		                    // 같은 장소에서 같은 기자재를 같은 시간대에 사용하려고 할 때
+		                    return true;
+		                }
+		            }
+		        }
+		    }
+		    return false; // 모든 조건을 충족하지 않으면 겹침이 없는 것으로 간주
 		}
-		return false;
-	}
 	
 	
 	
@@ -191,84 +227,84 @@ public class PlaceScheduleService {
 
 	
 	// 일정 등록 메소드
-	public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
-	    try {
-	        // Place 조회 및 유효성 검사
-	        Place place = placeRepository.findByplaceNo(vo.getPlace_no());
-	        if (place == null && vo.getPlace_no() != 0) {
-	            throw new IllegalArgumentException("해당 장소를 찾을 수 없습니다: " + vo.getPlace_no());
-	        }
+	  public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
+		    try {
+		        // 겹침 검사
+		        if (isScheduleOverlapping(vo.getPlace_no(), vo.getItemNoList(), vo.getStart_date().toString(), vo.getStart_time().toString(), vo.getEnd_date().toString(), vo.getEnd_time().toString())) {
+		            // 겹침이 발생한 경우 null 반환
+		            return null;
+		        }
+		        
+		        // Place 조회 및 유효성 검사
+		        Place place = placeRepository.findByplaceNo(vo.getPlace_no());
+		        if (place == null && vo.getPlace_no() != 0) {
+		            throw new IllegalArgumentException("해당 장소를 찾을 수 없습니다: " + vo.getPlace_no());
+		        }
 
-	        // Employee 조회 및 유효성 검사
-	        Employee employee = employeeRepository.findByempId(vo.getEmp_id());
-	        if (employee == null) {
-	            throw new IllegalArgumentException("해당 신청인을 찾을 수 없습니다: " + vo.getEmp_id());
-	        }
+		        // Employee 조회 및 유효성 검사
+		        Employee employee = employeeRepository.findByempId(vo.getEmp_id());
+		        if (employee == null) {
+		            throw new IllegalArgumentException("해당 신청인을 찾을 수 없습니다: " + vo.getEmp_id());
+		        }
 
-	        // TeacherHistory 조회 및 유효성 검사
-	        TeacherHistory teacherHistory = teacherHistoryRepository.findByteacherNo(vo.getTeacher_no());
-	        if (teacherHistory == null) {
-	            throw new IllegalArgumentException("해당 교사를 찾을 수 없습니다: " + vo.getTeacher_no());
-	        }
+		        // TeacherHistory 조회 및 유효성 검사
+		        TeacherHistory teacherHistory = teacherHistoryRepository.findByteacherNo(vo.getTeacher_no());
+		        if (teacherHistory == null) {
+		            throw new IllegalArgumentException("해당 교사를 찾을 수 없습니다: " + vo.getTeacher_no());
+		        }
 
-	        // 문자열 빌더를 사용해 아이템 번호와 관리 번호를 결합
-	        StringBuilder serialNoBuilder = new StringBuilder();
+		        // 아이템 목록 처리 및 관리번호 생성
+		        StringBuilder serialNoBuilder = new StringBuilder();
+		        Item item = null;
 
-	        // 선언 위치를 for 루프 바깥으로 이동합니다.
-	        Item item = null;
+		        if (vo.getPlace_no() == 0) {
+		            serialNoBuilder.append("공용");
+		        } else {
+		            if (vo.getItemNoList() != null && !vo.getItemNoList().isEmpty()) {
+		                for (Long itemNo : vo.getItemNoList()) {
+		                    item = itemRepository.findByitemNo(itemNo);
+		                    if (item == null) {
+		                        throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
+		                    }
+		                    if (serialNoBuilder.length() > 0) {
+		                        serialNoBuilder.append(",");
+		                    }
+		                    serialNoBuilder.append(item.getItemSerialNo());
+		                }
+		            } else {
+		                throw new IllegalArgumentException("place_no가 0이 아닐 경우에는 적어도 하나의 item_no를 선택해야 합니다.");
+		            }
+		        }
 
-	        // place_no가 0인 경우에는 itemNoList가 비어 있어도 등록 가능
-	        if (vo.getPlace_no() == 0) {
-	            // 이 경우에는 itemNoList를 무시하고 바로 진행
-	            serialNoBuilder.append("공용");
-	        } else {
-	            // place_no가 0이 아닌 경우에만 itemNoList 처리
-	            if (vo.getItemNoList() != null && !vo.getItemNoList().isEmpty()) {
-	                for (Long itemNo : vo.getItemNoList()) {
-	                    item = itemRepository.findByitemNo(itemNo);
-	                    if (item == null) {
-	                        throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
-	                    }
+		        String managementNo = vo.getPlace_no() + "-" + serialNoBuilder.toString();
 
-	                    // 아이템 일련번호를 ','로 결합하여 management_no 생성에 사용
-	                    if (serialNoBuilder.length() > 0) {
-	                        serialNoBuilder.append(",");
-	                    }
-	                    serialNoBuilder.append(item.getItemSerialNo());
-	                }
-	            } else {
-	                // place_no가 0이 아닌데 itemNoList가 비어 있는 경우 예외 처리
-	                throw new IllegalArgumentException("place_no가 0이 아닐 경우에는 적어도 하나의 item_no를 선택해야 합니다.");
-	            }
-	        }
+		        // 일정 생성 및 저장
+		        PlaceItemSchedule placeItemSchedule = PlaceItemSchedule.builder()
+		                .employee(employee)
+		                .place(place)
+		                .item(item)
+		                .teacherHistory(teacherHistory)
+		                .placeScheduleTitle(vo.getPlace_schedule_title())
+		                .placeScheduleContent(vo.getPlace_schedule_content())
+		                .startDate(vo.getStart_date())
+		                .endDate(vo.getEnd_date())
+		                .startTime(vo.getStart_time())
+		                .endTime(vo.getEnd_time())
+		                .managementNo(managementNo)
+		                .regDate(vo.getReg_date())
+		                .modDate(vo.getMod_date())
+		                .build();
 
-	        String managementNo = vo.getPlace_no() + "-" + serialNoBuilder.toString(); // 예: "01-A01,A02,A03" 또는 "0-default"
+		        return placeScheduleRepository.save(placeItemSchedule);
 
-	        // PlaceItemSchedule 객체 생성
-	        PlaceItemSchedule placeItemSchedule = PlaceItemSchedule.builder()
-	                .employee(employee)
-	                .place(place)
-	                .item(item) // 이 부분은 이제 for 루프 밖에서 선언된 item을 사용합니다.
-	                .teacherHistory(teacherHistory)
-	                .placeScheduleTitle(vo.getPlace_schedule_title())
-	                .placeScheduleContent(vo.getPlace_schedule_content())
-	                .startDate(vo.getStart_date())
-	                .endDate(vo.getEnd_date())
-	                .startTime(vo.getStart_time())
-	                .endTime(vo.getEnd_time())
-	                .managementNo(managementNo) // 결합된 관리 번호 저장
-	                .regDate(vo.getReg_date())
-	                .modDate(vo.getMod_date())
-	                .build();
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        return null;
+		    }
+		}
 
-	        // 데이터베이스에 저장
-	        return placeScheduleRepository.save(placeItemSchedule);
+		
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        return null;
-	    }
-	}
 
     
     

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dbdevdeep.place.domain.PlaceItemSchedule;
 import com.dbdevdeep.place.repository.ItemRepository;
 import com.dbdevdeep.place.service.ItemService;
 import com.dbdevdeep.place.service.PlaceScheduleService;
@@ -53,18 +54,22 @@ public class PlaceScheduleApiController {
     @PostMapping("/place_schedule")
 	public Map<String,String> createPlaceSchedule(@ModelAttribute PlaceItemScheduleVo vo){
 		Map<String, String> resultMap = new HashMap<String, String>();
+		 resultMap.put("res_code", "404");
+		    resultMap.put("res_msg", "일정 등록 중 오류가 발생하였습니다.");
 
-	    resultMap.put("res_code", "404");
-	    resultMap.put("res_msg", "일정 등록 중 오류가 발생하였습니다.");
+		    try {
+		        PlaceItemSchedule result = placeScheduleService.createPlaceSchedule(vo);
+		        if (result != null) {
+		            resultMap.put("res_code", "200");
+		            resultMap.put("res_msg", "일정이 성공적으로 등록되었습니다.");
+		        } else {
+		            resultMap.put("res_msg", "일정이 겹쳐서 등록할 수 없습니다."); // 일정이 겹칠 때의 메시지
+		        }
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		        resultMap.put("res_msg", "일정 등록 중 예외가 발생하였습니다.");
+		    }
 
-	    if(placeScheduleService.createPlaceSchedule(vo) != null) {
-			resultMap.put("res_code", "200");
-			resultMap.put("res_msg", "일정이 성공적으로 등록되었습니다.");
-		} else {
-			resultMap.put("res_msg", "일정 등록 중 예외가 발생하였습니다.");
-		}
-
-		return resultMap;
+		    return resultMap;
 	}
-	
 }

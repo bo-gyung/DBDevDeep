@@ -643,7 +643,7 @@ $(document).ready(function () {
         $('#scheduleCreateModal').modal('show');
     });
 
-    // 일정 등록 폼 제출 이벤트 핸들러
+ // 일정 등록 폼 제출 이벤트 핸들러
     $('#scheduleCreateFrm').on('submit', function(e) {
         e.preventDefault();
 
@@ -706,6 +706,7 @@ $(document).ready(function () {
 
         const csrfToken = document.getElementById('csrf_token').value;
 
+        // Ajax 요청
         fetch('/place_schedule', {
             method: 'POST',
             headers: {
@@ -733,19 +734,21 @@ $(document).ready(function () {
                     location.href = "/place_schedule";
                 });
             } else {
+                // 서버에서 전달된 오류 메시지 출력
                 Swal.fire({
                     icon: 'error',
                     title: '실패',
-                    text: data.res_msg,
+                    text: data.res_msg, // 서버에서 전달된 메시지 사용
                     confirmButtonText: "닫기"
                 });
             }
         })
         .catch(error => {
+            // 예외 발생 시 출력
             Swal.fire({
                 icon: 'error',
                 title: '서버 오류',
-                text: '일정 등록 중 오류가 발생했습니다.',
+                text: '일정 등록 중 오류가 발생했습니다.', // 기본 오류 메시지
                 confirmButtonText: "닫기"
             });
         });

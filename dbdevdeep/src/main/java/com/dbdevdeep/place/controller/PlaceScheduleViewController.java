@@ -106,8 +106,9 @@ public class PlaceScheduleViewController {
 		                                    @RequestParam(name= "startDate") String startDate,
 		                                    @RequestParam(name= "startTime") String startTime,
 		                                    @RequestParam(name= "endDate") String endDate,
-		                                    @RequestParam(name= "endTime") String endTime) {
-		    return placeScheduleService.isScheduleOverlapping(placeNo, startDate, startTime, endDate, endTime);
+		                                    @RequestParam(name= "endTime") String endTime,
+		                                    @RequestParam(name = "itemNoList", required = false) List<Long> itemNoList) {
+		    return placeScheduleService.isScheduleOverlapping(placeNo, itemNoList, startDate, startTime, endDate, endTime);
 		}
 	
 	
