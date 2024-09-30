@@ -15,20 +15,34 @@
 
 <th:block layout:fragment="content">
 
+		<!-- ============================================================== -->
+		<!-- End Left Sidebar - style you can find in sidebar.scss  -->
+		<!-- ============================================================== -->
+		<!-- ============================================================== -->
+		<!-- Page wrapper  -->
+		<!-- ============================================================== -->
 		<div class="page-wrapper">
+			<!-- ============================================================== -->
+			<!-- Container fluid  -->
+			<!-- ============================================================== -->
 			<div class="container-fluid">
+				<!-- ============================================================== -->
+				<!-- Start Page Content -->
+				<!-- ============================================================== -->
 				<div class="col-sm-12 col-md-12">
 					<div class="card">
 						<div class="card-body">
-							<h3 class="card-title">결재 상세</h3>
+							<h3 class="card-title">보고서 상세</h3>
 							<hr>
 							
-							
 							<div class="container-fluid">
-                				<div class="container">
-                                	<form id="approReUpFrm">
-                                    	<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-                                    	<h2 class="text-center">휴가 신청서</h2>
+				<!-- ============================================================== -->
+				<!-- Start Page Content -->
+				<!-- ============================================================== -->
+                <div class="container">
+                                <form id="approReUpFrm">
+                                    <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+                                    <h2 class="text-center">보&nbsp;&nbsp;고&nbsp;&nbsp;서</h2>
 										<br>
 										<div style="display: flex; justify-content: flex-end; align-items: flex-start;">
 										
@@ -102,6 +116,11 @@
                                                 <td>성명</td>
                                                 <input type="hidden" id="approNoHidden" name="appro_no" th:value="${aDto.appro_no}">
                                                 <td><input type="text" name="appro_name" th:value="${aDto.appro_name}" readonly style="border: 0; outline: none;"></td>
+                                                <td>직원번호</td>
+                                                <td><input type="text" id="empId" name="emp_id" th:value="${aDto.emp_id}" readonly style="border: 0; outline: none;"></td>
+                                                <input type="hidden" id="principalId" name="principalId" th:value="${#authentication.principal.dto.emp_id}">
+                                            </tr>
+                                            <tr>
                                                 <td>부서</td>
                                                 <td>
                                                     <input type="text" name="dept_name_display" 
@@ -111,11 +130,6 @@
 			                                                    		readonly style="border: 0; outline: none;">
                                                     <input type="hidden" id="deptCode" name="dept_code" th:value="${aDto.dept_code}">
                                                 </td>
-                                            </tr>
-                                            <tr>
-                                                <td>직원번호</td>
-                                                <td><input type="text" id="empId" name="emp_id" th:value="${aDto.emp_id}" readonly style="border: 0; outline: none;"></td>
-                                                <input type="hidden" id="principalId" name="principalId" th:value="${#authentication.principal.dto.emp_id}">
                                                 <td>직급</td>
                                                 <td>
                                                     <input type="text" name="job_name_display" 
@@ -135,37 +149,12 @@
                                                                         aDto.appro_status == 1 ? '승인' : '반려'}" 
                                                             readonly style="border: 0; outline: none;"></td>
                                             </tr>
-                                            <tr>
-                                                <td>종류</td>
-                                                <td>
-                                                    <input type="text" id="vacType" name="vac_type_display" class="form-control" th:value="${vDto.vac_type}" readonly style="border: 0; outline: none;">
-                                                    <input type="hidden" name="vac_type" th:value="${vDto.vac_type}">
-                                                </td>
-                                                <td>일정</td>
-                                                <td>
-                                                    <input type="text" id="start_date" class="form-control" name="start_date" th:value="${vDto.start_time}" readonly style="border: 0; outline: none;">
-                                                    <input type="text" id="end_date" class="form-control" name="end_date" th:value="${vDto.end_time}" readonly style="border: 0; outline: none;">
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>신청사유</td>
-                                                <td colspan="3"><textarea class="form-control" rows="10" style="resize: none; border: 0; outline: none;" name="appro_content" th:text="${aDto.appro_content}" readonly></textarea></td>
-                                            </tr>
-                                            <tr>
-                                                <td>참고사항</td>
-                                                <td colspan="3">*공가 - 예비군 /민방위의 경우 사후에 참석증을 반드시 제출부탁드립니다.<br>
-                                                    *병가 - 연 25회 초과시 무급휴가로 전환 됩니다.<br>
-                                                    *경조사 - 사전/사후에 행사일을 증명할 수 있는 서류 제출부탁드립니다.<br>
-                                                    *명시된 결재자의 순서에 따라 결재라인이 생성됩니다. (대분류는 협의 > 결재 순)
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="4">
-                                                    <div style="text-align: center;"><h4>상기와 같이 휴가를 신청하오니 검토 후 승인하여 주시기 바랍니다.</h4></div>
-                                                    <br><br>
-                                                    <h1 style="text-align: center;">물망초등학교</h1>
-                                                </td>
-                                            </tr>
+											        <input type="hidden" id="appro_content_hidden" th:value="${aDto.appro_content}">
+                                                <tr>
+												    <td colspan="4">
+												        <div id="docuContent"></div> 
+												    </td>
+												</tr>
                                             <tr>
                                                 <td>반려사유</td>
                                                 <td colspan="3">
@@ -197,18 +186,7 @@
 												        </span>
 												    </td>
 												</tr>
-												<tr>
-												    <td>참조자</td>
-												    <td colspan="3">
-												        <span th:if="${rDto != null}">
-												            <th:block th:each="item, iterStat : ${rDto}">
-												                <span th:text="${item.ref_name + ' (' + item.emp_id + ')'}"></span>
-												                <span th:if="${!iterStat.last}"> > </span>
-												            </th:block>
-												        </span>
-												    </td>
-												</tr>
-                                            <tr>  
+                                            <tr>
                                                 <td>첨부파일</td>
                                                 <td colspan="3">
                                                 	<input type="hidden" name="file_name" th:value="${fDto != null ? fDto.ori_file : ''}">
@@ -226,9 +204,9 @@
                                         <div class="text-center mt-3" 
 										     th:if="${aDto.appro_status == 0} and (${aDto.emp_id} == ${#authentication.principal.dto.emp_id})">
 										    <button type="button" class="btn btn-danger delete_board_button"
-										            th:onclick="|approDelete(${aDto.appro_no})|">삭제</button>	
+										            th:onclick="|docuDelete(${aDto.appro_no})|">삭제</button>	
 										    <button type="button" class="btn btn-primary update_board_button"
-										            th:onclick="|location.href='/approUpdate/' + ${aDto.appro_no}|">수정</button>
+										            th:onclick="|location.href='/docuUpdate/' + ${aDto.appro_no}|">수정</button>
 										</div>
 										<div class="text-center mt-3"
 										     th:if="${#lists.contains(lDto.?[appro_line_status == 1].![emp_id], #authentication.principal.dto.emp_id)} or
@@ -294,23 +272,56 @@
 									    </div>
 									</div>
 
-                
+                <!-- ============================================================== -->
+                <!-- End PAge Content -->
+                <!-- ============================================================== -->
+                <!-- ============================================================== -->
+                <!-- Right sidebar -->
+                <!-- ============================================================== -->
+                <!-- .right-sidebar -->
+                <!-- ============================================================== -->
+                <!-- End Right sidebar -->
+                <!-- ============================================================== -->
 				            </div>
 						</div>
 					</div>
 				</div>
 			</div>
-			
+			<!-- ============================================================== -->
+			<!-- End PAge Content -->
+			<!-- ============================================================== -->
+			<!-- ============================================================== -->
+			<!-- Right sidebar -->
+			<!-- ============================================================== -->
+			<!-- .right-sidebar -->
+			<!-- ============================================================== -->
+			<!-- End Right sidebar -->
+			<!-- ============================================================== -->
 		</div>
-		
+		<!-- ============================================================== -->
+		<!-- End Container fluid  -->
+		<!-- ============================================================== -->
+		<!-- ============================================================== -->
+		<!-- footer -->
+		<!-- ============================================================== -->
 		<footer class="footer text-center text-muted">
 			All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
 		</footer>
-		
+		<!-- ============================================================== -->
+		<!-- End footer -->
+		<!-- ============================================================== -->
 	</div>
-	
+	<!-- ============================================================== -->
+	<!-- End Page wrapper  -->
+	<!-- ============================================================== -->
 	</div>
-	
+	<!-- ============================================================== -->
+	<!-- End Wrapper -->
+	<!-- ============================================================== -->
+	<!-- End Wrapper -->
+	<!-- ============================================================== -->
+	<!-- All Jquery -->
+	<!-- ============================================================== -->
 	
 	
 	<script th:src="@{/assets/libs/jquery/dist/jquery.min.js}"></script>
@@ -333,6 +344,13 @@
 	<script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
     <script>
+    window.onload = function() {
+        // hidden input의 값을 가져오기
+        var approContent = document.getElementById('appro_content_hidden').value;
+        
+        // 가져온 값을 div에 삽입
+        document.getElementById('docuContent').innerHTML = approContent;
+    };
     // 승인시 문서 처리
     document.getElementById('confirmApprove').addEventListener('click',function(){
         const approNo =  document.getElementById('approNoHidden').value;
@@ -386,31 +404,28 @@
     
 	// 반려사유 입력 모달
 	document.getElementById('confirmBack').addEventListener('click', function () {
-        const reason = document.getElementById('backReasonInput').value;
+        const reasonBack = document.getElementById('backReasonInput').value;
         const empId =  document.getElementById('empId').value;
         const principalId = document.getElementById('principalId').value;
         const deptCode = document.getElementById('deptCode').value;
         const jobCode = document.getElementById('jobCode').value;
         const approNo =  document.getElementById('approNoHidden').value;
-        const vacType = document.getElementById('vacType').value;
-        const startDate = document.getElementById('start_date').value;
-        const endDate = document.getElementById('end_date').value;
 
-        if (reason.trim() === "") {
+        if (reasonBack.trim() === "") {
             alert("반려 사유를 입력해주세요.");
             return;
         }
 
         const csrfToken = document.getElementById("csrf_token").value; 
 
-        fetch('/backApprove', {
+        fetch('/backDocu', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': csrfToken 
             },
-            body: JSON.stringify({ approNo: approNo, empId:empId ,reasonBack: reason , vacType : vacType ,
-            	startDate : startDate , endDate : endDate , principalId : principalId , deptCode : deptCode , jobCode : jobCode}) // 서버로 보낼 데이터
+            body: JSON.stringify({ approNo: approNo, empId:empId ,reasonBack: reasonBack ,
+            	principalId : principalId , deptCode : deptCode , jobCode : jobCode}) // 서버로 보낼 데이터
         })
         .then(response => response.json())
         .then(data => {
@@ -439,7 +454,7 @@
 	
     
     // 문서 삭제 
-    const approDelete = function(approNo) {
+    const docuDelete = function(approNo) {
     // 삭제 여부를 Swal로 물어봄
     Swal.fire({
         title: '정말 삭제하시겠습니까?',
@@ -453,7 +468,7 @@
         if (result.isConfirmed) {
             const csrfToken = document.getElementById("csrf_token").value; // CSRF 토큰 가져오기
 
-            fetch('/appro/' + approNo, {
+            fetch('/docuAppro/' + approNo, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': csrfToken // CSRF 토큰을 헤더에 추가
@@ -461,14 +476,14 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.res_code === '200') {
+                if (data.res_code == '200') {
                     // 삭제 성공 시 Swal로 성공 메시지 띄움
                     Swal.fire({
                         icon: 'success',
                         title: '삭제 완료',
                         text: data.res_msg
-                    }).then(() => {
-                        location.href = "/approve"; // 삭제 후 리디렉션
+                    }).then((result) => {
+                        location.href = "/approveDocu"; // 삭제 후 리디렉션
                     });
                 } else {
                     // 삭제 실패 시 Swal로 오류 메시지 띄움
@@ -479,8 +494,8 @@
                         confirmButtonText: '닫기'
                     });
                 }
-            })
-            .catch(error => {
+            }).catch(error => {
+                console.error('Error during fetch:', error); // 오류 로그 추가
                 Swal.fire({
                     icon: 'error',
                     title: '오류',

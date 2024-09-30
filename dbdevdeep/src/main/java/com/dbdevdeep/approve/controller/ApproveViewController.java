@@ -129,7 +129,51 @@ public class ApproveViewController {
 		model.addAllAttributes(detailMap);
 		return "approve/docuDetail";
 	}
-	
+		
+	// 요청 받은 보고서 상세
+		@GetMapping("/comeDocuDetail/{appro_no}")
+		public String comeDocuDetail(Model model, @PathVariable("appro_no") Long approNo) {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String username = authentication.getName();
+			
+			Map<String, Object> detailMap = approveService.getDocuDetail(approNo);
+			
+			try {
+				ApproveLineDto backReason = approveLineService.approBackReason(approNo);
+				detailMap.put("backReason",backReason);
+			}catch (NoSuchElementException e) {
+				detailMap.put("backReason", null);
+			}
+			
+			List<MySignDto> signDto = approveService.signList(username);
+			
+			model.addAttribute("sDto", signDto);
+			model.addAllAttributes(detailMap);
+			return "approve/comeDocuDetail";
+		}
+
+		// 완료된 보고서 상세
+				@GetMapping("/comepleteDocuDetail/{appro_no}")
+				public String comepleteDocuDetail(Model model, @PathVariable("appro_no") Long approNo) {
+					Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+					String username = authentication.getName();
+					
+					Map<String, Object> detailMap = approveService.getDocuDetail(approNo);
+					
+					try {
+						ApproveLineDto backReason = approveLineService.approBackReason(approNo);
+						detailMap.put("backReason",backReason);
+					}catch (NoSuchElementException e) {
+						detailMap.put("backReason", null);
+					}
+					
+					List<MySignDto> signDto = approveService.signList(username);
+					
+					model.addAttribute("sDto", signDto);
+					model.addAllAttributes(detailMap);
+					return "approve/comepleteDocuDetail";
+				}
+		
 	// 결재 상세
 	@GetMapping("/approDetail/{appro_no}")
 	public String selectBoardOne(Model model, @PathVariable("appro_no") Long approNo) {
@@ -155,6 +199,32 @@ public class ApproveViewController {
 		model.addAllAttributes(detailMap);
 		return "approve/approDetail";
 	}
+	
+	// 받은 결재 상세
+		@GetMapping("/comeApproDetail/{appro_no}")
+		public String comeBoardOne(Model model, @PathVariable("appro_no") Long approNo) {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String username = authentication.getName();
+			
+			// 결재 정보 상세
+			Map<String, Object> detailMap = approveService.getApproveDetail(approNo);
+			
+			// 반려 사유 정보 가져오기
+			try {
+		        ApproveLineDto backReason = approveLineService.approBackReason(approNo);
+		        detailMap.put("backReason", backReason); // 반려 사유를 Map에 추가
+		    } catch (NoSuchElementException e) {
+		        // 반려 정보가 없는 경우 null 추가
+		        detailMap.put("backReason", null);
+		    }
+			
+			// 사인정보 가져오기 
+			List<MySignDto> signDto = approveService.signList(username);
+			
+			model.addAttribute("sDto", signDto);
+			model.addAllAttributes(detailMap);
+			return "approve/comeApproDetail";
+		}
 	
 	// 참조 상세
 		@GetMapping("/refDetail/{appro_no}")
