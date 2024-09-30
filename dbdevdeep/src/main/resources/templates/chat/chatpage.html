@@ -104,9 +104,9 @@
 				                                                 	<th:block th:if="${chat.new_pic_name != null}">
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" alt="Attached photo" 
-						                                                 			style="max-width: 30vw; height: auto;" 
+						                                                 			style="max-width: 12.5vw; height: auto;" 
 						                                                 			onload="scrollToBottom()"
-							                                                        onerror="this.onerror=null; this.src='/assets/images/MulMang_logo.png';">
+							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';">
 					                                                 	</div>
 				                                                 	</th:block>
 				                                                 	<!-- 사진파일이 존재하지 않는다면 -->
@@ -137,19 +137,15 @@
 					                                                    <h6 class="font-weight-medium" th:text="${chat.writer_name}"></h6>
 				                                                    	<!-- 사진파일이 존재한다면 -->
 					                                                 	<th:block th:if="${chat.new_pic_name != null}">
-						                                                 	<div class="chat-content text-right d-inline-block pl-3">
-							                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" alt="Attached photo" 
-							                                                 			style="max-width: 30vw; height: auto;" 
-							                                                 			onload="scrollToBottom()" 
-								                                                        onerror="this.onerror=null; this.src='/assets/images/MulMang_logo.png';">
-			                                                 				</div>
+						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" alt="Attached photo" 
+						                                                 			style="max-width: 12.5vw; height: auto;" 
+						                                                 			onload="scrollToBottom()" 
+							                                                        onerror="this.onerror=null; this.src='/assets/images/noimage.png';">
 					                                                 	</th:block>
 					                                                 	<!-- 사진파일이 존재하지 않는다면 -->
 					                                                 	<th:block th:if="${chat.new_pic_name == null || chat.new_pic_name.isEmpty()}">
-						                                                 	<div class="chat-content text-right d-inline-block pl-3">
-							                                                    <div class="box msg p-2 d-inline-block mb-1" 
-							                                                    th:text="${chat.content}"></div>
-							                                                </div>
+						                                                    <div class="box msg p-2 d-inline-block mb-1" 
+						                                                    th:text="${chat.content}"></div>
 					                                                 	</th:block>
 					                                                </div>
 					                                                <!-- 작성시간 -->
