@@ -169,8 +169,6 @@ public class ChatApiController {
 		if(result>0) {
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "채팅메세지 등록에 성공하였습니다.");
-			// 웹소켓 호출하기
-			// 메세지가 새로 등록된 채팅방번호에 속한 참여자가 
 		}
 		
 		return resultMap;

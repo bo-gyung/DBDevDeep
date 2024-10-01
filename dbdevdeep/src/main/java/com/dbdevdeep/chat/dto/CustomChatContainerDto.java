@@ -24,6 +24,7 @@ public class CustomChatContainerDto {
 	private String ori_pic_name;
 	private String new_pic_name;
 	private LocalDateTime timestamp;
+	private int chat_read_check;
 	
 	// private int readcheck;
 

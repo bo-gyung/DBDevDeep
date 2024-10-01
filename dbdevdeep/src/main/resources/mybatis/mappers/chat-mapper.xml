@@ -223,6 +223,93 @@
 	    WHERE room_no = #{room_no} 
 	</update>
 	
+	<!-- 메인페이지 헤더에 표시될 채팅 읽음 확인 개수 조회 -->
+	<select id="countChatReadCheckByEmpId" parameterType="string" resultType="int">
+		WITH RecentChatRooms AS (
+		    SELECT 
+		        cr.room_no
+		    FROM chat_room cr
+		    WHERE cr.room_no IN (
+		        SELECT subquery.room_no
+		        FROM (
+		            SELECT 
+		                room_no, 
+		                member_status,
+		                ROW_NUMBER() OVER (PARTITION BY room_no ORDER BY change_time DESC) as rn
+		            FROM chat_member_status_history
+		            WHERE member_id = #{emp_id}  -- 사용자 ID
+		        ) subquery
+		        WHERE rn = 1
+		        AND member_status IN (1, 3)   -- 참여 중인 상태 (1, 3)
+		    )
+		    AND cr.room_no IN (
+		        SELECT room_no
+		        FROM chat_member_info
+		        WHERE member_id = #{emp_id}  -- 사용자가 참여 중인 방만 포함
+		    )
+		), ChatMessages AS (
+		    SELECT 
+		        msg_no, room_no, chat_content, reg_time
+		    FROM chat_msg
+		    WHERE room_no IN (SELECT room_no FROM RecentChatRooms)
+		)
+		SELECT COUNT(cm.msg_no) AS unread_message_count
+		FROM chat_msg cm
+		LEFT JOIN chat_read_check crc
+		ON cm.msg_no = crc.msg_no
+		WHERE crc.read_id IS NULL
+		AND cm.room_no IN (SELECT room_no FROM RecentChatRooms);
+	</select>
+	
+	<!-- 참여중인 채팅방 리스트에 표시될 채팅 읽음 확인 조회 -->
+	<select id="countChatReadCheckByEmpIdAndRoomNo" parameterType="map" resultType="int">
+		SELECT COUNT(cm.msg_no) AS unread_message_count
+		FROM chat_msg cm
+		LEFT JOIN chat_read_check crc
+		ON cm.msg_no = crc.msg_no 
+	    	AND crc.read_id = #{emp_id}
+		WHERE cm.room_no = #{room_no}
+			AND crc.read_id IS NULL;
+	</select>
+	
+	<!-- 참여중인 채팅방에서 사용자가 읽지 않은 메세지 조회 -->
+	<select id="selectUnreadCheck" parameterType="map" resultType="com.dbdevdeep.chat.vo.ChatMsgVo">
+		SELECT cm.msg_no
+        FROM chat_msg cm
+        LEFT JOIN chat_read_check crc
+        ON cm.msg_no = crc.msg_no 
+        	AND crc.read_id = #{emp_id}
+        WHERE cm.room_no = #{room_no}
+        	AND crc.read_id IS NULL;
+	</select>
+	
+	<!-- 읽음처리 -->
+	<insert id="createChatReadCheck" parameterType="map">
+		INSERT INTO chat_read_check (msg_no, read_id)
+		VALUES (#{msg_no}, #{read_id})
+	</insert>
+	
+	<!-- 메세지의 읽음확인 개수 출력 -->
+	<select id="countChatReadCheckByMsgNo" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM chat_read_check
+        WHERE msg_no = #{msg_no}
+	</select>
+	
+	<!-- 채팅방에 참여중인 전체 인원수(정원) 구하기 -->
+	<select id="headCountByRoomNo" parameterType="int" resultType="int">
+		SELECT COUNT(*)
+		FROM (
+		   SELECT 
+		       room_no,
+		       member_status,
+		       ROW_NUMBER() OVER (PARTITION BY member_id ORDER BY change_time DESC) as rn
+		   FROM chat_member_status_history
+		   WHERE room_no = #{room_no} 
+		) subquery
+		WHERE rn = 1
+		AND member_status IN (1, 3) 
+	</select>
 </mapper>
 
 

@@ -58,4 +58,23 @@ public interface ChatMapper {
 	
 	// 채팅방 정보 변경(last_chat, last_time)
 	int updateChatRoom(ChatMsgVo vo);
+	
+	// 메인페이지 헤더에 표시될 채팅 읽음 확인 개수 조회
+	int countChatReadCheckByEmpId(@Param("emp_id") String emp_id);
+	
+	// 참여중인 채팅방 리스트에 표시될 채팅 읽음 확인 개수 조회
+	int countChatReadCheckByEmpIdAndRoomNo(Map<String, Object> params);
+	
+	// 참여중인 채팅방에서 사용자가 읽지 않은 메세지 조회
+	List<ChatMsgVo> selectUnreadCheck(@Param("room_no") int room_no, @Param("emp_id") String emp_id);
+	
+	// 읽음처리
+	int createChatReadCheck(@Param("msg_no") int msg_no, @Param("read_id") String read_id);
+	
+	// 메세지의 읽음확인 개수 출력
+	int countChatReadCheckByMsgNo(@Param("msg_no") int msg_no);
+	
+	// 채팅방에 참여중인 전체 인원수(정원) 구하기
+	int headCountByRoomNo(@Param("room_no") int room_no);
+	
 }
