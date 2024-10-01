@@ -2,6 +2,7 @@ package com.dbdevdeep.place.service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,6 +256,11 @@ public class PlaceScheduleService {
 	// 일정 등록 메소드
 	  public PlaceItemSchedule createPlaceSchedule(PlaceItemScheduleVo vo) {
 		    try {
+		    	
+		    	// 시작 시 itemNoList 초기화
+		        List<Long> itemNoList = new ArrayList<>();
+		       
+		    	
 		        // 겹침 검사
 		        if (isScheduleOverlapping(vo.getPlace_no(), vo.getItemNoList(), vo.getStart_date().toString(), vo.getStart_time().toString(), vo.getEnd_date().toString(), vo.getEnd_time().toString())) {
 		            return null; // 겹침이 발생한 경우 null 반환

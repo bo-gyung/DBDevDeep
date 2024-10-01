@@ -448,15 +448,27 @@ $(document).ready(function () {
         // 생성된 체크박스를 'item-checkboxes' 영역에 삽입
         $('#item-checkboxes').html(checkboxesHtml);
 
-     	// 전체 선택 기능 연결
-       $('#select-all').on('click', function() {
-	    // 전체 선택 체크박스의 실제 체크 상태를 무시하고 개별 체크박스만 모두 선택
-	    $('.item-checkbox').prop('checked', true);
-	    $('#deselect-all').prop('checked', false); // 전체 해제 체크박스 해제
-	
-	    // 전체 선택 체크박스의 체크 상태를 변경하지 않음 (항상 unchecked 상태로 유지)
-	    $(this).prop('checked', false);
-	});
+     // 전체 선택 기능 연결
+        $('#select-all').on('click', function() {
+            // 전체 선택 체크박스의 실제 체크 상태를 무시하고 개별 체크박스만 모두 선택
+            $('.item-checkbox').prop('checked', true);
+            
+            // 전체 선택 시 `selectedItems` 배열을 초기화하고 모든 체크박스의 값을 추가
+            selectedItems = [];
+            $('.item-checkbox').each(function() {
+                const itemValue = $(this).val();
+                if (itemValue !== undefined && itemValue !== '') {
+                    selectedItems.push(itemValue);
+                }
+            });
+
+            console.log('Selected items after select-all:', selectedItems); // 디버깅용 로그 추가
+
+            $('#deselect-all').prop('checked', false); // 전체 해제 체크박스 해제
+
+            // 전체 선택 체크박스의 체크 상태를 변경하지 않음 (항상 unchecked 상태로 유지)
+            $(this).prop('checked', false);
+        });
 
         // 전체 해제 기능 연결
         $('#deselect-all').on('change', function() {
@@ -689,7 +701,8 @@ $(document).ready(function () {
             vali_text += '장소를 선택해주세요.\n';
             form.create_place_no.focus();
         } else if (form.create_place_no.value != '0' && $('.item-checkbox:checked').length === 0) {
-            vali_text += '최소 하나의 기자재를 선택하세요.';
+        	 // 장소 번호가 0이 아닌데 선택된 기자재가 없는 경우
+        	vali_text += '최소 하나의 기자재를 선택하세요.';
         } else if (form.create_emp_id.value === '') {
             vali_text += '신청인을 선택해주세요.';
             form.create_emp_id.focus();
@@ -715,6 +728,7 @@ $(document).ready(function () {
         }
 
         const formData = new FormData(form);
+        
         
        
      // 기존 배열에서 undefined 또는 빈 값을 제거
@@ -812,15 +826,16 @@ $(document).ready(function () {
 function openScheduleDetailModal(data) {
     const scheduleDetailContent = document.getElementById('scheduleDetailContent');
 
-    // 기간을 포맷팅하여 표시 (yyyy-MM-dd HH:mm ~ yyyy-MM-dd HH:mm 형식으로 표시)
+    console.log('받은 데이터:', data);
     const formattedPeriod = `${moment(data.start_date + ' ' + data.start_time).format('YYYY.MM.DD HH:mm')} ~ ${moment(data.end_date + ' ' + data.end_time).format('YYYY.MM.DD HH:mm')}`;
-    
-    // 선택된 place_no에 대한 place_name을 가져와 input text로 표시
     let placeName = data.place_name || '알 수 없는 장소';
+    
+ // item_no 리스트를 문자열 배열로 변환
+ 	let itemNoList = data.item_no ? data.item_no.toString().split(',') : [];
+    console.log('itemNoList:', itemNoList);
 
-    // place_no가 0이고 item_no가 null인 경우에는 기자재 목록을 표시하지 않음
+ // place_no가 0이고 item_no가 null인 경우에는 기자재 목록을 표시하지 않음
     if (data.place_no === 0 && (!data.item_no || data.item_no.length === 0)) {
-        // 모달의 내용을 동적으로 생성 (기자재 부분을 생략)
         scheduleDetailContent.innerHTML = `
             <div class="modal-body" style="padding:0px;">
                 <table class="table bordered">
@@ -851,38 +866,38 @@ function openScheduleDetailModal(data) {
                         </tr>
                     </tbody>
                 </table>
+               
             </div>
-        `;
-
-        // 모달을 화면에 표시
-        $('#scheduleDetailModal').modal('show');
-        return; // AJAX 요청을 건너뛰고 함수를 종료
-
-        // 삭제 버튼 클릭 이벤트 등록
-        $('#delete-schedule-button').on('click', function() {
+        `;        
+         // 삭제 버튼 클릭 이벤트 등록
+        document.getElementById('delete-schedule-button').onclick = function() {
             deleteSchedule(data.place_schedule_no);
-        });
+        };
+
+        $('#scheduleDetailModal').modal('show');
+        return;
+        
+        
+       
     }
 
-    // place_no가 0이 아니거나 item_no가 존재하는 경우에만 기자재 목록을 가져오는 AJAX 요청 수행
+    // 가져온 기자재 목록을 그대로 사용
     $.ajax({
-        url: '/getItemsForPlace',  // 기자재 정보를 가져오는 URL
+        url: '/getItemsForPlace',
         type: 'GET',
-        data: { placeNo: data.place_no },  // 선택된 장소 번호를 쿼리 파라미터로 전송
+        data: { placeNo: data.place_no },
         success: function(items) {
-            // 등록된 item_no들을 배열로 저장 (이 값과 가져온 기자재 목록을 비교해서 checked를 설정)
-            let itemNoList = data.item_no ? data.item_no.toString().split(',') : []; // item_no를 배열로 변환
+            console.log('가져온 기자재 목록:', items);
 
-            // 기자재 목록을 가져와 체크박스 생성 및 상태 설정
             let itemCheckboxes = '';
             if (Array.isArray(items)) {
                 items.forEach((item) => {
-                    // 현재 기자재가 선택된 상태인지 확인
-                    const isChecked = itemNoList.includes(item.itemNo ? item.itemNo.toString() : '');
+                    // 현재 기자재가 선택된 상태인지 확인하고, 체크박스 생성
+                    const isChecked = itemNoList.includes(item.item_no.toString());
 
                     itemCheckboxes += `
                         <label class="mr-2">
-                            <input type="checkbox" class="item-checkbox" name="itemNoList" value="${item.itemNo}"
+                            <input type="checkbox" class="item-checkbox" name="itemNoList" value="${item.item_no}"
                             ${isChecked ? 'checked' : ''} disabled> 
                             ${item.item_name} (사용 갯수: ${item.item_quantity})
                         </label>
@@ -910,9 +925,9 @@ function openScheduleDetailModal(data) {
                                 <td style="width: 80%;"><input type="text" class="form-control" value="${placeName}" readonly></td>
                             </tr>
                             <tr>
-                                <td class="align-center" style="width: 20%;"><label>기자재</label></td>
-                                <td style="width: 80%;">${itemCheckboxes}</td>
-                            </tr>
+	                            <td class="align-center" style="width: 20%;"><label>기자재</label></td>
+	                            <td style="width: 80%;">${itemCheckboxes}</td>
+	                        </tr>
                             <tr>
                                 <td class="align-center" style="width: 20%;"><label>신청인</label></td>
                                 <td style="width: 80%;"><input type="text" class="form-control" value="${data.emp_name}" readonly></td>
@@ -927,11 +942,10 @@ function openScheduleDetailModal(data) {
             `;
             
             // 삭제 버튼 클릭 이벤트 등록
-            $('#delete-schedule-button').on('click', function() {
+            document.getElementById('delete-schedule-button').onclick = function() {
                 deleteSchedule(data.place_schedule_no);
-            });
+            };
 
-            // 모달을 화면에 표시
             $('#scheduleDetailModal').modal('show');
         },
         error: function() {
@@ -939,6 +953,8 @@ function openScheduleDetailModal(data) {
         }
     });
 }
+
+
 
  
  // 일정 삭제
