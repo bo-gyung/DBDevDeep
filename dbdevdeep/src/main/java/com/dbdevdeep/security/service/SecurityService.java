@@ -35,7 +35,7 @@ public class SecurityService implements UserDetailsService {
 
 		if (employee != null) {
 			if ("Y".equals(employee.getEntStatus())
-					& LocalDateTime.now().isAfter(employee.getAccountTime().plusSeconds(1200))) { // 재직
+					& (employee.getAccountTime() == null || LocalDateTime.now().isAfter(employee.getAccountTime().plusSeconds(1200)))) { // 재직이고 계정 잠김 시간이 1200초 이후
 				return LoginData(employee);
 			} else {
 				throw new UsernameNotFoundException(username);

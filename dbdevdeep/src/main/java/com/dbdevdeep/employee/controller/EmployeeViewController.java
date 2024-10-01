@@ -86,9 +86,11 @@ public class EmployeeViewController {
 
 		List<EmployeeDto> resultList = employeeService.selectYEmployeeList();
 		List<String> attendDtoList = attendanceService.selectByToDayList();
+		List<String> attendDtoListLeave = attendanceService.selectByToDayListLeave();
 		List<TeacherHistoryDto> historyList = teacherHistoryService.selectClassByOrderLastesList();
 
 		model.addAttribute("attendDtoList", attendDtoList);
+		model.addAttribute("attendDtoListLeave", attendDtoListLeave);
 		model.addAttribute("resultList", resultList);
 		model.addAttribute("historyList", historyList);
 
@@ -290,7 +292,7 @@ public class EmployeeViewController {
 		return "employee/log-leave";
 	}
 	
-	@GetMapping("/my-alert")
+	@GetMapping("/mypage/alert")
 	public String myAlertPage(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User) authentication.getPrincipal();

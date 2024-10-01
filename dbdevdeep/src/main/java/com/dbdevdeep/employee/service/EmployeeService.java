@@ -1,12 +1,19 @@
 package com.dbdevdeep.employee.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -14,6 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dbdevdeep.alert.domain.Alert;
+import com.dbdevdeep.alert.domain.AlertDto;
+import com.dbdevdeep.alert.repository.AlertRepository;
 import com.dbdevdeep.employee.domain.AuditLog;
 import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.Department;
@@ -35,9 +45,12 @@ import com.dbdevdeep.employee.repository.JobRepository;
 import com.dbdevdeep.employee.repository.MySignRepository;
 import com.dbdevdeep.employee.repository.TransferRepository;
 import com.dbdevdeep.employee.vo.EmployeeVo;
+import com.dbdevdeep.websocket.config.WebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -54,6 +67,8 @@ public class EmployeeService {
 	private final EmployeeStatusRepository employeeStatusRepository;
 	private final ObjectMapper objectMapper;
 	private final AuditLogRepository auditLogRepository;
+	private final WebSocketHandler webSocketHandler;
+	private final AlertRepository alertRepository;
 
 	// 교육청관리번호 중복 확인
 	public EmployeeDto govIdCheck(String govId) {
@@ -384,6 +399,20 @@ public class EmployeeService {
 		AuditLog log = logDto.toEntityWithJoin(employee, admin);
 		
 		auditLogRepository.save(log);
+		
+		AlertDto alertDto = new AlertDto();
+		alertDto.setReference_name("employee");
+		alertDto.setAlarm_title("비밀번호수정");
+		alertDto.setAlarm_status("N");
+		alertDto.setAlarm_content(admin.getEmpName() + "님(행정)이 " + e.getEmpName() + "님의 비밀번호를 변경하였습니다.");
+
+		Alert alert = alertDto.toEntity(e);
+		
+		try {
+			webSocketHandler.sendAlert(alertRepository.save(alert));
+		} catch (IOException except) {
+			except.printStackTrace();
+		}
 
 		return e;
 	}
@@ -417,6 +446,20 @@ public class EmployeeService {
 			Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
 			AuditLog auditLog = alDto.toEntityWithJoin(result, admin);
 			auditLogRepository.save(auditLog);
+			
+			AlertDto alertDto = new AlertDto();
+			alertDto.setReference_name("employee");
+			alertDto.setAlarm_title("정보수정");
+			alertDto.setAlarm_status("N");
+			alertDto.setAlarm_content(admin.getEmpName() + "님(행정)이 " + result.getEmpName() + "님의 정보를 변경하였습니다.");
+
+			Alert alert = alertDto.toEntity(result);
+			
+			try {
+				webSocketHandler.sendAlert(alertRepository.save(alert));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return result;
@@ -798,6 +841,69 @@ public class EmployeeService {
 	public Employee findEmployeeById(String empId) {
 		return employeeRepository.findById(empId)
 				.orElseThrow(() -> new IllegalArgumentException("Employee not found: " + empId));
+	}
+	
+	public void employeeExcel(String ids, HttpServletResponse response) throws Exception {
+		List<Employee> employees = new ArrayList<Employee>();
+	    
+	    if (ids != null && !ids.isEmpty()) {
+	        // 선택된 직원 ID로 필터링
+	        String[] empIds = ids.split(",");
+	        
+	        for(String empId : empIds) {
+	        	Employee emp = employeeRepository.findByempId(empId);
+	        	employees.add(emp);
+	        }
+	    } else {
+	        employees = employeeRepository.findAll(); // 모든 직원 조회
+	    }
+	    
+		String fileName = "직원정보_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx";
+		
+		XSSFWorkbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Employees");
+
+        // 헤더 생성
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("직원번호");
+        header.createCell(1).setCellValue("성명");
+        header.createCell(2).setCellValue("부서");
+        header.createCell(3).setCellValue("직급");
+        header.createCell(4).setCellValue("교육청관리번호");
+        header.createCell(5).setCellValue("주민등록번호");
+        header.createCell(6).setCellValue("전화번호");
+        header.createCell(7).setCellValue("우편번호");
+        header.createCell(8).setCellValue("주소");
+
+        // 데이터 추가
+        for (int i = 0; i < employees.size(); i++) {
+            Employee employee = employees.get(i);
+            Row row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(employee.getEmpId());
+            row.createCell(1).setCellValue(employee.getEmpName());
+            row.createCell(2).setCellValue(employee.getDepartment().getDeptName());
+            row.createCell(3).setCellValue(employee.getJob().getJobName());
+            row.createCell(4).setCellValue("N-" + employee.getGovId());
+            row.createCell(5).setCellValue(employee.getEmpRrn().substring(0, 8) + "******");
+            row.createCell(6).setCellValue(employee.getEmpPhone());
+            row.createCell(7).setCellValue(employee.getEmpPostCode());
+            row.createCell(8).setCellValue(employee.getEmpAddr() + " " + employee.getEmpDetailAddr());
+        }
+
+        // HTTP 응답 설정
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + new String(fileName.getBytes("UTF-8"), "ISO-8859-1") + "\"");
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        response.setHeader("Expires", "0"); // Proxies
+
+        // 파일을 응답에 작성
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
+            workbook.write(outputStream);
+            outputStream.flush(); // 데이터 플러시
+        } finally {
+            workbook.close(); // Workbook 닫기
+        }
 	}
 
 }

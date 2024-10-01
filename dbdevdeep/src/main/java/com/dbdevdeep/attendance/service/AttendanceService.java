@@ -157,12 +157,30 @@ public class AttendanceService {
 		return result;
 	}
 
+	// 오늘 출근한 사람들 list
 	public List<String> selectByToDayList() {
 		List<String> dtoList = new ArrayList<>();
 
 		LocalDate now = LocalDate.now();
 
 		List<Attendance> attendList = attendanceRepository.selectByToDayList(now);
+
+		for (Attendance attend : attendList) {
+			String list = attend.getEmployee().getEmpId();
+
+			dtoList.add(list);
+		}
+
+		return dtoList;
+	}
+
+	// 오늘 퇴근한 사람들 list
+	public List<String> selectByToDayListLeave() {
+		List<String> dtoList = new ArrayList<>();
+
+		LocalDate now = LocalDate.now();
+
+		List<Attendance> attendList = attendanceRepository.selectByToDayListLeave(now);
 
 		for (Attendance attend : attendList) {
 			String list = attend.getEmployee().getEmpId();

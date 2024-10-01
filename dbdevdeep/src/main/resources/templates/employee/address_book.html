@@ -81,7 +81,8 @@
 													<td th:text="${employee.emp_name}"></td>
 													<td>
 														<span th:if="${#lists.contains(attendDtoList, employee.emp_id)}" style="color: #0031AE;">●</span>
-														<span th:unless="${#lists.contains(attendDtoList, employee.emp_id)}" style="color: lightgray;">●</span>
+														<span th:if="${#lists.contains(attendDtoListLeave, employee.emp_id)}">●</span>
+														<span th:if="${!#lists.contains(attendDtoList, employee.emp_id) && !#lists.contains(attendDtoListLeave, employee.emp_id)}" style="color: lightgray;">●</span>
 													</td>
 													<td th:text="${employee.dept_name}"></td>
 													<td th:text="${employee.job_name}"></td>

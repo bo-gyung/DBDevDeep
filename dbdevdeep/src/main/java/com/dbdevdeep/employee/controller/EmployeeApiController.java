@@ -33,6 +33,7 @@ import com.dbdevdeep.employee.service.EmployeeService;
 import com.dbdevdeep.security.service.SecurityService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -517,6 +518,17 @@ public class EmployeeApiController {
 		}
 
 		return resultMap;
+	}
+	
+	@ResponseBody
+	@GetMapping("/employee/excel/{ids}")
+	public void employeeExcel(@PathVariable(name="ids") String ids, HttpServletResponse response) {
+		try {
+			employeeService.employeeExcel(ids, response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 }

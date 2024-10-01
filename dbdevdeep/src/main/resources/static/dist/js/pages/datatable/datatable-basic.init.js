@@ -328,16 +328,17 @@ $('#address_all_book').DataTable({
 	"responsive": true,
 	// 컬럼 width 비율 조절
 	"columnDefs": [
-		{ "width": "10%", "targets": 0, "className": "text-center" },
+		{ "width": "10%", "targets": 0, "className": "text-center", "orderable": false},
 		{ "width": "10%", "targets": 1, "className": "text-center" },
 		{ "width": "10%", "targets": 2, "className": "text-center" },
 		{ "width": "10%", "targets": 3, "className": "text-center" },
 		{ "width": "10%", "targets": 4, "className": "text-center" },
 		{ "width": "10%", "targets": 5, "className": "text-center" },
 		{ "width": "10%", "targets": 6, "className": "text-center" },
-		{ "width": "10%", "targets": 7, "className": "text-center" }
+		{ "width": "10%", "targets": 7, "className": "text-center" },
+		{ "width": "10%", "targets": 8, "className": "text-center" }
 	],
-	"order": [[0, "asc"]],
+	"order": [[1, "asc"]],
 	// 정보 표시 해제
 	info: false,
 	// DataTables의 DOM 구조를 재정의
@@ -430,9 +431,11 @@ $('#address_all_book').DataTable({
 });
 
 // 직원 목록 이동 이벤트
-$('#address_all_book').on('click', '.employee-detail', function() {
-	var emp_id = $(this).data('emp');
-	location.href = "/employee/list/" + emp_id;
+$('#address_all_book').on('click', '.employee-detail', function(e) {
+	if ($(e.target).closest('td').index() !== 0) {
+        var emp_id = $(this).data('emp');
+        location.href = "/employee/list/" + emp_id;
+    }
 });
 
 // log-employee

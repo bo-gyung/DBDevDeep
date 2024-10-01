@@ -115,6 +115,9 @@
 		.filter label {
 			display: flex; align-items: center; margin: 0px auto;
 		}
+		.table-hover tr:hover {
+			cursor: pointer;
+		}
 	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
@@ -432,7 +435,7 @@
 									<div class="row">
 										<div class="col-md-12" style="margin-top: 40px;">
 											<div class="table-responsive">
-												<table id="employee-attend" class="table table-bordered no-wrap" style="width: 100%">
+												<table id="employee-attend" class="table table-hover table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 30%;">
@@ -940,7 +943,6 @@
 	<!-- /.modal -->
 
 	<script>
-		// script.js
 		document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
 		    trigger.addEventListener('mouseover', function() {
 		        const tooltip = this.nextElementSibling;

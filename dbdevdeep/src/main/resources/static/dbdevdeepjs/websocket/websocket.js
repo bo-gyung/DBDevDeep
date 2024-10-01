@@ -42,7 +42,23 @@ let socket;
 	      	    } else if(alertRefName == 'notice') {
 								content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 공지가 있습니다.';
 	      	 	   	title = '공지';
-	      	    }
+	      	    } else if(alertRefName == 'employee') {
+			      		 content = '[' + alert.alarm_title + '] ' + alert.alarm_content;
+			    		   title = '행정';
+		      	   }
+	      	    
+	      	    // 날짜 포맷팅
+	    	 	    const currentDate = new Date();
+	    	 	    const alarmDate = new Date(alert.alarm_time);
+	    	 	    let formattedTime;
+	
+	    	 	    const isSameDay = currentDate.toDateString() === alarmDate.toDateString();
+	
+	    	 	    if (isSameDay) {
+	    	 	        formattedTime = alarmDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	    	 	    } else {
+	    	 	        formattedTime = alarmDate.toISOString().slice(0, 10).replace(/-/g, '.') + ' ' +  alarmDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+	    	 	    }
 		       
 			        const alertHtml = `
 	        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;" data-a-alert-no="${alert.alarm_no}">
@@ -65,16 +81,16 @@ let socket;
 			                    ${content}
 			                </span>
 			                <span class="font-12 text-nowrap d-block text-muted">
-			                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+			                    ${formattedTime}
 			                </span>
 			            </div>
 		        	</div>
-		            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;"
-		            	data-alert-no="${alert.alarm_no}"
-		        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
-	        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
-		        		onmouseout="this.style.color='lightgray'">
-		            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"></i>
+		            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;">
+		            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"
+		            		data-alert-no="${alert.alarm_no}"
+				        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
+			        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
+				        		onmouseout="this.style.color='lightgray'"></i>
 		            </div>
 	          </a>
 	        `;
