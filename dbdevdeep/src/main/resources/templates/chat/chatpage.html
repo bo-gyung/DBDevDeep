@@ -3,10 +3,16 @@
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
      layout:decorate="~{include/chat_layout}">
 <th:block layout:fragment="content">
+<style>
+	.custom-badge{
+		border-radius:50em; 
+		align-self: flex-end; 
+		margin-bottom: 5px;
+	}
+</style>
 <body>
 	
 	<!-- 사진 상세보기 모달창 시작 -->
-	<!-- sample modal content -->
     <div id="imgModal" class="modal fade" tabindex="-1" role="dialog"
         aria-labelledby="imgModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -64,13 +70,12 @@
                                                     	<th:block th:each="ccrDto, ccrDtoStat : ${ccrDtoList}">
 		                                                    <a href="javascript:void(0)"
 		                                                    	onclick="enterChatRoom(this);"
-		                                                        class="message-item d-flex align-items-center border-bottom px-3 py-2">
+		                                                        class="message-item d-flex align-items-start border-bottom px-3 py-2">
 		                                                        <input type="hidden" th:value="${ccrDto.room_no}">
 		                                                        <div class="user-img"><img th:src="@{'/UploadImg/employee/' + ${ccrDto.room_pic}}" 
 		                                                                alt="user" class="img-fluid rounded-circle" 
 		                                                                style="aspect-ratio: 1/1; object-fit: cover;" 
-		                                                                width="40px"> <span
-		                                                                class="profile-status busy float-right"></span>
+		                                                                width="40px">
 		                                                        </div>
 		                                                        <div class="w-75 d-inline-block v-middle pl-2">
 		                                                            <h6 class="message-title mb-0 mt-1" th:text="${ccrDto.room_name}"></h6>
@@ -79,6 +84,10 @@
 		                                                            <span class="font-12 text-nowrap d-block text-muted" 
 		                                                            th:text="${#temporals.format(ccrDto.last_time, 'yyyy.MM.dd HH:mm')}"></span>
 		                                                        </div>
+		                                                        <span class="badge badge-primary custom-badge notify-no d-flex align-items-center justify-content-center" 
+														             style="aspect-ratio: 1/1; width:24px;">
+														           3
+														       </span>
 		                                                    </a>
                                                     	</th:block>
                                                     </th:block>
@@ -125,8 +134,9 @@
 				                                                 <li class="chat-item odd list-style-none mt-3">
 				                                                 	<!-- 사진파일이 존재한다면 -->
 				                                                 	<th:block th:if="${chat.new_pic_name != null}">
-					                                                 	<th:block th:if="${chat.new_pic_name != null}">
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
+					                                                 		<!-- 읽음확인 -->
+						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;">1</div>
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
 						                                                 			th:alt="${chat.ori_pic_name}" 
 						                                                 			style="max-width: 12.5vw; height: auto;" 
@@ -139,8 +149,10 @@
 					                                                 	</div>
 				                                                 	</th:block>
 				                                                 	<!-- 사진파일이 존재하지 않는다면 -->
-				                                                 	<th:block th:if="${chat.new_pic_name == null || chat.new_pic_name.isEmpty()}">
+				                                                 	<th:block th:if="${chat.new_pic_name == null || #strings.isEmpty(chat.new_pic_name)}">
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
+						                                                 	<!-- 읽음확인 -->
+						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;">1</div>
 						                                                    <div class="box msg p-2 d-inline-block mb-1" 
 						                                                    th:text="${chat.content}"></div>
 						                                                </div>
@@ -174,11 +186,15 @@
 						                                                 			onload="scrollToBottom()" 
 					                                                 				data-toggle="modal" data-target="#imgModal" 
 							                                                        onclick="openModal(this)">
+					                                                        <!-- 읽음확인 -->
+						                                                 	<div class="d-inline-block font-10 p-1" style="vertical-align: bottom;">1</div>
 					                                                 	</th:block>
 					                                                 	<!-- 사진파일이 존재하지 않는다면 -->
-					                                                 	<th:block th:if="${chat.new_pic_name == null || chat.new_pic_name.isEmpty()}">
+					                                                 	<th:block th:if="${chat.new_pic_name == null || #strings.isEmpty(chat.new_pic_name)}">
 						                                                    <div class="box msg p-2 d-inline-block mb-1" 
 						                                                    th:text="${chat.content}"></div>
+						                                                    <!-- 읽음확인 -->
+						                                                 	<div class="d-inline-block font-10 p-1" style="vertical-align: bottom;">1</div>
 					                                                 	</th:block>
 					                                                </div>
 					                                                <!-- 작성시간 -->

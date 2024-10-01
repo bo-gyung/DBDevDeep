@@ -79,9 +79,7 @@ public class ChatViewController {
 	    model.addAttribute("roomName", roomName);
 	    model.addAttribute("roomNo", roomNo);
 	    
-	    // 읽음확인 -> 나중에
-	    
-		// 메세지 + 상태이력 리스트 가져오기
+		// 메세지 + 읽음확인 + 상태이력 리스트 가져오기
 	    List<CustomChatContainerDto> combinedList = chatService.selectmsgHistoryList(roomNo, login_id);
 	    model.addAttribute("combinedList", combinedList);
 	    
