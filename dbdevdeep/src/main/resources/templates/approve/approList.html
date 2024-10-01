@@ -80,9 +80,15 @@
                                         		<td>
                                         		 <a th:href="@{approDetail/{no}(no=${approve.appro_no})}" th:text = "${approve.appro_title}"></a>
                                         		</td>
-                                        		<!-- <td th:text="${approve.appro_time}"></td> -->
-                                        		<td th:text="${approve.appro_time}"></td>
-                                        		<td th:text="${approve.appro_type}"></td>
+                                        		<td th:text="${#temporals.format(approve.appro_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
+                                        		<td th:text="${approve.appro_type == 0 ? '연차' :
+                                        						approve.appro_type == 1 ? '공가' : 
+                                        						approve.appro_type == 2 ? '병가' : 
+                                        						approve.appro_type == 3 ? '조퇴' :
+                                        						approve.appro_type == 4 ? '경조사' :
+                                        						approve.appro_type == 5 ? '출산휴가' :
+                                        						approve.appro_type == 6 ? '오전반차' :
+                                        						approve.appro_type == 7 ? '오후반차' : ''}"></td>
                                         		<td th:switch="${approve.appro_status}">
 												    <span th:case="0">대기중</span>
 												    <span th:case="1">완료</span>
