@@ -257,8 +257,7 @@ public class PlaceScheduleService {
 		    try {
 		        // 겹침 검사
 		        if (isScheduleOverlapping(vo.getPlace_no(), vo.getItemNoList(), vo.getStart_date().toString(), vo.getStart_time().toString(), vo.getEnd_date().toString(), vo.getEnd_time().toString())) {
-		            // 겹침이 발생한 경우 null 반환
-		            return null;
+		            return null; // 겹침이 발생한 경우 null 반환
 		        }
 		        
 		        // Place 조회 및 유효성 검사
@@ -284,7 +283,20 @@ public class PlaceScheduleService {
 		        Item item = null;
 
 		        if (vo.getPlace_no() == 0) {
-		            serialNoBuilder.append("전체");
+		            if (vo.getItemNoList() != null && !vo.getItemNoList().isEmpty() && !vo.getItemNoList().contains("전체")) {
+		                for (Long itemNo : vo.getItemNoList()) {
+		                    item = itemRepository.findByitemNo(itemNo);
+		                    if (item == null) {
+		                        throw new IllegalArgumentException("해당 기자재를 찾을 수 없습니다: " + itemNo);
+		                    }
+		                    if (serialNoBuilder.length() > 0) {
+		                        serialNoBuilder.append(",");
+		                    }
+		                    serialNoBuilder.append(item.getItemSerialNo());
+		                }
+		            } else {
+		                serialNoBuilder.append("전체");
+		            }
 		        } else {
 		            if (vo.getItemNoList() != null && !vo.getItemNoList().isEmpty()) {
 		                for (Long itemNo : vo.getItemNoList()) {
@@ -328,6 +340,7 @@ public class PlaceScheduleService {
 		        return null;
 		    }
 		}
+
 
 		
 

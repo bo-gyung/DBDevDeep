@@ -392,6 +392,9 @@
 let calendar;  // 전역 변수로 선언
 
 $(document).ready(function () {
+	
+	let selectedItems = []; // 전역 변수로 선언하여 전체 선택/해제 시에도 접근 가능하도록 함
+	
     // 처음 페이지 로드 시 체크박스 영역을 숨김.
     $('#item-checkboxes').hide();
 
@@ -445,23 +448,37 @@ $(document).ready(function () {
         // 생성된 체크박스를 'item-checkboxes' 영역에 삽입
         $('#item-checkboxes').html(checkboxesHtml);
 
-        // 전체 선택 기능 연결
-        $('#select-all').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('.item-checkbox').prop('checked', true);
-                $('#deselect-all').prop('checked', false); // 전체 해제 체크박스 해제
-            }
-        });
+     	// 전체 선택 기능 연결
+       $('#select-all').on('click', function() {
+	    // 전체 선택 체크박스의 실제 체크 상태를 무시하고 개별 체크박스만 모두 선택
+	    $('.item-checkbox').prop('checked', true);
+	    $('#deselect-all').prop('checked', false); // 전체 해제 체크박스 해제
+	
+	    // 전체 선택 체크박스의 체크 상태를 변경하지 않음 (항상 unchecked 상태로 유지)
+	    $(this).prop('checked', false);
+	});
 
         // 전체 해제 기능 연결
         $('#deselect-all').on('change', function() {
             if ($(this).is(':checked')) {
                 $('.item-checkbox').prop('checked', false);
+                selectedItems = []; // 전체 해제 시 배열 초기화
                 $('#select-all').prop('checked', false); // 전체 선택 체크박스 해제
             }
         });
 
-        
+        // 개별 체크박스 변경 시 이벤트 처리
+        $('.item-checkbox').on('change', function () {
+            const itemValue = $(this).val();
+            if ($(this).is(':checked')) {
+                if (itemValue !== undefined && itemValue !== '') { // 값이 정의되어 있고 비어있지 않은 경우만 추가
+                    selectedItems.push(itemValue);
+                }
+            } else {
+                // 체크 해제 시 해당 아이템을 배열에서 제거
+                selectedItems = selectedItems.filter(value => value !== itemValue);
+            }
+        });
     }
 
     // 캘린더 초기화
@@ -592,6 +609,7 @@ $(document).ready(function () {
         // 체크박스 영역 숨기기 및 모든 체크박스 해제
         modal.find('#item-checkboxes').hide();
         modal.find('input[type="checkbox"]').prop('checked', false);
+        selectedItems = []; // 배열 초기화
     }
 
     // 공통 함수: 모든 모달 닫기
@@ -697,15 +715,28 @@ $(document).ready(function () {
         }
 
         const formData = new FormData(form);
-        const selectedItems = [];
-        $('.item-checkbox:checked').each(function() {
-            selectedItems.push($(this).val());
-        });
+        
+       
+     // 기존 배열에서 undefined 또는 빈 값을 제거
+        selectedItems = selectedItems.filter(item => item !== undefined && item !== '');
 
-        formData.append('itemNoList', selectedItems); 
+        // place_no가 '0'일 때만 특별한 처리
+        if (form.create_place_no.value === '0') {
+            if (selectedItems.length === 0) {
+                // place_no가 '0'이고 선택된 아이템이 없을 때
+                selectedItems.push(''); // 서버에 빈 값으로 전달 (백엔드에서 '전체' 처리)
+            }
+        }
+        
+
+        formData.append('itemNoList', selectedItems);
 
         const csrfToken = document.getElementById('csrf_token').value;
 
+        console.log('FormData:');
+        for (let pair of formData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
         // Ajax 요청
         fetch('/place_schedule', {
             method: 'POST',
@@ -823,14 +854,14 @@ function openScheduleDetailModal(data) {
             </div>
         `;
 
+        // 모달을 화면에 표시
+        $('#scheduleDetailModal').modal('show');
+        return; // AJAX 요청을 건너뛰고 함수를 종료
+
         // 삭제 버튼 클릭 이벤트 등록
         $('#delete-schedule-button').on('click', function() {
             deleteSchedule(data.place_schedule_no);
         });
-
-        // 모달을 화면에 표시
-        $('#scheduleDetailModal').modal('show');
-        return; // AJAX 요청을 건너뛰고 함수를 종료
     }
 
     // place_no가 0이 아니거나 item_no가 존재하는 경우에만 기자재 목록을 가져오는 AJAX 요청 수행
