@@ -9,7 +9,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.TeacherHistory;
+import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.TeacherHistoryRepository;
 import com.dbdevdeep.student.domain.Curriculum;
 import com.dbdevdeep.student.domain.CurriculumDto;
@@ -47,11 +49,12 @@ public class StudentService {
 	private final CurriculumRepository curriculumRepository;
 	private final TimeTableRepository timeTableRepository;
 	private final ScoreRepository scoreRepository;
+	private final EmployeeRepository employeeRepository;
 	
 	@Autowired
 	public StudentService(StudentRepository studentRepository, TeacherHistoryRepository teacherHistoryRepository, 
 			StudentClassRepository studentClassRepository, ParentRepository parentRepository,SubjectRepository subjectRepository,
-			CurriculumRepository curriculumRepository, TimeTableRepository timeTableRepository, ScoreRepository scoreRepository) {
+			CurriculumRepository curriculumRepository, TimeTableRepository timeTableRepository, ScoreRepository scoreRepository, EmployeeRepository employeeRepository) {
 		this.studentRepository = studentRepository;
 		this.teacherHistoryRepository = teacherHistoryRepository;
 		this.studentClassRepository = studentClassRepository;
@@ -59,7 +62,8 @@ public class StudentService {
 		this.subjectRepository = subjectRepository;
 		this.curriculumRepository = curriculumRepository;
 		this.timeTableRepository = timeTableRepository;
-		this.scoreRepository = scoreRepository;	}
+		this.scoreRepository = scoreRepository;
+		this.employeeRepository = employeeRepository;}
 	
 	// 입력 form에서 받아온 dto data를 Student로 바꿔서 저장하는 절차
 	public Student createStudent(StudentDto dto) {
@@ -125,7 +129,6 @@ public class StudentService {
 	// 부모 정보 수정을 위한 과정
 	@Transactional
 	public Parent updateStudentParentInfo(ParentDto dto) {
-		System.out.println("서비스 : "+dto);
 		Parent parent = parentRepository.findByParentNo(dto.getParent_no());
 		parent.setParentName(dto.getParent_name());
 	    parent.setParentPhone(dto.getParent_phone());
@@ -209,6 +212,14 @@ public class StudentService {
 		return studentClassDtoList;
 	}
 	
+	// 최신 반배정 이력 조회
+		public StudentClassDto selectStudentClass(Long student_no){
+			StudentClass studentClass = studentClassRepository.findTopByStudentNoOrderByTYearDesc(student_no);
+			StudentClassDto studentClassDto = new StudentClassDto().toDto(studentClass);
+
+			return studentClassDto;
+		}
+		
 	// 반배정 이력 삭제
 	public int deleteStudentClass(Long class_no) {
 		int result = 0;
@@ -279,6 +290,24 @@ public class StudentService {
 	        }
 			return subjectDtoList;
 		}
+		
+		// 학생을 기준으로 최신 과목 리스트 페이지에서 목록 조회
+				public List<SubjectDto> studentSubjectRecentList(StudentClassDto scdto){
+					List<SubjectDto> subjectDtoList = new ArrayList<>();
+
+
+			        TeacherHistory teacherHistory = scdto.getTeacher_history();
+			            
+			        // teacherHistory와 일치하는 과목을 찾음
+			        List<Subject> subjectList = subjectRepository.findByTeacherHistory(teacherHistory);
+			            
+			            // Subject를 SubjectDto로 변환 후 리스트에 추가
+			            for (Subject subject : subjectList) {
+			                SubjectDto subjectDto = new SubjectDto().toDto(subject);
+			                subjectDtoList.add(subjectDto);
+			            }
+					return subjectDtoList;
+				}
 	
 	// 과목 정보 상세 조회시 과목 정보 조회
 		public SubjectDto selectSubjectOne(Long subject_no) {
@@ -482,6 +511,36 @@ public class StudentService {
 
 		    return result;
 		}
+		
+		// 나의 과목 리스트 최신 버젼으로 들고오기
+		public List<SubjectDto> findMySubjectList(String username){
+			TeacherHistory th = teacherHistoryRepository.selectLatestTeacherHistoryByEmployee(username);
+			List<Subject> subjectList = subjectRepository.findByTeacherHistoryWithSemesterCondition(th);
+			List<SubjectDto> subjectDtoList = new ArrayList<SubjectDto>();
+			for(Subject s : subjectList) {
+				SubjectDto dto = new SubjectDto().toDto(s);
+				subjectDtoList.add(dto);
+			}
+			return subjectDtoList;
+		}
+		// emp_id로 Employee 객체 조회 후 emp_name 가져오기
+	    public String findEmpNameByEmpId(String empId) {
+	        Employee employee = employeeRepository.findByempId(empId);
+	        return employee != null ? employee.getEmpName() : null; // emp_name 반환
+	    }
+	    
+	    // 나의 학생 명단 찾기
+	    public List<StudentClassDto> findMyStudentList(String emp_id){
+	    	TeacherHistory th = teacherHistoryRepository.selectLatestTeacherHistoryByEmployee(emp_id);
+			List<StudentClass> studentList = studentClassRepository.findByTeacherHistory(th);
+			List<StudentClassDto> studentDtoList = new ArrayList<StudentClassDto>();
+			
+			for(StudentClass s : studentList) {
+				StudentClassDto dto = new StudentClassDto().toDto(s);
+				studentDtoList.add(dto);
+			}
+			return studentDtoList;
+	    }
 		
 
 }

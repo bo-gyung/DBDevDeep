@@ -59,10 +59,12 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 												                등록된 수업 시간 정보가 없습니다.
 												            </span>
 												            <span th:if="${!#lists.isEmpty(timetableDetail)}">
-												                <span th:each="timetableDetailItem, iterStat : ${timetableDetail}" 
-												                      th:text="${timetableDetailItem.day} + '요일 ' + ${timetableDetailItem.period} + '교시' + (iterStat.hasNext ? ', ' : '')">
-												                </span>
-												            </span>
+    <span th:each="timetableDetailItem, iterStat : ${timetableDetail}">
+        <span th:text="${timetableDetailItem.day} + '요일 ' + ${timetableDetailItem.period} + '교시'"></span>
+        <span th:if="${!iterStat.last}">, </span>
+    </span>
+</span>
+
 												        </td>
 												    </tr>
 												</table>

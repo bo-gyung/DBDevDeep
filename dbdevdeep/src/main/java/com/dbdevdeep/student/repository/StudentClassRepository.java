@@ -12,6 +12,14 @@ import com.dbdevdeep.student.domain.StudentClass;
 public interface StudentClassRepository extends JpaRepository<StudentClass, Long>{
 	List<StudentClass> findByStudent_StudentNo(Long studentNo);
 	
+	@Query("SELECT sc " +
+		       "FROM StudentClass sc " +
+		       "JOIN sc.teacherHistory th " +
+		       "WHERE sc.student.studentNo = :studentNo " +
+		       "ORDER BY th.tYear DESC")
+		StudentClass findTopByStudentNoOrderByTYearDesc(@Param("studentNo") Long studentNo);
+
+	
 	@Query("SELECT s, sc FROM Student s " +
 		       "LEFT JOIN StudentClass sc ON s.studentNo = sc.student.studentNo " +
 		       "AND (sc.teacherHistory.grade IS NULL OR sc.teacherHistory.grade = " +
@@ -20,4 +28,9 @@ public interface StudentClassRepository extends JpaRepository<StudentClass, Long
 	
 	@Query("SELECT sc FROM StudentClass sc WHERE sc.teacherHistory = (SELECT s.teacherHistory FROM Subject s WHERE s.subjectNo = :subjectNo)")
     List<StudentClass> findBySubjectNoWithMatchingTeacherHistory(@Param("subjectNo") Long subjectNo);
+	
+	@Query("SELECT sc " +
+		       "FROM StudentClass sc " +
+		       "WHERE sc.teacherHistory = :teacherHistory")
+		List<StudentClass> findByTeacherHistory(@Param("teacherHistory") TeacherHistory teacherHistory);
 }

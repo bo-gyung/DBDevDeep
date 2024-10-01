@@ -2,9 +2,13 @@ package com.dbdevdeep.student.service;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+
+import javax.security.auth.Subject;
+
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+
 import com.dbdevdeep.student.domain.CurriculumDto;
 import com.dbdevdeep.student.domain.ParentDto;
 import com.dbdevdeep.student.domain.ScoreDto;
@@ -16,8 +20,10 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 
 @Service
@@ -28,7 +34,8 @@ public class PdfService {
                             List<ParentDto> parentList,
                             List<SubjectDto> subjectList,
                             List<CurriculumDto> curriList,
-                            List<ScoreDto> scoreList) throws Exception {
+                            List<ScoreDto> scoreList,
+                            Map<Long,String> totalScoreMap) throws Exception {
         
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(byteArrayOutputStream);
@@ -55,13 +62,19 @@ public class PdfService {
         classTable.addHeaderCell("반").setFont(koreanFont);
         classTable.addHeaderCell("번호").setFont(koreanFont);
         classTable.addHeaderCell("담임 성명").setFont(koreanFont);
-
-        for (StudentClassDto studentClass : studentClassList) {
-            classTable.addCell(studentClass.getTeacher_history().getTYear() + "년").setFont(koreanFont);
-            classTable.addCell(studentClass.getTeacher_history().getGrade() + "학년").setFont(koreanFont);
-            classTable.addCell(studentClass.getTeacher_history().getGradeClass() + "반").setFont(koreanFont);
-            classTable.addCell(studentClass.getStudent_id() + "번").setFont(koreanFont);
-            classTable.addCell(studentClass.getTeacher_history().getEmployee().getEmpName()).setFont(koreanFont);
+        
+        if (studentClassList.isEmpty()) {
+            Cell classmergedCell = new Cell(1, 5)  // 1행 5열 병합
+                .add(new Paragraph("학급이력 정보가 없습니다.").setFont(koreanFont));
+            classTable.addCell(classmergedCell); // 병합된 셀 추가
+        } else { 
+            for (StudentClassDto studentClass : studentClassList) {
+                classTable.addCell(studentClass.getTeacher_history().getTYear() + "년").setFont(koreanFont);
+                classTable.addCell(studentClass.getTeacher_history().getGrade() + "학년").setFont(koreanFont);
+                classTable.addCell(studentClass.getTeacher_history().getGradeClass() + "반").setFont(koreanFont);
+                classTable.addCell(studentClass.getStudent_id() + "번").setFont(koreanFont);
+                classTable.addCell(studentClass.getTeacher_history().getEmployee().getEmpName()).setFont(koreanFont);
+            }
         }
 
         document.add(classTable);
@@ -75,60 +88,85 @@ public class PdfService {
         familyTable.addHeaderCell("연락처").setFont(koreanFont);
         familyTable.addHeaderCell("생년월일").setFont(koreanFont);
 
-        for (ParentDto parent : parentList) {
-            familyTable.addCell(parent.getParent_relation()).setFont(koreanFont);
-            familyTable.addCell(parent.getParent_name()).setFont(koreanFont);
-            familyTable.addCell(parent.getParent_phone()).setFont(koreanFont);
-            familyTable.addCell(parent.getParent_birth()).setFont(koreanFont);
+        if (parentList.isEmpty()) {
+            // 부모 정보가 없을 때, 셀을 병합하여 메시지 출력
+            Cell mergedCell = new Cell(1, 4)  // 1행 4열 병합
+                .add(new Paragraph("부모 정보가 없습니다.").setFont(koreanFont))
+                .setTextAlignment(TextAlignment.CENTER);  // 수정된 부분
+            familyTable.addCell(mergedCell); // 병합된 셀 추가
+        } else {
+            for (ParentDto parent : parentList) {
+                familyTable.addCell(parent.getParent_relation()).setFont(koreanFont);
+                familyTable.addCell(parent.getParent_name()).setFont(koreanFont);
+                familyTable.addCell(parent.getParent_phone()).setFont(koreanFont);
+                familyTable.addCell(parent.getParent_birth()).setFont(koreanFont);
+            }
         }
 
         document.add(familyTable);
 
         // 4. 과목 및 성적 정보 출력
         document.add(new Paragraph("\n과목 및 성적").setFont(koreanFont));
-        
-        float[] subjectColumnWidths = {1, 3, 1, 1, 1};
-        
-        Table subjectTable = new Table(UnitValue.createPercentArray(subjectColumnWidths));
-        
-        subjectTable.addHeaderCell("과목").setFont(koreanFont);
-        subjectTable.addHeaderCell("교육과정 내용").setFont(koreanFont);
-        subjectTable.addHeaderCell("반영비율(%)").setFont(koreanFont);
-        subjectTable.addHeaderCell("과목만점").setFont(koreanFont);
-        subjectTable.addHeaderCell("점수").setFont(koreanFont);
 
         for (SubjectDto subject : subjectList) {
-            // 과목 번호로 해당하는 교육과정 필터링
-            Optional<CurriculumDto> matchingCurri = curriList.stream()
+            // 해당 과목의 교육과정들을 필터링
+            List<CurriculumDto> matchingCurris = curriList.stream()
                 .filter(curri -> curri.getSubject().getSubjectNo().equals(subject.getSubject_no()))
-                .findFirst();
+                .toList();
 
-            // 과목명 출력
-            subjectTable.addCell(subject.getSubject_name()).setFont(koreanFont);
-            
-            // 교육과정 내용 출력 (존재하면 해당 값 출력, 없으면 공백 출력)
-            if (matchingCurri.isPresent()) {
-                CurriculumDto curri = matchingCurri.get();
-                subjectTable.addCell(curri.getCurriculum_content()).setFont(koreanFont);
-                subjectTable.addCell(curri.getCurriculum_ratio()).setFont(koreanFont);
-                subjectTable.addCell(curri.getCurriculum_max_score()).setFont(koreanFont);
+            // 과목명을 제목으로 추가
+            document.add(new Paragraph(subject.getTeacher_history().getTYear() + "년도 " + subject.getSubject_semester() + "학기").setFont(koreanFont));
 
-                // 학생 성적 추가 (해당 curriculum_no가 있는지 확인 후 성적 출력)
-                String score = scoreList.stream()
-                    .filter(s -> s.getCurriculum_no().equals(curri.getCurriculum_no()))
-                    .map(ScoreDto::getScore)
-                    .findFirst().orElse("-");
-                subjectTable.addCell(score).setFont(koreanFont);
+            document.add(new Paragraph("\n과목: " + subject.getSubject_name()).setFont(koreanFont));
+
+         // 테이블 생성
+            float[] subjectColumnWidths;
+            Table subjectTable;
+
+            // 만약 매칭되는 교육과정이 없는 경우 "등록된 교육과정이 없습니다" 메시지를 테이블에 추가
+            if (matchingCurris.isEmpty()) {
+                subjectColumnWidths = new float[]{1}; // 하나의 셀만 필요하므로 너비 배열은 1개 요소
+                subjectTable = new Table(UnitValue.createPercentArray(subjectColumnWidths));
+
+                subjectTable.addCell(new Cell()
+                    .add(new Paragraph("등록된 교육과정이 없습니다.").setFont(koreanFont)) // 수정된 부분
+                );
             } else {
-                // 교육과정 정보가 없는 경우 빈 셀 추가
-                subjectTable.addCell("-").setFont(koreanFont);
-                subjectTable.addCell("-").setFont(koreanFont);
-                subjectTable.addCell("-").setFont(koreanFont);
-                subjectTable.addCell("-").setFont(koreanFont); // 성적 빈칸
-            }
-        }
+                // 매칭된 교육과정이 있을 때 테이블 생성
+                subjectColumnWidths = new float[matchingCurris.size() + 1];  // 교육과정 수 + 1 (총 점수)
+                for (int i = 0; i < matchingCurris.size(); i++) {
+                    subjectColumnWidths[i] = 1;  // 각 컬럼 너비를 동일하게 설정
+                }
+                subjectColumnWidths[matchingCurris.size()] = 1;  // 마지막 칸도 동일한 너비
 
-        document.add(subjectTable);
+                subjectTable = new Table(UnitValue.createPercentArray(subjectColumnWidths));
+
+                // 교육과정 이름들을 테이블 헤더로 추가
+                for (CurriculumDto curri : matchingCurris) {
+                    subjectTable.addHeaderCell(new Cell().add(new Paragraph(curri.getCurriculum_content()).setFont(koreanFont)));
+                }
+                subjectTable.addHeaderCell(new Cell().add(new Paragraph("총 점수").setFont(koreanFont)));  // "총 점수" 헤더 추가
+
+                // 각 교육과정에 대해 점수 데이터를 테이블에 추가
+                for (CurriculumDto curri : matchingCurris) {
+                    // 학생 성적 추가 (해당 curriculum_no가 있는지 확인 후 성적 출력)
+                    String score = scoreList.stream()
+                        .filter(s -> s.getCurriculum_no().equals(curri.getCurriculum_no()))
+                        .map(ScoreDto::getScore)
+                        .findFirst()
+                        .orElse("-");  // 점수가 없으면 "-"
+
+                    subjectTable.addCell(new Cell().add(new Paragraph(score).setFont(koreanFont)));
+                }
+
+                // 해당 과목의 총 점수를 totalScoreMap에서 가져와 마지막 셀에 추가
+                String totalScore = totalScoreMap.get(subject.getSubject_no());
+                subjectTable.addCell(new Cell().add(new Paragraph(totalScore != null ? totalScore : "-").setFont(koreanFont)));  // 총점이 없으면 "-"
+            }
+
+            // 테이블 추가
+            document.add(subjectTable);
+        }
 
         // PDF 완료
         document.close();

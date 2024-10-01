@@ -183,7 +183,6 @@ public class StudentApiController {
 		@ResponseBody
 		@PostMapping("/student/parent/update/{student_no}")
 		public Map<String,String> updateStudentParent(ParentDto dto){
-			System.out.println(dto);
 			Map<String,String> resultMap = new HashMap<String,String>();
 			resultMap.put("res_code", "404");
 			resultMap.put("res_msg", "부모 정보 수정 중 오류가 발생했습니다.");

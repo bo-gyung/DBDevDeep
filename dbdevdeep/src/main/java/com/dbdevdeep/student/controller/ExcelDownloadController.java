@@ -1,5 +1,6 @@
 package com.dbdevdeep.student.controller;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,13 +41,14 @@ public class ExcelDownloadController {
     public void downloadExcel(HttpServletResponse response, @PathVariable("student_no") Long student_no) throws IOException {
 
         // 학생 정보 및 성적 데이터 가져오기
-        StudentDto studentDto = studentService.selectStudentOne(student_no);
-        List<SubjectDto> subjectList = studentService.mySubjectList();
-        List<CurriculumDto> curriList = studentService.selectCurriAll();
-        List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
-
+    	StudentDto studentDto = studentService.selectStudentOne(student_no);
+		StudentClassDto studentClassResult= studentService.selectStudentClass(student_no);
+		List<SubjectDto> subjectList = studentService.studentSubjectRecentList(studentClassResult);
+		List<CurriculumDto> curriList = studentService.selectCurriAll();
+		List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
+        
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Student Data");
+        Sheet sheet = workbook.createSheet(studentDto.getStudent_name());
 
         // 스타일: 테두리 및 가운데 정렬 설정
         CellStyle style = workbook.createCellStyle();
@@ -65,30 +67,15 @@ public class ExcelDownloadController {
                     .filter(curri -> curri.getSubject().getSubjectNo().equals(subject.getSubject_no()))
                     .collect(Collectors.toList());
 
-            // 과목명 삽입 (맨 앞에 과목명 셀 추가)
-            Row subjectRow1 = sheet.createRow(rowIndex++);
-            Cell subjectCell = subjectRow1.createCell(0);
-            subjectCell.setCellValue("과목");
-            subjectCell.setCellStyle(style);
-
-            Cell subjectValueCell = subjectRow1.createCell(1);
-            subjectValueCell.setCellValue(subject.getSubject_name());
-            subjectValueCell.setCellStyle(style);
-
-            // 커리큘럼 정보가 없을 때 처리
+         // 교육과정 정보가 없으면 스킵
             if (filteredCurriList.isEmpty()) {
-                Row emptyRow = sheet.createRow(rowIndex++);
-                Cell emptyCell = emptyRow.createCell(0);
-                emptyCell.setCellValue("교육과정 정보가 없습니다.");
-                emptyCell.setCellStyle(style);
-                sheet.addMergedRegion(new CellRangeAddress(rowIndex - 1, rowIndex - 1, 0, 2)); // 3개의 셀을 병합하여 출력
-                continue;
+                continue; // 교육과정이 없는 경우, 다음 과목으로 넘어감
             }
 
             // 두 번째 행: 헤더 구성 - 이름, 커리큘럼
             Row subjectRow2 = sheet.createRow(rowIndex++);
             Cell nameHeaderCell = subjectRow2.createCell(0);
-            nameHeaderCell.setCellValue("이름");
+            nameHeaderCell.setCellValue("과목");
             nameHeaderCell.setCellStyle(style);
 
             int colIndex = 1; // 1번째 열부터 시작
@@ -122,7 +109,7 @@ public class ExcelDownloadController {
             // 학생 정보 및 성적 데이터 출력
             Row dataRow = sheet.createRow(rowIndex++);
             Cell nameCell = dataRow.createCell(0);
-            nameCell.setCellValue(studentDto.getStudent_name());
+            nameCell.setCellValue(subject.getSubject_name());
             nameCell.setCellStyle(style);
 
             colIndex = 1; // 데이터 시작 열
@@ -154,10 +141,18 @@ public class ExcelDownloadController {
             // 테이블 간 여백 (두 행 띄우기)
             rowIndex += 2;
         }
-
+        
+     // 파일 제목 설정
+        String fileName = studentClassResult.getTeacher_history().getTYear()+"학년도 "+
+							        		studentClassResult.getTeacher_history().getGrade() + "학년 " +
+							        		studentClassResult.getTeacher_history().getGradeClass() + "반 " +
+							                studentDto.getStudent_name() + ".xlsx";
+     
+        String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "_");
+        
         // 엑셀 파일 다운로드 설정
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=student_data.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
         workbook.write(response.getOutputStream());
         workbook.close();
     }
@@ -170,9 +165,10 @@ public class ExcelDownloadController {
         List<CurriculumDto> curriList = studentService.selectCurriOne(subject_no);
         List<StudentClassDto> studentList = studentService.selectStudentListBySubject(subject_no);  // 해당 과목에 수강하는 학생 리스트
         List<ScoreDto> scoreList = studentService.selectScoreBySubject(subject_no);  // 과목 별 학생 성적 정보
-
+        
         Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Subject Data");
+        // 시트 이름을 과목명으로 설정
+        Sheet sheet = workbook.createSheet(subjectDto.getSubject_name());
 
         // 스타일: 테두리 및 가운데 정렬 설정
         CellStyle style = workbook.createCellStyle();
@@ -273,9 +269,17 @@ public class ExcelDownloadController {
             }
         }
 
+        // 파일 제목 설정
+        String fileName = subjectDto.getTeacher_history().getTYear() + "학년도 " + 
+                          subjectDto.getTeacher_history().getGrade() + "학년 " +
+                          subjectDto.getTeacher_history().getGradeClass() + "반 " +
+                          subjectDto.getSubject_semester() + "학기 " + 
+                          subjectDto.getSubject_name() + " 성적.xlsx";
+        String encodedFileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "_");
+
         // 엑셀 파일 다운로드 설정
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setHeader("Content-Disposition", "attachment; filename=subject_data.xlsx");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFileName + "\"");
         workbook.write(response.getOutputStream());
         workbook.close();
     }

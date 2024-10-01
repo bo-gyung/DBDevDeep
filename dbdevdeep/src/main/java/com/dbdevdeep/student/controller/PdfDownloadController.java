@@ -1,6 +1,8 @@
 package com.dbdevdeep.student.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,12 +38,43 @@ public class PdfDownloadController {
     	StudentDto dto = studentService.selectStudentOne(student_no);
 		List<StudentClassDto> studentClassResultList= studentService.selectStudentClassList(student_no);
 		List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
-		List<SubjectDto> subjectList = studentService.mySubjectList();
+		List<SubjectDto> subjectList = studentService.studentSubjectList(studentClassResultList);
 		List<CurriculumDto> curriList = studentService.selectCurriAll();
 		List<ScoreDto> scoreList = studentService.selectScoreByStudent(student_no);
+		
+		Map<Long, String> scoreMap = new HashMap<>();
+	    for (ScoreDto score : scoreList) {
+	        scoreMap.put(score.getCurriculum_no(), score.getScore());
+	    }
+	    
+	    
+	    double totalScore = 0;
+	    Map<Long, String> totalScoreMap = new HashMap<>();
 
+	    // 각 과목별로 총점을 계산
+	    for (SubjectDto subject : subjectList) {
+	        totalScore = 0;  // 과목별 총점 초기화
+
+	        // 해당 과목의 커리큘럼을 필터링하여 총점 계산
+	        for (CurriculumDto curri : curriList) {
+	            if (curri.getSubject().getSubjectNo().equals(subject.getSubject_no())) {
+	                // 해당 커리큘럼의 점수를 누적하여 계산
+	                for (ScoreDto score : scoreList) {
+	                    if (score.getCurriculum_no().equals(curri.getCurriculum_no())) {
+	                        // 총점을 누적 ( += 사용하여 점수를 더함)
+	                        totalScore += ((Double.parseDouble(score.getScore())) 
+	                                      / (Double.parseDouble(curri.getCurriculum_max_score())))
+	                                      * (Double.parseDouble(curri.getCurriculum_ratio()));  // 반영 비율 적용
+	                    }
+	                }
+	            }
+	        }
+	        // 계산된 총점을 문자열로 변환하여 Map에 저장
+	        totalScoreMap.put(subject.getSubject_no(), String.format("%.2f", totalScore));
+	    }
+	    
         // PDF 생성
-        byte[] pdfBytes = pdfService.createPdf(dto, studentClassResultList,resultList,subjectList,curriList,scoreList);
+        byte[] pdfBytes = pdfService.createPdf(dto, studentClassResultList,resultList,subjectList,curriList,scoreList,totalScoreMap);
 
         // PDF 응답 설정
         response.setContentType("application/pdf");

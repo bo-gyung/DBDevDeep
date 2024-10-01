@@ -23,6 +23,7 @@
 				<div class="row">
 				<div class="card">
 					<div id="content" class="card-body">
+					<button id="download_excel">엑셀 다운</button>
 			            <form id="score_register_form" method="post">
 			            <h3>학생 성적 관리</h3>
 			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
@@ -39,11 +40,11 @@
 							            <th th:each="curri : ${curriList}" 
 							                th:if="${curri.subject.subjectNo == subject.subject_no}" 
 							                th:text="${curri.curriculum_content}" colspan="3"></th> <!-- 교육과정 내용 -->
+							                <th rowspan="2">취득 점수</th>
 							        </tr>
 							        <tr>
 							            <!-- 해당 과목의 교육과정 정보만 필터링해서 반복 -->
-							            <th:block th:each="curri : ${curriList}" 
-							                      th:if="${curri.subject.subjectNo == subject.subject_no}">
+							            <th:block th:each="curri : ${curriList}" th:if="${curri.subject.subjectNo == subject.subject_no}">
 							                <th>반영비율(%)</th>
 							                <th>과목만점</th>
 							                <th>점수</th>
@@ -66,6 +67,7 @@
 											    <input type="text" name="score" id="score" th:value="${scoreList.get(curri.curriculum_no) != null ? scoreList.get(curri.curriculum_no) : ''}" />
 											</td>
 							            </th:block>
+											<td th:text="${totalScoreMap.get(subject.subject_no)}"></td>
 							        </tr>
 							    </tbody>
 							</table>
@@ -74,7 +76,7 @@
 							<input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
 				            <input type="submit" value="등록">
 	            		</form>
-	            		<button id="download_excel">엑셀 다운</button>
+	            		
 					</div>
             	</div>
 				</div>

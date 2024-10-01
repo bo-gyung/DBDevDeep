@@ -81,7 +81,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											<li>
 												<div class="academic-info">
 													<h3>학년 이력 조회</h3>
-													<a th:href="@{/student/class/{std_no}(std_no=${dto.student_no})}">학년 이력 수정</a><br> 
+													<a th:href="@{/student/class/emp/{std_no}(std_no=${dto.student_no})}">학년 이력 수정</a><br> 
 													<table class="table table-borederd no-wrap">
 														<colgroup>
 															<col style="width: 20%">
@@ -121,7 +121,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											<li>
 												<div class="academic-info">
 													<h3>가족사항</h3>
-													<a th:href="@{/student/parent/{std_no}(std_no=${dto.student_no})}">학부모 정보 수정</a>
+													<a th:href="@{/student/parent/emp/{std_no}(std_no=${dto.student_no})}">학부모 정보 수정</a>
 													<table class="table table-borederd no-wrap">
 													<colgroup>
 															<col style="width: 10%">
