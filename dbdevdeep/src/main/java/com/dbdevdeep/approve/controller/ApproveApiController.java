@@ -12,8 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,6 +31,7 @@ import com.dbdevdeep.approve.domain.ReferenceDto;
 import com.dbdevdeep.approve.domain.VacationRequestDto;
 import com.dbdevdeep.approve.service.ApproveLineService;
 import com.dbdevdeep.approve.service.ApproveService;
+import com.dbdevdeep.approve.service.VacationRequestService;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
@@ -38,6 +41,7 @@ public class ApproveApiController {
 
 	private final ApproveService approveService;
 	private final FileService fileService;
+	private final VacationRequestService vacationRequestService;
 	private final ApproveLineService approveLineService;
 	private final EmployeeRepository employeeRepository;
 	
@@ -66,12 +70,22 @@ public class ApproveApiController {
 	
 	
 	@Autowired
-	public ApproveApiController(ApproveService approveService, FileService fileService, ApproveLineService approveLineService ,EmployeeRepository employeeRepository) {
+	public ApproveApiController(ApproveService approveService, FileService fileService, 
+			VacationRequestService vacationRequestService, ApproveLineService approveLineService ,
+			EmployeeRepository employeeRepository) {
 		this.approveService = approveService;
 		this.fileService = fileService;
+		this.vacationRequestService = vacationRequestService;
 		this.approveLineService = approveLineService;
 		this.employeeRepository =employeeRepository;
 	}
+	
+	// 파일 다운로드
+	@GetMapping("/approDownload/{appro_no}")
+	public ResponseEntity<Object> approDownload(@PathVariable("appro_no")Long appro_no){
+		return fileService.approDownload(appro_no);
+	}
+	
 	
 	// 보고서 삭제
 	@ResponseBody
@@ -107,7 +121,7 @@ public class ApproveApiController {
 	    int fileDeleteResult = fileService.approFileDelete(appro_no);
 
 	    if (fileDeleteResult >= 0) { 
-	        if (approveService.deleteApprove(appro_no) > 0) {
+	        if (vacationRequestService.deleteApprove(appro_no) > 0) {
 	            map.put("res_code", "200");
 	            map.put("res_msg", "정상적으로 삭제되었습니다.");
 	        } else {
@@ -219,7 +233,7 @@ public class ApproveApiController {
 	        approveLineDto.setReason_back(reasonBack);
 
 	        // 서비스 호출
-	        int result = approveService.backApproveLine(approveLineDto, empId, vacType, startDate, endDate, deptCode, jobCode);
+	        int result = vacationRequestService.backApproveLine(approveLineDto, empId, vacType, startDate, endDate, deptCode, jobCode);
 
 	        if (result > 0) {
 	            resultMap.put("res_code", "200");
@@ -426,7 +440,7 @@ public class ApproveApiController {
 					}
 				}
 			
-			int result = approveService.approUpdate(approveDto, vacationRequestDtos, approveLineDtos, referenceDto ,approFileDto, file);
+			int result = vacationRequestService.approUpdate(approveDto, vacationRequestDtos, approveLineDtos, referenceDto ,approFileDto, file);
 			
 			if(result > 0) {
 				resultMap.put("res_code","200");
@@ -693,7 +707,7 @@ public class ApproveApiController {
 			}
 		
 		
-			int result = approveService.approUp(approveDto, vacationRequestDto, approveLineDtos, referenceDto ,approFileDto, file);
+			int result = vacationRequestService.approUp(approveDto, vacationRequestDto, approveLineDtos, referenceDto ,approFileDto, file);
 			
 			if(result > 0) {
 				resultMap.put("res_code", "200");

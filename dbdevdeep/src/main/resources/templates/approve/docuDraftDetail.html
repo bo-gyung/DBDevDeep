@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+     layout:decorate="~{include/approve_layout}">
+     
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- CSRF Token -->
+	<meta name="_csrf" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+	
+	<!-- CKEditor의 CDN 스타일 시트를 불러옵니다 -->
+	<script src="https://cdn.ckeditor.com/ckeditor5/35.3.0/classic/ckeditor.js"></script>
+
+	<!-- Favicon icon -->
+	<link rel="icon" type="image/png" sizes="16x16" th:href="@{/assets/images/MulMang_logo.png}">
+	<title>물망초등학교</title>
+	
+    <!-- jQuery는 최상단에서 한 번만 로드 -->
+	<!-- jQuery 3.5.1 버전 로드 -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+	<!-- jsTree는 jQuery 이후에 로드 -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
+
+	<!-- Bootstrap 및 다른 라이브러리 -->
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> 
+	
+<script>
+    var $j = jQuery.noConflict();
+
+    $j(document).ready(function() {
+        // CSRF 토큰 가져오기
+        var csrfToken = $j('meta[name="_csrf"]').attr('content');
+        var csrfHeader = $j('meta[name="_csrf_header"]').attr('content');
+
+        let targetCellId;
+
+        $j('#openTreeButton1, #openTreeButton2').click(function() {
+            targetCellId = '#' + $j(this).attr('id').replace('openTreeButton', 'selectedNodesTable');
+            $j('#treeModal').modal('show');
+            initializeTree();
+        });
+
+        function initializeTree() {
+            $j('#jstree_modal').jstree("destroy").empty();
+
+            // API로부터 트리 데이터를 가져옴
+            $j.ajax({
+                url: '/api/emp-tree',
+                method: 'GET',
+                dataType: 'json',
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader(csrfHeader, csrfToken);
+                },
+                success: function(data) {
+                    // 트리 데이터 구성
+                    const D1Data = D1(data.employees, data.teacherHistory);
+                    const D2Data = D2(data.employees, data.teacherHistory);
+                    const D3Data = D3(data.employees);
+                    const D3J4Data = D3J4(data.employees);
+                    const D4Data = D4(data.employees, data.teacherHistory);
+                    const D4J4Data = D4J4(data.employees, data.teacherHistory);
+
+                    $j('#jstree_modal').jstree({
+                        'core': {
+                            'data': Object.keys(D1Data).length !== 0 
+                                ? D1Data : Object.keys(D2Data).length !== 0
+                                    ? D2Data : Object.keys(D3Data).length !== 0 
+                                        ? [...D3Data, ...D4Data] : Object.keys(D3Data).length !== 0
+                                            ? [...D3J4Data, ...D4Data] : Object.keys(D4Data).length !== 0
+                                                ? [...D3Data, ...D4J4Data] : Object.keys(D3Data).length !== 0 && Object.keys(D4Data).length !== 0
+                                                    ? [...D3J4Data, ...D4J4Data] : [],
+                            "themes": {
+                                "responsive": false
+                            },
+                            'multiple': true
+                        },
+                        "types": {
+                            "default": {
+                                "icon": "fas fa-user" // 아이콘 변경
+                            }
+                        },
+                        "plugins": ["types", "checkbox"], // 체크박스 플러그인 활성화
+                        "checkbox": {
+                            "keep_selected_style": false,
+                            "three_state": false,
+                            "cascade": ""
+                        }
+                    }).on("select_node.jstree", function (e, data) {
+                        // 학년 노드 클릭 시 자식 노드 선택
+                        if (data.node.text.includes('학년')) {
+                            $j('#jstree_modal').jstree('select_node', data.node.children_d);
+                        }
+                    }).on("deselect_node.jstree", function (e, data) {
+                        // 학년 노드 해제 시 자식 노드도 해제
+                        if (data.node.text.includes('학년')) {
+                            $j('#jstree_modal').jstree('deselect_node', data.node.children_d);
+                        }
+                    });
+                },
+                error: function(error) {
+                    console.error('Error fetching tree data:', error);
+                }
+            });
+        }
+
+        function getTeacherHistory(empId, teacherHistory) {
+            const history = teacherHistory.find(t => t.teach_emp_id === empId);
+            return history ? { grade: history.grade, grade_class: history.grade_class } : { grade: null, grade_class: null };
+        }
+
+        // 교장
+        function D1(items, historys) {
+            return items
+                .filter(item => item.dept_code == 'D1')
+                .map(item => {
+                    return {
+                        "text": item.dept_name + " " + item.emp_name +" ("+item.emp_id+")",
+                        "state": { "opened": true },
+                        "children": D2(items, historys)
+                    };
+                });
+        }
+
+        // 교감
+        function D2(items, historys) {
+            return items
+                .filter(item => item.dept_code == 'D2')
+                .map(item => {
+                    return {
+                        "text": item.dept_name + " " + item.emp_name +" ("+item.emp_id+")",
+                        "state": { "opened": true },
+                        "children": [...D3(items), ...D4(items, historys)]
+                    };
+                });
+        }
+
+        // 행정부장
+        function D3(items) {
+            return items
+                .filter(item => item.dept_code == 'D3' && item.job_code == 'J3')
+                .map(item => {
+                    return {
+                        "text": item.dept_name + "장 " + item.emp_name +" ("+item.emp_id+")",
+                        "state": { "opened": true },
+                        "children": D3J4(items)
+                    };
+                });
+        }
+
+        // 행정직원
+        function D3J4(items) {
+            return items
+                .filter(item => item.dept_code == 'D3' && item.job_code == 'J4')
+                .map(item => {
+                    return {
+                        "text": item.emp_name +" ("+item.emp_id+")",
+                        "state": { "opened": false }
+                    };
+                })
+                .sort((a, b) => a.text.localeCompare(b.text)); // 이름 순으로 정렬
+        }
+
+        // 교무부장
+        function D4(items, historys) {
+            return items
+                .filter(item => item.dept_code == 'D4' && item.job_code == 'J3')
+                .map(item => {
+                    const history = getTeacherHistory(item.emp_id, historys);
+                    return {
+                        "text": item.dept_name + "장 " + item.emp_name +" ("+item.emp_id+")",
+                        "state": { "opened": true },
+                        "children": createGradeNodes(items, historys)
+                    };
+                });
+        }
+
+        // 학년별 노드를 생성하는 함수
+        function createGradeNodes(items, historys) {
+            const gradeNodes = [];
+
+            // 학년별로 그룹화하여 노드 생성
+            for (let grade = 1; grade <= 6; grade++) {
+                const gradeNode = {
+                    "text": grade + "학년",
+                    "state": { "opened": true },
+                    "children": D4J4(items, historys, grade) // 특정 학년의 교직원 목록을 가져옴
+                };
+                gradeNodes.push(gradeNode);
+            }
+
+            // 기타 노드 생성 (학년 정보가 없는 경우)
+            const etcNode = {
+                "text": "기타",
+                "state": { "opened": true },
+                "children": D4J4(items, historys, null) // 학년 정보가 없는 교직원 목록을 가져옴
+            };
+            gradeNodes.push(etcNode);
+
+            return gradeNodes;
+        }
+
+        // 교무직원 목록을 가져오는 함수 (특정 학년 또는 기타)
+        function D4J4(items, historys, grade) {
+            return items
+                .filter(item => item.dept_code == 'D4' && item.job_code == 'J4')
+                .filter(item => {
+                    const history = getTeacherHistory(item.emp_id, historys);
+                    return grade === null ? history.grade == null : history.grade == grade; // 해당 학년이 맞는지 확인
+                })
+                .map(item => {
+                    const history = getTeacherHistory(item.emp_id, historys);
+                    const gradeYN = history.grade != null ? item.emp_name +" ("+item.emp_id+")" : item.emp_name +" ("+item.emp_id+")";
+                    return {
+                        "text": gradeYN,
+                        "state": { "opened": false }
+                    };
+                })
+                .sort((a, b) => {
+                    const matchA = a.text.match(/\((\d+)-(\d+)\)/);
+                    const matchB = b.text.match(/\((\d+)-(\d+)\)/);
+
+                    const gradeA = matchA ? parseInt(matchA[1], 10) : null;
+                    const gradeB = matchB ? parseInt(matchB[1], 10) : null;
+                    const classA = matchA ? parseInt(matchA[2], 10) : null;
+                    const classB = matchB ? parseInt(matchB[2], 10) : null;
+
+                    if (gradeA !== null && gradeB !== null) {
+                        if (gradeA === gradeB) {
+                            return (classA !== null ? classA : 0) - (classB !== null ? classB : 0); // 학년이 같은 경우 반 순으로 정렬
+                        } else {
+                            return gradeA - gradeB; // 학년이 다른 경우 학년 순으로 정렬
+                        }
+                    } else if (gradeA !== null) {
+                        return -1; // 두 값 중 하나가 null인 경우 학년이 있는 값 순으로 정렬
+                    } else if (gradeB !== null) {
+                        return 1; // 두 값 중 하나가 null인 경우 학년이 있는 값 순으로 정렬
+                    } else {
+                        return a.text.localeCompare(b.text); // 두 값이 null이면 이름 순으로 정렬
+                    }
+                });
+        }
+
+        // 부모 노드 클릭 시 아무런 동작도 하지 않도록 설정
+        $j('#jstree_modal').on("select_node.jstree", function(e, data) {
+            if (data.node.type === "non_selectable") {
+                data.instance.deselect_node(data.node);
+            }
+        });
+
+        $j('#confirmSelection').click(function() {
+            var selectedNodes = $j('#jstree_modal').jstree("get_selected", true);
+            var names = selectedNodes.map(function(node) {
+                return node.text;
+            });
+
+            if (Array.isArray(names)) {
+                $j(targetCellId).val(names.join('>')); // 선택한 노드들의 텍스트를 조합하여 표시
+            } else {
+                console.error("names is not an array:", names);
+            }
+
+            $j('#treeModal').modal('hide');
+        });
+    });
+</script>
+
+
+
+</head>
+
+     
+<th:block layout:fragment="content">
+
+			<!-- ============================================================== -->
+			<!-- End Left Sidebar - style you can find in sidebar.scss  -->
+			<!-- ============================================================== -->
+			<!-- ============================================================== -->
+			<!-- Page wrapper  -->
+			<!-- ============================================================== -->
+			<div class="page-wrapper">
+			<!-- ============================================================== -->
+			<!-- Container fluid  -->
+			<!-- ============================================================== -->
+			<div class="container-fluid">
+			<!-- ============================================================== -->
+			<!-- Start Page Content -->
+			<!-- ============================================================== -->
+			<div class="col-sm-12 col-md-12">
+				<div class="card">
+					<div class="card-body">
+						<h3 class="card-title">보고서 작성</h3>
+							<hr>
+								<div class="container-fluid">
+            <!-- ============================================================== -->
+            <!-- Start Page Content -->
+            <!-- ============================================================== -->
+                
+                
+           <div class="container">
+     		   <form id="approCreateFrm" method="POST">
+     		   <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+					<br><br>     		   
+     			   <h2 class="text-center">보&nbsp;&nbsp;고&nbsp;&nbsp;서</h2>
+     			   <br><br>
+				        <table class="table table-bordered">
+				            <tbody>
+				                <tr>
+				                    <td>성명</td>
+				                    <td><input type="text" name="emp_name" th:value="${#authentication.principal.dto.emp_name}" readonly style="border: 0; outline: none;"></td>	
+				                    <td>직원번호</td>
+				                    <td><input type="text" name="emp_id" th:value="${#authentication.principal.dto.emp_id}" readonly style="border: 0; outline: none;"></td>
+				                </tr>
+				                <tr>
+				                    <td>부서</td>
+				                    <td>
+									    <input type="text" name="dept_name" th:value="${#authentication.principal.dto.dept_name}" readonly style="border: 0; outline: none;">
+									    <!-- 숨겨진 필드로 dept_code 값을 유지 -->
+									    <input type="hidden" name="dept_code" th:value="${#authentication.principal.dto.dept_code}">
+									    <input type="hidden" name="draft_no" th:value="${dto.draft_no}">
+									</td>
+				                    <td>직급</td>
+									<td>
+									    <input type="text" name="job_name_display" 
+									           th:value="${#authentication.principal.dto.job_code == 'J1' ? '교장' : 
+									                       #authentication.principal.dto.job_code == 'J2' ? '교감' :
+									                       #authentication.principal.dto.job_code == 'J3' ? '부장' : '직원'}"
+									           readonly style="border: 0; outline: none;">
+									    <!-- 실제 job_code를 숨겨진 필드로 추가 -->
+									    <input type="hidden" name="job_code" th:value="${#authentication.principal.dto.job_code}">
+									</td>
+				                
+				                </tr>
+				                <tr>
+				                	<td>제목</td>
+				                    <td><input type="text" id="appro_title" name="appro_title" class="form-control" th:value="${dto.appro_title}"></td>
+				                    <td>종류</td>
+				                    <td>
+				                    <select id="templateSelect" name="tempNo" class="form-control">
+										    <option value="">종류를 선택해주세요</option>
+										    <option th:each="template : ${tempList}" th:value="${template.temp_no}" th:text="${template.temp_name}"></option>
+									</select>
+									</td>
+				                </tr>
+				                <tr>
+				                	<td colspan="4">
+					                		<!-- CKEditor가 적용될 영역 -->
+							                <div>
+										        <div class="main-container">
+										            <div class="editor-container editor-container_classic-editor editor-container_include-block-toolbar" id="editor-container">
+										                <div class="editor-container__editor">
+										                	<div id="editor">
+										                	</div>
+										                </div>
+										                <textarea id="approContent" name="appro_content" style="display:none;"></textarea>
+										                <input type="hidden" id="appro_content_hidden" th:value="${dto.appro_content}">
+										            </div>
+										        </div>
+										    </div>
+				                	</td>
+				                </tr>
+				                <tr>
+					                <td>협의자</td>
+					                <td colspan="3"><button id="openTreeButton1" class="btn btn-primary" type="button">+</button>
+					                <input type="text" name="consult" id="selectedNodesTable1" th:value="${dto.consult_draft_root}" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
+					                </td>
+				                </tr>
+				                <tr>
+					                <td>결재자</td>
+									<td colspan="3">
+									    <button id="openTreeButton2" class="btn btn-primary" type="button">+</button>
+									    <input type="text" name="approval" id="selectedNodesTable2" th:value="${dto.approval_draft_root}" readonly style="border: 0; outline: none; width: calc(100% - 50px);">
+									</td>
+				                </tr>
+				                
+				                <tr>
+                                    <td>기존파일</td>
+                                       <td colspan="3">
+									   <input type="text" th:value="${dto.ori_file != null ? dto.ori_file : ''}" readonly style="border: 0; outline: none;"> 
+									</td>
+                                </tr>
+                                <tr>
+                                   <td>수정파일</td>
+                                   <td colspan="3">
+								   <input type="file" name="file_name"> 
+								   </td>
+                                </tr>
+                                <tr>
+                                   <td colspan="4">
+								      <span style="color:red;">*주의 ) 수정 파일 업로드시 기존 파일은 삭제 됩니다.</span> 
+								   </td>
+                                </tr>
+            				</tbody>
+       					 </table>
+					        <div style= "display: flex; justify-content: space-between; align-items: center;">
+						        <div class="text-center mt-3">
+						        	<input type="button" value="목록" id="returnList" class="btn btn-success"></button>
+						        </div>
+						   
+						        <div class="text-center mt-3">
+						        <button type="button" class="btn btn-danger delete_board_button"
+										            th:onclick="|draftDelete(${dto.draft_no})|">삭제</button>	
+						            <button type="button" id="saveBtn" class="btn btn-primary">임시 저장</button>
+									<button type="submit" id="submitBtn" class="btn btn-success" >결재 요청</button>
+						        </div>
+					        </div>
+					        </form>
+					    </div>
+							    <!-- 트리 모달창 -->
+							    <div class="modal fade" id="treeModal" tabindex="-1" role="dialog" aria-labelledby="treeModalLabel" aria-hidden="true">
+							        <div class="modal-dialog" role="document">
+							            <div class="modal-content">
+							                <div class="modal-header">
+							                    <h5 class="modal-title" id="treeModalLabel">Select Nodes</h5>
+							                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							                        <span aria-hidden="true">&times;</span>
+							                    </button>
+							                </div>
+							                <div class="modal-body">
+							                    <!-- 트리가 렌더링될 영역 -->
+							                    <div id="jstree_modal"></div>
+							                </div>
+							                <div class="modal-footer">
+							                    <button type="button" class="btn btn-primary" id="confirmSelection">확인</button>
+							                    <button type="submit" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+							                </div>
+							            </div>
+							        </div>
+							    </div>
+          					</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- ============================================================== -->
+			<!-- End PAge Content -->
+			<!-- ============================================================== -->
+			<!-- ============================================================== -->
+			<!-- Right sidebar -->
+			<!-- ============================================================== -->
+			<!-- .right-sidebar -->
+			<!-- ============================================================== -->
+			<!-- End Right sidebar -->
+			<!-- ============================================================== -->
+		</div>
+		<!-- ============================================================== -->
+		<!-- End Container fluid  -->
+		<!-- ============================================================== -->
+		<!-- ============================================================== -->
+		<!-- footer -->
+		<!-- ============================================================== -->
+		<footer class="footer text-center text-muted">
+			All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
+		</footer>
+		<!-- ============================================================== -->
+		<!-- End footer -->
+		<!-- ============================================================== -->
+	</div>
+	<!-- ============================================================== -->
+	<!-- End Page wrapper  -->
+	<!-- ============================================================== -->
+	</div>
+	<!-- ============================================================== -->
+	<!-- End Wrapper -->
+	<!-- ============================================================== -->
+	<!-- End Wrapper -->
+	<!-- ============================================================== -->
+	<!-- All Jquery -->
+	<!-- ============================================================== -->
+	<!-- Bootstrap tether Core JavaScript -->
+	
+	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	<!-- apps -->
+	<script src="/dist/js/app-style-switcher.js"></script>
+	<script src="/dist/js/feather.min.js"></script>
+	<!-- slimscrollbar scrollbar JavaScript -->
+	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script> 
+	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+	<!--Wave Effects -->
+	<!-- themejs -->
+	<!--Menu sidebar -->
+	<script src="/dist/js/sidebarmenu.js"></script>
+	<!--Custom JavaScript -->
+	<script src="/dist/js/custom.min.js"></script>
+	
+	
+	
+	 <script>
+    
+	
+	    // 목록으로 이동시 재 확인
+	    $('#returnList').on('click', function() {
+	    	Swal.fire({
+	            title: '목록으로 이동하시겠습니까?',
+	            text: '입력된 항목들이 삭제됩니다.',
+	            icon: 'warning',
+	            showCancelButton: true,
+	            confirmButtonColor: '#5f76e8',
+	            cancelButtonColor: '#e8eaec',
+	            confirmButtonText: '이동',
+	            cancelButtonText: '취소',
+	            customClass: {
+	                cancelButton: 'custom-cancel-button'
+	            }
+	        })
+	    	.then((result) => {
+	    		if(result.isConfirmed){
+	    			window.location.href = '/approve';
+	    		}
+	    	})
+	    })
+	    
+    </script>
+    
+    <!-- tempEdit 내용 불러오기 -->
+    <script>
+    // 에디터가 초기화되었는지 여부를 저장하는 변수
+    let editorInitialized = false;
+    let editorInstance;  // CKEditor 인스턴스를 저장할 변수
+
+    document.addEventListener("DOMContentLoaded", function() {
+        ClassicEditor
+            .create(document.querySelector('#editor'))
+            .then(editor => {
+                editorInstance = editor;  // CKEditor 인스턴스 저장
+                editorInitialized = true;  // CKEditor 초기화 완료 플래그
+            
+             // Hidden input에 있는 appro_content 값 가져오기
+                const approContent = document.getElementById('appro_content_hidden').value;
+                
+                // CKEditor에 값 설정 (HTML 데이터를 삽입)
+                if (approContent) {
+                    editor.setData(approContent);  // CKEditor에 데이터 설정
+                }
+            })
+            .catch(error => {
+                console.error('CKEditor 초기화 중 오류 발생:', error);
+            });
+    });
+
+    // 템플릿 변경 시 에디터 데이터 설정
+    $('#templateSelect').change(function() {
+        var tempNo = $(this).val();
+
+        if (tempNo) {
+            $.ajax({
+                url: '/getTempContent/' + tempNo,
+                method: 'GET',
+                success: function(data) {
+                    if (data && data.temp_content) {
+                        if (editorInitialized && typeof editorInstance.setData === 'function') {
+                            editorInstance.setData(data.temp_content);  // CKEditor에 데이터 설정
+                        } else {
+                            console.error("CKEditor가 아직 초기화되지 않았습니다.");
+                        }
+                    } else {
+                        console.log("템플릿 내용이 없습니다.");
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching template content:', error);
+                }
+            });
+        } else {
+            if (editorInitialized && typeof editorInstance.setData === 'function') {
+                editorInstance.setData('');  // 에디터 내용을 초기화
+            }
+        }
+    });
+
+    </script>
+    
+    
+    <script>
+    // 임시 삭제 
+    const draftDelete = function(draftNo) {
+    Swal.fire({
+        title: '정말 삭제하시겠습니까?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: '삭제',
+        cancelButtonText: '취소'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const csrfToken = document.getElementById("csrf_token").value; // CSRF 토큰 가져오기
+
+            fetch('/draftAppro/' + draftNo, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken // CSRF 토큰을 헤더에 추가
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.res_code == '200') {
+                    // 삭제 성공 시 Swal로 성공 메시지 띄움
+                    Swal.fire({
+                        icon: 'success',
+                        title: '삭제 완료',
+                        text: data.res_msg
+                    }).then((result) => {
+                        location.href = "/approvedraft"; // 삭제 후 리디렉션
+                    });
+                } else {
+                    // 삭제 실패 시 Swal로 오류 메시지 띄움
+                    Swal.fire({
+                        icon: 'error',
+                        title: '오류',
+                        text: data.res_msg,
+                        confirmButtonText: '닫기'
+                    });
+                }
+            }).catch(error => {
+                console.error('Error during fetch:', error); // 오류 로그 추가
+                Swal.fire({
+                    icon: 'error',
+                    title: '오류',
+                    text: '삭제 중 문제가 발생했습니다.',
+                    confirmButtonText: '닫기'
+                });
+            });
+        }
+    });
+}
+    
+    // 임시저장
+    document.getElementById('saveBtn').addEventListener('click', function () {
+        handleSave();  
+    });
+
+    // 승인 요청
+    document.getElementById('submitBtn').addEventListener('click', function (event) {
+        event.preventDefault();  // 기본 submit 방지
+        handleSubmit();  // 유효성 검사 및 제출 처리 함수 호출
+    });
+
+    // 임시 저장 처리 함수
+    function handleSave() {
+	        const form = document.getElementById('approCreateFrm');
+	        const formData = new FormData(form);  
+	        const csrfToken = document.getElementById("csrf_token").value;
+
+	        if (form.appro_title.value === "") {
+	            Swal.fire({
+	                icon: 'error',
+	                title: '제목을 입력해주세요',
+	                confirmButtonText: '닫기'
+	            });
+	            return;
+	        }
+	        if (editorInitialized && editorInstance) {
+	            const editorContent = editorInstance.getData();
+	            document.getElementById('approContent').value = editorContent; 
+	        }
+
+	         // **FormData 수동으로 추가하기**
+	            formData.set('appro_content', document.getElementById('approContent').value);
+	            
+
+	        fetch('/draftApprove', {
+	            method: 'POST',
+	            headers: {
+	                'X-CSRF-TOKEN': csrfToken
+	            },
+	            body: formData
+	        })
+	        .then(response => response.json())
+	        .then(data => {
+	        	if (data.res_code == '200') {
+	                Swal.fire({
+	                    icon: 'success',
+	                    title: '성공',
+	                    text: data.res_msg,
+	                    confirmButtonText: "닫기"
+	                }).then(() => {
+	                    location.href = "/approvedraft";
+	                });
+	            } else {
+	                Swal.fire({
+	                    icon: 'error',
+	                    title: '실패',
+	                    text: data.res_msg,
+	                    confirmButtonText: "닫기"
+	                });
+	            }
+	        })
+	        .catch(error => {
+	            console.error('Error:', error);
+	        });
+	    }
+
+    // 결재 요청 유효성 검사 및 처리 함수
+    function handleSubmit() {
+        const form = document.getElementById('approCreateFrm'); 
+        const formData = new FormData(form); 
+        const csrfToken = document.getElementById("csrf_token").value;
+		const editorValue = document.getElementById("editor").value;
+        // 에디터에서 HTML 데이터를 가져와 textarea에 설정
+        if (editorInitialized && editorInstance) {
+        const editorContent = editorInstance.getData();
+        document.getElementById('approContent').value = editorContent; 
+    }
+
+     // **FormData 수동으로 추가하기**
+        formData.set('appro_content', document.getElementById('approContent').value);
+        
+        // 유효성 검사
+        if (form.appro_title.value == "") {
+            Swal.fire({
+                icon: 'error',
+                title: '제목을 입력해주세요',
+                confirmButtonText: "닫기"
+            });
+            return;
+        } else if (form.approval.value == "") {
+            Swal.fire({
+                icon: 'error',
+                title: '결재자를 선택해주세요',
+                confirmButtonText: "닫기"
+            });
+            form.approval.focus();
+            return;
+        }
+
+        fetch('/draftApproUp', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrfToken 
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.res_code == '200') {
+                Swal.fire({
+                    icon: 'success',
+                    title: '성공',
+                    text: data.res_msg,
+                    confirmButtonText: "닫기"
+                }).then(() => {
+                    location.href = "/approveDocu";
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '실패',
+                    text: data.res_msg,
+                    confirmButtonText: "닫기"
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error); 
+        });
+    }
+</script>
+</th:block>
+</html>

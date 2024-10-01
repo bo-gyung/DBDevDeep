@@ -14,8 +14,6 @@
     <link href="/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
     <link href="/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
     <link href="/assets/extra-libs/jvector/jquery-jvectormap-2.0.2.css" rel="stylesheet" />
-    <!-- Custom CSS -->
-    <link href="/dist/css/style.min.css" rel="stylesheet">
 </head>
 <body>
 	<div id="main-wrapper" data-theme="light" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
@@ -26,5 +24,19 @@
 	</th:block>
 	</div>
 	
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+		    // 모든 nav-link 요소들을 선택합니다.
+		    const navItems = document.querySelectorAll('.nav-item');
+	
+		    // 다섯 번째 nav-link에 active 클래스를 추가합니다 (인덱스는 0부터 시작하므로 4가 다섯 번째).
+		    if (navItems[0]) { // 다섯 번째 요소가 존재하는지 확인
+		    	navItems[0].classList.add('active');
+		    }
+		});
+	</script>
+	
 </body>
+	<!-- Custom CSS -->
+    <link href="/dist/css/style.min.css" rel="stylesheet">
 </html>

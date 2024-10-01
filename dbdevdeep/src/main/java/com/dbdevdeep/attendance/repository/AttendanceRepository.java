@@ -27,4 +27,10 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>{
 	
 	@Query("SELECT MAX(a.overtimeSum) FROM Attendance a WHERE a.employee = :employee AND FUNCTION('YEAR', a.attendDate) = :year AND FUNCTION('MONTH', a.attendDate) = :month")
 	Optional<Integer> findByLastInfo(@Param("employee") Employee employee , @Param("year") int year , @Param("month") int month);
+	
+	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee")
+	List<Attendance> findByEmpIdList(@Param("employee") Employee employee);
+	
+	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee AND a.attendDate = :attendDate")
+	Attendance findByEmpAndDate(@Param("employee") Employee employee , @Param("attendDate") LocalDate attendDate);
 }

@@ -409,9 +409,20 @@
 											    </td>
 											</tr>
                                             <tr>
-                                                <td>첨부파일</td>
+                                                <td>기존파일</td>
                                                 <td colspan="3">
-											        <input type="text" name="file_name" th:value="${fDto != null ? fDto.ori_file : ''}"> 
+											        <input type="text" th:value="${fDto != null ? fDto.ori_file : ''}" readonly style="border: 0; outline: none;"> 
+											    </td>
+                                            </tr>
+                                            <tr>
+                                                <td>수정파일</td>
+                                                <td colspan="3">
+											        <input type="file" name="file_name">
+											    </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4">
+											        <span style="color:red;">*주의 ) 수정 파일 업로드시 기존 파일은 삭제 됩니다.</span> 
 											    </td>
                                             </tr>
                                         </tbody>

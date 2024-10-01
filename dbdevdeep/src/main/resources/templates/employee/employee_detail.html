@@ -46,6 +46,76 @@
 			 text-align: center;
 		}
 	</style>
+	
+	<style>
+		/* datatable css */
+		div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+			margin: 2px 0; white-space: nowrap; justify-content: center; margin-top: 8px;
+		}
+		/* a 태그 속성 제거 */
+		a {
+			text-decoration: none; /* 밑줄 제거 */ color: inherit; /* 기본 색상 제거, 부모 요소의 색상 사용 */ cursor: pointer; /* 커서 스타일 변경 */
+		}
+		/* a 태그 호버 시 스타일 */
+		a:hover {
+			text-decoration: none; /* 호버 시 밑줄 추가 */ color: inherit; /* 호버 시 색상 변경 */
+		}
+		
+		/* 첫 번째 td를 수평 및 수직 가운데 정렬 */
+		.bordered tbody tr td.align-center {
+			text-align: center; /* 수평 가운데 정렬 */ vertical-align: middle; padding-bottom: 8px;
+		}
+		
+		/* 정렬 아이콘의 위치 및 정렬 설정 */
+		table.dataTable thead .sorting:before, table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:before, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:before, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:before, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:before, table.dataTable thead .sorting_desc_disabled:after {
+			display: inline-block; /* 아이콘을 인라인 블록으로 설정 */ position: relative; /* 아이콘 위치를 텍스트 옆으로 설정 */ margin-left: 10px !important; /* 텍스트와 아이콘 사이의 간격을 조정 */ bottom: 0; /* 아이콘을 텍스트 높이에 맞추기 위해 위치 설정 */ opacity: 0.7; /* 아이콘의 불투명도 설정 */ content: ''; /* 정렬 아이콘을 CSS로 설정 */
+		}
+		
+		table.dataTable thead .sorting:after, table.dataTable thead .sorting_asc:after, table.dataTable thead .sorting_desc:after, table.dataTable thead .sorting_asc_disabled:after, table.dataTable thead .sorting_desc_disabled:after {
+			content: "\25BC"; /* 아래쪽 화살표 */
+		}
+		
+		/* 정렬 아이콘 활성화 시 스타일 */
+		table.dataTable thead .sorting_asc:after {
+			content: "\25B2"; /* 위쪽 삼각형 화살표 */
+		}
+		
+		table.dataTable thead .sorting_desc:after {
+			content: "\25BC"; /* 아래쪽 삼각형 화살표 */
+		}
+		
+		.filter {
+			border-collapse: separate; border-spacing: 0; width: 100%;
+		}
+		
+		.pad {
+			height: 5px; background: none;
+		}
+		
+		.filter tr {
+			background-color: #e9ecef; border-radius: 50px;
+		}
+		
+		.filter td, th {
+			padding: 8px;
+		}
+		
+		.filter th {
+			border-bottom-left-radius: 5px; border-top-left-radius: 5px; padding-left: 20px;
+		}
+		
+		.filter td:last-child {
+			border-bottom-right-radius: 5px; border-top-right-radius: 5px; padding-right: 20px;
+		}
+		
+		.filter input[type="checkbox"] {
+			border: 1px solid #e9ecef; width: 16px; height: 16px; margin: 0px 5px;
+		}
+		
+		.filter label {
+			display: flex; align-items: center; margin: 0px auto;
+		}
+	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
@@ -67,6 +137,8 @@
 							<li class="nav-item"><a href="#class-history" data-toggle="tab" aria-expanded="false" class="nav-link"> <i class="mdi mdi-account-circle d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">학급이력</span>
 							</a></li>
 							<li class="nav-item"><a href="#employee-status" data-toggle="tab" aria-expanded="false" class="nav-link"> <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">재직이력</span>
+							</a></li>
+							<li class="nav-item"><a href="#attendance" data-toggle="tab" aria-expanded="false" class="nav-link"> <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">근태이력</span>
 							</a></li>
 							<li class="ml-auto">
 								<div class="col d-flex justify-content-end">
@@ -344,6 +416,66 @@
 																<td scope="row" th:text="${historyStat.count}"></td>
 																<td th:text="${history.stop_date}"></td>
 																<td th:text="${history.stop_reason}"></td>
+															</tr>
+														</th:block>
+													</tbody>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="tab-pane" id="attendance">
+								<div class="form-group">
+									<div class="row">
+										<div class="col-md-12" style="margin-top: 40px;">
+											<div class="table-responsive">
+												<table id="employee-attend" class="table table-bordered no-wrap" style="width: 100%">
+													<colgroup>
+														<col style="width: 10%;">
+														<col style="width: 30%;">
+														<col style="width: 30%;">
+														<col style="width: 30%;">
+													</colgroup>
+													<thead>
+														<tr>
+															<th scope="col">번호</th>
+															<th scope="col">근무일</th>
+															<th scope="col">출근시간</th>
+															<th scope="col">퇴근시간</th>
+															<th scope="col">출근상태</th>
+															<th scope="col">지각여부</th>
+															<th scope="col">초과근무 합산</th>
+														</tr>
+													</thead>
+													<tbody>
+														<th:block th:if="${#lists.isEmpty(attendDtoList)}">
+															<tr>
+																<td colspan="7">근태이력이 없습니다.</td>
+															</tr>
+														</th:block>
+														<th:block th:if="${!#lists.isEmpty(attendDtoList)}">
+															<tr th:each="attend, attendStat : ${attendDtoList}">
+																<td scope="row" th:text="${attendStat.count}"></td>
+																<td th:text="${attend.attend_date}"></td>
+																<td th:text="${#temporals.format(attend.check_in_time, 'HH:mm:ss')}"></td>
+																<!-- 퇴근시간 start -->
+																<th:block th:if="${attend.check_in_time == attend.check_out_time}">
+																	<th:block th:if="${now == attend.attend_date}">
+																		<td>-</td>
+																	</th:block>
+																	<th:block th:unless="${now == attend.attend_date}">
+																		<td>16:00:00</td>
+																	</th:block>
+																</th:block>
+																<th:block th:unless="${attend.check_in_time == attend.check_out_time}">
+																	<td th:text="${#temporals.format(attend.check_out_time, 'HH:mm:ss')}"></td>
+																</th:block>
+																<!-- 퇴근시간 end -->
+																<td th:text="${attend.work_status == 0? '출근전' : attend.work_status == 1? '출근' : '퇴근'}"></td>
+																<td th:if="${attend.late_status == 'Y'}"><i class="fas fa-check"></i></td>
+																<td th:unless="${attend.late_status == 'Y'}"></td>
+																<td th:text="${attend.overtime_sum}"></td>
 															</tr>
 														</th:block>
 													</tbody>
@@ -1065,21 +1197,6 @@
 		});
 		})
 	</script>
-	<script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Get the current URL
-
-            // Select all sidebar links
-            const sidebarLinks = document.querySelectorAll('.sidebar-link');
-
-            sidebarLinks.forEach(link => {
-                // Check if the link's href matches the current URL
-                if (link.getAttribute('href') === '/employee/list') {
-                    link.classList.add('active'); // Add the active class
-                }
-            });
-        });
-    </script>
 	</body>
 </th:block>
 </html>

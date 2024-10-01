@@ -37,10 +37,12 @@ public class EmployeeDto {
 	private String dept_code;
 	private String dept_name;
 	private Department department;
+	
 	// job join
 	private String job_code;
 	private String job_name;
 	private Job job;
+	
 	private String emp_internal_phone;
 	private int vacation_hour;
 	private LocalDate hire_date;
@@ -62,6 +64,18 @@ public class EmployeeDto {
 				.empInternalPhone(emp_internal_phone).vacationHour(vacation_hour)
 				.hireDate(hire_date).endDate(end_date).entStatus(ent_status)
 				.loginYn(login_yn).accountStatus(account_status).chatStatusMsg(chat_status_msg).department(department).job(job)
+				.build();	
+	}
+	
+	public Employee toEntityWithJoin(Department d, Job j) {
+		return Employee.builder()
+				.empId(emp_id).empPw(emp_pw).govId(gov_id)
+				.empName(emp_name).empRrn(emp_rrn).empPhone(emp_phone)
+				.oriPicName(ori_pic_name).newPicName(new_pic_name).empPostCode(emp_post_code)
+				.empAddr(emp_addr).empDetailAddr(emp_detail_addr)
+				.empInternalPhone(emp_internal_phone).vacationHour(vacation_hour)
+				.hireDate(hire_date).endDate(end_date).entStatus(ent_status)
+				.loginYn(login_yn).accountStatus(account_status).chatStatusMsg(chat_status_msg).department(d).job(j)
 				.build();	
 	}
 	

@@ -1,17 +1,23 @@
 package com.dbdevdeep.attendance.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
+import com.dbdevdeep.approve.service.RestHolidayService;
 import com.dbdevdeep.attendance.domain.Attendance;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.repository.AttendanceRepository;
@@ -19,16 +25,20 @@ import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 
+@EnableScheduling 
 @Service
 public class AttendanceService {
 
 	private final AttendanceRepository attendanceRepository;
 	private final EmployeeRepository employeeRepository;
+	private final RestHolidayService restHolidayService;
 
 	@Autowired
-	public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository) {
+	public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository,
+			RestHolidayService restHolidayService) {
 		this.attendanceRepository = attendanceRepository;
 		this.employeeRepository = employeeRepository;
+		this.restHolidayService = restHolidayService;
 	}
 
 	public int employeeCheckIn(String empId) {
@@ -191,4 +201,70 @@ public class AttendanceService {
 		}
 		return aDtoList;
 	}
+	
+	// 직원 상세 페이지 근태기록 출력
+	public List<AttendanceDto> findByempId(String empId) {
+		List<AttendanceDto> attendDtoList = new ArrayList<AttendanceDto>();
+		Employee employee = employeeRepository.findByempId(empId);
+		
+		List<Attendance> attendList = attendanceRepository.findByEmpIdList(employee);
+		
+		for(Attendance a : attendList) {
+			AttendanceDto dto = new AttendanceDto().toDto(a);
+			
+			attendDtoList.add(dto);
+		}
+		
+		return attendDtoList;
+	}
+	
+	 @Scheduled(cron = "0 1 16 * * *")
+	    public void noCheckIn() {
+	        LocalDate today = LocalDate.now();
+	        int overtime = 0;
+	        int year = today.getYear();
+			int month = today.getMonthValue();
+	        int date = today.getDayOfMonth();
+
+	        Set<LocalDate> holidays = new HashSet<>(restHolidayService.getHolidays(today.getYear(), today.getMonthValue()));
+
+	        List<Employee> employees = employeeRepository.findAll();
+
+	        for (Employee employee : employees) {
+	            if (isWeekendOrHoliday(today, new ArrayList<>(holidays))) {
+	                continue;
+	            }
+
+	            Attendance attendance = attendanceRepository.findByEmpAndDate(employee, today);
+	            if(date == 1) {
+	            	overtime = 0;
+	            }else {
+	            	overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
+	            }
+
+	            if (attendance == null) {
+	                Attendance newAttendance = Attendance.builder()
+	                    .employee(employee)
+	                    .attendDate(today)
+	                    .checkInTime(null)
+	                    .checkOutTime(null)
+	                    .workStatus(3)
+	                    .lateStatus("N")
+	                    .overtimeSum(overtime)
+	                    .build();
+
+	                attendanceRepository.save(newAttendance);
+	            }
+	        }
+	    }
+
+	    private boolean isWeekendOrHoliday(LocalDate date, List<LocalDate> holidays) {
+	        DayOfWeek dayOfWeek = date.getDayOfWeek();
+	        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+	            return true;
+	        }
+
+	        return holidays.contains(date);
+	    }
+	
 }
