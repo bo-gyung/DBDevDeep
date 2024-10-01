@@ -28,7 +28,7 @@
             place p ON ps.place_no = p.place_no
         JOIN 
             employee e ON ps.emp_id = e.emp_id
-        JOIN 
+        LEFT JOIN 
             item i ON ps.item_no = i.item_no
         WHERE 
             ps.place_schedule_no = #{placeScheduleNo}

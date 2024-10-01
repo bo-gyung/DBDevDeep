@@ -45,6 +45,10 @@ public class PlaceScheduleViewController {
 		this.employeeService = employeeService;
 	}
 	
+	
+	
+	
+	
 	// 일정등록목록 상세조회
 	@GetMapping("/schedule/detail/{placeScheduleNo}")
 	public String getScheduleDetail(@PathVariable("placeScheduleNo") Long placeScheduleNo, Model model) {

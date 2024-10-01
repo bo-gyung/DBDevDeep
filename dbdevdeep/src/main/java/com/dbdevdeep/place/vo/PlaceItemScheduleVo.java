@@ -29,7 +29,7 @@ private Long place_schedule_no;
 	
 	List<Long> itemNoList;
 	private String item_name;
-	private int item_quantity;
+	private Integer item_quantity;
 	private String item_serial_no;
 	private Long teacher_no;
 	private int grade;
