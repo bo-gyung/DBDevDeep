@@ -19,9 +19,13 @@ public class CustomChatContainerDto {
 	private String type; // me / notMe / history
 	private String writer_id;
 	private String writer_name;
-	private String profilePic;
+	private String profile_pic;
 	private String content;
+	private String ori_pic_name;
+	private String new_pic_name;
 	private LocalDateTime timestamp;
+	private int chat_read_check;
+	
 	// private int readcheck;
 
 }

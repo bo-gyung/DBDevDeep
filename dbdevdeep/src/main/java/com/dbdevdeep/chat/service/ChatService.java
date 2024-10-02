@@ -9,7 +9,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.dbdevdeep.chat.dto.ChatMsgDto;
 import com.dbdevdeep.chat.dto.CustomChatContainerDto;
 import com.dbdevdeep.chat.dto.CustomChatRoomDto;
 import com.dbdevdeep.chat.mybatis.mapper.ChatMapper;
@@ -36,18 +35,18 @@ public class ChatService {
 		this.webSocketHandler = webSocketHandler;
 	}
 	
-	// 채팅 페이지 나브 바 진입시
+	// 채팅 페이지 진입시
 	public List<CustomChatRoomDto> selectChatRoomList(String emp_id){
 		
 		// 1. 사용자가 참여중인 채팅방 목록을 조회
 		List<CustomChatRoomDto> ccrDtoList = chatMapper.findAllByfromIdAndtoId(emp_id);
 		
-        // 2. 각 채팅방의 다른 참여자 수를 조회 1명인 경우 상대방의 new_pic_name을 가져온다.
         for (CustomChatRoomDto chatRoom : ccrDtoList) {
         	Map<String, Object> params = new HashMap<>();
             params.put("room_no", chatRoom.getRoom_no());
             params.put("emp_id", emp_id);
             
+            // 2. 각 채팅방의 다른 참여자 수를 조회 1명인 경우 상대방의 new_pic_name을 가져온다.
             List<String> members = chatMapper.otherMemberIds(params);
             
             if (members.isEmpty()) {
@@ -61,6 +60,10 @@ public class ChatService {
                 // 리스트에 멤버가 2명 이상인 경우(단체채팅방)
             	chatRoom.setRoom_pic("8b821ba7a513411f8cacf78926ff4d64.png");
             }
+            
+            // 2. 각 채팅방의 읽지않은 메세지 조회
+            int unread_count = chatMapper.countChatReadCheckByEmpIdAndRoomNo(params);
+            chatRoom.setChat_read_check(unread_count);
 
         }
 		return ccrDtoList;
@@ -75,8 +78,18 @@ public class ChatService {
 		return result;
 	}
 	
-	// 일대일 채팅방 생성
-	public int createPrivateChatRoom(String admin_id, String emp_id) {
+	// 그룹 채팅방 조회
+	public int selectGroupChatRoom(String admin_id, List<String> emp_id_list) {
+		int result = -1;
+		
+		int empCount = emp_id_list.size() + 1; // 관리자 포함한 인원 수
+		result = chatMapper.selectGroupChatRoom(admin_id, emp_id_list, empCount);
+		
+		return result;
+	}
+	
+	// 채팅방 생성
+	public int createChatRoom() {
 		
 		String lastChatMessage = "";
 		ChatRoomVo crVo = new ChatRoomVo();
@@ -88,33 +101,18 @@ public class ChatService {
 	}	
 	
 	// 채팅방 참여 정보 생성
-	public int createChatMemberInfo(String admin_id, String emp_id, int room_no) {
+	public int createChatMemberInfo(String my_id, String room_name, int room_no,int is_admin) {
 		
 		int result = -1;
 		
-		// 방장(로그인한 사용자)
-		ChatMemberInfoVo adminCmiVo = new ChatMemberInfoVo();
-		adminCmiVo.setMember_id(admin_id);
-		adminCmiVo.setRoom_no(room_no);
-		
-		Employee emp = employeeRepository.findByempId(emp_id);
-		adminCmiVo.setRoom_name(emp.getEmpName());
-		
-		adminCmiVo.setIs_admin(1);
-		int admin = chatMapper.createChatMemberInfo(adminCmiVo);
-		
-		// 참여자(로그인한 사용자가 선택한 사용자)
 		ChatMemberInfoVo memberCmiVo = new ChatMemberInfoVo();
-		memberCmiVo.setMember_id(emp_id);
+		memberCmiVo.setMember_id(my_id);
 		memberCmiVo.setRoom_no(room_no);
-		
-		Employee ad = employeeRepository.findByempId(admin_id);
-		memberCmiVo.setRoom_name(ad.getEmpName());
-		
-		memberCmiVo.setIs_admin(0);
+		memberCmiVo.setRoom_name(room_name);
+		memberCmiVo.setIs_admin(is_admin);
 		int member = chatMapper.createChatMemberInfo(memberCmiVo);
 		
-		if(admin>0 && member>0) {
+		if(member>0) {
 			result = 1;
 		}
 		
@@ -146,12 +144,21 @@ public class ChatService {
 		return chatMapper.selectChatRoomName(cmiVo);
 	}
 	
-	// 메세지+상태이력 리스트 조회
+	// 메세지+읽음확인+상태이력 리스트 조회
 	public List<CustomChatContainerDto> selectmsgHistoryList(int roomNo, String login_id){
+		
+		// 해당 채팅방에서 읽지않은 메세지 읽음처리하기
+		// 1. 사용자가 읽지않은 메세지 조회
+		List<ChatMsgVo> unreadMsgList = chatMapper.selectUnreadCheck(roomNo, login_id);
+		// 2. 읽음처리
+		for(ChatMsgVo msg : unreadMsgList) {
+			chatMapper.createChatReadCheck(msg.getMsg_no(),login_id);
+		}
+	    
 		// 메세지 리스트 조회
-		List<ChatMsgVo> msgList = chatMapper.selectChatMsgList(roomNo);
+		List<ChatMsgVo> msgList = chatMapper.selectChatMsgList(roomNo, login_id);
 		// 상태이력 리스트 조회
-		List<ChatMemberStatusHistoryVo> historyList = chatMapper.selectHistoryList(roomNo);
+		List<ChatMemberStatusHistoryVo> historyList = chatMapper.selectHistoryList(roomNo, login_id);
 		
 		// 통합 리스트 생성
 	    List<CustomChatContainerDto> combinedList = new ArrayList<>();
@@ -159,7 +166,10 @@ public class ChatService {
 	    for (ChatMsgVo msg : msgList) {
 	        
 	    	String messageType = msg.getWriter_id().equals(login_id) ? "me" : "notMe";
+	    	// 메세지 작성자 정보
 	        Employee e = employeeRepository.findByempId(msg.getWriter_id());
+	        // 메세지의 읽음확인 갯수
+	        int readCheck = chatMapper.countChatReadCheckByMsgNo(msg.getMsg_no());
 	        
 	        CustomChatContainerDto dto = new CustomChatContainerDto(
 	            messageType,  // "me" 또는 "notMe"
@@ -167,7 +177,10 @@ public class ChatService {
 	            e.getEmpName(),
 	            messageType.equals("notMe") ? e.getNewPicName() : "",
 	            msg.getChat_content(),  // 메시지 내용
-	            msg.getReg_time()  // 타임스탬프
+	            msg.getOri_pic_name(),
+	            msg.getNew_pic_name(),
+	            msg.getReg_time(),  // 타임스탬프
+	            readCheck
 	        );
 	        combinedList.add(dto);
 	    }
@@ -182,7 +195,10 @@ public class ChatService {
 	            e.getEmpName(),
 	            "",
 	            String.valueOf(history.getMember_status()),  // 상태 이력 내용 (입장, 퇴장, 초대 등)
-	            history.getChange_time()  // 타임스탬프
+	            "",
+	            "",
+	            history.getChange_time(),  // 타임스탬프
+	            0
 	        );
 	        combinedList.add(dto);
 	    }
@@ -192,6 +208,13 @@ public class ChatService {
 
 	    return combinedList;
 		
+	}
+	
+	// 채팅방에 참여중인 전체 인원수(정원) 구하기
+	public int headCountByRoomNo(int room_no) {
+		int result = -1;
+		result = chatMapper.headCountByRoomNo(room_no);
+		return result;
 	}
 	
 
@@ -206,6 +229,8 @@ public class ChatService {
 			
 			// 채팅방 정보 업데이트 (라스트챗, 라스트타임)
 			chatMapper.updateChatRoom(newVo);
+			// 작성자 읽음확인
+			chatMapper.createChatReadCheck(vo.getMsg_no(),vo.getWriter_id());
 			
 			// 채팅 메세지가 생성된 채팅방의 참여중인 인원 리스트 (메세지 작성자 제외)
 			Map<String, Object> params = new HashMap<>();
@@ -222,10 +247,51 @@ public class ChatService {
 				webSocketHandler.sendPrivateChatMsg(members,vo.getRoom_no());
 			}
 		}
-		
-		
 
 		return result;
 	}
+	
+	// 채팅 이미지 생성
+	public int createChatPic(ChatMsgVo vo) {
+		int result = -1; 
+		
+		result = chatMapper.createChatPic(vo);
+		if(result > 0) {
+			
+			ChatMsgVo newVo = chatMapper.selectChatMsgVo(vo.getMsg_no());
+			
+			// 채팅방 정보 업데이트 (라스트챗, 라스트타임)
+			chatMapper.updateChatRoom(newVo);
+			// 작성자 읽음확인
+			
+			// 채팅 메세지가 생성된 채팅방의 참여중인 인원 리스트 (메세지 작성자 제외)
+			Map<String, Object> params = new HashMap<>();
+			params.put("room_no", vo.getRoom_no());
+			params.put("emp_id", vo.getWriter_id());
+			
+			List<String> members = chatMapper.otherMemberIds(params);
+			
+			if (members.isEmpty()) {
+				// 혼자 있는 채팅방일때
+			} else if (members.size() > 0) {
+				// 메세지 작정자 이외의 참여자가 존재할때
+				// 웹소켓 핸들러 호출
+				webSocketHandler.sendPrivateChatMsg(members,vo.getRoom_no());
+			}
+		}
+
+		return result;
+	}
+	
+	// 메인페이지 헤더에 표시될 채팅 읽음 확인 개수 조회
+	public int selectChatReadCheckByEmpId(String emp_id) {
+		int result = -1;
+		
+		result = chatMapper.countChatReadCheckByEmpId(emp_id);
+			
+		return result;
+	}
+	
+
 	
 }

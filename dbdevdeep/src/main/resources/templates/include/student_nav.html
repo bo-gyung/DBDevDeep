@@ -11,18 +11,6 @@
           <ul id="sidebarnav">
 
             <li class="sidebar-item"> <a class="sidebar-link has-arrow" th:href="@{/student/list}"
-                aria-expanded="false"><span class="hide-menu">학생 등록</span></a>
-              <ul aria-expanded="false" class="collapse  first-level base-level-line">
-              	<li class="sidebar-item"><a th:href="@{/student/list}" class="sidebar-link"><span class="hide-menu"> 학생 목록
-                    </span></a>
-                </li>
-                <li class="sidebar-item"><a th:href="@{/student/create}" class="sidebar-link"><span class="hide-menu"> 학생 등록
-                    </span></a>
-                </li>
-              </ul>
-            </li>
-
-            <li class="sidebar-item"> <a class="sidebar-link has-arrow" th:href="@{/student/list}"
                 aria-expanded="false"><span class="hide-menu">학생 기본 정보</span></a>
               <ul aria-expanded="false" class="collapse  first-level base-level-line">
                 <li class="sidebar-item"><a th:href="@{/student/list}" class="sidebar-link"><span class="hide-menu"> 학생 목록
@@ -47,7 +35,7 @@
                 aria-expanded="false"><span class="hide-menu">생활기록부</span></a>
             </li>
             
-            <li class="sidebar-item"> <a class="sidebar-link" href="javascript:void(0)"
+            <li class="sidebar-item"> <a class="sidebar-link" th:href="@{/student/stat}"
                 aria-expanded="false"><span class="hide-menu">학급별 통계</span></a>
             </li>
             

@@ -410,6 +410,37 @@ public class FileService {
 		return result;
 	}
 	
+	// 채팅방 사진 업로드
+	public String chatPicUpload(MultipartFile file) {
+		String newFileName = null;
+
+		try {
+			// 1. 파일 원래 이름
+			String oriFileName = file.getOriginalFilename();
+			// 2. 파일 자르기
+			String fileExt = oriFileName.substring(oriFileName.lastIndexOf("."), oriFileName.length());
+			// 3. 파일 고유명칭으로 쓸 UUID 생성
+			UUID uuid = UUID.randomUUID();
+			// 4. UUID : 8자리마다 포함되는 하이픈 제거
+			String uuidName = uuid.toString().replaceAll("-", "");
+			// 5. 새로운 파일명(UUID)
+			newFileName = uuidName + fileExt;
+			// 6. 파일 저장 경로 설정
+			// 7. 파일 껍데기 생성
+			File saveFile = new File(fileDir + "chat\\" + newFileName);
+			// 8. 경로 존재 여부 확인
+			if (!saveFile.exists()) {
+				saveFile.mkdirs();
+			}
+			// 9. 껍데기에 파일 정보 복제
+			file.transferTo(saveFile);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return newFileName;
+	}
+
+
     @Value("${folder.total-capacity}")
     private String totalCapacityConfig;
 
