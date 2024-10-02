@@ -73,37 +73,3 @@ public class MyLoginFailureHandler implements AuthenticationFailureHandler {
 		response.sendRedirect("/login");
 	}
 }
-
-/*
- * HttpSession session = request.getSession();
- * session.removeAttribute("lockoutTime"); String empId =
- * request.getParameter("emp_id");
- * 
- * Employee e = employeeRepository.findByempId(empId); EmployeeDto dto = new
- * EmployeeDto().toDto(e);
- * 
- * if (e == null) { response.sendRedirect("/login?error=invalid_emp_id");
- * return; }
- * 
- * // 로그인 실패 횟수 가져오기 Integer failureCount = e.getAccountStatus(); Instant
- * lockoutTime = (Instant) session.getAttribute("lockoutTime");
- * 
- * // Check if currently locked out if (lockoutTime != null &&
- * Instant.now().isBefore(lockoutTime.plusSeconds(1200))) { // Still locked out;
- * redirect with a message response.sendRedirect("/login?error=locked"); }
- * 
- * // Reset lockout time if it has expired if (lockoutTime != null) {
- * session.removeAttribute("lockoutTime"); }
- * 
- * failureCount++; // Increment failure count
- * dto.setAccount_status(failureCount);
- * 
- * Employee employee = dto.toEntityWithJoin(e.getDepartment(), e.getJob());
- * employeeRepository.save(employee);
- * 
- * // Check if failure count has reached 5 
- * if (failureCount >= 5) { 
-	session.setAttribute("lockoutTime", Instant.now());
- * response.sendRedirect("/login?error=locked"); } else { // Redirect to login
- * page with a failure message response.sendRedirect("/login?error=failed"); }
- */

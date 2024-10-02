@@ -83,8 +83,6 @@ public class EmployeeApiController {
 	public Map<String, String> signup(EmployeeDto dto, @RequestParam("file") MultipartFile file,
 			@RequestParam(name = "trans_school_id", required = false) String trans_school_id,
 			@RequestParam(name = "admin_id") String admin_id, @RequestParam(name = "dup_emp_id") String dup_emp_id) {
-		
-		System.out.println("dto: " + dto);
 
 		Map<String, String> resultMap = new HashMap<String, String>();
 		resultMap.put("res_code", "404");
@@ -93,8 +91,6 @@ public class EmployeeApiController {
 		String savedFileName = fileService.employeePicUpload(file);
 		
 		LocalDate trans_date = dto.getHire_date();
-		
-		System.out.println("dup_emp_id: " + dup_emp_id);
 
 		if (savedFileName != null) {
 			dto.setOri_pic_name(file.getOriginalFilename());
@@ -528,7 +524,6 @@ public class EmployeeApiController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 }

@@ -42,17 +42,6 @@ public class EmployeeViewController {
 	private final AttendanceService attendanceService;
 	private final AlertService alertService;
 	
-//	@GetMapping("/login")
-//	public String loginPage(Model model, @RequestParam(value = "error", required = false) String error) {
-//		
-//		if(error != null) {
-//			model.addAttribute("error", error);
-//			System.out.println("error: " + error);
-//		}
-//		
-//		return "employee/login";
-//	}
-	
 	@GetMapping("/login")
 	public String login(HttpServletRequest request, Model model) {
 		
@@ -71,8 +60,6 @@ public class EmployeeViewController {
 				model.addAttribute("errorNum", errNum);
 			}
 		}
-		
-		
 		return "employee/login";
 	}
 
