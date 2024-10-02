@@ -326,6 +326,10 @@ form.addEventListener('submit', (e) => {
 	const startDate = form.unuseable_start_date.value;
 	const endDate = form.unuseable_end_date.value;
 	
+	
+	// 파일 입력 요소 가져오기
+    const fileInput = document.getElementById('file');
+    const file = fileInput.files[0];
 	// 유효성 검사
 	if(form.placeName.value === ''){
 		vali_text += '장소를 고르세요';
@@ -342,6 +346,9 @@ form.addEventListener('submit', (e) => {
 	} else if(form.item_quantity.value === ''){
 		vali_text += '기자재 갯수를 입력하세요.';
 		form.item_quantity.focus();
+	 } else if (!file) { // 이미지 파일 유효성 검사 추가
+        vali_text += '이미지 파일을 선택하세요.\n';
+        fileInput.focus();
 	} else if(!isUsable){
 		if(form.unuseable_quantity.value === ''){
 			vali_text += '사용불가 갯수를 입력하세요.';
