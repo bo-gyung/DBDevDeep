@@ -6,9 +6,35 @@
 <mapper namespace="com.dbdevdeep.place.mybatis.mapper.PlaceScheduleVoMapper">
 
 
+	
+	
+	<!-- 일정 상세 조회를 위한 쿼리 -->
+    <select id="selectScheduleDetail" parameterType="long" resultType="com.dbdevdeep.place.vo.PlaceItemScheduleVo">
+        SELECT 
+            ps.place_schedule_no AS placeScheduleNo,
+            ps.place_schedule_title AS placeScheduleTitle,
+            ps.place_schedule_content AS placeScheduleContent,
+            ps.start_date AS startDate,
+            ps.start_time AS startTime,
+            ps.end_date AS endDate,
+            ps.end_time AS endTime,
+            p.place_name AS placeName,
+            e.emp_name AS empName,
+            i.item_name AS itemName,
+            i.item_quantity AS itemQuantity
+        FROM 
+            place_item_schedule ps
+        JOIN 
+            place p ON ps.place_no = p.place_no
+        JOIN 
+            employee e ON ps.emp_id = e.emp_id
+        LEFT JOIN 
+            item i ON ps.item_no = i.item_no
+        WHERE 
+            ps.place_schedule_no = #{placeScheduleNo}
+    </select>
 
-
-
+	
 
 
      <!-- 전체 일정 조회 -->
@@ -25,6 +51,7 @@
             s.teacher_no AS teacher_no,
             th.grade AS grade,
             th.grade_class AS gradeClass,
+            th.t_year AS t_year,
             e.emp_id AS emp_id,
             e.emp_name AS emp_name,
             s.place_schedule_title AS place_schedule_title,
@@ -41,11 +68,11 @@
         JOIN
             place p ON s.place_no = p.place_no
         JOIN
-            item i ON s.item_no = i.item_no
-        JOIN
             employee e ON s.emp_id = e.emp_id
-        LEFT JOIN
+        JOIN
             teacher_history th ON s.teacher_no = th.teacher_no
+      	LEFT JOIN
+            item i ON s.item_no = i.item_no
 
 
 	

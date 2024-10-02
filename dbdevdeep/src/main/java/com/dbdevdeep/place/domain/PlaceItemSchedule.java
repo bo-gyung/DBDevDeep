@@ -41,8 +41,8 @@ public class PlaceItemSchedule {
 	@JoinColumn(name = "place_no")
 	private Place place;
 	
-	@ManyToOne
-	@JoinColumn(name = "item_no")
+	@ManyToOne(optional = true)
+	@JoinColumn(name = "item_no", nullable = true)
 	private Item item;
 	
 	@ManyToOne

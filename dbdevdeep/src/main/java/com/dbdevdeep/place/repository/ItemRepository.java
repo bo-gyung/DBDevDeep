@@ -9,7 +9,12 @@ import com.dbdevdeep.place.domain.Item;
 
 public interface ItemRepository extends JpaRepository<Item, Long>{
 
-	Item findByitemNo(Long item_no);
+	// ItemRepository에 추가
+	Item findByItemSerialNo(String itemSerialNo);
+	
+	
+	Item findByitemNo(Long itemNo);
+	
 	//장소번호를 기준으로 항목조회
 	List<Item> findByPlacePlaceNo(Long placeNo);
 	

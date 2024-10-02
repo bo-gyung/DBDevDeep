@@ -2,6 +2,7 @@ package com.dbdevdeep;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.dbdevdeep.approve.service.ApproveService;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.service.AttendanceService;
 import com.dbdevdeep.document.domain.FileDto;
@@ -23,12 +25,14 @@ public class HomeController {
 	private final AttendanceService attendanceService;
 	private final ScheduleService scheduleService;
 	private final FileService fileService;
+	private final ApproveService approveService;
 	
 	@Autowired
-	public HomeController(AttendanceService attendanceService, ScheduleService scheduleService, FileService fileService) {
+	public HomeController(AttendanceService attendanceService, ScheduleService scheduleService, FileService fileService, ApproveService approveService) {
 		this.attendanceService = attendanceService;
 		this.scheduleService = scheduleService;
 		this.fileService = fileService;
+		this.approveService = approveService;
 	}
 	
 	@GetMapping({"", "/"})
@@ -52,6 +56,9 @@ public class HomeController {
 		if(dto != null) {
 			model.addAttribute("checktime", dto);			
 		}
+		
+		Map<String, Integer> approveCounts = approveService.getApproveCount(empId);
+        model.addAttribute("approveCounts", approveCounts);
 		
 		return "home";
 	}

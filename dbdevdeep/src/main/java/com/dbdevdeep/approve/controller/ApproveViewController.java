@@ -1,5 +1,6 @@
 package com.dbdevdeep.approve.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -283,6 +284,5 @@ public class ApproveViewController {
 			model.addAttribute("resultList",resultList);
 			return "approve/approDocuList";
 		}
-	
 	
 }

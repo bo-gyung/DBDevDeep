@@ -1,62 +1,159 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{include/student_layout}">
+     xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+     layout:decorate="~{include/student_layout}">
 <th:block layout:fragment="content">
-	<body>
+<style>
+    /* 테이블 스타일 */
+    table {
+        width: 100%;
+        border-collapse: collapse; /* 테두리가 겹치지 않도록 설정 */
+    }
+
+    th, td {
+        border: 2px solid black; /* 테두리 두께 및 색상 */
+        padding: 8px;
+        text-align: center;
+    }
+
+</style>
+<body>
 		<div class="page-wrapper">
 			<div class="page-breadcrumb">
 				<div class="row">
-					<div class="col-7 align-self-center">
-						<h4
-							class="page-title text-truncate text-dark font-weight-medium mb-1">Basic
-							Table</h4>
-						<div class="d-flex align-items-center">
-							<nav aria-label="breadcrumb">
-								<ol class="breadcrumb m-0 p-0">
-									<li class="breadcrumb-item"><a href="index.html"
-										class="text-muted">Home</a></li>
-									<li class="breadcrumb-item text-muted active"
-										aria-current="page">Library</li>
-								</ol>
-							</nav>
-						</div>
+					<div id="content" class="card">
+					<div class="card-body">
+					<h2 th:text="${empname} + ' 선생님, 오늘도 좋은 하루 되세요.'"></h2>
+			            <table>
+						    <thead>
+						        <tr>
+						            <th></th>
+						            <th>월</th>
+						            <th>화</th>
+						            <th>수</th>
+						            <th>목</th>
+						            <th>금</th>
+						        </tr>
+						    </thead>
+						    <tbody>
+						        <!-- 1교시 -->
+						        <tr>
+						            <td>1교시</td>
+						            <td th:text="${timeTableMap['월-1'] != null ? subjectMap[timeTableMap['월-1']] : '-'}"></td>
+						            <td th:text="${timeTableMap['화-1'] != null ? subjectMap[timeTableMap['화-1']] : '-'}"></td>
+						            <td th:text="${timeTableMap['수-1'] != null ? subjectMap[timeTableMap['수-1']] : '-'}"></td>
+						            <td th:text="${timeTableMap['목-1'] != null ? subjectMap[timeTableMap['목-1']] : '-'}"></td>
+						            <td th:text="${timeTableMap['금-1'] != null ? subjectMap[timeTableMap['금-1']] : '-'}"></td>
+						        </tr>
+						
+						        <!-- 2교시 -->
+						        <tr>
+						            <td>2교시</td>
+						            <td th:text="${timeTableMap['월-2'] != null ? subjectMap[timeTableMap['월-2']] : '-'}"></td>
+						            <td th:text="${timeTableMap['화-2'] != null ? subjectMap[timeTableMap['화-2']] : '-'}"></td>
+						            <td th:text="${timeTableMap['수-2'] != null ? subjectMap[timeTableMap['수-2']] : '-'}"></td>
+						            <td th:text="${timeTableMap['목-2'] != null ? subjectMap[timeTableMap['목-2']] : '-'}"></td>
+						            <td th:text="${timeTableMap['금-2'] != null ? subjectMap[timeTableMap['금-2']] : '-'}"></td>
+						        </tr>
+						
+						        <!-- 3교시 -->
+						        <tr>
+						            <td>3교시</td>
+						            <td th:text="${timeTableMap['월-3'] != null ? subjectMap[timeTableMap['월-3']] : '-'}"></td>
+						            <td th:text="${timeTableMap['화-3'] != null ? subjectMap[timeTableMap['화-3']] : '-'}"></td>
+						            <td th:text="${timeTableMap['수-3'] != null ? subjectMap[timeTableMap['수-3']] : '-'}"></td>
+						            <td th:text="${timeTableMap['목-3'] != null ? subjectMap[timeTableMap['목-3']] : '-'}"></td>
+						            <td th:text="${timeTableMap['금-3'] != null ? subjectMap[timeTableMap['금-3']] : '-'}"></td>
+						        </tr>
+						
+						        <!-- 4교시 -->
+						        <tr>
+						            <td>4교시</td>
+						            <td th:text="${timeTableMap['월-4'] != null ? subjectMap[timeTableMap['월-4']] : '-'}"></td>
+						            <td th:text="${timeTableMap['화-4'] != null ? subjectMap[timeTableMap['화-4']] : '-'}"></td>
+						            <td th:text="${timeTableMap['수-4'] != null ? subjectMap[timeTableMap['수-4']] : '-'}"></td>
+						            <td th:text="${timeTableMap['목-4'] != null ? subjectMap[timeTableMap['목-4']] : '-'}"></td>
+						            <td th:text="${timeTableMap['금-4'] != null ? subjectMap[timeTableMap['금-4']] : '-'}"></td>
+						        </tr>
+						
+						        <!-- 5교시 -->
+						        <tr>
+						            <td>5교시</td>
+						            <td th:text="${timeTableMap['월-5'] != null ? subjectMap[timeTableMap['월-5']] : '-'}"></td>
+						            <td th:text="${timeTableMap['화-5'] != null ? subjectMap[timeTableMap['화-5']] : '-'}"></td>
+						            <td th:text="${timeTableMap['수-5'] != null ? subjectMap[timeTableMap['수-5']] : '-'}"></td>
+						            <td th:text="${timeTableMap['목-5'] != null ? subjectMap[timeTableMap['목-5']] : '-'}"></td>
+						            <td th:text="${timeTableMap['금-5'] != null ? subjectMap[timeTableMap['금-5']] : '-'}"></td>
+						        </tr>
+						
+						        <!-- 6교시 -->
+						        <tr>
+						            <td>6교시</td>
+						            <td th:text="${timeTableMap['월-6'] != null ? subjectMap[timeTableMap['월-6']] : '-'}"></td>
+						            <td th:text="${timeTableMap['화-6'] != null ? subjectMap[timeTableMap['화-6']] : '-'}"></td>
+						            <td th:text="${timeTableMap['수-6'] != null ? subjectMap[timeTableMap['수-6']] : '-'}"></td>
+						            <td th:text="${timeTableMap['목-6'] != null ? subjectMap[timeTableMap['목-6']] : '-'}"></td>
+						            <td th:text="${timeTableMap['금-6'] != null ? subjectMap[timeTableMap['금-6']] : '-'}"></td>
+						        </tr>
+						    </tbody>
+						</table>
+						<table id="student_list">
+                                        <thead>
+                                            <tr>
+												<th scope="col">번호</th>
+												<th scope="col">성명</th>
+												<th scope="col">생년월일</th>
+                                                <th scope="col">재학여부</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <th:block th:if="${#lists.isEmpty(mystudentList)}">
+												<tr>
+													<td colspan="6">존재하는 학생 정보가 없습니다.</td>
+												</tr>
+											</th:block>
+											<th:block th:if="${!#lists.isEmpty(mystudentList)}">
+											    <tr th:each="studentClass, studentClassStat : ${mystudentList}">
+											        <td style="display:none;" th:text="${studentClass.student.studentNo}"></td>
+									                <td th:text="${studentClass.student_id} + '번'"></td>
+													<td th:text="${studentClass.student.studentName}"></td>
+													<td th:text="${studentClass.student.studentBirth}"></td>
+											        <td th:text="${studentClass.student.studentStatus}"></td>
+											    </tr>
+											    </th:block>
+										</tbody>
+                                        
+                                    </table>
+			            
 					</div>
-					<div class="col-5 align-self-center">
-						<div class="customize-input float-right">
-							<select
-								class="custom-select custom-select-set form-control bg-white border-0 custom-shadow custom-radius">
-								<option selected>Aug 19</option>
-								<option value="1">July 19</option>
-								<option value="2">Jun 19</option>
-							</select>
-						</div>
-					</div>
+            	</div>
 				</div>
-			</div>
 			<div class="container-fluid">
-				<div class="row">
-					<div class="col-12">
-						<div class="card">
-							<div class="card-body">
-								<h4 class="card-title">안녕하세요 오늘도 좋은하루 보내세요</h4>
-							</div>
-							<div class="table-responsive"></div>
-						</div>
-					</div>
-				</div>
 			</div>
 		</div>
-		</div>
-		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
-		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
-		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-		<script src="/dist/js/app-style-switcher.js"></script>
-		<script src="/dist/js/feather.min.js"></script>
-		<script
-			src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
-		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
-		<script src="/dist/js/sidebarmenu.js"></script>
-		<script src="/dist/js/custom.min.js"></script>
-	</body>
+	</div>
+	
+	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="/dist/js/app-style-switcher.js"></script>
+	<script src="/dist/js/feather.min.js"></script>
+	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+	<script src="/dist/js/sidebarmenu.js"></script>
+	<script src="/dist/js/custom.min.js"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+		    $('#student_list').on('click', 'td', function () {
+		        // 클릭된 행에서 해당 학생 번호를 추출합니다.
+		        var studentNo = $(this).closest('tr').find('td:nth-child(1)').text(); // 번호가 있는 td를 선택
+		
+		        // 학생 상세 페이지로 이동합니다.
+		        if (studentNo) {
+		            window.location.href = '/student/' + studentNo;
+		        }
+		    });
+		</script>
+</body>
+
 </html>

@@ -249,7 +249,7 @@
 													휴가 결재 요청
 												</div>
 												<div class="text-warning" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline; margin-top:3px;">
-													<span style="font-size: 24px; font-weight:bolder;">2</span>
+													<span th:text="${approveCounts['requestApprove']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>
 											</div>
@@ -259,7 +259,7 @@
 													휴가 결재 대기
 												</div>
 												<div class="text-success" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline; margin-top:3px;">
-													<span style="font-size: 24px; font-weight:bolder;">5</span>
+													<span th:text="${approveCounts['comeApprove']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>									
 											</div>
@@ -274,7 +274,7 @@
 													보고서 결재 요청
 												</div>
 												<div class="text-warning" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline;">
-													<span style="font-size: 24px; font-weight:bolder;">4</span>
+													<span th:text="${approveCounts['requestDocu']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>
 											</div>
@@ -284,7 +284,7 @@
 													보고서 결재 대기
 												</div>
 												<div class="text-success" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline;">
-													<span style="font-size: 24px; font-weight:bolder;">3</span>
+													<span th:text="${approveCounts['comeDocu']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>									
 											</div>
