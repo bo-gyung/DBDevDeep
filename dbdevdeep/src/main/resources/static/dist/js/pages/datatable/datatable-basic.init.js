@@ -338,15 +338,15 @@ $('#address_all_book').DataTable({
 	"responsive": true,
 	// 컬럼 width 비율 조절
 	"columnDefs": [
-		{ "width": "10%", "targets": 0, "className": "text-center", "orderable": false},
-		{ "width": "10%", "targets": 1, "className": "text-center" },
+		{ "width": "3%", "targets": 0, "className": "text-center", "orderable": false},
+		{ "width": "5%", "targets": 1, "className": "text-center" },
 		{ "width": "10%", "targets": 2, "className": "text-center" },
 		{ "width": "10%", "targets": 3, "className": "text-center" },
 		{ "width": "10%", "targets": 4, "className": "text-center" },
 		{ "width": "10%", "targets": 5, "className": "text-center" },
 		{ "width": "10%", "targets": 6, "className": "text-center" },
 		{ "width": "10%", "targets": 7, "className": "text-center" },
-		{ "width": "10%", "targets": 8, "className": "text-center" }
+		{ "width": "15%", "targets": 8, "className": "text-center" }
 	],
 	"order": [[1, "asc"]],
 	// 정보 표시 해제

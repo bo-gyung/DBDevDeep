@@ -64,7 +64,7 @@
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
 				<div class="card">
-					<div class="card-body" style="padding: 50px;">
+					<div class="card-body" style="padding: 50px 80px;">
 						<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
 									<div style="font-size: 30px;">직원 계정 등록</div>
 								</div>
@@ -315,16 +315,22 @@
 								icon :'success',
 								title:'성공',
 								text : data.res_msg,
-								confirmButtonText:"닫기"
+								confirmButtonText:"닫기",
+								customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							}).then(() => {
 								location.href="/employee/add";
 							})
-						} else{
+						} else {
 							Swal.fire({
 								icon:'error',
 								title:'실패',
 								text: data.res_msg,
-								confirmButtonText:"닫기"
+								confirmButtonText:"닫기",
+								customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							});
 						}
 					});
@@ -710,7 +716,10 @@
 							icon :'success',
 							title:'성공',
 							text : data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						})
 					} else if(data.res_code == "409") {
 						Swal.fire({
@@ -718,13 +727,10 @@
 				            text: '기존 데이터를 불러오시겠습니까?',
 				            icon: 'info',
 				            showCancelButton: true,
-				            confirmButtonColor: '#5f76e8',
+				            confirmButtonColor: '#0031AE',
 				            cancelButtonColor: '#e8eaec',
 				            confirmButtonText: '확인',
-				            cancelButtonText: '취소',
-				            customClass: {
-				                cancelButton: 'custom-cancel-button'
-				            }
+				            cancelButtonText: '취소'
 				        })
 				    	.then((result) => {
 				    		if(result.isConfirmed){
@@ -765,10 +771,13 @@
 						valiCount = 0;
 						
 						Swal.fire({
-							icon:'error',
-							title:'실패',
+							icon:'info',
+							title:'중복',
 							text: data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						});
 					}
 				})
@@ -808,9 +817,12 @@
             } else {
                 Swal.fire({
                 	icon:'error',
-									title:'실패',
-									text: '이미지 파일만 선택할 수 있습니다.',
-									confirmButtonText:"닫기"
+					title:'실패',
+					text: '이미지 파일만 선택할 수 있습니다.',
+					confirmButtonText:"닫기",
+					customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
                 });
                 fileInput.value = ''; 
                 imagePreview.src = '';

@@ -264,6 +264,12 @@
 		                <span class="font-12 text-nowrap d-block text-muted">${time}</span>
 		            </div>
 		        </a>
+		        <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;">
+	            	<i class="fas fa-times" style="margin-top: 6px; margin-right: 10px; font-size: 20px;" data-alert-no="${alert.alarm_no}"
+		        			onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
+		        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
+			        		onmouseout="this.style.color='lightgray'"></i>
+	            </div>
 		    `;
 		
 		    // message-center가 존재하지 않는 경우 전체 구조 추가
@@ -295,6 +301,16 @@
 		    
 		 	// 알림 클릭 이벤트 추가
 		    addClickListenerToNotification();
+		 	
+		    const alertDiv = document.getElementById('alertDiv');
+           	
+	   		// alertDiv 안의 a 태그를 모두 선택
+	   		const anchorTags = alertDiv.getElementsByTagName('a');
+	   	
+	   		// a 태그의 개수 출력
+	   		const count = anchorTags.length;
+	   		
+	   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
 		}
 		
 		// 새로 추가된 알림에 클릭 이벤트 리스너 추가
@@ -472,8 +488,7 @@
 			                </span>
 			            </div>
 		        	</div>
-		            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;"
-		            	>
+		            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;">
 		            	<i class="fas fa-times" style="margin-top: 6px; margin-right: 10px; font-size: 20px;" data-alert-no="${alert.alarm_no}"
 			        			onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
 			        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"

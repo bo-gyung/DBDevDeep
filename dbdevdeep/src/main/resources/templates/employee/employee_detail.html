@@ -2,6 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
+	
+		.swal-custom-button {
+		  background-color: #0031AE !important;
+		  color: white; /* 버튼 텍스트 색상 */
+		  border: none; /* 버튼 테두리 제거 */
+		  padding: 10px 20px; /* 버튼 패딩 */
+		  font-size: 16px; /* 버튼 폰트 크기 */
+		  cursor: pointer; /* 마우스 커서 포인터 */
+		}
+		.swal-custom-button:hover {
+		  background-color: #002685 !important;
+		}
 		.preview-container {
 			border-radius: 50%; overflow: hidden; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
 		}
@@ -127,10 +139,6 @@
 						<div class="row" style="margin-left: 0px !important; margin-right: 0px !important; margin-bottom: 20px;">
 							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 240px;">
 								<div style="font-size: 30px;">직원 상세 정보</div>
-							</div>
-							<div class="col d-flex justify-content-end">
-								<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/employee/list';">목록</button>
-								<button class="btn waves-effect waves-light btn-info" style="margin: 4px;" id="editEmployee" onclick="editEmployee();">수정</button>
 							</div>
 						</div>
 
@@ -502,7 +510,15 @@
 							</div>
 						</div>
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-
+						<hr>
+						<div class="row">
+							<div class="col d-flex justify-content-start">
+								<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/employee/list';">목록</button>
+							</div>
+							<div class="col d-flex justify-content-end">
+								<button class="btn waves-effect waves-light btn-info" style="margin: 4px;" id="editEmployee" onclick="editEmployee();">수정</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -980,7 +996,10 @@
 							icon :'success',
 							title:'성공',
 							text : data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						})
 						
 					} else{
@@ -988,7 +1007,10 @@
 							icon:'error',
 							title:'실패',
 							text: data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						});
 					}
 				});
@@ -1014,7 +1036,10 @@
 							icon :'success',
 							title:'성공',
 							text : data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						})
 						
 					} else{
@@ -1022,7 +1047,10 @@
 							icon:'error',
 							title:'실패',
 							text: data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						});
 					}
 				});
@@ -1152,7 +1180,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then(() => {
 						location.href="/employee/list/" + document.getElementById('restFrm').emp_id.value;
 					})
@@ -1162,7 +1193,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			});
@@ -1226,7 +1260,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then(() => {
 						location.href="/employee/list/" + document.getElementById('leaveFrm').emp_id.value;
 					})
@@ -1236,7 +1273,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			});
@@ -1299,7 +1339,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then(() => {
 						location.href="/employee/list/" + document.getElementById('returnFrm').emp_id.value;
 					})
@@ -1309,7 +1352,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			});
@@ -1426,7 +1472,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then((result)=>{
 						location.href="/employee/list/" + form.emp_id.value;
 					});
@@ -1435,7 +1484,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			})
