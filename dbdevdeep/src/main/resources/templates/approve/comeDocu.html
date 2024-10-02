@@ -74,7 +74,7 @@
                                         <th:block th:if="${!#lists.isEmpty(resultList)}">
                                         	<tr th:each="approve, approveStat : ${resultList}">
                                         		<td>
-                                        		 <a th:href="@{docuDetail/{no}(no=${approve.appro_no})}" th:text = "${approve.appro_title}"></a>
+                                        		 <a th:href="@{comeDocuDetail/{no}(no=${approve.appro_no})}" th:text = "${approve.appro_title}"></a>
                                         		</td>
                                         		<!-- <td th:text="${approve.appro_time}"></td> -->
                                         		<td th:text="${approve.appro_time}"></td>

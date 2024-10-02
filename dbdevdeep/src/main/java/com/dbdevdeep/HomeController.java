@@ -23,6 +23,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.dbdevdeep.approve.service.ApproveService;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.service.AttendanceService;
 import com.dbdevdeep.document.domain.FileDto;
@@ -39,7 +40,8 @@ public class HomeController {
 	private final AttendanceService attendanceService;
 	private final ScheduleService scheduleService;
 	private final FileService fileService;
-	
+	private final ApproveService approveService;
+
 	@GetMapping({"", "/"})
 	public String home(Model model, HttpSession session) {
 		
@@ -76,6 +78,9 @@ public class HomeController {
 	    } else {
 	    	model.addAttribute("resultMap", session.getAttribute("weatherFetched"));
 	    }
+		
+		Map<String, Integer> approveCounts = approveService.getApproveCount(empId);
+        model.addAttribute("approveCounts", approveCounts);
 		
 		return "home";
 	}

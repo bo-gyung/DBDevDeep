@@ -39,7 +39,7 @@ public class ItemApiController {
 		Map<String, String> resultMap = new HashMap<String, String>();
 		
 		resultMap.put("res_code", "404");
-		resultMap.put("res_msg", "기가재 삭제중 오류가 발생하였습니다.");
+		resultMap.put("res_msg", "기자재 삭제중 오류가 발생하였습니다.");
 		
 		if(itemService.deleteItem(item_no) > 0) {
 			resultMap.put("res_code", "200");

@@ -1,7 +1,9 @@
 package com.dbdevdeep.chat.controller;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dbdevdeep.chat.dto.CustomChatContainerDto;
 import com.dbdevdeep.chat.dto.CustomChatRoomDto;
@@ -74,22 +77,50 @@ public class ChatViewController {
 	    String login_id = user.getUsername();
 	    
 	    
-		// 방이름 가져오기
+		// 방정보 가져오기
+	    // 1. 방이름
 	    String roomName = chatService.selectChatRoomName(roomNo, login_id);
 	    model.addAttribute("roomName", roomName);
+	    // 2. 방번호
 	    model.addAttribute("roomNo", roomNo);
+	    // 3. 방의 정원 (전체 인원)
+	    int headCount = chatService.headCountByRoomNo(roomNo);
+	    model.addAttribute("headCount", headCount);
 	    
-	    // 읽음확인 -> 나중에
 	    
-		// 메세지 + 상태이력 리스트 가져오기
+		// 메세지 + 읽음확인 + 상태이력 리스트 가져오기
 	    List<CustomChatContainerDto> combinedList = chatService.selectmsgHistoryList(roomNo, login_id);
 	    model.addAttribute("combinedList", combinedList);
+	    
 	    
 		
 		// fragment만 반환
 	    return "chat/chatpage :: chatContainer";
 	    
+	    
+	    
 	}
 	
+	// 메인페이지 헤더에 표시될 채팅 읽음 확인 개수 조회
+	@ResponseBody
+	@GetMapping("/chat/alert/header")
+	public Map<String,String> selectChatReadCkeck(){
+		
+		Map<String,String> resultMap = new HashMap<String,String>();
+		resultMap.put("res_code", "404");
+		resultMap.put("res_msg", "읽지 않은 메세지 조회 중 오류가 발생하였습니다.");
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User) authentication.getPrincipal();
+		String emp_id = user.getUsername();
+		
+		int result = chatService.selectChatReadCheckByEmpId(emp_id);
+		
+		resultMap.put("res_code", "200");
+		resultMap.put("res_msg", "읽지 않은 메세지 조회 생성에 성공하였습니다.");
+		resultMap.put("unread_count", String.valueOf(result));
+		
+		return resultMap;
+	}
 	
 }

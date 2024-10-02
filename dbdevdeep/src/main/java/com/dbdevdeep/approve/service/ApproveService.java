@@ -113,6 +113,25 @@ public class ApproveService {
 		this.attendanceRepository = attendanceRepository;
 	}
 
+	// home count 값
+	public Map<String, Integer> getApproveCount(String empId){
+		
+		Employee employee = employeeRepository.findByempId(empId);
+		
+		int requestApprove = approveRepository.findRequestApproveCountByEmpId(employee);
+		int comeApprove = approveRepository.findComeApproveCountByEmpId(employee);
+		int requestDocu = approveRepository.findRequestDocuByEmpId(employee);
+		int comeDocu = approveRepository.findComeDocuByEmpId(employee);
+		
+		Map<String , Integer> approveCounts = new HashMap<>();
+		approveCounts.put("requestApprove", requestApprove);
+		approveCounts.put("comeApprove", comeApprove);
+		approveCounts.put("requestDocu", requestDocu);
+		approveCounts.put("comeDocu", comeDocu);
+		
+		return approveCounts;
+	}
+	
 	// 보고서 삭제
 	@Transactional
 	public int deleteDocuApprove(Long appro_no) {

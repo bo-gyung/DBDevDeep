@@ -15,6 +15,12 @@
 			width:360px;
 		}
 		
+		.custom-badge{
+			border-radius:50em; 
+			align-self: flex-end; 
+			margin-bottom: 5px;
+		}
+		
 		.schedule-message-item:hover {
 	    	color: inherit !important; /* 기본 텍스트 색상 유지 */
 	    }
@@ -176,7 +182,8 @@
               <a class="nav-link" th:href="@{/chat}" role="button"
                 aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text"><i data-feather="message-square" class="svg-icon" style="width: 24px; height: 24px;"></i></span>
-                <span class="badge badge-primary notify-no rounded-circle">3</span>
+                <span class="badge badge-primary custom-badge notify-no align-items-center justify-content-center" 
+                id="chat_alert_place" ></span>
               </a>
             </li>
             <!-- 웹소켓 연결 확인 -->
@@ -585,6 +592,74 @@
 						});
 		    
 		}
+	</script>
+	
+	<!-- 채팅 알림 관련 -->
+	<script>
+		
+		// 페이지가 리로드될 때 실행될 함수
+		document.addEventListener("DOMContentLoaded", function(){
+			
+			const csrfToken = document.getElementById("csrf_token_header").value;
+			const chatAlertElement = document.getElementById("chat_alert_place");
+			
+			// 1. 로그인한 사용자가 확인하지 않은 채팅 메세지 개수 출력
+			fetch('/chat/alert/header',{
+				method: 'GET',
+	            headers: {
+	                'Content-Type': 'application/json',
+	                'X-CSRF-TOKEN': csrfToken
+	            }
+			})
+			.then(response=>response.json())
+			.then(data=>{
+				// 가져온 데이터(읽지 않은 메시지 개수)를 chat_alert_place에 넣기
+				const unreadCount = data.unread_count || 0; // 데이터가 없을 경우 0으로 설정
+				chatAlertElement.textContent = unreadCount;
+				
+	            if (chatAlertElement.textContent == 0) {
+		            // chatAlertElement.textContent가 0개일 때
+	                chatAlertElement.style.display = "none";
+	            } else {
+	            	// 다시 보이도록 설정 (기본 스타일)
+	                chatAlertElement.style.display = "";
+	            }
+
+	            // chatAlertElement.textContent가 10보다 작으면 특정 스타일 추가
+	            if (chatAlertElement.textContent < 10) {
+	                chatAlertElement.style.aspectRatio = "1/1"; // 스타일 추가
+	            } else {
+	                // unreadCount가 10과 같거나 크면 스타일 제거
+	                chatAlertElement.style.aspectRatio = ""; // 스타일 제거
+	            }
+				
+			})
+				
+		})
+		
+		// 웹소켓 알림을 받았을 때, 알림 개수 업데이트
+		const chatAlertReload = function(){
+			const chatAlertElement = document.getElementById("chat_alert_place");
+            const alertCount = parseInt(chatAlertElement.textContent) || 0;
+            chatAlertElement.textContent = alertCount + 1;
+            
+            if (chatAlertElement.textContent == 0) {
+	            // chatAlertElement.textContent가 0개일 때
+                chatAlertElement.style.display = "none";
+            } else {
+            	// 다시 보이도록 설정 (기본 스타일)
+                chatAlertElement.style.display = "";
+            }
+
+            // chatAlertElement.textContent가 10보다 작으면 특정 스타일 추가
+            if (chatAlertElement.textContent < 10) {
+                chatAlertElement.style.aspectRatio = "1/1"; // 스타일 추가
+            } else {
+                // unreadCount가 10과 같거나 크면 스타일 제거
+                chatAlertElement.style.aspectRatio = ""; // 스타일 제거
+            }
+		}
+		
 	</script>
 
 </th:block>

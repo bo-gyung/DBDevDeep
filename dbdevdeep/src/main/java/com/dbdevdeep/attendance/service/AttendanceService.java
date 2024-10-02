@@ -204,8 +204,10 @@ public class AttendanceService {
 		List<Attendance> aList = null;
 		LocalDate startDate = LocalDate.of(year, month, 1);
 		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+		LocalDate today = LocalDate.now();
+		
 		Employee employee = employeeRepository.findByempId(empId);
-		aList = attendanceRepository.findByYearAndMonth(employee, startDate, endDate);
+		aList = attendanceRepository.findByYearAndMonth(employee, startDate, endDate, today);
 		List<AttendanceDto> aDtoList = new ArrayList<AttendanceDto>();
 		for (Attendance a : aList) {
 			AttendanceDto dto = new AttendanceDto().toDto(a);

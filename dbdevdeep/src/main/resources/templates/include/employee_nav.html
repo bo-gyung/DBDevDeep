@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:fragment="employeeNavLayout">
+
 	<script>
         document.addEventListener("DOMContentLoaded", function() {
             // 현재 페이지 URL 가져오기
@@ -27,7 +28,13 @@
             });
         });
     </script>
-
+    
+	<style>
+		.sidebar-nav {
+		    padding-top: 10px !important;
+		}
+	</style>
+	
 	<aside class="left-sidebar" data-sidebarbg="skin6">
 		<!-- Sidebar scroll-->
 		<div class="scroll-sidebar" data-sidebarbg="skin6">
@@ -55,29 +62,18 @@
 						</ul>
 					</li>
 	
-					<!-- 학생 Nav -->
-					<li class="sidebar-item">
-						<a class="sidebar-link has-arrow" href="javascript:void(0)" aria-expanded="false">
-							<span class="hide-menu">학생</span>
-						</a>
-						<ul aria-expanded="false" class="collapse  first-level base-level-line">
-							<li class="sidebar-item">
-								<a href="#" class="sidebar-link">
-									<span class="hide-menu"> 결재 요청함 </span>
-								</a>
-							</li>
-							<li class="sidebar-item">
-								<a href="#" class="sidebar-link">
-									<span class="hide-menu"> 결재 대기함 </span>
-								</a>
-							</li>
-							<li class="sidebar-item">
-								<a href="#" class="sidebar-link">
-									<span class="hide-menu"> 임시 보관함 </span>
-								</a>
-							</li>
-						</ul>
-					</li>
+					<!-- 학생 정보 nav -->
+					<li class="sidebar-item"> <a class="sidebar-link has-arrow" th:href="@{/student/list}"
+		                aria-expanded="false"><span class="hide-menu">학생</span></a>
+		              <ul aria-expanded="false" class="collapse  first-level base-level-line">
+		              	<li class="sidebar-item"><a th:href="@{/employee/student/list}" class="sidebar-link"><span class="hide-menu"> 학생 목록
+		                    </span></a>
+		                </li>
+		                <li class="sidebar-item"><a th:href="@{/employee/student/create}" class="sidebar-link"><span class="hide-menu"> 학생 등록
+		                    </span></a>
+		                </li>
+		              </ul>
+		            </li>
 					
 					<!-- 반 nav -->
 					<li class="sidebar-item">
@@ -92,6 +88,8 @@
 							</li>
 						</ul>
 					</li>
+					
+					
 					
 					<!-- 기록 Nav -->
 					<li class="sidebar-item" >

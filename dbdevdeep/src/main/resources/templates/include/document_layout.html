@@ -32,11 +32,9 @@
 
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
-		    // 모든 nav-link 요소들을 선택합니다.
 		    const navItems = document.querySelectorAll('.nav-item');
-	
-		    // 다섯 번째 nav-link에 active 클래스를 추가합니다 (인덱스는 0부터 시작하므로 4가 다섯 번째).
-		    if (navItems[5]) { // 다섯 번째 요소가 존재하는지 확인
+
+		    if (navItems[5]) {
 		    	navItems[5].classList.add('active');
 		    }
 		});

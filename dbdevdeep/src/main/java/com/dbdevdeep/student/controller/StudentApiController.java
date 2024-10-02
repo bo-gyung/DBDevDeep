@@ -38,8 +38,6 @@ import com.dbdevdeep.student.domain.SubjectDto;
 import com.dbdevdeep.student.repository.ScoreRepository;
 import com.dbdevdeep.student.service.StudentService;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 @Controller
 public class StudentApiController {
 	
@@ -58,6 +56,7 @@ public class StudentApiController {
 		this.fileService = fileService;
 		this.scoreRepository = scoreRepository;
 	}
+	
 	
 	// 학생 등록
 	@ResponseBody
@@ -180,7 +179,21 @@ public class StudentApiController {
 		return map;
 	}
 	
-	
+	// 부모 정보 수정
+		@ResponseBody
+		@PostMapping("/student/parent/update/{student_no}")
+		public Map<String,String> updateStudentParent(ParentDto dto){
+			Map<String,String> resultMap = new HashMap<String,String>();
+			resultMap.put("res_code", "404");
+			resultMap.put("res_msg", "부모 정보 수정 중 오류가 발생했습니다.");
+			
+			if(studentService.updateStudentParentInfo(dto) != null) {
+				resultMap.put("res_code", "200");
+				resultMap.put("res_msg", "부모 정보가 성공적으로 수정되었습니다.");
+			}
+			
+			return resultMap;
+		}
 	
 	// 반배정시 학년도에 따른 학년 데이터 가져오기
 	@GetMapping("/student/student_class/selectByYear/{t_year}")
@@ -356,6 +369,7 @@ public class StudentApiController {
 
 		    return resultMap;
 		}
+
 
 
 

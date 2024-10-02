@@ -254,7 +254,7 @@
 													휴가 결재 요청
 												</div>
 												<div class="text-warning" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline; margin-top:3px;">
-													<span style="font-size: 24px; font-weight:bolder;">2</span>
+													<span th:text="${approveCounts['requestApprove']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>
 											</div>
@@ -264,7 +264,7 @@
 													휴가 결재 대기
 												</div>
 												<div class="text-success" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline; margin-top:3px;">
-													<span style="font-size: 24px; font-weight:bolder;">5</span>
+													<span th:text="${approveCounts['comeApprove']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>									
 											</div>
@@ -279,7 +279,7 @@
 													보고서 결재 요청
 												</div>
 												<div class="text-warning" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline;">
-													<span style="font-size: 24px; font-weight:bolder;">4</span>
+													<span th:text="${approveCounts['requestDocu']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>
 											</div>
@@ -289,7 +289,7 @@
 													보고서 결재 대기
 												</div>
 												<div class="text-success" style="font-size: 18px; display: flex; justify-content: center; align-items: baseline;">
-													<span style="font-size: 24px; font-weight:bolder;">3</span>
+													<span th:text="${approveCounts['comeDocu']}" style="font-size: 24px; font-weight:bolder;">0</span>
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>									
 											</div>
@@ -494,12 +494,12 @@
 	                                <h4 class="card-title mt-1" style="margin: 0px; font-size:20px;">문서관리</h4>
 	                                <div class="ml-auto"><a th:href="@{/file}" style="font-size: 14px; color:#7C8798; cursor: pointer;" onmouseover="this.style.color='black'; this.style.textDecoration='underline';" onmouseout="this.style.color='#7C8798'; this.style.textDecoration='none';">더보기</a></div>                            	
                             	</div>
-                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:5px; overflow-y: auto;">
+                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:10px; overflow-y: auto;">
 	                                <table id="document" class="w-100">
 		                                <tbody>
 			                                <th:block th:if="${#lists.isEmpty(publicFiles)}">
                                         		<tr>
-                                        			<td colspan="7">파일이 없습니다.</td>
+                                        			<td colspan="7">등록된 문서가 없습니다.</td>
                                         		</tr>
                                         	</th:block>
                                         	<th:block th:if="${!#lists.isEmpty(publicFiles)}">
@@ -515,6 +515,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     
                 </div>
             </div>
@@ -561,7 +562,6 @@
                                     end: holiday.is_period === 'Y' ? new Date(new Date(holiday.end_date).setDate(new Date(holiday.end_date).getDate())).toISOString().split('T')[0] : holiday.start_date, // 종료일을 다음 날로 설정
                                     classNames: ['fc-holiday'], // fc-holiday 클래스 부여
                                 };
-                                
                                 // YEARLY 반복 이벤트 처리
                                 if (holiday.repeat_type === 'YEARLY') {
                                     return createYearlyEvents(holiday); // 반복 이벤트 처리

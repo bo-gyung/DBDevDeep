@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -37,7 +37,7 @@ public class WebSecurityConfig {
                 .requestMatchers("/error/404", "/error/500", "/error/error").permitAll()
                 .requestMatchers("/employee/**").hasAnyAuthority("D3")
                 .requestMatchers("/log/**").hasAnyAuthority("D3")
-                .requestMatchers("/student/**").hasAnyAuthority("D4")
+                .requestMatchers(HttpMethod.GET, "/student/**").hasAnyAuthority("D4")
                 .anyRequest().hasAnyAuthority("Y")  // 나머지 모든 요청은 인증 필요
             )
             // 로그인 설정

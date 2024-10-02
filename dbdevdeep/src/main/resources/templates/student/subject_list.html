@@ -157,7 +157,7 @@
 										</tbody>
                                         
                                     </table>
-                                    <a th:href="@{/subject/create}">등록</a>
+                                    <a th:href="@{/student/subject/create}">등록</a>
                                 </div>
                             </div>
                         </div>
@@ -206,7 +206,7 @@
 		        var subjectNo = $(this).closest('tr').find('td:nth-child(1)').text(); // 번호가 있는 td를 선택
 		
 		        if (subjectNo && subjectNo !== "") {
-		            window.location.href = '/subject/' + subjectNo;
+		            window.location.href = '/student/subject/' + subjectNo;
 		        }
 		    });
 		</script>
