@@ -2,6 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/student_layout}">
+<head>
+    <!-- This page plugin CSS -->
+    <link href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/dist/css/style.min.css" rel="stylesheet">
+</head>
 <th:block layout:fragment="content">
 <style>
 	.custom-cancel-button{
@@ -172,16 +178,15 @@
 		                        	<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:140px;">
 			                            <div style="font-size:30px;">학생 목록</div>
 		                        	</div>
-		                        	<div class="col-md-4"></div>
-											<div class="col-md-4">
-												<table class="filter">
-													<tr>
-														<td><label><input type="checkbox" class="filter-status" value="전체"> 나의 학생</label></td>
-														<td><label><input type="checkbox" class="filter-status" value="재직"> 전체 학생</label></td>
-													</tr>
-												</table>
-											</div>
-											
+									<div class="col-md-4">
+										<table class="filter">
+											<tr>
+												<td><label><input type="checkbox" class="filter-status" value="전체"> 나의 학생</label></td>
+												<td><label><input type="checkbox" class="filter-status" value="재직"> 전체 학생</label></td>
+											</tr>
+										</table>
+									</div>
+								</div>		
 	
                                 <div class="table-responsive mt-2">
                                     <table id="student_list" class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
@@ -196,7 +201,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <th:block th:if="${#lists.isEmpty(resultList)}">
+	                                        <th:block th:if="${#lists.isEmpty(resultList)}">
 												<tr>
 													<td colspan="6">존재하는 학생 정보가 없습니다.</td>
 												</tr>
@@ -205,6 +210,7 @@
 											    <tr th:each="studentClass, studentClassStat : ${resultList}">
 											        <td style="display:none;" th:text="${studentClass.student.studentNo}"></td>
 													<th:block th:if="${studentClass.teacher_history != null}">
+														<input type="hidden" th:value="${studentClass.student.studentNo}">
 									                    <td th:text="${studentClass.teacher_history.grade} + '학년'"></td>
 									                    <td th:text="${studentClass.teacher_history.gradeClass} + '반'"></td>
 									                    <td th:text="${studentClass.student_id} + '번'"></td>
@@ -216,11 +222,9 @@
 													<td th:text="${studentClass.student.studentBirth}"></td>
 											        <td th:text="${studentClass.student.studentStatus}"></td>
 											    </tr>
-											    </th:block>
+											 </th:block>
 										</tbody>
-                                        
                                     </table>
-                                </div>
                                 </div>
                             </div>
                         </div>
@@ -260,8 +264,7 @@
 		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
 		<script src="/dist/js/sidebarmenu.js"></script>
 		<script src="/dist/js/custom.min.js"></script>
-		<script
-			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+		<script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
 		<script>
 		    $('#student_list').on('click', 'td', function () {
