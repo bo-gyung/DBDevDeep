@@ -6,4 +6,6 @@ import com.dbdevdeep.place.domain.PlaceItemSchedule;
 
 public interface PlaceScheduleRepository extends JpaRepository<PlaceItemSchedule, Long>{
 
+	PlaceItemSchedule findByPlaceScheduleNo(Long placeScheduleNo);
+	
 }

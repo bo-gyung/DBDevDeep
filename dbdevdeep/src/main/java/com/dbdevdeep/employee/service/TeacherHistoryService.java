@@ -239,7 +239,10 @@ public class TeacherHistoryService {
         return teacherHistoryRepository.findAll();
     }
     
-   
+ // 특정 신청자(empId)에 대해 가장 최근 학년도에 해당하는 학급 및 반 정보 조회
+    public TeacherHistory getLatestClassInfoByEmpId(String empId) {
+        return teacherHistoryRepository.selectLatestTeacherHistoryByEmployee(empId);
+    }
 
     
 
