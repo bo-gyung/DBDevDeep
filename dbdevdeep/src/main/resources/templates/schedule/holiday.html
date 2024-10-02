@@ -144,6 +144,220 @@
 		    height:50px;
 		}
 	</style>
+<body>
+		<div class="page-wrapper">
+			<div class="container-fluid" style="margin-bottom:-10px;">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body" style="padding:50px 80px">
+		                        <div class="row" style="margin-left:0px !important; margin-right:0px !important;">
+				                    <div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:140px;">
+				                        <div style="font-size:30px;">휴일 관리</div>
+				                    </div>		                        
+	                            	<div class="col d-flex justify-content-end">
+				                        <button type="button" style="width:72px; height:45px;" class="btn waves-effect waves-light btn-light m-1" id="deleteButton">삭제</button>
+				                        <button type="button" style="width:72px; height:45px;" class="btn waves-effect waves-light btn-primary m-1" data-toggle="modal" data-target="#holidayCreateModal">등록</button>
+	                            	</div>								
+								</div>
+                                <div class="table-responsive mt-2">
+                                    <table id="holiday_config" class="table table-hover table-bordered no-wrap" style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="checkbox-cell"><input type="checkbox" id="selectAllCheckbox"></th>
+                                                <th scope="col">번호</th>
+												<th scope="col">휴일명</th>
+												<th scope="col">날짜</th>
+												<th scope="col">매년반복여부</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+											<tr th:each="holiday, holidayStat : ${resultList}">
+												<td><input type="checkbox" class="holidayCheckbox" style="padding-top:5px;" th:value="${holiday.holiday_no}"></td>
+												<td scope="row" th:text="${holidayStat.count}"></td>
+												<td th:text="${holiday.holiday_name}" th:value="${holiday.holiday_no}"></td>
+												<td th:text="${holiday.start_date.equals(holiday.end_date) ? #dates.format(holiday.start_date, 'yyyy.MM.dd') : #dates.format(holiday.start_date, 'yyyy.MM.dd') + ' ~ ' + #dates.format(holiday.end_date, 'yyyy.MM.dd')}"></td>
+												<td th:text="${holiday.repeat_type == 'NONE' ? 'N' : 'Y'}"></td>
+											</tr>
+										</tbody>
+                                        
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+	    <!-- 상세보기 모달 HTML -->
+		<div class="modal fade" id="holidayDetailModal" tabindex="-1" role="dialog" aria-labelledby="holidayDetailModalLabel">
+		    <div class="modal-dialog modal-dialog-centered" style="max-width:50%; width: 50%;">
+		        <div class="modal-content" id="holidayDetailContent">
+		        </div>
+		    </div>
+		</div>
+	                      
+	    <!-- 등록 모달 HTML -->
+		<div class="modal fade" id="holidayCreateModal" tabindex="-1" role="dialog" aria-labelledby="holidayCreateModalLabel">
+		    <div class="modal-dialog modal-dialog-centered" style="max-width:50%; width: 50%;">
+		        <div class="modal-content">
+		            <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
+		                <div class="modal-title" id="holidayCreateModalLabel">
+		                	<i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
+		                	휴일 등록
+		                </div>
+		                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+		                	<i data-feather="x" class="svg-icon mr-2 ml-1"></i>
+		                </button>
+		            </div>
+		    			<form id="holidayCreateFrm">
+				            <div class="modal-body" style="padding:0px;">
+				    			<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+				                <table style="border-bottom:none; border-top:none;" class="table bordered">
+				                    <tbody id="holidayCreateContent">
+				                        <!-- 날짜 선택 -->
+									            <tr>
+									                <td class="align-center" style="width: 20%;">
+									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
+									                    <label>날짜</label>
+									                </td>
+									                <td style="width: 80%;">
+									                    <div class="form-inline d-flex justify-content-between align-items-center">
+									                    	<div style="display:flex;">
+										                        <input type="radio" name="is_period" value="N" id="createDateOption1" checked>
+	                                                            <label for="createDateOption1" class="ml-2">하루</label>
+	                                                            <input type="date" class="form-control" id="create_single_date" name="start_date" placeholder="날짜" style="margin-left: 15px !important;">
+									                    	</div>
+									                    	<div style="display:flex;">
+	                                                            <input type="radio" name="is_period" value="Y" id="createDateOption2" class="ml-4">
+	                                                            <label for="createDateOption2" class="ml-2">기간</label>
+	                                                            <input type="date" class="form-control" id="create_period_start_date" name="start_date" placeholder="시작일" style="margin-left: 15px !important; max-width:170px; width:170px;">
+	                                                            <span class="ml-3 mr-2"> ~ </span>
+	                                                            <input type="date" class="form-control" id="create_period_end_date" name="end_date" placeholder="종료일" style="margin-left: 10px !important; max-width:170px; width:170px;">
+									                    	</div>
+									                    </div>
+									                </td>
+									            </tr>
+									
+									            <!-- 휴일명 입력 -->
+									            <tr>
+									                <td class="align-center" style="width: 20%;">
+									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
+									                    <label>휴일명</label>
+									                </td>
+									                <td style="width: 80%;">
+									                    <input type="text" class="form-control" name="holiday_name" id="create_holiday_name" placeholder="휴일명">
+									                </td>
+									            </tr>
+									
+									            <!-- 매년반복여부 -->
+									            <tr>
+									                <td class="align-center" style="width: 20%;">
+									                    <label>매년반복여부</label>
+									                </td>
+									                <td style="width: 80%;">
+									                    <div class="form-inline">
+															<input type="radio" name="repeat_type" value="NONE" id="create_repeatOption1" checked>
+										                    <label for="repeatOption1" class="ml-2">반복 없음</label>
+										                    <input type="radio" name="repeat_type" value="YEARLY" id="create_repeatOption2" class="ml-4">
+										                    <label for="repeatOption2" class="ml-2">매년 반복</label>
+									                    </div>
+									                </td>
+									            </tr>
+				                    </tbody>
+				                </table>
+				            </div>
+				            <div class="modal-footer" style="margin-top:-15px;">
+				                <button type="button" class="btn waves-effect waves-light btn-outline-secondary" data-dismiss="modal">취소</button>
+	             									<button type="submit" class="btn waves-effect waves-light btn-primary">등록</button>
+				            </div>
+		        	</form>
+		        </div>
+		    </div>
+		</div>
+		
+		<!-- 수정 모달 HTML -->
+		<div class="modal fade" id="holidayEditModal" tabindex="-1" role="dialog" aria-labelledby="holidayEditModalLabel">
+		    <div class="modal-dialog modal-dialog-centered" style="max-width:50%; width: 50%;">
+		        <div class="modal-content">
+		            <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
+		                <div class="modal-title" id="holidayEditModalLabel">
+		                	<i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
+		                	휴일 수정
+		                </div>
+		                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+		                	<i data-feather="x" class="svg-icon mr-2 ml-1"></i>
+		                </button>
+		            </div>
+		    			<form id="holidayEditFrm">
+				            <div class="modal-body" style="padding:0px;">
+				    			<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+				                <table style="border-bottom:none; border-top:none;" class="table bordered">
+				                    <tbody id="holidayCreateContent">
+				                        <!-- 날짜 선택 -->
+									            <tr>
+									                <td class="align-center" style="width: 20%;">
+									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
+									                    <label>날짜</label>
+									                </td>
+													<td style="width: 80%;">
+													    <div class="form-inline d-flex justify-content-between align-items-center">
+													    	<div style="display:flex;">
+														        <input type="radio" name="is_period" value="N" id="editDateOption1" checked>
+	                                                            <label for="editDateOption1" class="ml-2">하루</label>
+	                                                            <input type="date" class="form-control ml-2" id="edit_single_date" name="start_date" placeholder="날짜" style="margin-left: 15px !important;">
+                                                            </div>
+                                                            <div style="display:flex;">
+	                                                            <input type="radio" name="is_period" value="Y" id="editDateOption2" class="ml-4">
+	                                                            <label for="editDateOption2" class="ml-2">기간</label>
+	                                                            <input type="date" class="form-control ml-2" id="edit_period_start_date" name="start_date" placeholder="시작일" style="margin-left: 15px !important;">
+	                                                            <span class="ml-3 mr-2"> ~ </span> 
+	                                                            <input type="date" class="form-control ml-2" id="edit_period_end_date" name="end_date" placeholder="종료일" style="margin-left: 10px !important;">
+													    	</div>
+													    </div>
+													</td>
+									            </tr>
+									
+									            <!-- 휴일명 입력 -->
+									            <tr>
+									                <td class="align-center" style="width: 20%;">
+									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
+									                    <label>휴일명</label>
+									                </td>
+									                <td style="width: 80%;">
+									                    <input type="text" class="form-control" name="holiday_name" id="edit_holiday_name" placeholder="휴일명">
+									                </td>
+									            </tr>
+									
+									            <!-- 매년반복여부 -->
+									            <tr>
+									                <td class="align-center" style="width: 20%;">
+									                    <label>매년반복여부</label>
+									                </td>
+									                <td style="width: 80%;">
+									                    <div class="form-inline">
+															<input type="radio" name="repeat_type" value="NONE" id="edit_repeatOption1" checked>
+										                    <label for="repeatOption1" class="ml-2">반복 없음</label>
+										                    <input type="radio" name="repeat_type" value="YEARLY" id="edit_repeatOption2" class="ml-4">
+										                    <label for="repeatOption2" class="ml-2">매년 반복</label>
+									                    </div>
+									                </td>
+									            </tr>
+				                    </tbody>
+				                </table>
+				            </div>
+				            <div class="modal-footer" style="margin-top:-15px;">
+				                <button type="button" class="btn waves-effect waves-light btn-outline-secondary" data-dismiss="modal">취소</button>
+	             				<button type="submit" class="btn waves-effect waves-light btn-primary" id="saveButton">등록</button>
+				            </div>
+		        	</form>
+		        </div>
+		    </div>
+		</div>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
+        </footer>
+    </div>
+
 	<script>
 	    $(document).ready(function () {
 	        // 공통 변수 선언
@@ -556,224 +770,6 @@
 	    });
 	</script>
 
-<body>
-		<!-- ============================================================== -->
-		<!-- Page wrapper  -->
-		<!-- ============================================================== -->
-		<div class="page-wrapper">
-
-			<div class="container-fluid" style="margin-bottom:-10px;">
-
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card">
-                            <div class="card-body" style="padding:50px 80px">
-		                        <div class="row" style="margin-left:0px !important; margin-right:0px !important;">
-				                    <div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:140px;">
-				                        <div style="font-size:30px;">휴일 관리</div>
-				                    </div>		                        
-	                            	<div class="col d-flex justify-content-end">
-				                        <button type="button" style="width:72px; height:45px;" class="btn waves-effect waves-light btn-light m-1" id="deleteButton">삭제</button>
-				                        <button type="button" style="width:72px; height:45px;" class="btn waves-effect waves-light btn-primary m-1" data-toggle="modal" data-target="#holidayCreateModal">등록</button>
-	                            	</div>								
-								</div>
-                                <div class="table-responsive mt-2">
-                                    <table id="holiday_config" class="table table-hover table-bordered no-wrap" style="width:100%">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col" class="checkbox-cell"><input type="checkbox" id="selectAllCheckbox"></th>
-                                                <th scope="col">번호</th>
-												<th scope="col">휴일명</th>
-												<th scope="col">날짜</th>
-												<th scope="col">매년반복여부</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-											<tr th:each="holiday, holidayStat : ${resultList}">
-												<td><input type="checkbox" class="holidayCheckbox" style="padding-top:5px;" th:value="${holiday.holiday_no}"></td>
-												<td scope="row" th:text="${holidayStat.count}"></td>
-												<td th:text="${holiday.holiday_name}" th:value="${holiday.holiday_no}"></td>
-												<td th:text="${holiday.start_date.equals(holiday.end_date) ? #dates.format(holiday.start_date, 'yyyy-MM-dd') : #dates.format(holiday.start_date, 'yyyy-MM-dd') + ' ~ ' + #dates.format(holiday.end_date, 'yyyy-MM-dd')}"></td>
-												<td th:text="${holiday.repeat_type == 'NONE' ? 'N' : 'Y'}"></td>
-											</tr>
-										</tbody>
-                                        
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-	    <!-- 상세보기 모달 HTML -->
-		<div class="modal fade" id="holidayDetailModal" tabindex="-1" role="dialog" aria-labelledby="holidayDetailModalLabel">
-		    <div class="modal-dialog modal-dialog-centered" style="max-width:50%; width: 50%;">
-		        <div class="modal-content" id="holidayDetailContent">
-		        </div>
-		    </div>
-		</div>
-	                      
-	    <!-- 등록 모달 HTML -->
-		<div class="modal fade" id="holidayCreateModal" tabindex="-1" role="dialog" aria-labelledby="holidayCreateModalLabel">
-		    <div class="modal-dialog modal-dialog-centered" style="max-width:50%; width: 50%;">
-		        <div class="modal-content">
-		            <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
-		                <div class="modal-title" id="holidayCreateModalLabel">
-		                	<i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
-		                	휴일 등록
-		                </div>
-		                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-		                	<i data-feather="x" class="svg-icon mr-2 ml-1"></i>
-		                </button>
-		            </div>
-		    			<form id="holidayCreateFrm">
-				            <div class="modal-body" style="padding:0px;">
-				    			<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-				                <table style="border-bottom:none; border-top:none;" class="table bordered">
-				                    <tbody id="holidayCreateContent">
-				                        <!-- 날짜 선택 -->
-									            <tr>
-									                <td class="align-center" style="width: 20%;">
-									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
-									                    <label>날짜</label>
-									                </td>
-									                <td style="width: 80%;">
-									                    <div class="form-inline d-flex justify-content-between align-items-center">
-									                    	<div style="display:flex;">
-										                        <input type="radio" name="is_period" value="N" id="createDateOption1" checked>
-	                                                            <label for="createDateOption1" class="ml-2">하루</label>
-	                                                            <input type="date" class="form-control" id="create_single_date" name="start_date" placeholder="날짜" style="margin-left: 15px !important;">
-									                    	</div>
-									                    	<div style="display:flex;">
-	                                                            <input type="radio" name="is_period" value="Y" id="createDateOption2" class="ml-4">
-	                                                            <label for="createDateOption2" class="ml-2">기간</label>
-	                                                            <input type="date" class="form-control" id="create_period_start_date" name="start_date" placeholder="시작일" style="margin-left: 15px !important; max-width:170px; width:170px;">
-	                                                            <span class="ml-3 mr-2"> ~ </span>
-	                                                            <input type="date" class="form-control" id="create_period_end_date" name="end_date" placeholder="종료일" style="margin-left: 10px !important; max-width:170px; width:170px;">
-									                    	</div>
-									                    </div>
-									                </td>
-									            </tr>
-									
-									            <!-- 휴일명 입력 -->
-									            <tr>
-									                <td class="align-center" style="width: 20%;">
-									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
-									                    <label>휴일명</label>
-									                </td>
-									                <td style="width: 80%;">
-									                    <input type="text" class="form-control" name="holiday_name" id="create_holiday_name" placeholder="휴일명">
-									                </td>
-									            </tr>
-									
-									            <!-- 매년반복여부 -->
-									            <tr>
-									                <td class="align-center" style="width: 20%;">
-									                    <label>매년반복여부</label>
-									                </td>
-									                <td style="width: 80%;">
-									                    <div class="form-inline">
-															<input type="radio" name="repeat_type" value="NONE" id="create_repeatOption1" checked>
-										                    <label for="repeatOption1" class="ml-2">반복 없음</label>
-										                    <input type="radio" name="repeat_type" value="YEARLY" id="create_repeatOption2" class="ml-4">
-										                    <label for="repeatOption2" class="ml-2">매년 반복</label>
-									                    </div>
-									                </td>
-									            </tr>
-				                    </tbody>
-				                </table>
-				            </div>
-				            <div class="modal-footer" style="margin-top:-15px;">
-				                <button type="button" class="btn waves-effect waves-light btn-outline-secondary" data-dismiss="modal">취소</button>
-	             									<button type="submit" class="btn waves-effect waves-light btn-primary">등록</button>
-				            </div>
-		        	</form>
-		        </div>
-		    </div>
-		</div>
-		
-		<!-- 수정 모달 HTML -->
-		<div class="modal fade" id="holidayEditModal" tabindex="-1" role="dialog" aria-labelledby="holidayEditModalLabel">
-		    <div class="modal-dialog modal-dialog-centered" style="max-width:50%; width: 50%;">
-		        <div class="modal-content">
-		            <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
-		                <div class="modal-title" id="holidayEditModalLabel">
-		                	<i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
-		                	휴일 수정
-		                </div>
-		                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-		                	<i data-feather="x" class="svg-icon mr-2 ml-1"></i>
-		                </button>
-		            </div>
-		    			<form id="holidayEditFrm">
-				            <div class="modal-body" style="padding:0px;">
-				    			<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-				                <table style="border-bottom:none; border-top:none;" class="table bordered">
-				                    <tbody id="holidayCreateContent">
-				                        <!-- 날짜 선택 -->
-									            <tr>
-									                <td class="align-center" style="width: 20%;">
-									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
-									                    <label>날짜</label>
-									                </td>
-													<td style="width: 80%;">
-													    <div class="form-inline d-flex justify-content-between align-items-center">
-													    	<div style="display:flex;">
-														        <input type="radio" name="is_period" value="N" id="editDateOption1" checked>
-	                                                            <label for="editDateOption1" class="ml-2">하루</label>
-	                                                            <input type="date" class="form-control ml-2" id="edit_single_date" name="start_date" placeholder="날짜" style="margin-left: 15px !important;">
-                                                            </div>
-                                                            <div style="display:flex;">
-	                                                            <input type="radio" name="is_period" value="Y" id="editDateOption2" class="ml-4">
-	                                                            <label for="editDateOption2" class="ml-2">기간</label>
-	                                                            <input type="date" class="form-control ml-2" id="edit_period_start_date" name="start_date" placeholder="시작일" style="margin-left: 15px !important;">
-	                                                            <span class="ml-3 mr-2"> ~ </span> 
-	                                                            <input type="date" class="form-control ml-2" id="edit_period_end_date" name="end_date" placeholder="종료일" style="margin-left: 10px !important;">
-													    	</div>
-													    </div>
-													</td>
-									            </tr>
-									
-									            <!-- 휴일명 입력 -->
-									            <tr>
-									                <td class="align-center" style="width: 20%;">
-									                	<span class="required-indicator"></span> <!-- 필수 입력 표시 -->
-									                    <label>휴일명</label>
-									                </td>
-									                <td style="width: 80%;">
-									                    <input type="text" class="form-control" name="holiday_name" id="edit_holiday_name" placeholder="휴일명">
-									                </td>
-									            </tr>
-									
-									            <!-- 매년반복여부 -->
-									            <tr>
-									                <td class="align-center" style="width: 20%;">
-									                    <label>매년반복여부</label>
-									                </td>
-									                <td style="width: 80%;">
-									                    <div class="form-inline">
-															<input type="radio" name="repeat_type" value="NONE" id="edit_repeatOption1" checked>
-										                    <label for="repeatOption1" class="ml-2">반복 없음</label>
-										                    <input type="radio" name="repeat_type" value="YEARLY" id="edit_repeatOption2" class="ml-4">
-										                    <label for="repeatOption2" class="ml-2">매년 반복</label>
-									                    </div>
-									                </td>
-									            </tr>
-				                    </tbody>
-				                </table>
-				            </div>
-				            <div class="modal-footer" style="margin-top:-15px;">
-				                <button type="button" class="btn waves-effect waves-light btn-outline-secondary" data-dismiss="modal">취소</button>
-	             				<button type="submit" class="btn waves-effect waves-light btn-primary" id="saveButton">등록</button>
-				            </div>
-		        	</form>
-		        </div>
-		    </div>
-		</div>
-
-    </div>
-
     <!-- All Jquery -->
     <!-- ============================================================== -->
     <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
@@ -781,14 +777,11 @@
     <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
     <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
     <!-- apps -->
-    <!-- apps -->
     <script src="/dist/js/app-style-switcher.js"></script>
     <script src="/dist/js/feather.min.js"></script>
     <!-- slimscrollbar scrollbar JavaScript -->
     <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
     <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
-    <!--Wave Effects -->
-    <!-- themejs -->
     <!--Menu sidebar -->
     <script src="/dist/js/sidebarmenu.js"></script>
     <!--Custom JavaScript -->

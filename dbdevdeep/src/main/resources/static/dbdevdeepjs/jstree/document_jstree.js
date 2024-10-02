@@ -6,7 +6,7 @@ $(document).ready(function() {
 	
 	// 공용문서함과 개인문서함의 폴더 번호를 미리 정의
 	const publicFolderNo = 1;  // 예: 공용업무폴더의 번호
-	const privateFolderNo = 6;  // 예: 개인업무폴더의 번호
+	const privateFolderNo = 2;  // 예: 개인업무폴더의 번호
 	
 	// 페이지가 로드되었을 때 기본적으로 공용문서함 용량을 보여줌
 	getFolderTotalSize(publicFolderNo);  // 공용문서함의 용량 계산
@@ -492,6 +492,9 @@ $(document).ready(function() {
 		        case '.xlsx':
 		            fileIcon = '<img src="/assets/images/xlsx.png" alt="XLSX" width="24">';
 		            break;
+				case '.hwp':
+					fileIcon = '<img src="/assets/images/hwp.png" alt="HWP" width="24">';
+					break;					
 		        case '.doc':
 					fileIcon = '<img src="/assets/images/doc.png" alt="Word" width="24">';
 					break;
@@ -550,113 +553,115 @@ $(document).ready(function() {
 	}
 	
 	function reloadDataTable() {
-		$('#file_config').DataTable({
-			// 화면 크기에 따라 컬럼 width 자동 조절
-			"responsive": true,
-			"autoWidth": false,  // 자동 너비 계산을 비활성화
-			// 컬럼 width 비율 조절
-			"columnDefs": [
-				{ "width": "5%", "targets": 0, "className": "text-center", "orderable": false },
-				{ "width": "7%", "targets": 1, "orderable": false },
-				{ "width": "53%", "targets": 2 },
-				{ "width": "10%", "targets": 3, "orderable": false },
-				{ "width": "10%", "targets": 4 },		
-				{ "width": "15%", "targets": 5 }
-			],
-			language: {
-			    emptyTable: "데이터가 없습니다." // 빈 테이블일 때 메시지
-			},
-			// 정보 표시 해제
-			info: false,
-			searching: true,
-			// DataTables의 DOM 구조를 재정의
-			// 표시건수, 검색, 테이블, 페이징의 위치 재설정
-			// (정보 표시 부분을 제외)
-			"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"clearfix">>>t<"row view-pager"<"col-sm-12"<ipf>>>',
-			// 페이지네이션 버튼을 전체 숫자와 함께 표시
-			pagingType: 'full_numbers',
-			// 페이지당 항목 수를 선택할 수 있는 옵션
-			lengthMenu: [10, 25, 50, 100],
-			// 기본 페이지당 항목 수
-			pageLength: 10,
+		if (!$.fn.DataTable.isDataTable('#file_config')) {
+			$('#file_config').DataTable({
+				// 화면 크기에 따라 컬럼 width 자동 조절
+				"responsive": true,
+				"autoWidth": false,  // 자동 너비 계산을 비활성화
+				// 컬럼 width 비율 조절
+				"columnDefs": [
+					{ "width": "5%", "targets": 0, "className": "text-center", "orderable": false },
+					{ "width": "7%", "targets": 1, "orderable": false },
+					{ "width": "53%", "targets": 2 },
+					{ "width": "10%", "targets": 3, "orderable": false },
+					{ "width": "10%", "targets": 4 },		
+					{ "width": "15%", "targets": 5 }
+				],
+				language: {
+				    emptyTable: "데이터가 없습니다." // 빈 테이블일 때 메시지
+				},
+				// 정보 표시 해제
+				info: false,
+				searching: true,
+				// DataTables의 DOM 구조를 재정의
+				// 표시건수, 검색, 테이블, 페이징의 위치 재설정
+				// (정보 표시 부분을 제외)
+				"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"clearfix">>>t<"row view-pager"<"col-sm-12"<ipf>>>',
+				// 페이지네이션 버튼을 전체 숫자와 함께 표시
+				pagingType: 'full_numbers',
+				// 페이지당 항목 수를 선택할 수 있는 옵션
+				lengthMenu: [10, 25, 50, 100],
+				// 기본 페이지당 항목 수
+				pageLength: 10,
+		
+				// 페이징 관련 설정
+				drawCallback: function(settings) {
+					var api = this.api();  // DataTables API 객체
+					var info = api.page.info();  // 현재 페이지 정보
+					// 전체 페이지 수
+					var totalPages = info.pages;
+					// 현재 페이지 번호
+					var currentPage = info.page;
+					// 표시할 페이지 버튼 수
+					var numButtons = 5;
+					// 시작 페이지와 종료 페이지 번호 계산
+					var startPage = Math.max(currentPage - Math.floor(numButtons / 2), 0);
+					var endPage = Math.min(startPage + numButtons - 1, totalPages - 1);
+					// endPage가 최대값에 도달한 경우 startPage 조정
+					if (endPage - startPage < numButtons - 1) {
+						startPage = Math.max(endPage - numButtons + 1, 0);
+					}
+					// 사용자 정의 페이지네이션 HTML 생성
+					var paginationHtml = '<ul class="pagination">';
+					paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><<</a></li>';
+					paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><</a></li>';
+					for (var i = startPage; i <= endPage; i++) {
+						var isActive = i === currentPage ? 'active' : '';  // 현재 페이지에 'active' 클래스 적용
+						paginationHtml += '<li class="paginate_button page-item ' + isActive + '"><a class="page-link" href="#" tabindex="0">' + (i + 1) + '</a></li>';
+					}
+					paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">></a></li>';
+					paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">>></a></li>';
+					paginationHtml += '</ul>';
+					// 페이지네이션 컨테이너 업데이트
+					$(api.table().container()).find('.dataTables_paginate').html(paginationHtml);
+					// 클릭 이벤트 핸들러 추가
+					$(api.table().container()).find('.paginate_button').on('click', function(e) {
+						e.preventDefault();  // 기본 링크 동작 방지
+						if ($(this).hasClass('disabled')) return;  // 비활성화된 버튼 클릭 방지
+						var idx = $(this).find('a').text();  // 클릭된 버튼의 텍스트 가져오기
+						if (idx === '<<') {
+							api.page('first').draw('page');  // 첫 페이지로 이동
+						} else if (idx === '<') {
+							api.page('previous').draw('page');  // 이전 페이지로 이동
+						} else if (idx === '>') {
+							api.page('next').draw('page');  // 다음 페이지로 이동
+						} else if (idx === '>>') {
+							api.page('last').draw('page');  // 마지막 페이지로 이동
+						} else {
+							api.page(parseInt(idx) - 1).draw('page');  // 선택된 페이지로 이동
+						}
+					});
+				},
+				"initComplete": function () {
+					var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
+					var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 30px auto 0 auto;"></div>');
+					var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
+					var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 	
-			// 페이징 관련 설정
-			drawCallback: function(settings) {
-				var api = this.api();  // DataTables API 객체
-				var info = api.page.info();  // 현재 페이지 정보
-				// 전체 페이지 수
-				var totalPages = info.pages;
-				// 현재 페이지 번호
-				var currentPage = info.page;
-				// 표시할 페이지 버튼 수
-				var numButtons = 5;
-				// 시작 페이지와 종료 페이지 번호 계산
-				var startPage = Math.max(currentPage - Math.floor(numButtons / 2), 0);
-				var endPage = Math.min(startPage + numButtons - 1, totalPages - 1);
-				// endPage가 최대값에 도달한 경우 startPage 조정
-				if (endPage - startPage < numButtons - 1) {
-					startPage = Math.max(endPage - numButtons + 1, 0);
+					searchButton.on('click', function() {
+						var searchTerm = searchInput.val();  // 검색어 가져오기
+						$('#file_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+					});
+	
+					// Enter 키로 검색하기
+					searchInput.on('keypress', function(e) {
+						if (e.which === 13) {  // Enter 키 코드
+							e.preventDefault();  // 기본 Enter 동작 방지
+							searchButton.click();  // 검색 버튼 클릭 이벤트 호출
+						}
+					});
+	
+					searchBoxContainer.append(searchInput).append(searchButton);
+					searchBoxWrapper.append(searchBoxContainer);
+	
+					// 페이징 밑에 검색 박스 추가
+					$('.dataTables_paginate').after(searchBoxContainer);
+	
+					// DataTables 기본 검색창 숨기기
+					$('div.dataTables_filter').hide();
 				}
-				// 사용자 정의 페이지네이션 HTML 생성
-				var paginationHtml = '<ul class="pagination">';
-				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><<</a></li>';
-				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><</a></li>';
-				for (var i = startPage; i <= endPage; i++) {
-					var isActive = i === currentPage ? 'active' : '';  // 현재 페이지에 'active' 클래스 적용
-					paginationHtml += '<li class="paginate_button page-item ' + isActive + '"><a class="page-link" href="#" tabindex="0">' + (i + 1) + '</a></li>';
-				}
-				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">></a></li>';
-				paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">>></a></li>';
-				paginationHtml += '</ul>';
-				// 페이지네이션 컨테이너 업데이트
-				$(api.table().container()).find('.dataTables_paginate').html(paginationHtml);
-				// 클릭 이벤트 핸들러 추가
-				$(api.table().container()).find('.paginate_button').on('click', function(e) {
-					e.preventDefault();  // 기본 링크 동작 방지
-					if ($(this).hasClass('disabled')) return;  // 비활성화된 버튼 클릭 방지
-					var idx = $(this).find('a').text();  // 클릭된 버튼의 텍스트 가져오기
-					if (idx === '<<') {
-						api.page('first').draw('page');  // 첫 페이지로 이동
-					} else if (idx === '<') {
-						api.page('previous').draw('page');  // 이전 페이지로 이동
-					} else if (idx === '>') {
-						api.page('next').draw('page');  // 다음 페이지로 이동
-					} else if (idx === '>>') {
-						api.page('last').draw('page');  // 마지막 페이지로 이동
-					} else {
-						api.page(parseInt(idx) - 1).draw('page');  // 선택된 페이지로 이동
-					}
-				});
-			},
-			"initComplete": function () {
-				var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
-				var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
-				var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
-				var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
-
-				searchButton.on('click', function() {
-					var searchTerm = searchInput.val();  // 검색어 가져오기
-					$('#address_all_book').DataTable().search(searchTerm).draw();  // 검색어로 필터링
-				});
-
-				// Enter 키로 검색하기
-				searchInput.on('keypress', function(e) {
-					if (e.which === 13) {  // Enter 키 코드
-						e.preventDefault();  // 기본 Enter 동작 방지
-						searchButton.click();  // 검색 버튼 클릭 이벤트 호출
-					}
-				});
-
-				searchBoxContainer.append(searchInput).append(searchButton);
-				searchBoxWrapper.append(searchBoxContainer);
-
-				// 페이징 밑에 검색 박스 추가
-				$('.dataTables_paginate').after(searchBoxContainer);
-
-				// DataTables 기본 검색창 숨기기
-				$('div.dataTables_filter').hide();
-			}
-		})
+			})
+		}
 	}
 	
 	// 날짜 형식 변환 함수

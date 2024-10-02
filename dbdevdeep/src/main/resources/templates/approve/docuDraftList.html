@@ -38,9 +38,8 @@
 				<div class="col-sm-12 col-md-12">
 					<div class="card">
 						<div class="card-body">
-							<h3 class="card-title">완료 보고서</h3>
+							<h3 class="card-title">임시 보관함</h3>
 							<hr>
-							
 							
 							<div class="container-fluid">
 				<!-- ============================================================== -->
@@ -51,14 +50,14 @@
                         <div class="card">
                             <div class="card-body">
 		                        <div class="row mb-2">
+		                        	
 	                            </div>
                                 <div class="table-responsive">
-                                    <table id="approveDocu_config" class="table table-hover table-bordered no-wrap" style="width:100%">
+                                    <table id="approveDraftDocu_config" class="table table-hover table-bordered no-wrap" style="width:100%">
                                         <thead>
                                             <tr>
                                                 <th>제목</th>
-                                                <th>기안일</th>
-                                                <th>기안자</th>
+                                                <th>임시저장일시</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -71,13 +70,9 @@
                                         
                                         <!-- 게시글이 존재하는 경우 -->
                                         <th:block th:if="${!#lists.isEmpty(resultList)}">
-                                        	<tr th:each="approve, approveStat : ${resultList}">
-                                        		<td>
-                                        		 <a th:href="@{comepleteDocuDetail/{no}(no=${approve.appro_no})}" th:text = "${approve.appro_title}"></a>
-                                        		</td>
-                                        		<!-- <td th:text="${approve.appro_time}"></td> -->
-                                        		<td th:text="${approve.appro_time}"></td>
-                                        		<td th:text="${approve.appro_name}"></td>
+                                        	<tr th:each="aDto : ${resultList}">
+                                        		<td><a th:href="@{approvedraft/{no}(no=${aDto.draft_no})}" th:text = "${aDto.appro_title}"></a></td>
+                                        		<td th:text="${aDto.appro_time}"></td>
                                         	</tr>
                                         </th:block>
                                         </tbody>
@@ -139,23 +134,23 @@
 	<!-- ============================================================== -->
 	
 	
-	<script src="assets/libs/jquery/dist/jquery.min.js"></script>
+	<script th:src="@{/assets/libs/jquery/dist/jquery.min.js}"></script>
 	<!-- Bootstrap tether Core JavaScript -->
-	<script src="assets/libs/popper.js/dist/umd/popper.min.js"></script>
-	<script src="assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script th:src="@{/assets/libs/popper.js/dist/umd/popper.min.js}"></script>
+	<script th:src="@{/assets/libs/bootstrap/dist/js/bootstrap.min.js}"></script>
 	<!-- apps -->
 	<!-- apps -->
-	<script src="dist/js/app-style-switcher.js"></script>
-	<script src="dist/js/feather.min.js"></script>
+	<script src="/dist/js/app-style-switcher.js"></script>
+	<script src="/dist/js/feather.min.js"></script>
 	<!-- slimscrollbar scrollbar JavaScript -->
-	<script src="assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
-	<script src="assets/extra-libs/sparkline/sparkline.js"></script>
+	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
 	<!--Wave Effects -->
 	<!-- themejs -->
 	<!--Menu sidebar -->
-	<script src="dist/js/sidebarmenu.js"></script>
+	<script src="/dist/js/sidebarmenu.js"></script>
 	<!--Custom JavaScript -->
-	<script src="dist/js/custom.min.js"></script>
+	<script src="/dist/js/custom.min.js"></script>
 	<script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
     <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
     
