@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-     layout:decorate="~{include/student_layout}">
+     layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 <style>
 	.addPic {
@@ -218,18 +218,50 @@
 	const form=document.getElementById("student_create_form");
 	form.addEventListener('submit',(e)=>{
 		e.preventDefault();
-		// 유효성 검사 성공 가정
-		let vali_check = true;
-
-		
-	    const phone1 = document.getElementById('sp1').value;
+		const phone1 = document.getElementById('sp1').value;
 	    const phone2 = document.getElementById('sp2').value;
 	    const phone3 = document.getElementById('sp3').value;
 	    const fullPhoneNumber = `${phone1}-${phone2}-${phone3}`;
 	    document.getElementById('student_phone').value = fullPhoneNumber;
 	    
+	    
+		let vali_check = false;
+		let vali_text = "";
+		if(form.student_name.value == ""){
+			vali_text += "학생 이름을 입력하세요.";
+			form.student_name.focus();
+		} else if(form.student_birth.value == ''){
+			vali_text += "생년월일을 입력하세요";
+			form.student_birth.focus();
+		} else if(form.student_post_code.value == ''){
+			vali_text += '우편번호를 입력하세요';
+			form.student_post_code.focus();
+		} else if(form.student_addr.value == ''){
+			vali_text += '주소를 입력하세요';
+			form.student_addr.focus();
+		}else if(form.student_detail_addr.value == ''){
+			vali_text += '상세주소를 입력하세요';
+			form.student_detail_addr.focus();
+		}else if(document.getElementById('sp1').value == "") {
+		    vali_text += "전화번호를 입력하세요";
+		    document.getElementById('sp1').focus();
+		}else if(document.getElementById('sp2').value == "") {
+		    vali_text += "전화번호를 입력하세요";
+		    document.getElementById('sp2').focus();
+		}else if(document.getElementById('sp3').value == "") {
+		    vali_text += "전화번호를 입력하세요";
+		    document.getElementById('sp3').focus();
+		}else if(!form.student_gender.value){
+			vali_text += '성별을 선택하세요';
+		}else{
+			vali_check = true;
+		}
+
+		
+	    
+	    
 		if(vali_check == false){
-			alert('유효성 검사 중 문제가 발생하였습니다.');
+			alert(vali_text);
 		}else{
 			const payload = new FormData(form);
 			const csrfToken = document.getElementById('csrf_token').value;
@@ -248,7 +280,7 @@
 						title : '성공',
 						text : data.res_msg
 					}).then((result)=>{
-						location.href = "/student/list";
+						location.href = "/employee/student/list";
 					});
 				}else{
 					Swal.fire({

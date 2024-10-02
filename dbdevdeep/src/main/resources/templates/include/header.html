@@ -230,162 +230,172 @@
     <script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
 	
 	<script>
-	// 서버에서 주기적으로 알림을 가져오는 함수
-	function fetchAlerts() {
-	    fetch('/scheduleAlert')
-	        .then(response => response.json())
-	        .then(alerts => {
-	            if (alerts.length > 0) {
-	                alerts.forEach(alert => {
-	                    addScheduleNotification(alert.title, alert.message, alert.time);
-	                });
-	            }
-	        })
-	        .catch(error => console.error('Error fetching alerts:', error));
-	}
+		// 서버에서 주기적으로 알림을 가져오는 함수
+		function fetchAlerts() {
+		    fetch('/scheduleAlert')
+		        .then(response => response.json())
+		        .then(alerts => {
+		            if (alerts.length > 0) {
+		                alerts.forEach(alert => {
+		                    addScheduleNotification(alert.title, alert.message, alert.time);
+		                });
+		            }
+		        })
+		        .catch(error => console.error('Error fetching alerts:', error));
+		}
+		
+		// 10초마다 서버에 요청을 보냄
+		setInterval(fetchAlerts, 10000); // 60,000ms = 1분
+		
+		// 알림을 화면에 추가하는 함수
+		function addScheduleNotification(title, message, time) {
+		    let messageCenter = document.querySelector('.message-center.notifications'); // 메시지 센터
+		    const bellElement = document.querySelector('#bell'); // <a> 태그 요소
+		
+		    const notificationHTML = `
+		        <a href="javascript:void(0)" class="schedule-message-item message-item d-flex align-items-center border-bottom px-3 py-2" 
+		            data-title="${title}" data-message="${message}" data-time="${time}">
+		            <span class="btn btn-success text-white rounded-circle btn-circle">
+		                <i data-feather="calendar" class="text-white"></i>
+		            </span>
+		            <div class="w-75 d-inline-block v-middle pl-2">
+		                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
+		                <span class="font-12 text-nowrap d-block text-muted text-truncate">${message}</span>
+		                <span class="font-12 text-nowrap d-block text-muted">${time}</span>
+		            </div>
+		        </a>
+		    `;
+		
+		    // message-center가 존재하지 않는 경우 전체 구조 추가
+		    if (!messageCenter) {
+		        const firstAlertHTML = `
+		            <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown">
+		                <ul class="list-style-none">
+		                    <li>
+		                        <div class="message-center notifications position-relative">
+		                            ${notificationHTML}
+		                        </div>
+		                    </li>
+		                </ul>
+		            </div>
+		        `;
+		        bellElement.insertAdjacentHTML('afterend', firstAlertHTML);
+		    } else {
+		        // 알림이 중복되지 않도록 확인 후 추가
+		        if (!isNotificationDuplicate(title, message, time)) {
+		            messageCenter.insertAdjacentHTML('afterbegin', notificationHTML);
+		        }
+		    }
+		
+		    // Feather Icons 렌더링 호출
+		    feather.replace();
+		
+		    // 알림을 LocalStorage에 저장
+		    saveAlertToLocalStorage(title, message, time);
+		    
+		 	// 알림 클릭 이벤트 추가
+		    addClickListenerToNotification();
+		}
+		
+		// 새로 추가된 알림에 클릭 이벤트 리스너 추가
+		function addClickListenerToNotification() {
+		    const notificationItems = document.querySelectorAll('.schedule-message-item'); // 모든 알림 항목을 선택
 	
-	// 10초마다 서버에 요청을 보냄
-	setInterval(fetchAlerts, 10000); // 60,000ms = 1분
-	
-	// 알림을 화면에 추가하는 함수
-	function addScheduleNotification(title, message, time) {
-	    let messageCenter = document.querySelector('.message-center.notifications'); // 메시지 센터
-	    const bellElement = document.querySelector('#bell'); // <a> 태그 요소
-	
-	    const notificationHTML = `
-	        <a href="javascript:void(0)" class="schedule-message-item message-item d-flex align-items-center border-bottom px-3 py-2" 
-	            data-title="${title}" data-message="${message}" data-time="${time}">
-	            <span class="btn btn-success text-white rounded-circle btn-circle">
-	                <i data-feather="calendar" class="text-white"></i>
-	            </span>
-	            <div class="w-75 d-inline-block v-middle pl-2">
-	                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
-	                <span class="font-12 text-nowrap d-block text-muted text-truncate">${message}</span>
-	                <span class="font-12 text-nowrap d-block text-muted">${time}</span>
-	            </div>
-	        </a>
-	    `;
-	
-	    // message-center가 존재하지 않는 경우 전체 구조 추가
-	    if (!messageCenter) {
-	        const firstAlertHTML = `
-	            <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown">
-	                <ul class="list-style-none">
-	                    <li>
-	                        <div class="message-center notifications position-relative">
-	                            ${notificationHTML}
-	                        </div>
-	                    </li>
-	                </ul>
-	            </div>
-	        `;
-	        bellElement.insertAdjacentHTML('afterend', firstAlertHTML);
-	    } else {
-	        // 알림이 중복되지 않도록 확인 후 추가
-	        if (!isNotificationDuplicate(title, message, time)) {
-	            messageCenter.insertAdjacentHTML('afterbegin', notificationHTML);
-	        }
-	    }
-	
-	    // Feather Icons 렌더링 호출
-	    feather.replace();
-	
-	    // 알림을 LocalStorage에 저장
-	    saveAlertToLocalStorage(title, message, time);
-	    
-	 	// 알림 클릭 이벤트 추가
-	    addClickListenerToNotification();
-	}
-	
-	// 새로 추가된 알림에 클릭 이벤트 리스너 추가
-	function addClickListenerToNotification() {
-	    const notificationItems = document.querySelectorAll('.schedule-message-item'); // 모든 알림 항목을 선택
-
-	    notificationItems.forEach(item => {
-	        item.addEventListener('click', function() {
-	            const title = item.getAttribute('data-title'); // data-* 속성에서 title 값을 가져옴
-	            const message = item.getAttribute('data-message'); // data-* 속성에서 message 값을 가져옴
-	            const time = item.getAttribute('data-time'); // data-* 속성에서 time 값을 가져옴
-	            
-	            removeAlertAndHide(item, title, message, time); // 클릭 시 알림 제거 및 LocalStorage에서 삭제
-	        });
-	    });
-	}
-	
-	// 중복된 알림이 있는지 확인하는 함수
-	function isNotificationDuplicate(title, message, time) {
-	    const existingAlerts = document.querySelectorAll('.schedule-message-item');
-	    
-	    for (let alert of existingAlerts) {
-	        const alertTitle = alert.querySelector('h6').textContent.trim();
-	        const alertMessage = alert.querySelector('.font-12').textContent.trim();
-	        
-	        if (alertTitle.includes(title) && alertMessage.includes(message)) {
-	            return true; // 중복 알림
-	        }
-	    }
-	    
-	    return false; // 중복 아님
-	}
-	
-	// 알림을 LocalStorage에 저장하는 함수
-	function saveAlertToLocalStorage(title, message, time) {
-	    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 기존 알림을 불러옴
-	    if (!alerts.some(alert => alert.title === title && alert.message === message && alert.time === time)) {
-	        alerts.push({ title, message, time }); // 새로운 알림을 추가
-	    }
-	    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 LocalStorage에 저장
-	}
-	
-	// LocalStorage에 저장된 알림을 화면에 추가하는 함수
-	function loadAlertsFromLocalStorage() {
-	    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 알림을 불러옴
-	
-	    alerts.forEach(alert => {
-	        addScheduleNotification(alert.title, alert.message, alert.time); // 각 알림을 화면에 추가
-	    });
-	}
-	
-	// 알림이 제거된 후 남은 알림이 있는지 확인
-	function checkNotifications() {
-	    const messageCenter = document.querySelector('.message-center.notifications');
-	
-	    // 남은 알림이 없으면 message-center를 제거
-	    if (messageCenter && messageCenter.children.length === 0) {
-	        messageCenter.parentElement.remove(); // 전체 <li>를 제거
-	        clearAlertsInLocalStorage(); // LocalStorage에서 알림 삭제
-	    }
-	}
-	
-	// 알림 클릭 시 실행되는 함수 (알림 제거 및 LocalStorage 업데이트)
-	function removeAlertAndHide(element, title, message, time) {
-	    // 알림을 화면에서 제거
-	    element.remove();
-	    // LocalStorage에서 알림 삭제
-	    removeAlertFromLocalStorage(title, message, time);
-	    // 남은 알림이 있는지 확인 후 처리
-	    checkNotifications();
-	}
-	
-	// LocalStorage에서 특정 알림을 삭제하는 함수
-	function removeAlertFromLocalStorage(title, message, time) {
-	    let alerts = JSON.parse(localStorage.getItem('alerts')) || [];
-	    alerts = alerts.filter(alert => !(alert.title === title && alert.message === message && alert.time === time)); // 조건에 맞지 않는 알림만 필터링
-	    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 저장
-	}
-	
-	// LocalStorage에서 알림을 삭제하는 함수
-	function clearAlertsInLocalStorage() {
-	    localStorage.removeItem('alerts'); // LocalStorage에서 알림 데이터를 삭제
-	}
-	
-	// 초기 상태에서 LocalStorage에서 알림을 불러와서 화면에 추가
-	window.onload = function() {
-	    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
-	}
-	
-    $(".preloader ").fadeOut();
-</script>
+		    notificationItems.forEach(item => {
+		        item.addEventListener('click', function() {
+		            const title = item.getAttribute('data-title'); // data-* 속성에서 title 값을 가져옴
+		            const message = item.getAttribute('data-message'); // data-* 속성에서 message 값을 가져옴
+		            const time = item.getAttribute('data-time'); // data-* 속성에서 time 값을 가져옴
+		            
+		            removeAlertAndHide(item, title, message, time); // 클릭 시 알림 제거 및 LocalStorage에서 삭제
+		            
+		            const alertDiv = document.getElementById('alertDiv');
+		           	
+			   		// alertDiv 안의 a 태그를 모두 선택
+			   		const anchorTags = alertDiv.getElementsByTagName('a');
+			   	
+			   		// a 태그의 개수 출력
+			   		const count = anchorTags.length;
+			   		
+			   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
+		        });
+		    });
+		}
+		
+		// 중복된 알림이 있는지 확인하는 함수
+		function isNotificationDuplicate(title, message, time) {
+		    const existingAlerts = document.querySelectorAll('.schedule-message-item');
+		    
+		    for (let alert of existingAlerts) {
+		        const alertTitle = alert.querySelector('h6').textContent.trim();
+		        const alertMessage = alert.querySelector('.font-12').textContent.trim();
+		        
+		        if (alertTitle.includes(title) && alertMessage.includes(message)) {
+		            return true; // 중복 알림
+		        }
+		    }
+		    
+		    return false; // 중복 아님
+		}
+		
+		// 알림을 LocalStorage에 저장하는 함수
+		function saveAlertToLocalStorage(title, message, time) {
+		    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 기존 알림을 불러옴
+		    if (!alerts.some(alert => alert.title === title && alert.message === message && alert.time === time)) {
+		        alerts.push({ title, message, time }); // 새로운 알림을 추가
+		    }
+		    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 LocalStorage에 저장
+		}
+		
+		// LocalStorage에 저장된 알림을 화면에 추가하는 함수
+		function loadAlertsFromLocalStorage() {
+		    let alerts = JSON.parse(localStorage.getItem('alerts')) || []; // LocalStorage에서 알림을 불러옴
+		
+		    alerts.forEach(alert => {
+		        addScheduleNotification(alert.title, alert.message, alert.time); // 각 알림을 화면에 추가
+		    });
+		}
+		
+		// 알림이 제거된 후 남은 알림이 있는지 확인
+		function checkNotifications() {
+		    const messageCenter = document.querySelector('.message-center.notifications');
+		
+		    // 남은 알림이 없으면 message-center를 제거
+		    if (messageCenter && messageCenter.children.length === 0) {
+		        messageCenter.parentElement.remove(); // 전체 <li>를 제거
+		        clearAlertsInLocalStorage(); // LocalStorage에서 알림 삭제
+		    }
+		}
+		
+		// 알림 클릭 시 실행되는 함수 (알림 제거 및 LocalStorage 업데이트)
+		function removeAlertAndHide(element, title, message, time) {
+		    // 알림을 화면에서 제거
+		    element.remove();
+		    // LocalStorage에서 알림 삭제
+		    removeAlertFromLocalStorage(title, message, time);
+		    // 남은 알림이 있는지 확인 후 처리
+		    checkNotifications();
+		}
+		
+		// LocalStorage에서 특정 알림을 삭제하는 함수
+		function removeAlertFromLocalStorage(title, message, time) {
+		    let alerts = JSON.parse(localStorage.getItem('alerts')) || [];
+		    alerts = alerts.filter(alert => !(alert.title === title && alert.message === message && alert.time === time)); // 조건에 맞지 않는 알림만 필터링
+		    localStorage.setItem('alerts', JSON.stringify(alerts)); // 다시 저장
+		}
+		
+		// LocalStorage에서 알림을 삭제하는 함수
+		function clearAlertsInLocalStorage() {
+		    localStorage.removeItem('alerts'); // LocalStorage에서 알림 데이터를 삭제
+		}
+		
+		// 초기 상태에서 LocalStorage에서 알림을 불러와서 화면에 추가
+		window.onload = function() {
+		    loadAlertsFromLocalStorage(); // 페이지 로드 시 LocalStorage에 저장된 알림을 불러옴
+		}
+		
+	    $(".preloader ").fadeOut();
+	</script>
 
 	<script>
 	const csrfToken_header = document.getElementById("csrf_token_header").value;
@@ -399,60 +409,78 @@
 	    }
 	})
 	.then(response => response.json())
-    .then(data => {
-        if (data.res_code === "200") {
-           let alertDtoList = data.res_msg;
-           
-           for(let i = 0; i < alertDtoList.length; i++) {
-        	   const alert = alertDtoList[i];
-        	   const alertRefName = alert.reference_name;
-        	   
-        	   let title
-        	   let content
-        	   
-        	   if(alertRefName == 'approve') {
-        		   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 결재' + alert.alarm_title.split(' ')[2] + '이 있습니다.';
-        		   title = '결재'
-        	   } else if(alertRefName == 'notice') {
-        		   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 공지가 있습니다.';
-        		   title = '공지';
-        	   }
-        	   
-        	   
-        	   const alertHtml = `
-		        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;" data-a-alert-no="${alert.alarm_no}">
-			        	<div data-alert-no="${alert.alarm_no}"
-			        		onclick="alertMoveFunc('${alert.reference_name}', '${alert.alarm_no}', '${alert.reference_no}');"
-			        		onmouseover="this.style.cursor='pointer'"
-			        		onmouseout="this.style.curosr='auto'"
-		        			class="w-75 message-item d-flex align-items-center">
-				        	<div class="btn btn-info rounded-circle btn-circle">
-					        	<i cloass="far fa-file-alt"></i>
-					        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
-					        		<circle cx="12" cy="12" r="10"></circle>
-					        		<line x1="12" y1="16" x2="12" y2="12"></line>
-					        		<line x1="12" y1="8" x2="12" y2="8"></line>
-					        	</svg>
-				            </div>
-				            <div class="w-100 d-inline-block v-middle pl-2">
-				                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
-				                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-				                    ${content}
-				                </span>
-				                <span class="font-12 text-nowrap d-block text-muted">
-				                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-				                </span>
-				            </div>
-			        	</div>
-			            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;"
-			            	data-alert-no="${alert.alarm_no}"
-			        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
-		        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
-			        		onmouseout="this.style.color='lightgray'">
-			            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"></i>
+  	.then(data => {
+      if (data.res_code === "200") {
+         let alertDtoList = data.res_msg;
+         
+         for(let i = 0; i < alertDtoList.length; i++) {
+      	   const alert = alertDtoList[i];
+      	   const alertRefName = alert.reference_name;
+      	   
+      	   let title
+      	   let content
+      	   let type = alert.alarm_title.split(' ').pop();
+      	 		let last_content = type == '참조' ? '가 참조되었습니다.' : ' 결재가 ' + type + '되었습니다.'
+      	   
+      	   if(alertRefName == 'approve') {
+      		   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' ' + last_content;
+      		   title = '결재'
+      	   } else if(alertRefName == 'notice') {
+      		   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 공지가 있습니다.';
+      		   title = '공지';
+      	   } else if(alertRefName == 'employee') {
+	      		 content = '[' + alert.alarm_title + '] ' + alert.alarm_content;
+	    		   title = '행정';
+      	   }
+      	 		
+      	 		// 날짜 포맷팅
+    	 	    const currentDate = new Date();
+    	 	    const alarmDate = new Date(alert.alarm_time);
+    	 	    let formattedTime;
+
+    	 	    const isSameDay = currentDate.toDateString() === alarmDate.toDateString();
+
+    	 	    if (isSameDay) {
+    	 	        formattedTime = alarmDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    	 	    } else {
+    	 	        formattedTime = alarmDate.toISOString().slice(0, 10).replace(/-/g, '.') + ' ' +  alarmDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+    	 	    }
+      	   
+      	   
+      	   const alertHtml = `
+	        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;" data-a-alert-no="${alert.alarm_no}">
+		        	<div data-alert-no="${alert.alarm_no}"
+		        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});"
+		        		onmouseover="this.style.cursor='pointer'"
+		        		onmouseout="this.style.curosr='auto'"
+	        			class="w-75 message-item d-flex align-items-center">
+			        	<div class="btn btn-info rounded-circle btn-circle">
+				        	<i cloass="far fa-file-alt"></i>
+				        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
+				        		<circle cx="12" cy="12" r="10"></circle>
+				        		<line x1="12" y1="16" x2="12" y2="12"></line>
+				        		<line x1="12" y1="8" x2="12" y2="8"></line>
+				        	</svg>
 			            </div>
-		          </a>
-		        `;
+			            <div class="w-100 d-inline-block v-middle pl-2">
+			                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
+			                <span class="font-12 text-nowrap d-block text-muted text-truncate">
+			                    ${content}
+			                </span>
+			                <span class="font-12 text-nowrap d-block text-muted" >
+			                    ${formattedTime}
+			                </span>
+			            </div>
+		        	</div>
+		            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;"
+		            	>
+		            	<i class="fas fa-times" style="margin-top: 6px; margin-right: 10px; font-size: 20px;" data-alert-no="${alert.alarm_no}"
+			        			onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
+			        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
+				        		onmouseout="this.style.color='lightgray'"></i>
+		            </div>
+	          </a>
+	        `;
 		
 		        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
 		        document.getElementById('alertDiv').innerHTML += alertHtml;
@@ -460,131 +488,109 @@
            
            const alertDiv = document.getElementById('alertDiv');
        	
-	   		// alertDiv 안의 a 태그를 모두 선택
+			   		// alertDiv 안의 a 태그를 모두 선택
 	   		const anchorTags = alertDiv.getElementsByTagName('a');
 	   	
 	   		// a 태그의 개수 출력
 	   		const count = anchorTags.length;
 	   		
-	   		document.getElementById("alertNum").innerText = count == 0 ? '' : count;
+	   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
         } 
     })
     .catch(error => console.error('Error:', error));
 	</script>
 	
 	<script>
-		function alertMoveFunc(referenceName, alertNo, refNo) {
+		function alertMoveFunc(referenceName, alertNo) {
 		    // 테이블 이름에 따라 이동할 URL을 결정합니다.
 		    let url = '';
 	
 		    switch (referenceName) {
 		        case 'approve':
 		            url = '/approve';
-		            fetch('/alert/' + alertNo, {
-		            	method: 'PUT',
-		            	headers: {
-		            		'X-CSRF-TOKEN': csrfToken_header
-		            	}
-		            }) 
-		            .then(response => response.json())
-					.then(data=>{
-						if(data.res_code == '200'){
-							const alertLink = document.querySelector(`a[data-a-alert-no="${alertNo}"]`);
-		                    if (alertLink) {
-		                        alertLink.remove();
-		                    }
-		                    
-		                    const alertDiv = document.getElementById('alertDiv');
-		                   	
-		        	   		// alertDiv 안의 a 태그를 모두 선택
-		        	   		const anchorTags = alertDiv.getElementsByTagName('a');
-		        	   	
-		        	   		// a 태그의 개수 출력
-		        	   		const count = anchorTags.length;
-		        	   		
-		        	   		document.getElementById("alertNum").innerText = count == 0? '' : count;
-						} 
-					});
 		            break;
 		        case 'notice':
-		            url = '/notice/' + refNo;
-		            fetch('/alert/' + alertNo, {
-		            	method: 'PUT',
-		            	headers: {
-		            		'X-CSRF-TOKEN': csrfToken_header
-		            	}
-		            }) 
-		            .then(response => response.json())
-					.then(data=>{
-						if(data.res_code == '200'){
-							const alertLink = document.querySelector(`a[data-alert-no="${alertNo}"]`);
-		                    if (alertLink) {
-		                        alertLink.remove();
-		                    }
-		                    
-		                    const alertDiv = document.getElementById('alertDiv');
-		                   	
-		        	   		// alertDiv 안의 a 태그를 모두 선택
-		        	   		const anchorTags = alertDiv.getElementsByTagName('a');
-		        	   	
-		        	   		// a 태그의 개수 출력
-		        	   		const count = anchorTags.length;
-		        	   		
-		        	   		document.getElementById("alertNum").innerText = count == 0? '' : count;
-						} 
-					});
+		            url = '/notice';
 		            break;
-		        // 추가 테이블에 대한 케이스 추가
+		        case 'employee':
+		        		url = '/mypage';
+		        		break;
 		        default:
 		            console.error('알 수 없는 테이블 이름입니다:', referenceName);
 		            return;
 		    }
+		    
+		    fetch('/alert/' + alertNo, {
+         	method: 'PUT',
+         	headers: {
+         		'X-CSRF-TOKEN': csrfToken_header
+         	}
+         }) 
+         .then(response => response.json())
+					.then(data=>{
+						if(data.res_code == '200'){
+							const alertLink = document.querySelector(`a[data-a-alert-no="${alertNo}"]`);
+              if (alertLink) {
+                  alertLink.remove();
+              }
+			                   
+              const alertDiv = document.getElementById('alertDiv');
+			                  	
+      	   		// alertDiv 안의 a 태그를 모두 선택
+      	   		const anchorTags = alertDiv.getElementsByTagName('a');
+      	   	
+      	   		// a 태그의 개수 출력
+      	   		const count = anchorTags.length;
+      	   		
+      	   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
+				} 
+			});
+		    
 	
 		    // URL로 이동
 		    window.location.href = url;
 		}
 		
 		function alertDeleteFunc(referenceName, alertNo) {
-		    // 테이블 이름에 따라 이동할 URL을 결정합니다.
 		    let url = '';
 	
 		    switch (referenceName) {
 		        case 'approve':
 		            url = '/approve';
-		            fetch('/alert/' + alertNo, {
-		            	method: 'PUT',
-		            	headers: {
-		            		'X-CSRF-TOKEN': csrfToken_header
-		            	}
-		            }) 
-		            .then(response => response.json())
-					.then(data=>{
-						if(data.res_code == '200'){
-							const alertLink = document.querySelector(`a[data-alert-no="${alertNo}"]`);
-		                    if (alertLink) {
-		                        alertLink.remove();
-		                    }
-		                    
-		                    const alertDiv = document.getElementById('alertDiv');
-		                   	
-		        	   		// alertDiv 안의 a 태그를 모두 선택
-		        	   		const anchorTags = alertDiv.getElementsByTagName('a');
-		        	   	
-		        	   		// a 태그의 개수 출력
-		        	   		const count = anchorTags.length;
-		        	   		
-		        	   		document.getElementById("alertNum").innerText = count == 0 ? '' : count;
-						} 
-					});
 		            break;
 		        case 'notice':
 		            url = '/notice';
 		            break;
-		        // 추가 테이블에 대한 케이스 추가
 		        default:
 		            console.error('알 수 없는 테이블 이름입니다:', referenceName);
 		            return;
 		    }
+		    
+		    fetch('/alert/' + alertNo, {
+            	method: 'PUT',
+            	headers: {
+            		'X-CSRF-TOKEN': csrfToken_header
+            	}
+            }) 
+            .then(response => response.json())
+						.then(data=>{
+							if(data.res_code == '200'){
+								const alertLink = document.querySelector(`a[data-a-alert-no="${alertNo}"]`);
+		      			if (alertLink) {
+	                  alertLink.remove();
+	              }
+	              const alertDiv = document.getElementById('alertDiv');
+	                  	
+	       	   		// alertDiv 안의 a 태그를 모두 선택
+	       	   		const anchorTags = alertDiv.getElementsByTagName('a');
+	       	   	
+	       	   		// a 태그의 개수 출력
+	       	   		const count = anchorTags.length;
+	       	   		
+	       	   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
+							} 
+						});
+		    
 		}
 	</script>
 	

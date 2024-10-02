@@ -1,12 +1,19 @@
 package com.dbdevdeep.employee.service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -14,6 +21,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.dbdevdeep.alert.domain.Alert;
+import com.dbdevdeep.alert.domain.AlertDto;
+import com.dbdevdeep.alert.repository.AlertRepository;
 import com.dbdevdeep.employee.domain.AuditLog;
 import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.Department;
@@ -35,9 +45,12 @@ import com.dbdevdeep.employee.repository.JobRepository;
 import com.dbdevdeep.employee.repository.MySignRepository;
 import com.dbdevdeep.employee.repository.TransferRepository;
 import com.dbdevdeep.employee.vo.EmployeeVo;
+import com.dbdevdeep.websocket.config.WebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -54,15 +67,17 @@ public class EmployeeService {
 	private final EmployeeStatusRepository employeeStatusRepository;
 	private final ObjectMapper objectMapper;
 	private final AuditLogRepository auditLogRepository;
+	private final WebSocketHandler webSocketHandler;
+	private final AlertRepository alertRepository;
 
 	// 교육청관리번호 중복 확인
 	public EmployeeDto govIdCheck(String govId) {
-		
+
 		EmployeeDto dto = null;
-		
+
 		Employee e = employeeRepository.findBygovId(govId);
-	
-		if(e != null) {
+
+		if (e != null) {
 			dto = new EmployeeDto().toDto(e);
 		}
 
@@ -82,13 +97,13 @@ public class EmployeeService {
 
 		try {
 			dto.setEmp_pw(passwordEncoder.encode(dto.getEmp_pw()));
-			
-			dto.setAccount_status("Y");
+
+			dto.setAccount_status(0);
 			dto.setLogin_yn("N");
 			dto.setEnt_status("Y");
 			dto.setVacation_hour(120);
 
-			if(dto.getEmp_id() == null) {
+			if (dto.getEmp_id() == null) {
 				String currentYear = String.valueOf(dto.getHire_date()).substring(0, 4);
 
 				int count = Integer.parseInt(employeeRepository.findByempIdWhen(currentYear));
@@ -105,7 +120,6 @@ public class EmployeeService {
 				}
 				dto.setEmp_id(emp_id);
 			}
-
 
 			Employee e = dto.toEntityWithJoin(dept, job);
 
@@ -346,7 +360,8 @@ public class EmployeeService {
 	}
 
 	// 직원 비밀번호 초기화
-	public Employee resetPw(String emp_id, String emp_pw) {
+	@Transactional
+	public Employee resetPw(String emp_id, String emp_pw, String admin_id) {
 		Employee e = null;
 
 		Employee employee = employeeRepository.findByempId(emp_id);
@@ -366,6 +381,38 @@ public class EmployeeService {
 				.chatStatusMsg(temp.getChat_status_msg()).job(job).department(dept).build();
 
 		e = employeeRepository.save(emp);
+		
+		Employee admin = employeeRepository.findByempId(admin_id);
+		AuditLogDto logDto = new AuditLogDto();
+		logDto.setAudit_type("U");
+		logDto.setChanged_item("pw");
+		
+		try {
+			String oriData = objectMapper.writeValueAsString(employee.getEmpPw());
+			String newData = objectMapper.writeValueAsString(e.getEmpPw());
+			logDto.setOri_data(oriData);
+			logDto.setNew_data(newData);
+		} catch (JsonProcessingException excetp) {
+			excetp.printStackTrace();
+		}
+		
+		AuditLog log = logDto.toEntityWithJoin(employee, admin);
+		
+		auditLogRepository.save(log);
+		
+		AlertDto alertDto = new AlertDto();
+		alertDto.setReference_name("employee");
+		alertDto.setAlarm_title("비밀번호수정");
+		alertDto.setAlarm_status("N");
+		alertDto.setAlarm_content(admin.getEmpName() + "님(행정)이 " + e.getEmpName() + "님의 비밀번호를 변경하였습니다.");
+
+		Alert alert = alertDto.toEntity(e);
+		
+		try {
+			webSocketHandler.sendAlert(alertRepository.save(alert));
+		} catch (IOException except) {
+			except.printStackTrace();
+		}
 
 		return e;
 	}
@@ -399,6 +446,20 @@ public class EmployeeService {
 			Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
 			AuditLog auditLog = alDto.toEntityWithJoin(result, admin);
 			auditLogRepository.save(auditLog);
+			
+			AlertDto alertDto = new AlertDto();
+			alertDto.setReference_name("employee");
+			alertDto.setAlarm_title("정보수정");
+			alertDto.setAlarm_status("N");
+			alertDto.setAlarm_content(admin.getEmpName() + "님(행정)이 " + result.getEmpName() + "님의 정보를 변경하였습니다.");
+
+			Alert alert = alertDto.toEntity(result);
+			
+			try {
+				webSocketHandler.sendAlert(alertRepository.save(alert));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		return result;
@@ -460,8 +521,9 @@ public class EmployeeService {
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("R");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
-																							// 데이터 저장
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status
+																								   // 테이블에 전근
+			// 데이터 저장
 		}
 
 		return employeeStatus;
@@ -508,8 +570,9 @@ public class EmployeeService {
 		if (employee.getEntStatus().equals("R")) {
 			dto.setStatus_type("Y");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
-																							// // 데이터 저장
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status
+																								   // 테이블에 전근
+			// // 데이터 저장
 		}
 
 		return employeeStatus;
@@ -526,8 +589,9 @@ public class EmployeeService {
 		if (employee.getEntStatus().equals("Y")) {
 			dto.setStatus_type("N");
 
-			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status 테이블에 전근
-																							// // 데이터 저장
+			employeeStatus = employeeStatusRepository.save(dto.toEntityWithJoin(employee, admin)); // employee_status
+																								   // 테이블에 전근
+			// // 데이터 저장
 		}
 
 		return employeeStatus;
@@ -704,79 +768,142 @@ public class EmployeeService {
 
 		return logDtoList;
 	}
-	
+
 	// 사원정보 변경 기록 하나
 	public AuditLogDto selectAuditLogDto(Long audit_no) {
 		AuditLog log = auditLogRepository.selectByAuditNoOne(audit_no);
-		
+
 		AuditLogDto logDto = new AuditLogDto().toDto(log);
 
 		return logDto;
 	}
+
 	// 사원 정보 변경 기록 등록
-		public void insertAuditLog(Employee employee, AuditLogDto alDto) {	
-					
-			Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
-			AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
-			
-			auditLogRepository.save(auditLog);
-		}
-		
-		// 전근 기록 
-		public List<TransferDto> findByTransferAll() {
-			List<TransferDto> dtoList = new ArrayList<TransferDto>();
+	public void insertAuditLog(Employee employee, AuditLogDto alDto) {
 
-			List<Transfer> transList = transferRepository.findAll();
-			
-			for(Transfer t : transList) {
-				TransferDto dto = new TransferDto().toDto(t);
-				
-				dtoList.add(dto);
-			}
-			
-			return dtoList;
-		}
-		
-		//휴직 기록 
-		public List<EmployeeStatusDto> findByRestAll() {
-			List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+		Employee admin = employeeRepository.findByempId(alDto.getAdmin_id());
+		AuditLog auditLog = alDto.toEntityWithJoin(employee, admin);
 
-			List<EmployeeStatus> restList = employeeStatusRepository.selectRestLogAll();
-			
-			for(EmployeeStatus r : restList) {
-				EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
-				
-				dtoList.add(dto);
-			}
-			
-			return dtoList;
-		}
-		
-		//퇴직 기록 
-		public List<EmployeeStatusDto> findByLeaveAll() {
-			List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+		auditLogRepository.save(auditLog);
+	}
 
-			List<EmployeeStatus> leaveList = employeeStatusRepository.selectLeaveLogAll();
-			
-			for(EmployeeStatus r : leaveList) {
-				EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
-				
-				dtoList.add(dto);
-			}
-			
-			return dtoList;
+	// 전근 기록
+	public List<TransferDto> findByTransferAll() {
+		List<TransferDto> dtoList = new ArrayList<TransferDto>();
+
+		List<Transfer> transList = transferRepository.findAll();
+
+		for (Transfer t : transList) {
+			TransferDto dto = new TransferDto().toDto(t);
+
+			dtoList.add(dto);
 		}
-	
-	
+
+		return dtoList;
+	}
+
+	// 휴직 기록
+	public List<EmployeeStatusDto> findByRestAll() {
+		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+
+		List<EmployeeStatus> restList = employeeStatusRepository.selectRestLogAll();
+
+		for (EmployeeStatus r : restList) {
+			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+
+			dtoList.add(dto);
+		}
+
+		return dtoList;
+	}
+
+	// 퇴직 기록
+	public List<EmployeeStatusDto> findByLeaveAll() {
+		List<EmployeeStatusDto> dtoList = new ArrayList<EmployeeStatusDto>();
+
+		List<EmployeeStatus> leaveList = employeeStatusRepository.selectLeaveLogAll();
+
+		for (EmployeeStatus r : leaveList) {
+			EmployeeStatusDto dto = new EmployeeStatusDto().toDto(r);
+
+			dtoList.add(dto);
+		}
+
+		return dtoList;
+	}
+
 	// 모든 신청인(직원) 조회
-    public List<Employee> findAllEmployees() {
-        return employeeRepository.findAll();
-    }
+	public List<Employee> findAllEmployees() {
+		return employeeRepository.findAll();
+	}
 
-    // 특정 직원 조회 (필요 시 사용)
-    public Employee findEmployeeById(String empId) {
-        return employeeRepository.findById(empId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + empId));
-    }
+	// 특정 직원 조회 (필요 시 사용)
+	public Employee findEmployeeById(String empId) {
+		return employeeRepository.findById(empId)
+				.orElseThrow(() -> new IllegalArgumentException("Employee not found: " + empId));
+	}
 	
+	public void employeeExcel(String ids, HttpServletResponse response) throws Exception {
+		List<Employee> employees = new ArrayList<Employee>();
+	    
+	    if (ids != null && !ids.isEmpty()) {
+	        // 선택된 직원 ID로 필터링
+	        String[] empIds = ids.split(",");
+	        
+	        for(String empId : empIds) {
+	        	Employee emp = employeeRepository.findByempId(empId);
+	        	employees.add(emp);
+	        }
+	    } else {
+	        employees = employeeRepository.findAll(); // 모든 직원 조회
+	    }
+	    
+		String fileName = "직원정보_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx";
+		
+		XSSFWorkbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Employees");
+
+        // 헤더 생성
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("직원번호");
+        header.createCell(1).setCellValue("성명");
+        header.createCell(2).setCellValue("부서");
+        header.createCell(3).setCellValue("직급");
+        header.createCell(4).setCellValue("교육청관리번호");
+        header.createCell(5).setCellValue("주민등록번호");
+        header.createCell(6).setCellValue("전화번호");
+        header.createCell(7).setCellValue("우편번호");
+        header.createCell(8).setCellValue("주소");
+
+        // 데이터 추가
+        for (int i = 0; i < employees.size(); i++) {
+            Employee employee = employees.get(i);
+            Row row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(employee.getEmpId());
+            row.createCell(1).setCellValue(employee.getEmpName());
+            row.createCell(2).setCellValue(employee.getDepartment().getDeptName());
+            row.createCell(3).setCellValue(employee.getJob().getJobName());
+            row.createCell(4).setCellValue("N-" + employee.getGovId());
+            row.createCell(5).setCellValue(employee.getEmpRrn().substring(0, 8) + "******");
+            row.createCell(6).setCellValue(employee.getEmpPhone());
+            row.createCell(7).setCellValue(employee.getEmpPostCode());
+            row.createCell(8).setCellValue(employee.getEmpAddr() + " " + employee.getEmpDetailAddr());
+        }
+
+        // HTTP 응답 설정
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + new String(fileName.getBytes("UTF-8"), "ISO-8859-1") + "\"");
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1
+        response.setHeader("Pragma", "no-cache"); // HTTP 1.0
+        response.setHeader("Expires", "0"); // Proxies
+
+        // 파일을 응답에 작성
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
+            workbook.write(outputStream);
+            outputStream.flush(); // 데이터 플러시
+        } finally {
+            workbook.close(); // Workbook 닫기
+        }
+	}
+
 }

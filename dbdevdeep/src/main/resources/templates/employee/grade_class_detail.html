@@ -78,7 +78,7 @@
 								<div class="col-6 d-flex justify-content-start">
 								</div>
 								<div class="col-6 d-flex justify-content-end">
-									<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/grade-class/list';">목록</button>
+									<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/grade-class';">목록</button>
 									<button type="button" class="btn waves-effect waves-light btn-primary m-1" data-toggle="modal" data-target="#class_edit_modal">반 수정</button>
 
 								</div>
@@ -392,10 +392,10 @@
 					const csrfToken = document.getElementById('csrf_token').value;
 					
 					const obj = {};
-          payload.forEach((value, key) => {
-          	obj[key] = value;
-          });
-          const jsonData = JSON.stringify(obj);
+		          payload.forEach((value, key) => {
+		          	obj[key] = value;
+		          });
+		          const jsonData = JSON.stringify(obj);
 
 					fetch('/grade-class/' + obj.t_year, {
 						method: 'PUT',
@@ -415,7 +415,7 @@
 									text : data.res_msg,
 									confirmButtonText:"닫기"
 								}).then((result)=>{
-									location.href="/grade-class/" + editClassForm.t_year.value;
+									location.href="/grade-class";
 								});
 							} else {
 								Swal.fire({
@@ -425,7 +425,9 @@
 									confirmButtonText:"닫기"
 								});
 							}
-					})
+					}).catch(error => {
+				        console.error('Error:', error);
+				    });
 				});
 				
 			</script>

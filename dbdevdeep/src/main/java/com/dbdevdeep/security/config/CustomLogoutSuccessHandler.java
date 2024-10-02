@@ -48,7 +48,7 @@ public class CustomLogoutSuccessHandler implements LogoutSuccessHandler {
 						dto.getEmp_detail_addr(), dto.getDept_code(), dto.getJob_code(), 
 						dto.getEmp_internal_phone(), dto.getVacation_hour(), dto.getHire_date(),
 						dto.getEnd_date(), dto.getEnt_status(), "N",
-						dto.getAccount_status(), dto.getChat_status_msg());
+						dto.getAccount_status(), dto.getChat_status_msg(), dto.getAccount_time());
 				
 				// login_yn값 db에 반영
 				int resultInt = employeeVoMapper.updateLoginYn(empVo);

@@ -138,13 +138,24 @@
                                             <tr>
                                                 <td>종류</td>
                                                 <td>
-                                                    <input type="text" id="vacType" name="vac_type_display" class="form-control" th:value="${vDto.vac_type}" readonly style="border: 0; outline: none;">
+                                                    <input type="text" id="vacType" name="vac_type_display" class="form-control"
+												       th:value="${vDto.vac_type == 0 ? '연차' :
+												                 vDto.vac_type == 1 ? '공가' :
+												                 vDto.vac_type == 2 ? '병가' :
+												                 vDto.vac_type == 3 ? '조퇴' :
+												                 vDto.vac_type == 4 ? '경조사' :
+												                 vDto.vac_type == 5 ? '출산휴가' :
+												                 vDto.vac_type == 6 ? '오전반차' : 
+												                 vDto.vac_type == 7 ? '오후반차' : ''}" 
+												       readonly style="border: 0; outline: none;">
                                                     <input type="hidden" name="vac_type" th:value="${vDto.vac_type}">
                                                 </td>
                                                 <td>일정</td>
                                                 <td>
-                                                    <input type="text" id="start_date" class="form-control" name="start_date" th:value="${vDto.start_time}" readonly style="border: 0; outline: none;">
-                                                    <input type="text" id="end_date" class="form-control" name="end_date" th:value="${vDto.end_time}" readonly style="border: 0; outline: none;">
+                                                    <input type="hidden" id="start_date" class="form-control" name="start_date" th:value="${vDto.start_time}">
+                                                    <input type="hidden" id="end_date" class="form-control" name="end_date" th:value="${vDto.end_time}">
+                                                    <span th:text="${#temporals.format(vDto.start_time, 'yyyy.MM.dd HH:mm')}"></span>&nbsp;&nbsp;~&nbsp;&nbsp;
+                                                    <span th:text="${#temporals.format(vDto.end_time, 'yyyy.MM.dd HH:mm')}"></span>
                                                 </td>
                                             </tr>
                                             <tr>

@@ -75,21 +75,27 @@ public class ApproveService {
 	private final TempEditRepository tempEditRepository;
 	private final MySignRepository mySignRepository;
 	private final AlertRepository alertRepository;
-	private final ObjectMapper objectMapper;
 	private final WebSocketHandler webSocketHandler;
-	private final AlertMessageHandler alertMessageHandler;
 	private final RestHolidayService restHolidayService;
 	private final AttendanceRepository attendanceRepository; 
 
 	@Autowired
-	public ApproveService(ApproveRepository approveRepository, VacationRequestRepository vacationRequestRepository,
-			ApproveLineRepository approveLineRepository, ApproFileRepository approFileRepository,
-			ReferenceRepository referenceRepository, EmployeeRepository employeeRepository,
-			DepartmentRepository departmentRepository, JobRepository jobRepository,
-			TempEditRepository tempEditRepository, FileService fileService, MySignRepository mySignRepository,
-			AlertRepository alertRepository, AlertMessageHandler alertMessageHandler, ObjectMapper objectMapper,
-			WebSocketHandler webSocketHandler, AlertMessageHandler alertMessageHandler1,
-			RestHolidayService restHolidayService, AttendanceRepository attendanceRepository) {
+	public ApproveService(ApproveRepository approveRepository, 
+			VacationRequestRepository vacationRequestRepository,
+			ApproveLineRepository approveLineRepository, 
+			ApproFileRepository approFileRepository,
+			ReferenceRepository referenceRepository, 
+			EmployeeRepository employeeRepository,
+			DepartmentRepository departmentRepository, 
+			JobRepository jobRepository,
+			TempEditRepository tempEditRepository, 
+			FileService fileService, 
+			MySignRepository mySignRepository,
+			AlertRepository alertRepository, 
+			WebSocketHandler webSocketHandler, 
+			RestHolidayService restHolidayService, 
+			AttendanceRepository attendanceRepository
+			) {
 		this.approveRepository = approveRepository;
 		this.vacationRequestRepository = vacationRequestRepository;
 		this.approveLineRepository = approveLineRepository;
@@ -102,13 +108,30 @@ public class ApproveService {
 		this.fileService = fileService;
 		this.mySignRepository = mySignRepository;
 		this.alertRepository = alertRepository;
-		this.objectMapper = objectMapper;
 		this.webSocketHandler = webSocketHandler;
-		this.alertMessageHandler = alertMessageHandler1;
 		this.restHolidayService = restHolidayService;
 		this.attendanceRepository = attendanceRepository;
 	}
 
+	// home count 값
+	public Map<String, Integer> getApproveCount(String empId){
+		
+		Employee employee = employeeRepository.findByempId(empId);
+		
+		int requestApprove = approveRepository.findRequestApproveCountByEmpId(employee);
+		int comeApprove = approveRepository.findComeApproveCountByEmpId(employee);
+		int requestDocu = approveRepository.findRequestDocuByEmpId(employee);
+		int comeDocu = approveRepository.findComeDocuByEmpId(employee);
+		
+		Map<String , Integer> approveCounts = new HashMap<>();
+		approveCounts.put("requestApprove", requestApprove);
+		approveCounts.put("comeApprove", comeApprove);
+		approveCounts.put("requestDocu", requestDocu);
+		approveCounts.put("comeDocu", comeDocu);
+		
+		return approveCounts;
+	}
+	
 	// 보고서 삭제
 	@Transactional
 	public int deleteDocuApprove(Long appro_no) {
@@ -117,32 +140,31 @@ public class ApproveService {
 			Approve approve = approveRepository.findByApproNo(appro_no);
 			approveLineRepository.deleteByApprove(approve);
 			approveRepository.deleteById(appro_no);
-			
-			// 보고서 삭제 시 alert_status x로 변경
+
+			// 보고서 삭제 시 alert_status 삭제
 			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("approve", appro_no);
-			for(Alert alert : alertList) {
+			for (Alert alert : alertList) {
 				AlertDto alertDto = new AlertDto().toDto(alert);
-				
+
 				alertDto.setAlarm_status("X");
 				Alert a = alertDto.toEntity(alert.getEmployee());
-				
+				alertRepository.delete(alert);
+
+				// alert_status를 x로 처리하여 websocket_handler로 전송
+				// 이미 전송된 websocket 알람을 삭제하기 위함
 				try {
-					alertRepository.delete(a);
-					
-					webSocketHandler.sendAlert(a);
-					
-				} catch (IOException except) {
-					except.printStackTrace();
+					webSocketHandler.sendAlert(a); 
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
-			
+
 			result = 1;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
-
 
 	// 승인 처리 + 최종 승인 처리
 	@Transactional
@@ -184,8 +206,8 @@ public class ApproveService {
 					AlertDto alertDto = new AlertDto();
 					alertDto.setReference_name("approve");
 					alertDto.setReference_no(a.getApprove().getApproNo());
-					if(a.getApprove().getApproType() == 0) {
-						alertDto.setAlarm_title("휴가 결재 요청");						
+					if (a.getApprove().getApproType() == 0) {
+						alertDto.setAlarm_title("휴가 결재 요청");
 					} else {
 						alertDto.setAlarm_title("보고서 결재 요청");
 					}
@@ -564,24 +586,23 @@ public class ApproveService {
 		approve = approveRepository.save(approve);
 
 		approveLineRepository.deleteByApprove(approve);
-		
+
+		// 보고서 수정 시 alert_status 삭제 후 재생성
 		List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("approve", approve.getApproNo());
-		
-		for(Alert alert : alertList) {
+		for (Alert alert : alertList) {
 			AlertDto alertDto = new AlertDto().toDto(alert);
-			
+
 			alertDto.setAlarm_status("X");
 			Alert a = alertDto.toEntity(alert.getEmployee());
-			
+			alertRepository.delete(alert);
+
 			try {
-				alertRepository.save(a);
-				
 				webSocketHandler.sendAlert(a);
-			} catch (IOException except) {
-				except.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
-		
+
 		for (ApproveLineDto lineDto : approveLineDtos) {
 			lineDto.setAppro_no(approve.getApproNo());
 
@@ -592,28 +613,7 @@ public class ApproveService {
 			}
 
 			ApproveLine approveLine = lineDto.toEntity(approve, lineEmployee);
-			ApproveLine a = approveLineRepository.save(approveLine);
-			
-			if (a != null) {
-				AlertDto alertDto = new AlertDto();
-				alertDto.setReference_name("approve");
-				alertDto.setReference_no(a.getApprove().getApproNo());
-				if(a.getApprove().getApproType() == 0) {
-					alertDto.setAlarm_title("휴가 결재 요청");						
-				} else {
-					alertDto.setAlarm_title("보고서 결재 요청");
-				}
-				alertDto.setAlarm_content(a.getApprove().getApproTitle());
-				alertDto.setAlarm_status("N");
-
-				// alert 저장 후 웹 소켓에 데이터 전송
-				Alert alert = alertDto.toEntity(a.getEmployee());
-				try {
-					webSocketHandler.sendAlert(alertRepository.save(alert));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+			approveLineRepository.save(approveLine);
 		}
 
 		if (approFileDto != null && approFileDto.getOri_file() != null && !approFileDto.getOri_file().isEmpty()) {
@@ -624,8 +624,6 @@ public class ApproveService {
 
 		return 1;
 	}
-
-
 
 	// 보고서 결재 요청
 	@Transactional
@@ -674,7 +672,7 @@ public class ApproveService {
 			alertDto.setAlarm_content(alertApproLine.getApprove().getApproTitle());
 
 			Alert alert = alertDto.toEntity(alertApproLine.getEmployee());
-			
+
 			try {
 				webSocketHandler.sendAlert(alertRepository.save(alert));
 			} catch (IOException e) {
@@ -691,7 +689,6 @@ public class ApproveService {
 		return 1;
 
 	}
-
 
 	public List<VacationRequestDto> selectApprovedVacationRequest(String empId) {
 		List<VacationRequest> vacationRequestList = vacationRequestRepository

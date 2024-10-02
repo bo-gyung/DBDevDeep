@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{include/employee_layout}">
+<th:block layout:fragment="content">
+<style>
+	.custom-cancel-button{
+		color: black !important;
+	}
+	
+	.swal-custom-button {
+	  background-color: #5f76e8 !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #3e59e3 !important;
+	}
+
+	.modal.fade .modal-dialog {
+		max-width: 90%; /* 화면 크기에 따라 최대 너비를 90%로 설정 */
+    	width: 100%; /* 너비를 100%로 설정하여 부모 요소에 맞춤 */
+	    display: flex; /* Flexbox 설정으로 중앙 정렬 */
+	    align-items: center; /* 수직 중앙 정렬 */
+	    justify-content: center; /* 수평 중앙 정렬 */
+	    margin: 0 auto; /* 모달의 좌우 정렬 */
+	}	
+	
+	  /* 두 번째, 세 번째, 네 번째 th 요소에 오른쪽 패딩을 추가 */
+	  #holiday_config th:nth-child(2),
+	  #holiday_config th:nth-child(3),
+	  #holiday_config th:nth-child(4) {
+	      padding-right: 16px; /* 필요한 만큼의 오른쪽 패딩 추가 */
+	  }
+	
+	div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+	  white-space: nowrap;
+	  justify-content: center;
+	  margin-top:25px;
+	}
+
+	/* DataTables 검색 영역을 Flexbox로 설정하여 수평 및 수직 정렬 */
+	div.dataTables_wrapper div.dataTables_filter {
+	  display: flex; /* Flexbox 사용 */
+	  align-items: center; /* 수직 가운데 정렬 */
+	  justify-content: flex-end; /* 오른쪽 정렬 */
+	  margin-bottom: 0; /* 하단 여백 제거 */
+	}
+	
+	/* 검색 input 필드 스타일 */
+	div.dataTables_wrapper div.dataTables_filter input {
+	  margin-left: 0.5em; /* 왼쪽 여백 추가 */
+	  display: inline-block; /* 인라인 블록 설정 */
+	  width: auto; /* 너비 자동 설정 */
+	  height: 30px; /* input 높이 설정 */
+	  vertical-align: middle; /* 수직 정렬 */
+	  box-sizing: border-box; /* 박스 크기 설정 */
+	}
+	
+	button.btn {
+		width:80px;
+		font-size:18px;
+	}
+	
+	/* 첫 번째 tr의 td와 th에서 상단 테두리 제거 */
+	.bordered tbody tr:first-child th,
+	.bordered tbody tr:first-child td {
+	    border-top: none; /* 상단 테두리 제거 */
+	}
+		
+	.bordered {
+  		border-left: 1px solid #e8eef3;
+  		border-right: 1px solid #e8eef3;
+  	}
+  	.bordered th,
+  	.bordered td {
+    	border-left: 1px solid #e8eef3;
+    	border-top: 1px solid #e8eef3;
+    	border-right: 1px solid #e8eef3;
+    }	
+	
+	/* 첫 번째 td를 수평 및 수직 가운데 정렬 */
+	.bordered tbody tr td.align-center {
+	    text-align: center; /* 수평 가운데 정렬 */
+	    vertical-align: middle;
+	    padding-bottom:8px;
+	}
+
+
+</style>
+	<body>
+		<!-- ============================================================== -->
+		<!-- Page wrapper  -->
+		<!-- ============================================================== -->
+		<div class="page-wrapper">
+
+			<div class="container-fluid" style="margin-bottom:-10px;">
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body" style="padding:50px 80px">
+		                        <div class="row mb-2">
+		                        	<div class="col-6 d-flex justify-content-start" style="padding-top:10px; padding-left:0px;">
+			                            <div style="font-size:36px; font-weight:bolder">학생 목록</div>
+		                        	</div>
+                                <div class="table-responsive" style="margin-top:20px;">
+                                    <table id="student_list" class="table table-hover table-bordered no-wrap" style="width:100%">
+                                        <thead>
+                                            <tr>
+												<th scope="col">학년</th>
+												<th scope="col">반</th>
+												<th scope="col">번호</th>
+												<th scope="col">성명</th>
+												<th scope="col">생년월일</th>
+                                                <th scope="col">재학여부</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <th:block th:if="${#lists.isEmpty(resultList)}">
+												<tr>
+													<td colspan="6">존재하는 학생 정보가 없습니다.</td>
+												</tr>
+											</th:block>
+											<th:block th:if="${!#lists.isEmpty(resultList)}">
+											    <tr th:each="studentClass, studentClassStat : ${resultList}">
+											        <td style="display:none;" th:text="${studentClass.student.studentNo}"></td>
+													<th:block th:if="${studentClass.teacher_history != null}">
+									                    <td th:text="${studentClass.teacher_history.grade} + '학년'"></td>
+									                    <td th:text="${studentClass.teacher_history.gradeClass} + '반'"></td>
+									                    <td th:text="${studentClass.student_id} + '번'"></td>
+									                </th:block>
+									                <th:block th:if="${studentClass.teacher_history == null}">
+									                    <td colspan="3">존재하는 학급 이력이 없습니다.</td>
+									                </th:block>
+													<td th:text="${studentClass.student.studentName}"></td>
+													<td th:text="${studentClass.student.studentBirth}"></td>
+											        <td th:text="${studentClass.student.studentStatus}"></td>
+											    </tr>
+											    </th:block>
+										</tbody>
+                                        
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ============================================================== -->
+                <!-- End PAge Content -->
+                <!-- ============================================================== -->
+                <!-- ============================================================== -->
+                <!-- Right sidebar -->
+                <!-- ============================================================== -->
+                <!-- .right-sidebar -->
+                <!-- ============================================================== -->
+                <!-- End Right sidebar -->
+                <!-- ============================================================== -->
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Container fluid  -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- footer -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- End footer -->
+            <!-- ============================================================== -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Page wrapper  -->
+        <!-- ============================================================== -->
+    </div>
+		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="/dist/js/app-style-switcher.js"></script>
+		<script src="/dist/js/feather.min.js"></script>
+		<script
+			src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+		<script src="/dist/js/sidebarmenu.js"></script>
+		<script src="/dist/js/custom.min.js"></script>
+		<script
+			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+		<script>
+		    $('#student_list').on('click', 'td', function () {
+		        // 클릭된 행에서 해당 학생 번호를 추출합니다.
+		        var studentNo = $(this).closest('tr').find('td:nth-child(1)').text(); // 번호가 있는 td를 선택
+		
+		        // 학생 상세 페이지로 이동합니다.
+		        if (studentNo) {
+		            window.location.href = '/employee/student/' + studentNo;
+		        }
+		    });
+		</script>
+	</body>
+</html>
