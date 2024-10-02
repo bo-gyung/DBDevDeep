@@ -37,6 +37,12 @@ public class PlaceService {
 		this.fileService = fileService;
 	}
 	
+	// place_status가 'N'일때 조회가안되는 메소드
+	public List<Place> getAvaliablePlaces(){
+		// place_status가 'Y'인것만 조회
+		return placeRepository.findByPlaceStatus("Y");
+	}
+	
 	
 	
 	// 모든 Place 엔티티를 조회하는 기본 메서드,(select용)

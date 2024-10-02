@@ -2,6 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:fragment="placeNavLayout">
+	<style>
+		.sidebar-nav {
+		    padding-top: 10px !important;
+		}
+	</style>
 	 <aside class="left-sidebar" data-sidebarbg="skin6">
       <!-- Sidebar scroll-->
       <div class="scroll-sidebar" data-sidebarbg="skin6">
@@ -35,7 +40,7 @@
                 	<a th:href="@{/place_schedule}" class="sidebar-link">
                 	<span class="hide-menu"> 캘린더 </span></a>
                 </li>
-                <li class="sidebar-item"><a href="#" class="sidebar-link"><span class="hide-menu"> 일정 현황
+                <li class="sidebar-item"><a th:href="@{/schedule_list}" class="sidebar-link"><span class="hide-menu"> 일정 현황
                     </span></a>
                 </li>
         

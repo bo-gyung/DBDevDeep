@@ -20,7 +20,7 @@ let socket;
         
     	// 웹소켓 메시지를 수신했을 때 호출
 		socket.onmessage = function(event) {
-		    
+
 		    const message = JSON.parse(event.data);
 		    
 		    if (message.alert) {
@@ -110,7 +110,7 @@ let socket;
 						
 					} else if(message.room_in =='N'){
 						// 현재 채팅방에 접속하고 있지 않은 사용자 : 채팅방 목록에 배지알림
-						
+						chatAlertReload;
 					}
 				} else if(message.now_page =='no_chat'){
 					// 채팅 페이지에 접속하고 있지 않은 사용자 : 헤더에 배지알림

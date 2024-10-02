@@ -9,6 +9,10 @@ import com.dbdevdeep.place.domain.Place;
 
 public interface PlaceRepository extends JpaRepository<Place, Long>{
 
+	//place_status가 'Y'인 장소조회하기
+	List<Place> findByPlaceStatus(String placeStatus);
+	
+	
 	// (장소)가장큰 번호로 접근
 	@Query("SELECT MAX(p.placeNo) FROM Place p")
 	Long findMaxPlaceNo();

@@ -233,80 +233,6 @@
         <div class="page-wrapper">
             <div class="container-fluid">
 				<div class="row">
-                    <div class="col-lg-6 col-md-12">
-                        <div class="card">
-                            <div class="card-body" style="padding:30px;">
-                            	<div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
-	                                <h4 class="card-title mt-1" style="margin: 0px; font-size:20px;">공지사항</h4>
-	                                <div class="ml-auto"><a th:href="@{/notice}" style="font-size: 14px; color:#7C8798; cursor: pointer;" onmouseover="this.style.color='black'; this.style.textDecoration='underline';" onmouseout="this.style.color='#7C8798'; this.style.textDecoration='none';">더보기</a></div>
-                            	</div>
-                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:10px; overflow-y: auto;">
-                                	<table id="notice" class="w-100">
-	                                	<tbody>
-	                                		<tr>
-	                                			<td class="text-dark text-left" style="width:20%;">[사이트]</td>
-	                                			<td class="text-dark text-left" style="width:60%;">그룹웨어 시스텝 점검 안내</td>
-	                                			<td class="text-dark text-right" style="width:20%;">2024.09.27</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[공고]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 교직원 연수 안내</td>
-	                                			<td class="text-dark text-right">2024.09.26</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 운동회 일정 안내</td>
-	                                			<td class="text-dark text-right">2024.09.25</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
-	                                	</tbody>
-	                                </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-6 col-md-12">
-                        <div class="card">
-                            <div class="card-body" style="padding:30px;">
-                                <div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
-	                                <h4 class="card-title mt-1" style="margin: 0px; font-size:20px;">문서관리</h4>
-	                                <div class="ml-auto"><a th:href="@{/file}" style="font-size: 14px; color:#7C8798; cursor: pointer;" onmouseover="this.style.color='black'; this.style.textDecoration='underline';" onmouseout="this.style.color='#7C8798'; this.style.textDecoration='none';">더보기</a></div>                            	
-                            	</div>
-                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:10px; overflow-y: auto;">
-	                                <table id="document" class="w-100">
-		                                <tbody>
-			                                <th:block th:if="${#lists.isEmpty(publicFiles)}">
-                                        		<tr>
-                                        			<td colspan="7">파일이 없습니다.</td>
-                                        		</tr>
-                                        	</th:block>
-                                        	<th:block th:if="${!#lists.isEmpty(publicFiles)}">
-                                        		<tr th:each="file : ${publicFiles}">
-													<td class="text-dark text-left" style="width:22%;" th:text="'[' + ${file.folder_name} + ']'"></td>
-		                                			<td class="text-dark text-left" style="width:63%;" th:text="${file.ori_file_name}"></td>
-		                                			<td class="text-dark text-right" style="width:15%;" th:text="${#temporals.format(file.reg_time, 'yyyy.MM.dd')}"></td>
-                                       			</tr>
-                                        	</th:block>
-	                                	</tbody>
-	                                </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-lg-3 col-md-12">
                         <div class="card">
                             <div class="card-body" style="padding:30px;">
@@ -443,6 +369,82 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="col-lg-6 col-md-12">
+                        <div class="card">
+                            <div class="card-body" style="padding:30px;">
+                            	<div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
+	                                <h4 class="card-title mt-1" style="margin: 0px; font-size:20px;">공지사항</h4>
+	                                <div class="ml-auto"><a th:href="@{/notice}" style="font-size: 14px; color:#7C8798; cursor: pointer;" onmouseover="this.style.color='black'; this.style.textDecoration='underline';" onmouseout="this.style.color='#7C8798'; this.style.textDecoration='none';">더보기</a></div>
+                            	</div>
+                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:10px; overflow-y: auto;">
+                                	<table id="notice" class="w-100">
+	                                	<tbody>
+	                                		<tr>
+	                                			<td class="text-dark text-left" style="width:20%;">[사이트]</td>
+	                                			<td class="text-dark text-left" style="width:60%;">그룹웨어 시스텝 점검 안내</td>
+	                                			<td class="text-dark text-right" style="width:20%;">2024.09.27</td>
+	                                		</tr>
+	                                		<tr>
+	                                			<td class="text-dark text-left">[공고]</td>
+	                                			<td class="text-dark text-left">2024학년도 2학기 교직원 연수 안내</td>
+	                                			<td class="text-dark text-right">2024.09.26</td>
+	                                		</tr>
+	                                		<tr>
+	                                			<td class="text-dark text-left">[학사일정]</td>
+	                                			<td class="text-dark text-left">2024학년도 2학기 운동회 일정 안내</td>
+	                                			<td class="text-dark text-right">2024.09.25</td>
+	                                		</tr>
+	                                		<tr>
+	                                			<td class="text-dark text-left">[학사일정]</td>
+	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
+	                                			<td class="text-dark text-right">2024.09.24</td>
+	                                		</tr>
+	                                		<tr>
+	                                			<td class="text-dark text-left">[학사일정]</td>
+	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
+	                                			<td class="text-dark text-right">2024.09.24</td>
+	                                		</tr>
+	                                		<tr>
+	                                			<td class="text-dark text-left">[학사일정]</td>
+	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
+	                                			<td class="text-dark text-right">2024.09.24</td>
+	                                		</tr>
+	                                	</tbody>
+	                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6 col-md-12">
+                        <div class="card">
+                            <div class="card-body" style="padding:30px;">
+                                <div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
+	                                <h4 class="card-title mt-1" style="margin: 0px; font-size:20px;">문서관리</h4>
+	                                <div class="ml-auto"><a th:href="@{/file}" style="font-size: 14px; color:#7C8798; cursor: pointer;" onmouseover="this.style.color='black'; this.style.textDecoration='underline';" onmouseout="this.style.color='#7C8798'; this.style.textDecoration='none';">더보기</a></div>                            	
+                            	</div>
+                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:10px; overflow-y: auto;">
+	                                <table id="document" class="w-100">
+		                                <tbody>
+			                                <th:block th:if="${#lists.isEmpty(publicFiles)}">
+                                        		<tr>
+                                        			<td colspan="7">등록된 문서가 없습니다.</td>
+                                        		</tr>
+                                        	</th:block>
+                                        	<th:block th:if="${!#lists.isEmpty(publicFiles)}">
+                                        		<tr th:each="file : ${publicFiles}">
+													<td class="text-dark text-left" style="width:22%;" th:text="'[' + ${file.folder_name} + ']'"></td>
+		                                			<td class="text-dark text-left" style="width:63%;" th:text="${file.ori_file_name}"></td>
+		                                			<td class="text-dark text-right" style="width:15%;" th:text="${#temporals.format(file.reg_time, 'yyyy.MM.dd')}"></td>
+                                       			</tr>
+                                        	</th:block>
+	                                	</tbody>
+	                                </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 	        <footer class="footer text-center text-muted">
@@ -488,8 +490,6 @@
                                     end: holiday.is_period === 'Y' ? new Date(new Date(holiday.end_date).setDate(new Date(holiday.end_date).getDate())).toISOString().split('T')[0] : holiday.start_date, // 종료일을 다음 날로 설정
                                     classNames: ['fc-holiday'], // fc-holiday 클래스 부여
                                 };
-                                
-                                console.log(event);
 
                                 // YEARLY 반복 이벤트 처리
                                 if (holiday.repeat_type === 'YEARLY') {

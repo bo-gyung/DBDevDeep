@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{include/employee_layout}">
+<th:block layout:fragment="content">
+	<style>
+div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+	margin: 2px 0;
+	white-space: nowrap;
+	justify-content: center;
+}
+</style>
+	<body>
+		<div class="page-wrapper">
+			<div class="page-breadcrumb">
+				<div class="row">
+					<div class="col-7 align-self-center">
+						<h4
+							class="page-title text-truncate text-dark font-weight-medium mb-1">Basic
+							Table</h4>
+						<div class="d-flex align-items-center">
+							<nav aria-label="breadcrumb">
+								<ol class="breadcrumb m-0 p-0">
+									<li class="breadcrumb-item"><a href="index.html"
+										class="text-muted">Home</a></li>
+									<li class="breadcrumb-item text-muted active"
+										aria-current="page">Library</li>
+								</ol>
+							</nav>
+						</div>
+					</div>
+					<div class="col-5 align-self-center">
+						<div class="customize-input float-right">
+							<select
+								class="custom-select custom-select-set form-control bg-white border-0 custom-shadow custom-radius">
+								<option selected>Aug 19</option>
+								<option value="1">July 19</option>
+								<option value="2">Jun 19</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-12">
+						<div class="card">
+							<div class="card-body">
+								<h4 class="card-title">학생 정보</h4>
+								<div class="student-info">
+									<div class="student-details">
+										<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+										<input type="hidden" name="student_no" th:value="${sdto.student_no}">
+											<div class="row">
+											    <th:block th:if="${sdto.student_new_pic != null}">
+											        <img th:src="@{'/UploadImg/student/' + ${sdto.student_new_pic}}" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1;">
+											    </th:block>
+											</div>
+											
+											<table class="table table-bordered no-wrap">
+												<colgroup>
+														<col style="width: 20%">
+														<col style="width: 80%">
+													</colgroup>
+													<tr>
+														<th>이름</th>
+														<td th:text="${sdto.student_name}"></td>
+													</tr>
+													<tr>
+														<th>생년월일</th>
+														<td th:text="${sdto.student_birth}"></td>
+													</tr>
+													<tr>
+														<th>주소</th>
+														<td th:text="${sdto.student_addr}+${sdto.student_detail_addr}+'('+${sdto.student_post_code}+')'"></td>
+													</tr>
+													<tr>
+														<th>전화번호</th>
+														<td th:text="${sdto.student_phone}"></td>
+													</tr>
+											</table>
+											
+											
+												<table class="table table-bordered no-wrap">
+													<thead>
+														<tr>
+															<th>학년</th>
+															<th>학년도</th>
+															<th>반</th>
+															<th>번호</th>
+															<th>담임 성명</th>
+															<th></th>
+														</tr>
+													</thead>
+													<tbody>
+														<th:block th:if="${#lists.isEmpty(cdto)}">
+															<tr>
+																<td colspan="7">학년 이력이 존재하지 않습니다.</td>
+															</tr>
+														</th:block>
+														<th:block th:if="${!#lists.isEmpty(cdto)}">
+															<tr th:each="studentClass, studentClassStat : ${cdto}">
+																<td th:text="${studentClass.teacher_history.getGrade()}"></td>
+																<td
+																	th:text="${studentClass.teacher_history.getTYear()}+년"></td>
+																<td
+																	th:text="${studentClass.teacher_history.getGradeClass()}"></td>
+																<td th:text="${studentClass.student_id}"></td>
+																<td
+																	th:text="${studentClass.teacher_history.getEmployee().getEmpName()}"></td>
+																<td><a th:onclick="studentClassDelete([[${studentClass.class_no}]])">삭제</a><br></td>
+															</tr>
+														</th:block>
+													</tbody>
+												</table>
+										
+										<div class="form-group">
+											<div class="form-group">
+												<select id="t_year" name="t_year" onchange="fetchDataByYear()">
+													<option th:each="ty : ${Tyear}" th:text="${ty}"
+														th:value="${ty}"></option>
+												</select> 
+												<label for="t_year">학년도</label> 
+												<select id="grade" name="grade" onchange="fetchDataByGrade()">
+												</select> 
+												<label for="grade">학년</label> 
+												<select id="assign_class"
+													name="assign_class" onchange="fetchDataByClass()">
+													<option>선택하세요</option>
+												</select>
+												<div>
+													<form id="student_class_assign_form" method="post">
+														<input type="hidden" name="student_no" th:value="${sdto.student_no}"> 
+														<input type="hidden" name="teacher_no" id="teacher_no">
+														<input type="text" id="student_id" name="student_id">
+														<label for="student_id">번</label> 
+														<input type="button" value="취소" th:onclick="history.back();"> 
+														<input type="submit" value="등록">
+													</form>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+		<script src="/dist/js/app-style-switcher.js"></script>
+		<script src="/dist/js/feather.min.js"></script>
+		<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+		<script src="/dist/js/sidebarmenu.js"></script>
+		<script src="/dist/js/custom.min.js"></script>
+		<script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+		<script>
+			window.onload = function() {
+		        fetchDataByYear(); // 페이지 로드 시 실행
+		    };
+		    function fetchDataByYear() {
+		    	const selectedYear = document.getElementById('t_year').value;
+		    	fetch(`/student/student_class/selectByYear/${selectedYear}`)
+		    	.then(response=>response.json())
+		    	.then(data=>{
+		    		const gradeSelect = document.getElementById('grade');
+		    		gradeSelect.innerHTML = ''; 
+		    		const defaultOption = document.createElement('option');
+					defaultOption.value = '';  // 선택되지 않은 값(null)을 빈 값으로 설정
+					defaultOption.text = '선택하세요';  // 표시할 텍스트
+					gradeSelect.appendChild(defaultOption);
+		    		const uniqueGrades = Array.from(new Set(data.map(item => item.grade))).sort((a, b) => a - b);
+	                uniqueGrades.forEach(grade => {
+	                    const option1 = document.createElement('option');
+	                    option1.value = grade;
+	                    option1.text = grade;
+	                    gradeSelect.appendChild(option1);
+		    		});
+	                
+		    	});
+		    	
+		    }
+		    function fetchDataByGrade(){
+		    	const selectedYear = document.getElementById('t_year').value;
+		    	const selectedGrade = document.getElementById('grade').value;
+		    	
+		    	
+		    	fetch(`/student/student_class/selectByYearAndGrade/${selectedYear}/${selectedGrade}`)
+		    	.then(response=>response.json())
+		    	.then(data=>{
+		    		const classSelect = document.getElementById('assign_class');
+		    		classSelect.innerHTML = ''; 
+		    		const defaultOption2 = document.createElement('option');
+					defaultOption2.value = '';  // 선택되지 않은 값(null)을 빈 값으로 설정
+					defaultOption2.text = '선택하세요';  // 표시할 텍스트
+					classSelect.appendChild(defaultOption2);
+		    		
+					if (Array.isArray(data)) {
+			            // 데이터가 비어있을 경우
+			            if (data.length === 0) {
+			                const noDataOption = document.createElement('option');
+			                noDataOption.value = '';
+			                noDataOption.text = '존재하는 반이 없습니다';
+			                classSelect.appendChild(noDataOption);
+			            } else {
+	                data.forEach(item2 => {
+	                    const option2 = document.createElement('option');
+	                    option2.value = item2.teacher_no;
+	                    option2.text = item2.grade_class +"반 " + item2.teach_emp_name+" 선생님";
+	                    classSelect.appendChild(option2);
+		    		});
+	                }
+			    }
+	                
+		    	});
+		    }
+		    function fetchDataByClass() {
+		        const classSelect = document.getElementById('assign_class');
+		        const selectedClassValue = classSelect.value;
+		        const teacherNoInput = document.getElementById('teacher_no');
+		        teacherNoInput.value = selectedClassValue;
+		        
+		    }
+		</script>
+		<script>
+			const form=document.getElementById("student_class_assign_form");
+			form.addEventListener('submit',(e)=>{
+				e.preventDefault();
+				
+				let vali_check = false;
+				let vali_text = "";
+				if(document.getElementById('grade').value == "") {
+				    vali_text += "학년을 선택하세요.\n";
+				    document.getElementById('grade').focus();
+				} else if(document.getElementById('assign_class').value == "") {
+				    vali_text += "반을 선택하세요.\n";
+				    document.getElementById('assign_class').focus();
+				} else if(form.student_id.value == ""){
+				    vali_text += "번호를 선택하세요.\n";
+				    form.student_id.focus();
+
+				}else{
+					vali_check = true;
+				}
+
+				if(vali_check == false){
+					alert(vali_text);
+				}else{
+					const payload = new FormData(form);
+					const csrfToken = document.getElementById('csrf_token').value;
+					const studentNo = document.querySelector('input[name="student_no"]').value;
+					fetch('/student/class/assign',{
+						method:'post',
+						headers : {
+							'X-CSRF-TOKEN':csrfToken
+						},
+						body:payload
+					})
+					.then(response => response.json())
+					.then(data=>{
+						if(data.res_code == '200'){
+							Swal.fire({
+								icon : 'success',
+								title : '성공',
+								text : data.res_msg
+							}).then((result)=>{
+								location.href = `/student/${studentNo}`;
+							});
+						}else{
+							Swal.fire({
+								icon : 'error',
+								title : '실패',
+								text : data.res_msg
+							});
+						}
+						
+					})
+				}
+				
+			});
+	</script>
+	<script>
+		const studentClassDelete = function(classNo){
+			if(confirm("정말 삭제하시겠습니까?")){
+				const csrfToken = document.getElementById('csrf_token').value;
+				const studentNo = document.querySelector('input[name="student_no"]').value;
+				 fetch('/student/class/'+classNo,{
+					 method : 'delete',
+					 headers : {
+							'X-CSRF-TOKEN':csrfToken}
+				 })
+				 .then(response => response.json())
+				 .then(data => {
+					 if(data.res_code == '200'){
+							Swal.fire({
+								icon :'success',
+								title:'성공',
+								text : data.res_msg ,
+								confirmButtonText:"닫기"
+							}).then((result)=>{
+								location.href=`/student/class/${studentNo}`;
+							});
+						} else{
+							Swal.fire({
+								icon:'error',
+								title:'실패',
+								text: data.res_msg,
+								confirmButtonText:"닫기"
+					 		});
+						}
+					})
+			}}
+	</script>
+	</body>
+</html>

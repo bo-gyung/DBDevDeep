@@ -21,5 +21,6 @@ public class CustomChatRoomDto {
 	private String last_chat;
 	private LocalDateTime last_time;
 	private String room_pic;
+	private int chat_read_check;
 
 }

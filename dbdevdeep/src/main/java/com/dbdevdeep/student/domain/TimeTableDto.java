@@ -30,6 +30,7 @@ public class TimeTableDto {
 	public TimeTableDto toDto(TimeTable tt) {
 		return TimeTableDto.builder()
 				.timetable_no(tt.getTimetableNo())
+				.subject_no(tt.getSubject().getSubjectNo())
 				.period(tt.getPeriod())
 				.day(tt.getDay())
 				.build();
