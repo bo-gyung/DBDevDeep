@@ -13,20 +13,27 @@
 	    padding: 0; /* 기본 패딩 제거 */
 	    font-size: inherit; /* 상속된 폰트 크기 사용 */
 	}
+	
+	.ql-editor{
+		padding-left:0 !important;
+	}
 
+	.swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}	
 </style>
 <body>
-		<!-- ============================================================== -->
-		<!-- Page wrapper  -->
-		<!-- ============================================================== -->
 		<div class="page-wrapper">
-            <!-- ============================================================== -->
-            <!-- Container fluid  -->
-            <!-- ============================================================== -->
             <div class="container-fluid">
-                <!-- ============================================================== -->
-                <!-- Start Page Content -->
-                <!-- ============================================================== -->
                 <div class="row">
                 	<div class="col-sm-12">
                         <div class="card">
@@ -44,12 +51,7 @@
 	                                    </div>
 	                                    <div class="col-md-8">
 	                                    	<small id="check_list_help" class="form-text text-muted">체크여부</small>
-	                                    	<div class="row" >
-		                                    	<div class="custom-control custom-checkbox col-md-2">
-			                                        <input type="checkbox" class="custom-control-input" id="is_important" 
-			                                        th:checked="${dto.is_important==1}" disabled>
-				                                    <label class="custom-control-label mr-sm-3" for="is_important">상단 고정</label>
-			                                	</div>
+	                                    	<div class="d-flex align-items-center" style="margin-top:6px;" >
 			                                	<div class="custom-control custom-checkbox col-md-2">
 				                                    <input type="checkbox" class="custom-control-input" id="is_cmt" 
 				                                    th:checked="${dto.is_cmt==1}" disabled>
@@ -63,20 +65,19 @@
                                 			th:value="${#temporals.format(dto.reg_time, 'yyyy.MM.dd HH:mm')}" disabled>
 	                                    </div>
                                     </div>
-                                	<div class="row form-group">
+                                	<div class="row form-group" style="margin-bottom:0 !important;">
                                 		<div class="col-md-10">
                                 			<small id="title_help" class="form-text text-muted">제목</small>
-	                               			<input type="text" class="form-control" id="notice_title" style="padding:1%;" 
+	                               			<input type="text" class="form-control" id="notice_title" style="padding-left:0px;" 
 	                               			th:value="${dto.notice_title}" disabled>
                                 		</div>
                                 		<div class=" col-md-2 ">
                                         	<small id="name_help" class="form-text text-muted">작성자</small>
                                 			<input type="text" class="form-control" id="writer_name"  
                                 			th:value="${dto.writer_name}" disabled>
-                                			
                                 		</div>
                                 	</div>
-                                	<hr>
+                                	<hr style="margin-top:10px !important;">
                                 	<div class="row form-group">
                                 		<div class="col-md-12">
                                         	<small id="content_help" class="form-text text-muted">내용</small>
@@ -86,15 +87,6 @@
                                 		</div>
                                 	</div>
                                 	<hr>
-                                	<div class="row">
-                                        <div class="col-md-11">
-                                            <label class="form-control" for="notice_file">파일을 선택하세요.</label>
-                                            <input type="file" class="custom-file-input" id="notice_file">
-                                        </div>
-                                        <div class="col-md-1">
-                                            <button class="btn waves-effect waves-light btn-light m-1" type="button">첨부</button>
-                                        </div>
-                                    </div>
                                     <input type="hidden" id="notice_no" name="notice_no" th:value="${dto.notice_no}">
                                     <input type="hidden" id="writer_no" name="writer_id" th:value="${dto.writer_id}">
                                     <input type="hidden" th:value="${dto.notice_content}" style="display: none" id="ori_content">
@@ -146,18 +138,17 @@
 														<!-- 댓글 구역 -->
 														<div class="card mb-4">
 															<div class="card-body border rounded-2 m-3">
-																<div class="d-flex justify-content-end">
-									                        		<button type="button" class="btn btn-sm btn-outline-primary m-1" 
-									                        		onclick="openReplyForm(this)">
-									                        			대댓글
-									                        		</button>
-									                        	</div>
-																<p>삭제된 댓글입니다.</p>
+															    <div class="d-flex justify-content-between align-items-center">
+															        <p class="mb-0">삭제된 댓글입니다.</p>
+															        <button type="button" class="btn btn-sm btn-outline-primary m-1" onclick="openReplyForm(this)">
+															            대댓글
+															        </button>
+															    </div>
 																<th:block th:if="${!#lists.isEmpty(cmt.childComments)}">
 																	<th:block th:each="childCmt : ${cmt.childComments}">
 																		<th:block th:if="${childCmt.is_delete == 0}">
 																			<!-- 대댓글 구역 (테두리) -->
-																			<div class="card-body border rounded-2 m-3 ml-5">
+																			<div class="card-body border rounded-2 m-3 ml-5" style="margin-right: 0 !important;">
 																				<!-- 메뉴버튼 -->
 																				<div class="d-flex justify-content-end">
 																					<th:block th:if="${childCmt.writer_id == readDto.emp_id}">
@@ -203,28 +194,30 @@
 															<!-- 댓글 구역 (테두리) -->
 															<div class="card-body border rounded-2 m-3">
 																<!-- 메뉴 버튼 -->
-																<div class="d-flex justify-content-end">
-																	<th:block th:if="${cmt.writer_id == readDto.emp_id}">
-											                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
-											                            th:onclick="'deleteComment(' + ${cmt.cmt_no} + ')'">삭제</button>
-											                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
-											                            th:onclick="'modComment(' + ${cmt.cmt_no} + ', this)'">수정</button>
-									                        		</th:block>
-									                        		<button type="button" class="btn btn-sm btn-outline-primary m-1" 
-									                        		onclick="openReplyForm(this)">
-									                        			대댓글
-									                        		</button>
+																<div class="d-flex justify-content-between align-items-center">
+																	<div th:text="${cmt.cmt_content }"></div>
+																	<div>
+																		<th:block th:if="${cmt.writer_id == readDto.emp_id}">
+												                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
+												                            th:onclick="'deleteComment(' + ${cmt.cmt_no} + ')'" style="margin-right:0 !important;">삭제</button>
+												                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
+												                            th:onclick="'modComment(' + ${cmt.cmt_no} + ', this)'" style="margin-right:0 !important;">수정</button>
+										                        		</th:block>
+										                        		<button type="button" class="btn btn-sm btn-outline-primary m-1" 
+										                        		onclick="openReplyForm(this)">
+										                        			대댓글
+										                        		</button>
+									                        		</div>
 									                        	</div>
 																<!-- 댓글 내용 -->
 																<div class="edit-content-place">
-																	<p th:text="${cmt.cmt_content }"></p>
-																	<div class="d-flex justify-content-between">
+																	<div class="d-flex justify-content-between align-items-center">
 																		<div class="d-flex flex-row align-items-center">
-																			<p class="small mb-0 ms-2" th:text="${cmt.writer_name }"></p>
+																			<div class="small mb-0 ms-2 mt-2" th:text="${cmt.writer_name }"></div>
 																		</div>
 																		<div class="d-flex flex-row align-items-center">
-																			<p class="small text-muted mb-0" 
-																			th:text="${#temporals.format(cmt.reg_time, 'yyyy.MM.dd HH:mm')}"></p>
+																			<div class="small text-muted mt-2" 
+																			th:text="${#temporals.format(cmt.reg_time, 'yyyy.MM.dd HH:mm')}"></div>
 																		</div>
 																	</div>
 																</div>
@@ -232,26 +225,28 @@
 																	<th:block th:each="childCmt : ${cmt.childComments}">
 																		<th:block th:if="${childCmt.is_delete == 0}">
 																			<!-- 대댓글 구역 (테두리) -->
-																			<div class="card-body border rounded-2 m-3 ml-5">
+																			<div class="card-body border rounded-2 m-3 ml-5" style="margin-right: 0 !important;">
 																				<!-- 메뉴버튼 -->
-																				<div class="d-flex justify-content-end">
+																				<div class="d-flex justify-content-between align-items-center">
+																					<div th:text="${childCmt.cmt_content }"></div>
 																					<th:block th:if="${childCmt.writer_id == readDto.emp_id}">
-															                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
-															                            th:onclick="'deleteComment(' + ${childCmt.cmt_no} + ')'">삭제</button>
-															                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
-															                            th:onclick="'modComment(' + ${childCmt.cmt_no} + ', this)'">수정</button>
+																						<div>
+																                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
+																                            th:onclick="'deleteComment(' + ${childCmt.cmt_no} + ')'">삭제</button>
+																                            <button type="button" class="btn btn-sm btn-outline-primary m-1" 
+																                            th:onclick="'modComment(' + ${childCmt.cmt_no} + ', this)'">수정</button>
+															                            </div>
 													                        		</th:block>
 													                        	</div>
 																				<!-- 대댓글 내용 -->
 																				<div class="edit-content-place">
-																					<p th:text="${childCmt.cmt_content }"></p>
 																					<div class="d-flex justify-content-between">
 																						<div class="d-flex flex-row align-items-center">
-																							<p class="small mb-0 ms-2" th:text="${childCmt.writer_name }"></p>
+																							<div class="small mb-0 ms-2 mt-2" th:text="${childCmt.writer_name }"></div>
 																						</div>
 																						<div class="d-flex flex-row align-items-center">
-																							<p class="small text-muted mb-0" 
-																							th:text="${#temporals.format(childCmt.reg_time, 'yyyy.MM.dd HH:mm')}"></p>
+																							<div class="small text-muted mb-0 mt-2" 
+																							th:text="${#temporals.format(childCmt.reg_time, 'yyyy.MM.dd HH:mm')}"></div>
 																						</div>
 																					</div>
 																				</div>
@@ -281,10 +276,10 @@
 											<a id="cmt_writer_name" name="cmt_writer_name" th:text="${readDto.emp_name}"></a>
 											<input type="hidden" id="cmt_writer_id" name="cmt_writer_id" th:value="${readDto.emp_id}">
 											<input type="hidden" id="parent_cmt_no" name="parent_cmt_no" th:value="null">
-											<textarea id="cmt_content" name="cmt_content" class="form-control edit-text-value" 
+											<textarea id="cmt_content" name="cmt_content" class="form-control edit-text-value mt-3" 
 											rows="3" style="resize:none;" placeholder="댓글을 입력하세요." ></textarea>
 											<div class="d-flex justify-content-end">
-												<button class="btn btn-primary m-2" type="button" onclick="addComment(this);">댓글 작성</button>
+												<button class="btn waves-effect waves-light btn-primary m-3" style="margin-right:0 !important;" type="button" onclick="addComment(this);">댓글 작성</button>
 											</div>
 										</div>
 										<!-- 댓글 입력창 종료 -->
@@ -294,38 +289,11 @@
                         
 					</div>                    
                 </div>
-                <!-- ============================================================== -->
-                <!-- End Page Content -->
-                <!-- ============================================================== -->
-                <!-- ============================================================== -->
-                <!-- Right sidebar -->
-                <!-- ============================================================== -->
-                <!-- .right-sidebar -->
-                <!-- ============================================================== -->
-                <!-- End Right sidebar -->
-                <!-- ============================================================== -->
             </div>
-            <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <footer class="footer text-center text-muted">
-                All Rights Reserved by Adminmart. Designed and Developed by <a
-                    href="https://wrappixel.com">WrapPixel</a>.
-            </footer>
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
+	    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
+	        </footer>
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
-        <!-- ============================================================== -->
-    <!-- Include the Quill library -->
 	<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-	<!-- ============================================================== -->
-	<!-- Quill editor를 이용해 게시글 조회 --> 
     <script>
 
     // 에디터 초기화
@@ -366,10 +334,11 @@
 		      title: '삭제하시겠습니까?',
 		      icon: 'warning',
 		      showCancelButton: true,
-		      confirmButtonColor: '#3085d6',
-		      cancelButtonColor: '#d33',
-		      confirmButtonText: '확인',
-		      cancelButtonText: '취소'
+              confirmButtonText: '삭제',
+              cancelButtonText: '취소',
+              customClass: {
+                  confirmButton: 'swal-custom-button'
+              }
 		    })
 		    .then((result) => {
 		    	if(result.isConfirmed){
@@ -386,7 +355,10 @@
 								icon :'success',
 								title:'성공',
 								text : data.res_msg,
-								confirmButtonText : '닫기'
+								confirmButtonText : '닫기',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							}).then((result)=>{
 								location.href="/notice";
 							});
@@ -395,7 +367,10 @@
 								icon:'error',
 								title:'실패',
 								text: data.res_msg,
-								confirmButtonText : '닫기'
+								confirmButtonText : '닫기',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							});
 						}
 					})
@@ -416,10 +391,11 @@
 		      title: '삭제하시겠습니까?',
 		      icon: 'warning',
 		      showCancelButton: true,
-		      confirmButtonColor: '#3085d6',
-		      cancelButtonColor: '#d33',
-		      confirmButtonText: '확인',
-		      cancelButtonText: '취소'
+              confirmButtonText: '삭제',
+              cancelButtonText: '취소',
+              customClass: {
+                  confirmButton: 'swal-custom-button'
+              }
 		    })
 		    .then((result) => {
 		    	if(result.isConfirmed){
@@ -436,7 +412,10 @@
 								icon :'success',
 								title:'성공',
 								text : data.res_msg,
-								confirmButtonText : '닫기'
+								confirmButtonText : '닫기',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							}).then((result)=>{
 								// 작성 댓글 초기화
 		  			        	document.getElementById('cmt_content').value = "";
@@ -448,7 +427,10 @@
 								icon:'error',
 								title:'실패',
 								text: data.res_msg,
-								confirmButtonText : '닫기'
+								confirmButtonText : '닫기',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							});
 						}
 					})
@@ -487,7 +469,10 @@
 				icon:'error',
 				title:'실패',
 				text: "작업 중 문제가 발생하였습니다.",
-				confirmButtonText : '닫기'
+				confirmButtonText : '닫기',
+                customClass: {
+                    confirmButton: 'swal-custom-button'
+                }
 			});
         });
 
@@ -526,7 +511,11 @@
 			        Swal.fire({
 			            icon: 'success',
 			            title: '성공',
-			            text: data.res_msg
+			            text: data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 			        }).then(() => {
 			            // 댓글 리스트 갱신 함수 호출
 			            refreshCommentSection(data.notice_no);  // 게시글 번호를 인자로 넘김
@@ -535,7 +524,11 @@
 					Swal.fire({
 						icon:'error',
 						title:'실패',
-						text: data.res_msg
+						text: data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			})
@@ -569,7 +562,11 @@
    			Swal.fire({
   				icon:'error',
   				title:'실패',
-  				text: vali_text
+  				text: vali_text,
+                confirmButtonText: '확인',
+                customClass: {
+                    confirmButton: 'swal-custom-button'
+                }
    			});
    		} else{
    			// vali_check == true
@@ -603,7 +600,11 @@
   			        Swal.fire({
   			            icon: 'success',
   			            title: '성공',
-  			            text: data.res_msg
+  			            text: data.res_msg,
+  	                    confirmButtonText: '확인',
+  	                    customClass: {
+  	                        confirmButton: 'swal-custom-button'
+  	                    }
   			        }).then(() => {
   			        	// 작성 댓글 초기화
   			        	document.getElementById('cmt_content').value = "";
@@ -614,7 +615,11 @@
   					Swal.fire({
   						icon:'error',
   						title:'실패',
-  						text: data.res_msg
+  						text: data.res_msg,
+  	                    confirmButtonText: '확인',
+  	                    customClass: {
+  	                        confirmButton: 'swal-custom-button'
+  	                    }
   					});
   				}
   			})
@@ -646,7 +651,11 @@
         	Swal.fire({
 					icon:'error',
 					title:'실패',
-					text: '댓글목록 갱신 중 오류 발생 : ',error
+					text: '댓글목록 갱신 중 오류 발생 : ',error,
+                    confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 				});
         });
     };
@@ -696,7 +705,11 @@
        			Swal.fire({
       				icon:'error',
       				title:'실패',
-      				text: vali_text
+      				text: vali_text,
+                    confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
        			});
        		} else{
        			// vali_check == true
@@ -731,7 +744,11 @@
       			        Swal.fire({
       			            icon: 'success',
       			            title: '성공',
-      			            text: data.res_msg
+      			            text: data.res_msg,
+      	                    confirmButtonText: '확인',
+      	                    customClass: {
+      	                        confirmButton: 'swal-custom-button'
+      	                    }
       			        }).then(() => {
       			        	// 작성 댓글 초기화
       			        	document.getElementById('cmt_content').value = "";
@@ -742,29 +759,28 @@
       					Swal.fire({
       						icon:'error',
       						title:'실패',
-      						text: data.res_msg
+      						text: data.res_msg,
+      	                    confirmButtonText: '확인',
+      	                    customClass: {
+      	                        confirmButton: 'swal-custom-button'
+      	                    }
       					});
       				}
       			})
        		}
     	}
 	</script>
-    <!-- ============================================================== -->
-    <!-- All Jquery -->
-    <!-- ============================================================== -->
+
     <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap tether Core JavaScript -->
     <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
     <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-    <!-- apps -->
     <!-- apps -->
     <script src="/dist/js/app-style-switcher.js"></script>
     <script src="/dist/js/feather.min.js"></script>
     <!-- slimscrollbar scrollbar JavaScript -->
     <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
     <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
-    <!--Wave Effects -->
-    <!-- themejs -->
     <!--Menu sidebar -->
     <script src="/dist/js/sidebarmenu.js"></script>
     <!--Custom JavaScript -->
