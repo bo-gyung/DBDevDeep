@@ -429,17 +429,56 @@
 		        }
 			})
 		}
+		
+		// 헤더 알림 리로드
+		const headerAlertReload = function(){
+
+			const csrfToken = document.getElementById("csrf_token_header").value;
+			const chatAlertElement = document.getElementById("chat_alert_place");
+            
+         	// 로그인한 사용자가 확인하지 않은 채팅 메세지 개수 출력
+			fetch('/chat/alert/header',{
+				method: 'GET',
+	            headers: {
+	                'Content-Type': 'application/json',
+	                'X-CSRF-TOKEN': csrfToken
+	            }
+			})
+			.then(response=>response.json())
+			.then(data=>{
+				// 가져온 데이터(읽지 않은 메시지 개수)를 chat_alert_place에 넣기
+				const unreadCount = data.unread_count || 0; // 데이터가 없을 경우 0으로 설정
+				chatAlertElement.textContent = unreadCount;
+				
+	            if (chatAlertElement.textContent == 0) {
+		            // chatAlertElement.textContent가 0개일 때
+	                chatAlertElement.style.display = "none";
+	            } else {
+	            	// 다시 보이도록 설정 (기본 스타일)
+	                chatAlertElement.style.display = "";
+	            }
+
+	            // chatAlertElement.textContent가 10보다 작으면 특정 스타일 추가
+	            if (chatAlertElement.textContent < 10) {
+	                chatAlertElement.style.aspectRatio = "1/1"; // 스타일 추가
+	            } else {
+	                // unreadCount가 10과 같거나 크면 스타일 제거
+	                chatAlertElement.style.aspectRatio = ""; // 스타일 제거
+	            }
+				
+			})
+		}
 
 		
 		// 채팅방 목록을 클릭하여 채팅방 입장
 		function enterChatRoom(element){
-			
 			const roomNo = element.querySelector('input[type="hidden"]').value;
 			loadChatroom(roomNo);
 			sendRoomNoInfo(roomNo);
 			updateChatRoomList();
 			
 		}
+		
 		
 		// 채팅방 대화내용 불러오기, 갱신하기
 		function loadChatroom(roomNo){
@@ -458,6 +497,9 @@
 		        document.getElementById('chat_container').innerHTML = fragment;
 				// 메시지가 로드된 후 스크롤을 아래로 이동
 	            scrollToBottom();
+				// 헤더 알림 리로드
+	            headerAlertReload();
+				
 			})
 		}
 		

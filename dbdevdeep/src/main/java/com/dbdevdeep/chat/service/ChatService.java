@@ -205,6 +205,14 @@ public class ChatService {
 	    
 	    // 타임스탬프 기준으로 리스트 정렬
 	    combinedList.sort(Comparator.comparing(CustomChatContainerDto::getTimestamp));
+	    
+	    // 채팅방 참여자 목록 조회
+	    Map<String, Object> params = new HashMap<>();
+		params.put("room_no", roomNo);
+		params.put("emp_id", login_id);
+	    List<String> members = chatMapper.otherMemberIds(params);
+	    // 웹소켓 핸들러 호출
+ 		webSocketHandler.readChatMsg(members,roomNo);
 
 	    return combinedList;
 		
@@ -244,7 +252,7 @@ public class ChatService {
 			} else if (members.size() > 0) {
 				// 메세지 작정자 이외의 참여자가 존재할때
 				// 웹소켓 핸들러 호출
-				webSocketHandler.sendPrivateChatMsg(members,vo.getRoom_no());
+				webSocketHandler.sendChatMsg(members,vo.getRoom_no());
 			}
 		}
 
@@ -276,7 +284,7 @@ public class ChatService {
 			} else if (members.size() > 0) {
 				// 메세지 작정자 이외의 참여자가 존재할때
 				// 웹소켓 핸들러 호출
-				webSocketHandler.sendPrivateChatMsg(members,vo.getRoom_no());
+				webSocketHandler.sendChatMsg(members,vo.getRoom_no());
 			}
 		}
 
@@ -288,7 +296,6 @@ public class ChatService {
 		int result = -1;
 		
 		result = chatMapper.countChatReadCheckByEmpId(emp_id);
-			
 		return result;
 	}
 	

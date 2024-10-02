@@ -631,29 +631,45 @@
 				
 		})
 		
-		// 웹소켓 알림을 받았을 때, 알림 개수 업데이트
+		// 웹소켓 알림을 받았을 때, 알림 리로드 업데이트
 		const chatAlertReload = function(){
-			const chatAlertElement = document.getElementById("chat_alert_place");
-            const alertCount = parseInt(chatAlertElement.textContent) || 0;
-            chatAlertElement.textContent = alertCount + 1;
-            
-            if (chatAlertElement.textContent == 0) {
-	            // chatAlertElement.textContent가 0개일 때
-                chatAlertElement.style.display = "none";
-            } else {
-            	// 다시 보이도록 설정 (기본 스타일)
-                chatAlertElement.style.display = "";
-            }
 
-            // chatAlertElement.textContent가 10보다 작으면 특정 스타일 추가
-            if (chatAlertElement.textContent < 10) {
-                chatAlertElement.style.aspectRatio = "1/1"; // 스타일 추가
-            } else {
-                // unreadCount가 10과 같거나 크면 스타일 제거
-                chatAlertElement.style.aspectRatio = ""; // 스타일 제거
-            }
+			const csrfToken = document.getElementById("csrf_token_header").value;
+			const chatAlertElement = document.getElementById("chat_alert_place");
+            
+         	// 로그인한 사용자가 확인하지 않은 채팅 메세지 개수 출력
+			fetch('/chat/alert/header',{
+				method: 'GET',
+	            headers: {
+	                'Content-Type': 'application/json',
+	                'X-CSRF-TOKEN': csrfToken
+	            }
+			})
+			.then(response=>response.json())
+			.then(data=>{
+				// 가져온 데이터(읽지 않은 메시지 개수)를 chat_alert_place에 넣기
+				const unreadCount = data.unread_count || 0; // 데이터가 없을 경우 0으로 설정
+				chatAlertElement.textContent = unreadCount;
+				
+	            if (chatAlertElement.textContent == 0) {
+		            // chatAlertElement.textContent가 0개일 때
+	                chatAlertElement.style.display = "none";
+	            } else {
+	            	// 다시 보이도록 설정 (기본 스타일)
+	                chatAlertElement.style.display = "";
+	            }
+
+	            // chatAlertElement.textContent가 10보다 작으면 특정 스타일 추가
+	            if (chatAlertElement.textContent < 10) {
+	                chatAlertElement.style.aspectRatio = "1/1"; // 스타일 추가
+	            } else {
+	                // unreadCount가 10과 같거나 크면 스타일 제거
+	                chatAlertElement.style.aspectRatio = ""; // 스타일 제거
+	            }
+				
+			})
 		}
-		
+
 	</script>
 
 </th:block>
