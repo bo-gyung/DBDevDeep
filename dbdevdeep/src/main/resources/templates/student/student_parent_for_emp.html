@@ -135,7 +135,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 												</table>
 											
 												<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#parent_create_primary-header-modal">등록</button>
-												<a th:href="@{/student/emp/{student_no}(student_no=${sdto.student_no})}">취소</a>
+												<a th:href="@{/employee/student/{student_no}(student_no=${sdto.student_no})}">취소</a>
 											
 										
 									</div>
@@ -177,7 +177,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		                            <label for="parent_birth">생년월일</label>
 		                            <input type="date" id="parent_birth" name="parent_birth">
 		                            <div class="modal-footer">
-		                                <a th:href="@{/student/parent/emp/{student_no}(student_no=${sdto.student_no})}">취소</a>
+		                                <a th:href="@{/employee/student/parent/{student_no}(student_no=${sdto.student_no})}">취소</a>
 		                                <button type="button" id="updateStudentBtn">수정</button>
 		                            </div>
 		                        </form>
@@ -217,7 +217,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									<label for="parent_birth">생년월일</label>
 									<input type="date" id="parent_birth" name="parent_birth">
 									<div class="modal-footer">
-										<a th:href="@{/student/parent/emp/{student_no}(student_no=${sdto.student_no})}">취소</a>
+										<a th:href="@{/employee/student/parent/{student_no}(student_no=${sdto.student_no})}">취소</a>
 										<input type="submit" value="등록"><br> 
 									</div>
 								</form>
@@ -299,7 +299,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								title : '성공',
 								text : data.res_msg
 							}).then((result)=>{
-								location.href = "/student/parent/emp/" + studentNo;
+								location.href = "/employee/student/parent/" + studentNo;
 							});
 						}else{
 							Swal.fire({
@@ -400,7 +400,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		                    title: '성공',
 		                    text: data.res_msg
 		                }).then((result) => {
-		                    location.href = `/student/parent/emp/${studentNo}`; // 성공 시 상세 페이지로 이동
+		                    location.href = `/employee/student/parent/${studentNo}`; // 성공 시 상세 페이지로 이동
 		                });
 		            } else {
 		                Swal.fire({

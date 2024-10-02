@@ -25,8 +25,6 @@ import com.dbdevdeep.notice.repository.NoticeReadCheckRepository;
 import com.dbdevdeep.notice.repository.NoticeRepository;
 import com.dbdevdeep.websocket.config.WebSocketHandler;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class NoticeService {
 	
@@ -129,14 +127,12 @@ public class NoticeService {
 					.build();
 			
 			noticeReadCheckRepository.save(newNrc);
-			
 			result=1;
 		}
 		return result;
 	}
 	
 	// 공지사항 게시글 작성
-	@Transactional
 	public int createNotice(NoticeDto dto) {
 		int result = -1;
 		
@@ -218,26 +214,25 @@ public class NoticeService {
 	}
 	
 	// 공지사항 게시글 삭제
-	@Transactional
 	public int deleteNotice(Long notice_no) {
 		int result = -1;
 		try {
 			noticeRepository.deleteById(notice_no);
 			
 			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("notice", notice_no);
-			
-			for(Alert alert : alertList) {
+			for (Alert alert : alertList) {
 				AlertDto alertDto = new AlertDto().toDto(alert);
-				
+
 				alertDto.setAlarm_status("X");
 				Alert a = alertDto.toEntity(alert.getEmployee());
-				
+				alertRepository.delete(alert);
+
+				// alert_status를 x로 처리하여 websocket_handler로 전송
+				// 이미 전송된 websocket 알람을 삭제하기 위함
 				try {
-					alertRepository.delete(a);
-					
-					webSocketHandler.sendAlert(a);
-				} catch (IOException except) {
-					except.printStackTrace();
+					webSocketHandler.sendAlert(a); 
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 			

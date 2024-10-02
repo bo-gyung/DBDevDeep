@@ -129,7 +129,7 @@
 									<input type="radio" id="female" name="student_gender" value="W" th:checked="${dto.student_gender=='W'}"> 여자
 								</div>
 								<div class="form-group" style="text-align: right;">
-									<input type="button" value="취소" th:onclick="|location.href='@{/student/emp/{studentNo}(studentNo=${dto.student_no})}'|"> 
+									<input type="button" value="취소" th:onclick="|location.href='@{/employee/student/{studentNo}(studentNo=${dto.student_no})}'|"> 
 									<input type="submit" value="수정">
 								</div>
 							</form>
@@ -234,7 +234,7 @@
 								title : '성공',
 								text : data.res_msg
 							}).then((result)=>{
-								location.href = "/student/emp/"+studentNo;
+								location.href = "/employee/student/"+studentNo;
 							});
 						}else{
 							Swal.fire({

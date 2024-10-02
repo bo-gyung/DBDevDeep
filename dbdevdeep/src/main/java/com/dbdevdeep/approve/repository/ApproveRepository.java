@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.dbdevdeep.approve.domain.Approve;
+import com.dbdevdeep.employee.domain.Employee;
 
 public interface ApproveRepository extends JpaRepository<Approve, Long> {
 
@@ -43,8 +44,8 @@ public interface ApproveRepository extends JpaRepository<Approve, Long> {
 	// 참조 요청받은 쿼리
 	@Query("SELECT a.approNo, a.approTitle, a.approTime, a.approName, a.approStatus, vr.vacType " +
 		       "FROM Approve a " +
-		       "LEFT JOIN a.vacationRequests vr " + // 엔티티 필드를 사용하여 조인
-		       "LEFT JOIN a.references r " +       // 엔티티 필드를 사용하여 조인
+		       "LEFT JOIN a.vacationRequests vr " + 
+		       "LEFT JOIN a.references r " +       
 		       "WHERE r.employee.empId = :empId")
 		List<Object[]> refRequests(@Param("empId") String empId);
 		
@@ -54,5 +55,27 @@ public interface ApproveRepository extends JpaRepository<Approve, Long> {
 		       "LEFT JOIN a.approveLines al " +
 		       "WHERE al.employee.empId = :empId AND al.approLineStatus IN (1, 2, 3) AND a.approType = 1")
 	List<Object[]> findDocuRequestsForUser(@Param("empId") String empId);
+	
+	// 요청한 휴가 결재 카운트
+	@Query("SELECT COUNT(a) FROM Approve a WHERE a.employee = :employee AND a.approType = 0 AND approStatus = 0")
+	int findRequestApproveCountByEmpId(@Param("employee") Employee employee);
+	
+	// 요청한 보고서 결재 카운트
+	@Query("SELECT COUNT(a) FROM Approve a WHERE a.employee = :employee AND a.approType = 1 AND approStatus = 0")
+	int findRequestDocuByEmpId(@Param("employee") Employee employee);
+	
+	// 요청 받은 휴가 카운트
+	@Query("SELECT COUNT(a) " +
+		       "FROM Approve a " +
+		       "LEFT JOIN a.approveLines al " +
+		       "WHERE al.employee = :employee AND al.approLineStatus = 1 AND a.approType = 0")
+	int findComeApproveCountByEmpId(@Param("employee") Employee employee);
+	
+	// 요청 받은 보고서 카운트
+	@Query("SELECT COUNT(a) " +
+		       "FROM Approve a " +
+		       "LEFT JOIN a.approveLines al " +
+		       "WHERE al.employee = :employee AND al.approLineStatus = 1 AND a.approType = 1")
+	int findComeDocuByEmpId(@Param("employee") Employee employee);
 
 }

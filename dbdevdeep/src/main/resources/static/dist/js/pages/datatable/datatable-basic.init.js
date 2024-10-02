@@ -338,16 +338,17 @@ $('#address_all_book').DataTable({
 	"responsive": true,
 	// 컬럼 width 비율 조절
 	"columnDefs": [
-		{ "width": "10%", "targets": 0, "className": "text-center" },
+		{ "width": "10%", "targets": 0, "className": "text-center", "orderable": false},
 		{ "width": "10%", "targets": 1, "className": "text-center" },
 		{ "width": "10%", "targets": 2, "className": "text-center" },
 		{ "width": "10%", "targets": 3, "className": "text-center" },
 		{ "width": "10%", "targets": 4, "className": "text-center" },
 		{ "width": "10%", "targets": 5, "className": "text-center" },
 		{ "width": "10%", "targets": 6, "className": "text-center" },
-		{ "width": "10%", "targets": 7, "className": "text-center" }
+		{ "width": "10%", "targets": 7, "className": "text-center" },
+		{ "width": "10%", "targets": 8, "className": "text-center" }
 	],
-	"order": [[0, "asc"]],
+	"order": [[1, "asc"]],
 	// 정보 표시 해제
 	info: false,
 	// DataTables의 DOM 구조를 재정의
@@ -440,9 +441,11 @@ $('#address_all_book').DataTable({
 });
 
 // 직원 목록 이동 이벤트
-$('#address_all_book').on('click', '.employee-detail', function() {
-	var emp_id = $(this).data('emp');
-	location.href = "/employee/list/" + emp_id;
+$('#address_all_book').on('click', '.employee-detail', function(e) {
+	if ($(e.target).closest('td').index() !== 0) {
+        var emp_id = $(this).data('emp');
+        location.href = "/employee/list/" + emp_id;
+    }
 });
 
 // log-employee
@@ -452,12 +455,13 @@ $('#log-employee').DataTable({
 	// 컬럼 width 비율 조절
 	"columnDefs": [
 		{ "width": "10%", "targets": 0, "className": "text-center" },
-		{ "width": "10%", "targets": 1, "className": "text-center" },
+		{ "width": "15%", "targets": 1, "className": "text-center" },
 		{ "width": "10%", "targets": 2, "className": "text-center" },
 		{ "width": "10%", "targets": 3, "className": "text-center" },
-		{ "width": "10%", "targets": 4, "className": "text-center" }
+		{ "width": "15%", "targets": 4, "className": "text-center" },
+		{ "width": "20%", "targets": 5, "className": "text-center" }
 	],
-	"order": [[4, "desc"]],
+	"order": [[5, "desc"]],
 	// 정보 표시 해제
 	info: false,
 	// DataTables의 DOM 구조를 재정의
@@ -1314,6 +1318,7 @@ $('#approve_config').DataTable({
 		{ "width": "10%", "targets": 2 },
 		{ "width": "10%", "targets": 3 }
 	],
+	"order":[[1,"desc"]],
 	// 정보 표시 해제
 	info: false,
 	// DataTables의 DOM 구조를 재정의
@@ -1323,7 +1328,7 @@ $('#approve_config').DataTable({
 	// 페이지네이션 버튼을 전체 숫자와 함께 표시
 	pagingType: 'full_numbers',
 	// 페이지당 항목 수를 선택할 수 있는 옵션
-	lengthMenu: [10, 25, 50, 100],
+	lengthChange: false,
 	// 기본 페이지당 항목 수
 	pageLength: 10,
 
@@ -1374,7 +1379,26 @@ $('#approve_config').DataTable({
 				api.page(parseInt(idx) - 1).draw('page');  // 선택된 페이지로 이동
 			}
 		});
+	},
+	"initComplete": function() {
+		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px;"></div>');
+		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="height: 46px; padding: 8px 12px; width: 300px; box-sizing: border-box;">');
+		var searchButton = $('<button class="btn btn-primary ml-2" style="height:46px;">검색</button>');
+
+			searchButton.on('click', function () {
+				var searchTerm = searchInput.val();  // 검색어 가져오기
+				$('#approve_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+			});
+
+		searchBoxContainer.append(searchInput).append(searchButton);
+
+		// 페이징 밑에 검색 박스 추가
+		$('.dataTables_paginate').after(searchBoxContainer);
+
+		// DataTables 기본 검색창 숨기기
+		$('div.dataTables_filter').hide();
 	}
+
 });
 // 보고서 테이블 
 $('#approveDocu_config').DataTable({

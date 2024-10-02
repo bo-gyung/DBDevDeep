@@ -18,18 +18,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class ApiController {
-	
+
 	private final EmployeeService employeeService;
 	private final TeacherHistoryService teacherHistoryService;
 
 	@GetMapping("/emp-tree")
-  public ApiResponse getEmployeeTreeItems() {
-		
+	public ApiResponse getEmployeeTreeItems() {
+
 		List<EmployeeDto> employeeList = employeeService.selectYEmployeeList();
-		
+
 		List<TeacherHistoryDto> teacherDtoList = teacherHistoryService.selectClassByOrderLastesList();
-		
+
 		return new ApiResponse(employeeList, teacherDtoList);
-		
-  }
+
+	}
 }

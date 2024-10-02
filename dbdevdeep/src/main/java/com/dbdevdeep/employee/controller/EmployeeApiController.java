@@ -33,6 +33,7 @@ import com.dbdevdeep.employee.service.EmployeeService;
 import com.dbdevdeep.security.service.SecurityService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +96,7 @@ public class EmployeeApiController {
 			dto.setOri_pic_name(file.getOriginalFilename());
 			dto.setNew_pic_name(savedFileName);
 			
-			if(dup_emp_id != null) {
+			if(!"".equals(dup_emp_id)) {
 				dto.setEmp_id(dup_emp_id);
 				EmployeeDto empDto = employeeService.govIdCheck(dto.getGov_id());
 				dto.setHire_date(empDto.getHire_date());
@@ -344,18 +345,18 @@ public class EmployeeApiController {
 	// 비밀번호 초기화
 	@ResponseBody
 	@PutMapping("/reset-pw")
-	public Map<String, String> editMyPw(@RequestParam("emp_id") String emp_id, @RequestParam("emp_pw") String emp_pw) {
+	public Map<String, String> editMyPw(@RequestParam("emp_id") String emp_id, @RequestParam("emp_pw") String emp_pw,
+			@RequestParam("admin_id")String admin_id) {
 		Map<String, String> resultMap = new HashMap<String, String>();
 
 		resultMap.put("res_code", "404");
 		resultMap.put("res_msg", "비밀번호 초기화 중 오류가 발생했습니다.");
 
-		Employee e = employeeService.resetPw(emp_id, emp_pw);
+		Employee e = employeeService.resetPw(emp_id, emp_pw, admin_id);
 
 		if (e != null) {
 			resultMap.put("res_code", "200");
 			resultMap.put("res_msg", "비밀번호가 성공적으로 초기화되었습니다.");
-
 		}
 
 		return resultMap;
@@ -513,6 +514,16 @@ public class EmployeeApiController {
 		}
 
 		return resultMap;
+	}
+	
+	@ResponseBody
+	@GetMapping("/employee/excel/{ids}")
+	public void employeeExcel(@PathVariable(name="ids") String ids, HttpServletResponse response) {
+		try {
+			employeeService.employeeExcel(ids, response);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
