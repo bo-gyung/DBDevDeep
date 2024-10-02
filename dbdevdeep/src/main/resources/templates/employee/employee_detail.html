@@ -115,6 +115,9 @@
 		.filter label {
 			display: flex; align-items: center; margin: 0px auto;
 		}
+		.table-hover tr:hover {
+			cursor: pointer;
+		}
 	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
@@ -233,7 +236,9 @@
 													</div>
 													<div class="col-4">
 														<form id="resetPw">
-															<input type="hidden" class="form-control" id="pw" name="emp_pw" th:value="${#strings.replace(empDto.emp_rrn, '-', '')}"> <input type="hidden" class="form-control" id="empId" name="emp_id" th:value="${empDto.emp_id}">
+															<input type="hidden" class="form-control" id="pw" name="emp_pw" th:value="${#strings.replace(empDto.emp_rrn, '-', '')}"> 
+															<input type="hidden" class="form-control" id="empId" name="emp_id" th:value="${empDto.emp_id}">
+															<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 															<div class="tooltip-container">
 																<button class="btn btn-info tooltip-trigger">비밀번호 초기화</button>
 																<div class="tooltip">이 버튼을 클릭하면 해당 계정의 비밀번호가 주민등록번호로 초기화됩니다. 신중하게 클릭하세요.</div>
@@ -430,7 +435,7 @@
 									<div class="row">
 										<div class="col-md-12" style="margin-top: 40px;">
 											<div class="table-responsive">
-												<table id="employee-attend" class="table table-bordered no-wrap" style="width: 100%">
+												<table id="employee-attend" class="table table-hover table-bordered no-wrap" style="width: 100%">
 													<colgroup>
 														<col style="width: 10%;">
 														<col style="width: 30%;">
@@ -455,9 +460,19 @@
 															</tr>
 														</th:block>
 														<th:block th:if="${!#lists.isEmpty(attendDtoList)}">
-															<tr th:each="attend, attendStat : ${attendDtoList}">
+															<tr th:each="attend, attendStat : ${attendDtoList}"
+																th:data-attendNo="${attend.attend_no}"
+																th:data-attendDate="${attend.attend_date}"
+																th:data-attendIn="${attend.check_in_time}"
+																th:data-attendOut="${attend.check_out_time}"
+																th:data-attendStatus="${attend.work_status}"
+																th:data-attendLate="${attend.late_status}"
+																th:data-attendOver="${attend.overtime_sum}"
+																class="attend_history"
+																data-toggle="modal" 
+																data-target="#attend_modal">
 																<td scope="row" th:text="${attendStat.count}"></td>
-																<td th:text="${attend.attend_date}"></td>
+																<td th:text="${attend.attend_date}">d</td>
 																<td th:text="${#temporals.format(attend.check_in_time, 'HH:mm:ss')}"></td>
 																<!-- 퇴근시간 start -->
 																<th:block th:if="${attend.check_in_time == attend.check_out_time}">
@@ -798,8 +813,7 @@
 					<hr>
 					<form class="pl-3 pr-3" id="leaveFrm">
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
-						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
-						<input type="hidden" name="status_type" value="N">
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}">
 						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
 						<div class="form-group">
 							<label for="stop_date_L">퇴직일 <span style="color: red;">*</span></label> 
@@ -821,9 +835,114 @@
 		</div>
 	</div>
 	<!-- /.modal -->
+	
+	<!-- attend 모달창 -->
+	<div id="attend_modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header modal-colored-header bg-info">
+					<h4 class="modal-title" id="info-header-modalLabel">전근</h4>
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="modal-body">
+					<div class="col-12">
+
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-6">
+									<label>교육청관리번호</label> 
+									<input type="text" class="form-control" id="gov_id" name="gov_id" placeholder="00000000000" maxlength="11" th:value="${'N - ' + empDto.gov_id}" readonly>
+								</div>
+								<div class="col-md-6">
+									<label>재직상태</label> 
+									<input type="text" class="form-control" readonly th:value="${empDto.ent_status == 'Y' ? '재직' : 
+										empDto.ent_status == 'N' ? '퇴직' : empDto.ent_status == 'R' ? '휴직' : 
+										empDto.ent_status == 'L' ? '전근' : '-'}">
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-6">
+									<label for="gov_id">이름</label> 
+									<input type="text" class="form-control" id="emp_name" name="emp_name" placeholder="홍길동" th:value="${empDto.emp_name}" readonly>
+								</div>
+								<div class="col-md-6">
+									<label for="gov_id">직원번호</label> 
+									<input type="text" class="form-control" id="emp_id" name="emp_id" th:value="${empDto.emp_id}" placeholder="00000000000" maxlength="11" readonly>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-6">
+									<label>부서</label> <input type="text" class="form-control" readonly th:value="${empDto.dept_name}">
+								</div>
+								<div class="col-md-6">
+									<label>직급</label> 
+									<input type="text" class="form-co ntrol" readonly th:value="${empDto.job_name}">
+								</div>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<form class="pl-3 pr-3" id="attendFrm">
+						<input type="hidden" id="csrf_token" th:value="${_csrf.token}"> 
+						<input type="hidden" id="attend_no" name="attend_no">
+						<input type="hidden" name="emp_id" th:value="${empDto.emp_id}"> 
+						<input type="hidden" name="status_type" value="N">
+						<input type="hidden" name="admin_id" th:value="${#authentication.principal.dto.emp_id}">
+						<div class="form-group">
+							<label for="attend_date">근무일</label> 
+							<input type="date" class="form-control" id="attend_date" name="attend_date" readonly>
+						</div>
+						<div class="form-group">
+							<label for="check_in_time">출근시간</label> 
+							<input type="time" class="form-control" id="check_in_time" maxlength="33">
+							<input type="hidden" name="check_in_time" id="check_in">
+							<div id="check_in_feedback" class="mt-2"></div>
+						</div>
+						<div class="form-group">
+							<label for="check_out_time">퇴근시간</label> 
+							<input type="time" class="form-control" id="check_out_time" maxlength="33">
+							<input type="hidden" name="check_out_time" id="check_out">
+							<div id="check_in_feedback" class="mt-2"></div>
+						</div>
+						<div class="form-group">
+							<label for="work_status">출근상태</label> 
+							<select class="form-control" name="work_status" id="work_status">
+								<option value="0">출근전</option>
+								<option value="1">출근</option>
+								<option value="2">퇴근</option>
+							</select>
+							<div id="work_status_feedback" class="mt-2"></div>
+						</div>
+						<div class="form-group">
+							<label for="late_status">지각여부</label> 
+							<br>
+							<label><input type="radio" class="" id="late_status_n" name="late_status" value="N"> 정상</label>
+							<label><input type="radio" class="" id="late_status_y" name="late_status" value="Y"> 지각</label>
+							<div id="late_status_feedback" class="mt-2"></div>
+						</div>
+						<div class="form-group">
+							<label for="overtime_sum">초과근무 합산(시간)</label> 
+							<input type="number" class="form-control" id="overtime_sum" name="overtime_sum" maxlength="33">
+							<div id="overtime_sum_feedback" class="mt-2"></div>
+						</div>
+						<div class="col-12 d-flex justify-content-end">
+							<button type="button" class="btn waves-effect waves-light btn-light m-1" data-dismiss="modal" aria-hidden="true">취소</button>
+							<button type="submit" disabled="disabled" class="btn waves-effect waves-light btn-primary m-1" id="attendBtn">수정</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- /.modal -->
 
 	<script>
-		// script.js
 		document.querySelectorAll('.tooltip-trigger').forEach(trigger => {
 		    trigger.addEventListener('mouseover', function() {
 		        const tooltip = this.nextElementSibling;
@@ -1196,6 +1315,132 @@
 			});
 		});
 		})
+	</script>
+	<script>
+		$(document).ready(function() {
+			$('.attend_history').on('click', function() {
+				var attendNo = $(this).data('attendno');
+				var attendDate = $(this).data('attenddate');
+				
+				var attendIn = new Date($(this).data('attendin'));
+				const hourIn = attendIn.getHours(); 
+				const minuteIn = attendIn.getMinutes(); 
+				const timeIn = `${hourIn}:${minuteIn < 10 ? '0' + minuteIn : minuteIn}`;
+				
+				var attendOut = new Date($(this).data('attendout'));
+				const hourOut = attendOut.getHours(); 
+				const minuteOut = attendOut.getMinutes(); 
+				var timeOut = `${hourOut}:${minuteOut < 10 ? '0' + minuteOut : minuteOut}`;
+				
+				var attendStatus = $(this).data('attendstatus');
+				var attendLate = $(this).data('attendlate');
+				var attendOver = $(this).data('attendover');
+				
+				$('#attend_date').val(attendDate);
+				$('#check_in_time').val(timeIn);
+				$('#check_in').val(`${attendDate}T${timeIn}`);
+				$('#check_out_time').val(timeOut);
+				$('#check_out').val(`${attendDate}T${timeOut}`);
+				$('#work_status').val(attendStatus);
+				$('#attend_no').val(attendNo);
+
+				$('#overtime_sum').val(attendOver);
+				
+				if (attendLate === 'Y') { // 여기서 '특정값'을 실제 값으로 변경하세요
+            $('#late_status_y').prop('checked', true);
+        } else {
+            $('#lage_status_n').prop('checked', false);
+        }
+			});
+			
+			// check_in_time 값 변경 시 check_in 업데이트
+	    $('#check_in_time').on('input', function() {
+	        const timeIn = $(this).val();
+	        $('#check_in').val(`${$('#attend_date').val()}T${timeIn}`);
+	        validateTimes(); 
+	    });
+
+	    // check_out_time 값 변경 시 check_out 업데이트
+	    $('#check_out_time').on('input', function() {
+	        const timeOut = $(this).val();
+	        $('#check_out').val(`${$('#attend_date').val()}T${timeOut}`);
+	        validateTimes(); 
+	    });
+	    
+	    $('#attend_date, #check_in_time, #check_out_time, #work_status, input[name="late_status"], #overtime_sum').on('input change', function() {
+	        checkSubmitButton(); // 상태 체크
+	    });
+
+	    function checkSubmitButton() {
+	        // 모든 필드가 값이 있을 경우 submit 버튼 활성화
+	        return isComplete = 
+	            $('#attend_date').val() &&
+	            $('#check_in_time').val() &&
+	            $('#check_out_time').val() &&
+	            $('#work_status').val() &&
+	            $('input[name="late_status"]:checked').length > 0 && // 라디오 버튼 체크 여부
+	            $('#overtime_sum').val();
+	    }
+	    
+	    function validateTimes() {
+	        const checkInValue = $('#check_in').val();
+	        const checkOutValue = $('#check_out').val();
+	        let isValid = true;
+
+	        if (checkInValue && checkOutValue) {
+	            const checkInTime = new Date(checkInValue);
+	            const checkOutTime = new Date(checkOutValue);
+
+	            if (checkInTime > checkOutTime) {
+	                $('#check_in_feedback').text('출근시간은 퇴근시간보다 이전이어야 합니다.').css('color', 'red');
+	                isValid = false; // 유효성 상태 업데이트
+	            } else {
+	                $('#check_in_feedback').text(''); // 피드백 초기화
+	            }
+	        } else {
+	            $('#check_in_feedback').text(''); // 피드백 초기화
+	            isValid = false; // 유효성 상태 업데이트
+	        }
+
+	        // 모든 조건을 확인하여 버튼 상태 업데이트
+	        $('#attendBtn').prop('disabled', !isValid || !checkSubmitButton());
+	    }
+		})
+	
+		const form = document.getElementById('attendFrm');
+		form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			const payload = new FormData(form);
+			const csrfToken = document.getElementById('csrf_token').value;
+			fetch('/employee/attend', {
+				method:'PUT',
+				headers : {
+					'X-CSRF-TOKEN': csrfToken
+				},
+				body:payload
+			})
+			.then(response => response.json())
+			.then(data => {
+				if(data.res_code == '200') {
+					Swal.fire({
+						icon :'success',
+						title:'성공',
+						text : data.res_msg,
+						confirmButtonText:"닫기"
+					}).then((result)=>{
+						location.href="/employee/list/" + form.emp_id.value;
+					});
+				} else {
+					Swal.fire({
+						icon:'error',
+						title:'실패',
+						text: data.res_msg,
+						confirmButtonText:"닫기"
+					});
+				}
+			})
+		});
+		
 	</script>
 	</body>
 </th:block>

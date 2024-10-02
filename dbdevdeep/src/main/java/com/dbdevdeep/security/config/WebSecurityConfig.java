@@ -4,21 +4,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-
+@EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
 	
 	private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
+	private final MyLoginFailureHandler myLoginFailureHandler;
+	private final MyLoginSuccessHandler myLoginSuccessHandler;
 
   @Autowired
-  public WebSecurityConfig(CustomLogoutSuccessHandler customLogoutSuccessHandler) {
+  public WebSecurityConfig(CustomLogoutSuccessHandler customLogoutSuccessHandler,
+		  MyLoginFailureHandler myLoginFailureHandler,
+		  MyLoginSuccessHandler myLoginSuccessHandler) {
       this.customLogoutSuccessHandler = customLogoutSuccessHandler;
+      this.myLoginFailureHandler = myLoginFailureHandler;
+      this.myLoginSuccessHandler = myLoginSuccessHandler;
   }
 
     @Bean
@@ -26,6 +34,10 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/assets/**", "/dbdevdeepcss/**", "/dbdevdeepjs/**", "/dist/**", "/docs/**", "/scss/**", "/login.js").permitAll()
                 .requestMatchers("/signup").hasAnyAuthority("D3")
+                .requestMatchers("/error/404", "/error/500", "/error/error").permitAll()
+                .requestMatchers("/employee/**").hasAnyAuthority("D3")
+                .requestMatchers("/log/**").hasAnyAuthority("D3")
+                .requestMatchers(HttpMethod.GET, "/student/**").hasAnyAuthority("D4")
                 .anyRequest().hasAnyAuthority("Y")  // 나머지 모든 요청은 인증 필요
             )
             // 로그인 설정
@@ -35,8 +47,8 @@ public class WebSecurityConfig {
                 .usernameParameter("emp_id")
                 .passwordParameter("emp_pw")
                 .permitAll()  // 로그인 접근 혀용
-                .successHandler(new MyLoginSuccessHandler())
-                .failureHandler(new MyLoginFailureHandler())
+                .successHandler(myLoginSuccessHandler)
+                .failureHandler(myLoginFailureHandler)
             )
             // 로그아웃 설정
             .logout(logout -> logout

@@ -1,14 +1,9 @@
 package com.dbdevdeep.employee.vo;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.time.LocalDateTime;
 
-import org.springframework.security.core.GrantedAuthority;
-
-import com.dbdevdeep.employee.domain.Department;
 import com.dbdevdeep.employee.domain.Employee;
-import com.dbdevdeep.employee.domain.EmployeeDto;
-import com.dbdevdeep.employee.domain.Job;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -46,8 +41,10 @@ public class EmployeeVo {
 	private LocalDate end_date;
 	private String ent_status;
 	private String login_yn;
-	private String account_status;
+	private int account_status;
 	private String chat_status_msg;
+	
+	private LocalDateTime account_time;
 
 	public EmployeeVo EntityToVo(Employee employee) {
 		return EmployeeVo.builder().emp_id(employee.getEmpId()).emp_pw(employee.getEmpPw()).gov_id(employee.getGovId())
@@ -57,7 +54,7 @@ public class EmployeeVo {
 				.emp_detail_addr(employee.getEmpDetailAddr()).emp_internal_phone(employee.getEmpInternalPhone())
 				.vacation_hour(employee.getVacationHour()).hire_date(employee.getHireDate()).end_date(employee.getEndDate())
 				.ent_status(employee.getEntStatus()).login_yn(employee.getLoginYn()).account_status(employee.getAccountStatus())
-				.chat_status_msg(employee.getChatStatusMsg()).job_code(employee.getJob().getJobCode())
+				.chat_status_msg(employee.getChatStatusMsg()).job_code(employee.getJob().getJobCode()).account_time(employee.getAccountTime())
 				.dept_code(employee.getDepartment().getDeptCode()).build();
 	}
 }

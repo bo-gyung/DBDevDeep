@@ -8,7 +8,8 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <!-- Favicon icon -->
-<link rel="icon" type="image/png" sizes="16x16" href="/assets/images/MulMang_logo.png">
+<link rel="icon" type="image/png" sizes="16x16" th:href="@{/assets/images/MulMang_logo.png}">
+
 <title>물망초등학교</title>
 <!-- Custom CSS -->
 <link href="/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
@@ -17,24 +18,18 @@
 <link href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
 <!-- Custom CSS -->
 <link href="/dist/css/style.min.css" rel="stylesheet">
+
+<!-- jstree -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
+
+<!-- <script src="/dbdevdeepjs/jstree/jstree.js" defer></script> -->
 </head>
 <body>
 	<div id="main-wrapper" data-theme="light" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed" data-boxed-layout="full">
 		<th:block th:replace="~{include/header :: headerLayout}"></th:block>
-		<th:block th:replace="~{include/employee_nav :: employeeNavLayout}"></th:block>
 		<th:block layout:fragment="content"></th:block>
 	</div>
-	
-	<script>
-		document.addEventListener('DOMContentLoaded', function () {
-		    const navItems = document.querySelectorAll('.nav-item');
-	
-		    if (navItems[2]) {
-		    	navItems[2].classList.add('active');
-		    }
-		});
-	</script>
-	
+
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<!-- Bootstrap tether Core JavaScript -->
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
@@ -52,9 +47,9 @@
 	<script src="/dist/js/sidebarmenu.js"></script>
 	<!--Custom JavaScript -->
 	<script src="/dist/js/custom.min.js"></script>
-
-	<!--This page plugins -->
 	<script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 	<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script> -->
 </body>
 </html>

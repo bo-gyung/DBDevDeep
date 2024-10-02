@@ -31,7 +31,7 @@ public class TeacherHistoryViewController {
 		this.employeeService = employeeService;
 	}
 	
-	@GetMapping("/grade-class/list")
+	@GetMapping("/grade-class")
 	public String GroupByYearList(Model model, GradeClassGroup group) {
 		List<GradeClassGroup> resultList = teacherHistoryService.GroupByYearList();
 		
