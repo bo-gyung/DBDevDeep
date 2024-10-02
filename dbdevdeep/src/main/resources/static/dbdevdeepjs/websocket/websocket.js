@@ -129,25 +129,38 @@ let socket;
 		        
 		        
 		    } else if(message.res_code =='200' && message.res_type =='chat'){
-				// 웹소켓 채팅 관련 이벤트
+				// 웹소켓 채팅 : 새 메세지 작성 관련 이벤트
 				
 				if(message.now_page =='chat'){
-					// 채팅 페이지에 접속한 사용자 : 채팅방 목록 리로드
+					// 채팅 페이지에 접속한 사용자
+					// 채팅방 목록 리로드
 					updateChatRoomList();
+					// 헤더에 배지알림
+					chatAlertReload();
 					
 					if(message.room_in =='Y'){
-						// 현재 채팅방에 접속해있는 사용자 : 채팅 메세지목록 리로드
+						// 현재 채팅방에 접속해있는 사용자
+						// 채팅 메세지목록 리로드
 						loadChatroom(message.room_no);
 						
 					} else if(message.room_in =='N'){
-						// 현재 채팅방에 접속하고 있지 않은 사용자 : 채팅방 목록에 배지알림
-						chatAlertReload;
+						// 다른 채팅방에 접속해있는 사용자
 					}
 				} else if(message.now_page =='no_chat'){
-					// 채팅 페이지에 접속하고 있지 않은 사용자 : 헤더에 배지알림
-					
+					// 채팅 페이지에 접속하고 있지 않은 사용자
+					// 헤더에 배지알림
+					chatAlertReload();
 				}
+			} else if(message.res_code =='200' && message.res_type =='read'){
+				// 웹소켓 채팅 : 읽음 확인 관련 이벤트
+				if(message.now_page =='chat' && message.room_in =='Y'){
+					// 현재 채팅방에 접속해있는 사용자
+					// 채팅 메세지목록 리로드
+					loadChatroom(message.room_no);	
+				} 
 			}
+		
+		
 		};
 
 
