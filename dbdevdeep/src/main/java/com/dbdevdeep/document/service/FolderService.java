@@ -45,7 +45,7 @@ public class FolderService {
 
     // 공용 폴더 목록 가져오기
 	public List<Map<String, Object>> selectPublicFolderTree() {
-		List<Folder> folderList = folderRepository.findByFolderType(0);
+		List<Folder> folderList = folderRepository.findByFolderTypeOrderByFolderNameAsc(0);
 		return convertToTree(folderList);
 	}
 
@@ -55,7 +55,7 @@ public class FolderService {
 	    Folder rootFolder = folderRepository.findByFolderTypeAndEmployee_EmpIdIsNull(1);
 	    
 	    // 2. 해당 사용자의 하위 폴더 목록 가져오기
-	    List<Folder> folderList = folderRepository.findByFolderTypeAndEmployee_EmpId(1, empId);
+	    List<Folder> folderList = folderRepository.findByFolderTypeAndEmployee_EmpIdOrderByFolderNameAsc(1, empId);
 	    
 	    folderList.add(0, rootFolder);  // 루트 폴더를 맨 앞에 추가
 	    

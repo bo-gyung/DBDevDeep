@@ -48,13 +48,13 @@
 		                                <div class="col-md-8">
 	                                    	<small id="check_list_help" class="form-text text-muted">체크여부</small>
 	                                    	<div class="row" >
-		                                    	<!-- <div class="custom-control custom-checkbox col-md-2">
+		                                    	<div class="custom-control custom-checkbox col-md-2">
 			                                        <input type="checkbox" class="custom-control-input" 
 			                                        id="is_important" name="is_important" value="1" 
 			                                        th:checked="${dto.is_important}">
 				                                    <label class="custom-control-label mr-sm-3" for="is_important">상단 고정</label>
-			                                	</div> -->
-			                                	<div class="custom-control custom-checkbox col-md-3">
+			                                	</div>
+			                                	<div class="custom-control custom-checkbox col-md-2">
 				                                    <input type="checkbox" class="custom-control-input" 
 				                                    id="is_cmt" name="is_cmt" value="1" 
 				                                    th:checked="${dto.is_cmt}">
@@ -88,7 +88,16 @@
 											</div>
                                        	</div>
                                 	</div>
-                                	
+                                	<div class="row">
+                                        <div class="col-md-11">
+                                            <label class="form-control" for="notice_attr_file">파일을 선택하세요.</label>
+                                            <input type="file" class="custom-file-input" id="notice_attr_file" name="notice_attr_file">
+                                        </div>
+                                        <div class="col-md-1">
+                                            <button class="btn btn-outline-secondary" type="button" onclick="fileInput()" 
+                                            style="cursor: pointer;">첨부</button>
+                                        </div>
+                                    </div>
                                     <input type="hidden" id="notice_no" name="notice_no" th:value="${dto.notice_no}">
                                     <input type="hidden" th:value="${dto.notice_content}" style="display: none" id="ori_content">
                                     <input type="hidden" id="notice_content" name="notice_content">
