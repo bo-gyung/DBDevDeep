@@ -31,6 +31,7 @@ public class FileDto {
 	private String emp_id;
 	private String emp_name;
 	private Long folder_no;
+	private String folder_name;
 	
 	public FileEntity toEntity(EmployeeRepository employeeRepository, FolderRepository folderRepository) {
 		Employee employee = employeeRepository.findByempId(emp_id);
@@ -62,6 +63,7 @@ public class FileDto {
 				.emp_id(file.getEmployee().getEmpId())
 				.emp_name(file.getEmployee().getEmpName())
 				.folder_no(file.getFolder().getFolderNo())
+				.folder_name(file.getFolder().getFolderName())
 				.build();
 	}
 }

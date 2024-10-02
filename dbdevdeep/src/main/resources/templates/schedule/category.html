@@ -16,7 +16,7 @@
     		color:#212529 !important;
     	}
     	.swal-custom-button {
-			background-color: #5f76e8 !important;
+			background-color: #0031AE !important;
 			color: white; /* 버튼 텍스트 색상 */
 			border: none; /* 버튼 테두리 제거 */
 			padding: 10px 20px; /* 버튼 패딩 */
@@ -25,7 +25,7 @@
 		}
 		
 		.swal-custom-button:hover {
-		  background-color: #3e59e3 !important;
+		  background-color: #002685 !important;
 		}
 		.list-group-item{
 			border: none;
@@ -215,7 +215,7 @@
 									                        <li class="color-list-item" style="background-color: #E5DCFF;"></li>
 									                        <li class="color-list-item" style="background-color: #FFDCFB;"></li>
 									                        <li class="color-list-item" style="background-color: #FF95C1;"></li>
-									                        <li class="color-list-item" style="background-color: #FF7373;"></li>
+									                        <li class="color-list-item" style="background-color: #ff8c8c;"></li>
 									                    </ul>
 									                </td>
 									            </tr>
@@ -231,8 +231,8 @@
 									    </table>
 									    <!-- 등록/취소 버튼 -->
 									    <div id="form-container" style="float:right; display: flex; align-items: center;">
-									        <button type="button" id="cancel-delete-button" class="btn waves-effect waves-light btn-light" style="width:80px; height:40px;">취소</button>
-									        <button type="submit" class="btn waves-effect waves-light btn-primary m-1" style="width:80px; height:40px;">등록</button>
+									        <button type="button" id="cancel-delete-button" class="btn waves-effect waves-light btn-light m-2">취소</button>
+									        <button type="submit" id="create-update-button" class="btn waves-effect waves-light btn-primary">등록</button>
 									    </div>
 									    </form>
 									</div>
@@ -240,30 +240,10 @@
 				        </div>
 				    </div>
 				</div>
-                <!-- ============================================================== -->
-                <!-- End PAge Content -->
-                <!-- ============================================================== -->
-                <!-- ============================================================== -->
-                <!-- Right sidebar -->
-                <!-- ============================================================== -->
-                <!-- .right-sidebar -->
-                <!-- ============================================================== -->
-                <!-- End Right sidebar -->
-                <!-- ============================================================== -->
             </div>
-            <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
-        <!-- ============================================================== -->
+    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
+        </footer>
     </div>
     
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
@@ -350,12 +330,15 @@
 	        
 	     	// 삭제 버튼 참조
 	        const deleteButton = document.getElementById('cancel-delete-button');
+	     	const updateButton = document.getElementById('create-update-button');
 
 	        // 기본 범주인지 확인하여 삭제 버튼 활성화/비활성화
 	        if (categoryData.is_default === 'Y') {
 	            deleteButton.disabled = true;  // 삭제 버튼 비활성화
+	            updateButton.disabled = true;
 	        } else {
 	            deleteButton.disabled = false; // 삭제 버튼 활성화
+	            updateButton.disabled = false;
 	        }
 
 	        // 경고 메시지 div가 이미 있는지 확인하여 제거
@@ -374,7 +357,7 @@
 	            alertDiv.style.color = '#FF7373';
 	            alertDiv.style.marginRight = '15px';
 	            alertDiv.style.fontSize = '16px';
-	            alertDiv.innerHTML = '<i data-feather="alert-circle" style="color: #FF7373; margin-right: 5px; width:16px;"></i>기본 범주는 범주명 수정과 삭제가 불가능합니다.';
+	            alertDiv.innerHTML = '<i data-feather="alert-circle" style="color: #FF7373; margin-right: 5px; width:16px;"></i>기본 범주는 수정과 삭제가 불가능합니다.';
 				
 	         	// form-container 내의 취소 버튼 왼쪽에 추가
 	            const formContainer = document.getElementById('form-container'); // form-container 요소 찾기

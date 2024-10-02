@@ -1,5 +1,6 @@
 package com.dbdevdeep.notice.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
+import com.dbdevdeep.alert.config.AlertMessageHandler;
+import com.dbdevdeep.alert.domain.Alert;
+import com.dbdevdeep.alert.domain.AlertDto;
+import com.dbdevdeep.alert.repository.AlertRepository;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.notice.domain.Notice;
@@ -18,6 +23,9 @@ import com.dbdevdeep.notice.dto.NoticeDto;
 import com.dbdevdeep.notice.repository.NoticeCategoryRepository;
 import com.dbdevdeep.notice.repository.NoticeReadCheckRepository;
 import com.dbdevdeep.notice.repository.NoticeRepository;
+import com.dbdevdeep.websocket.config.WebSocketHandler;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class NoticeService {
@@ -26,15 +34,22 @@ public class NoticeService {
 	private final NoticeReadCheckRepository noticeReadCheckRepository;
 	private final EmployeeRepository employeeRepository;
 	private final NoticeCategoryRepository noticeCategoryRepository;
+	private final WebSocketHandler webSocketHandler;
+	private final AlertRepository alertRepository;
+	
 	@Autowired
 	public NoticeService(NoticeRepository noticeRepository, 
 			NoticeReadCheckRepository noticeReadCheckRepository, 
 			EmployeeRepository employeeRepository,
-			NoticeCategoryRepository noticeCategoryRepository) {
+			NoticeCategoryRepository noticeCategoryRepository,
+			WebSocketHandler webSocketHandler,
+			AlertRepository alertRepository) {
 		this.noticeRepository = noticeRepository;
 		this.noticeReadCheckRepository = noticeReadCheckRepository;
 		this.employeeRepository = employeeRepository;
 		this.noticeCategoryRepository = noticeCategoryRepository;
+		this.webSocketHandler = webSocketHandler;
+		this.alertRepository = alertRepository;
 	}
 	
 	// 공지사항 목록 조회
@@ -114,12 +129,14 @@ public class NoticeService {
 					.build();
 			
 			noticeReadCheckRepository.save(newNrc);
+			
 			result=1;
 		}
 		return result;
 	}
 	
 	// 공지사항 게시글 작성
+	@Transactional
 	public int createNotice(NoticeDto dto) {
 		int result = -1;
 		
@@ -138,7 +155,34 @@ public class NoticeService {
 					.isAtt(dto.getIs_att())
 					.build();
 			
-			noticeRepository.save(n);
+			// Alert 구현
+			Notice notice = noticeRepository.save(n);
+			
+			if (notice != null) {
+				AlertDto alertDto = new AlertDto();
+				alertDto.setReference_name("notice");
+				alertDto.setReference_no(notice.getNoticeNo());
+				alertDto.setAlarm_title(notice.getNoticeCategory().getCategoryName());						
+				
+				alertDto.setAlarm_content(notice.getNoticeTitle());
+				alertDto.setAlarm_status("N");
+				
+				// 재직 중인 직원 list
+				List<Employee> employeeList = employeeRepository.selectYEmployeeList();
+				
+				// 재직 중인 직원의 alert 생성
+				for(Employee employee : employeeList) {
+					// alert 저장 후 웹 소켓에 데이터 전송
+					Alert alert = alertDto.toEntity(employee);
+					try {
+						webSocketHandler.sendAlert(alertRepository.save(alert));
+					} catch (IOException except) {
+						except.printStackTrace();
+					}					
+				}
+
+			}
+			
 			result = 1;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -174,10 +218,29 @@ public class NoticeService {
 	}
 	
 	// 공지사항 게시글 삭제
+	@Transactional
 	public int deleteNotice(Long notice_no) {
 		int result = -1;
 		try {
 			noticeRepository.deleteById(notice_no);
+			
+			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("notice", notice_no);
+			
+			for(Alert alert : alertList) {
+				AlertDto alertDto = new AlertDto().toDto(alert);
+				
+				alertDto.setAlarm_status("X");
+				Alert a = alertDto.toEntity(alert.getEmployee());
+				
+				try {
+					alertRepository.delete(a);
+					
+					webSocketHandler.sendAlert(a);
+				} catch (IOException except) {
+					except.printStackTrace();
+				}
+			}
+			
 			result = 1;
 		} catch(Exception e) {
 			e.printStackTrace();

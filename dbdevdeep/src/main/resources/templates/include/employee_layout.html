@@ -24,6 +24,17 @@
 		<th:block th:replace="~{include/employee_nav :: employeeNavLayout}"></th:block>
 		<th:block layout:fragment="content"></th:block>
 	</div>
+	
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+		    const navItems = document.querySelectorAll('.nav-item');
+	
+		    if (navItems[2]) {
+		    	navItems[2].classList.add('active');
+		    }
+		});
+	</script>
+	
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<!-- Bootstrap tether Core JavaScript -->
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>

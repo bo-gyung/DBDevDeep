@@ -27,5 +27,14 @@
 	</th:block>
 	</div>
 	
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+		    const navItems = document.querySelectorAll('.nav-item');
+
+		    if (navItems[3]) {
+		    	navItems[3].classList.add('active');
+		    }
+		});
+	</script>
 </body>
 </html>

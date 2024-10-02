@@ -60,4 +60,68 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.3.2'
+	id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.dbdevdeep'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}  
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	// implementation 'org.springframework.boot:spring-boot-starter-xml'
+	
+	// Apache Poi (Excel)	
+	implementation 'org.apache.poi:poi-ooxml:5.3.0'
+	// MuBatis(마이바티스)
+	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+	// Thymeleaf(타임리프)
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+	// JPA(제이피에이)
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// MariaDB(마리아디비)
+	implementation 'org.mariadb.jdbc:mariadb-java-client'
+	// WebSocket(웹소켓)
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	
+	// security(시큐리티)
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	testImplementation 'org.springframework.security:spring-security-test'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	
+	// mybatis
+	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+task deleteJar(type: Delete) {
+    delete 'build/libs/*.jar'
 }

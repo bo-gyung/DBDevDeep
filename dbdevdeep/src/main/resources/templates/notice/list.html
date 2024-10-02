@@ -73,8 +73,6 @@
 	    vertical-align: middle;
 	    padding-bottom:8px;
 	}
-		
-		
 	
 	/* datatable css */
 	div.dataTables_wrapper div.dataTables_paginate ul.pagination {
@@ -94,11 +92,17 @@
 	    color: inherit;           /* 호버 시 색상 변경 */
 	}
 	
+	table.dataTable thead th.sorting,
+	table.dataTable thead th.sorting_desc,
+	table.dataTable thead th.sorting_asc{
+		padding-right:10px !important;
+	}
+	
 	/* th의 텍스트와 아이콘을 가운데 정렬하고 함께 붙이기 */
 	table.dataTable thead th {
 	  text-align: center; /* 텍스트와 아이콘을 가운데 정렬 */
 	  position: relative; /* 아이콘 위치를 상대적으로 설정 */
-	  padding-right: 20px; /* 오른쪽 패딩을 조정하여 아이콘 간격 조절 */
+	  padding-right: 10px; /* 오른쪽 패딩을 조정하여 아이콘 간격 조절 */
 	}
 	
 	/* 정렬 아이콘의 위치 및 정렬 설정 */
@@ -163,7 +167,7 @@
 				                        <div style="font-size:30px;">공지사항</div>
 				                    </div>		                        
 	                            	<div class="col d-flex justify-content-end" sec:authorize="hasAnyAuthority('D3')">
-				                        <button type="button" style="width:80px; height:50px;" 
+				                        <button type="button" style="width:72px; height:45px;" 
 				                        class="btn waves-effect waves-light btn-primary m-1" onclick="location.href='/notice/new'">작성</button>
 	                            	</div>								
 								</div>
@@ -204,36 +208,10 @@
                         </div>
                     </div>
                 </div>
-                <!-- ============================================================== -->
-                <!-- End Page Content -->
-                <!-- ============================================================== -->
-                <!-- ============================================================== -->
-                <!-- Right sidebar -->
-                <!-- ============================================================== -->
-                <!-- .right-sidebar -->
-                <!-- ============================================================== -->
-                <!-- End Right sidebar -->
-                <!-- ============================================================== -->
             </div>
-            <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <footer class="footer text-center text-muted">
-                All Rights Reserved by Adminmart. Designed and Developed by <a
-                    href="https://wrappixel.com">WrapPixel</a>.
-            </footer>
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
+	    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
+	        </footer>
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
-        <!-- ============================================================== -->
-    <!-- All Jquery -->
-    <!-- ============================================================== -->
     <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap tether Core JavaScript -->
     <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>

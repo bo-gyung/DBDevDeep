@@ -37,6 +37,24 @@ public class ItemService {
 	}
 	
 	
+	// item_status가 'N'일때 조회
+	// item_status가 'Y'이면서 사용가능 갯수가 0보다클때
+	public List<Item> getAvailableItems(){
+		List<Item> allItems = itemRepository.findAll(); // 모든아이템을조회한다.
+		List<Item> availableItems = new ArrayList<>();
+		
+		for(Item item : allItems) {
+			int usableQuantity = item.getItemQuantity() - item.getUnuseableQuantity();// 사용가능 갯수 조회
+			if(!"N".equals(item.getItemStatus()) && usableQuantity > 0) {
+				availableItems.add(item);
+			}
+		}
+		return availableItems;
+	}
+	
+	
+	
+	
 	 // 특정 장소 번호에 해당하는 기자재 목록을 가져오는 메서드
     public List<ItemDto> getItemsByPlaceNo(Long placeNo) {
         List<Item> items = itemRepository.findByPlacePlaceNo(placeNo);
@@ -44,7 +62,6 @@ public class ItemService {
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
     }
-
     // Item -> ItemDto 변환 메서드
     private ItemDto convertToDto(Item item) {
         return ItemDto.builder()
@@ -62,7 +79,6 @@ public class ItemService {
     public List<Item> getAllItems() {
         return itemRepository.findAll();
     }
-    
     
 	
 	

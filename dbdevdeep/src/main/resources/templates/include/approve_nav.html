@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="approveNavLayout">
+	<style>
+		.sidebar-nav {
+		    padding-top: 10px !important;
+		}
+	</style>
 	 <aside class="left-sidebar" data-sidebarbg="skin6">
       <!-- Sidebar scroll-->
       <div class="scroll-sidebar" data-sidebarbg="skin6">
@@ -22,9 +27,6 @@
                 <li class="sidebar-item"><a th:href="@{/refApprove}" class="sidebar-link"><span class="hide-menu"> 참조 문서함
                     </span></a>
                 </li>
-                <li class="sidebar-item"><a href="#" class="sidebar-link"><span class="hide-menu"> 임시 보관함
-                    </span></a>
-                </li>
               </ul>
             </li>
 
@@ -37,7 +39,7 @@
                 <li class="sidebar-item"><a th:href="@{/comeDocu}" class="sidebar-link"><span class="hide-menu"> 받은 결재함
                     </span></a>
                 </li>
-                <li class="sidebar-item"><a href="#" class="sidebar-link"><span class="hide-menu"> 임시 보관함
+                <li class="sidebar-item"><a th:href="@{/approvedraft}" class="sidebar-link"><span class="hide-menu"> 임시 보관함
                     </span></a>
                 </li>
               </ul>

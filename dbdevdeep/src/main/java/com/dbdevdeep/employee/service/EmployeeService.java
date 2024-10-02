@@ -56,21 +56,17 @@ public class EmployeeService {
 	private final AuditLogRepository auditLogRepository;
 
 	// 교육청관리번호 중복 확인
-	public int govIdCheck(String govId) {
-		int result = -1;
-
-		try {
-			Employee e = employeeRepository.findBygovId(govId);
-
-			if (e != null) {
-				result = 1;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
+	public EmployeeDto govIdCheck(String govId) {
+		
+		EmployeeDto dto = null;
+		
+		Employee e = employeeRepository.findBygovId(govId);
+	
+		if(e != null) {
+			dto = new EmployeeDto().toDto(e);
 		}
 
-		return result;
+		return dto;
 	}
 
 	// 직원 등록
@@ -86,36 +82,32 @@ public class EmployeeService {
 
 		try {
 			dto.setEmp_pw(passwordEncoder.encode(dto.getEmp_pw()));
-
-			String currentYear = String.valueOf(dto.getHire_date()).substring(0, 4);
-
-			int count = Integer.parseInt(employeeRepository.findByempIdWhen(currentYear));
-
-			int empYearCount = count + 1;
-			String emp_id = "";
-
-			if (empYearCount < 10) {
-				emp_id = currentYear + "00" + empYearCount;
-			} else if (empYearCount < 100) {
-				emp_id = currentYear + "0" + empYearCount;
-			} else {
-				emp_id = currentYear + empYearCount;
-			}
-			dto.setEmp_id(emp_id);
-
+			
 			dto.setAccount_status("Y");
 			dto.setLogin_yn("N");
 			dto.setEnt_status("Y");
 			dto.setVacation_hour(120);
 
-			Employee e = Employee.builder().empId(emp_id).empPw(dto.getEmp_pw()).govId(dto.getGov_id())
-					.empName(dto.getEmp_name()).empRrn(dto.getEmp_rrn()).empPhone(dto.getEmp_phone())
-					.oriPicName(dto.getOri_pic_name()).newPicName(dto.getNew_pic_name())
-					.empPostCode(dto.getEmp_post_code()).empAddr(dto.getEmp_addr())
-					.empDetailAddr(dto.getEmp_detail_addr()).empInternalPhone(dto.getEmp_internal_phone())
-					.vacationHour(dto.getVacation_hour()).hireDate(dto.getHire_date()).endDate(dto.getEnd_date())
-					.entStatus(dto.getEnt_status()).loginYn(dto.getLogin_yn()).accountStatus(dto.getAccount_status())
-					.chatStatusMsg(dto.getChat_status_msg()).job(job).department(dept).build();
+			if(dto.getEmp_id() == null) {
+				String currentYear = String.valueOf(dto.getHire_date()).substring(0, 4);
+
+				int count = Integer.parseInt(employeeRepository.findByempIdWhen(currentYear));
+
+				int empYearCount = count + 1;
+				String emp_id = "";
+
+				if (empYearCount < 10) {
+					emp_id = currentYear + "00" + empYearCount;
+				} else if (empYearCount < 100) {
+					emp_id = currentYear + "0" + empYearCount;
+				} else {
+					emp_id = currentYear + empYearCount;
+				}
+				dto.setEmp_id(emp_id);
+			}
+
+
+			Employee e = dto.toEntityWithJoin(dept, job);
 
 			result = employeeRepository.save(e);
 

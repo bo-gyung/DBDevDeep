@@ -25,6 +25,16 @@
 	<th:block layout:fragment="content">
 	</th:block>
 	</div>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+		    const navItems = document.querySelectorAll('.nav-item');
+	
+		    if (navItems[6]) {
+		    	navItems[6].classList.add('active');
+		    }
+		});
+	</script>
 	
 </body>
 </html>

@@ -39,6 +39,4 @@ public class TempEdit {
     @OneToMany(mappedBy = "tempEdit")
     private List<Approve> approves;
 
-    @OneToMany(mappedBy = "tempEdit")
-    private List<ApproDraft> approveDrafts;
 }

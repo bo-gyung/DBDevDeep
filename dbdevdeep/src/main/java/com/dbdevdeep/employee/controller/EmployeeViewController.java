@@ -1,5 +1,6 @@
 package com.dbdevdeep.employee.controller;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,9 +12,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.dbdevdeep.alert.domain.AlertDto;
+import com.dbdevdeep.alert.service.AlertService;
+import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.service.AttendanceService;
 import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.EmployeeDto;
@@ -36,6 +39,7 @@ public class EmployeeViewController {
 	private final TeacherHistoryService teacherHistoryService;
 	private final ObjectMapper objectMapper;
 	private final AttendanceService attendanceService;
+	private final AlertService alertService;
 	
 	@GetMapping("/login")
 	public String loginPage() {
@@ -68,14 +72,14 @@ public class EmployeeViewController {
 		User user = (User) authentication.getPrincipal();
 
 		EmployeeDto dto = employeeService.selectEmployeeOne(user.getUsername());
-		TeacherHistoryDto thDto = teacherHistoryService.selectHistoryOne(dto);
+		List<TeacherHistoryDto> thDtoList = teacherHistoryService.selectTeacherHistoryByEmployee(dto.getEmp_id());
 		List<TransferDto> tDtoList = employeeService.selectTransferHistoryByEmployee(user.getUsername());
 		List<EmployeeStatusDto> restDtoList = employeeService.selectRestHistoryByEmployee(user.getUsername());
 
 		model.addAttribute("restDtoList", restDtoList);
 		model.addAttribute("tDtoList", tDtoList);
 		model.addAttribute("empDto", dto);
-		model.addAttribute("thDto", thDto);
+		model.addAttribute("thDtoList", thDtoList);
 
 		return "employee/mypage";
 	}
@@ -149,7 +153,12 @@ public class EmployeeViewController {
 		List<TransferDto> tDtoList = employeeService.selectTransferHistoryByEmployee(emp_id);
 		List<EmployeeStatusDto> restDtoList = employeeService.selectRestHistoryByEmployee(emp_id);
 		List<EmployeeStatusDto> leaveDtoList = employeeService.selectLeaveHistoryByEmployee(emp_id);
+		List<AttendanceDto> attendDtoList = attendanceService.findByempId(emp_id);
+		
+		LocalDate now = LocalDate.now();
 
+		model.addAttribute("now", now);
+		model.addAttribute("attendDtoList", attendDtoList);
 		model.addAttribute("tDtoList", tDtoList);
 		model.addAttribute("thDtoList", thDtoList);
 		model.addAttribute("empDto", empDto);
@@ -232,6 +241,18 @@ public class EmployeeViewController {
 		model.addAttribute("logDtoList", logDtoList);
 
 		return "employee/log-leave";
+	}
+	
+	@GetMapping("/my-alert")
+	public String myAlertPage(Model model) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User) authentication.getPrincipal();
+		
+		List<AlertDto> alertDtoList = alertService.selectAllAlertByEmpId(user.getUsername());
+		
+		model.addAttribute("alertDtoList", alertDtoList);
+		
+		return "employee/my-alert";		
 	}
 
 }
