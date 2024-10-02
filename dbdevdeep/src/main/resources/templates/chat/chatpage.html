@@ -138,7 +138,7 @@
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
 					                                                 		<!-- 읽음확인 -->
 						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
 						                                                 			th:alt="${chat.ori_pic_name}" 
 						                                                 			style="max-width: 12.5vw; height: auto;" 
@@ -155,7 +155,7 @@
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
 						                                                 	<!-- 읽음확인 -->
 						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 						                                                    <div class="box msg p-2 d-inline-block mb-1" 
 						                                                    th:text="${chat.content}"></div>
 						                                                </div>
@@ -190,16 +190,16 @@
 					                                                 				data-toggle="modal" data-target="#imgModal" 
 							                                                        onclick="openModal(this)">
 					                                                        <!-- 읽음확인 -->
-						                                                 	<div class="d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 					                                                 	</th:block>
 					                                                 	<!-- 사진파일이 존재하지 않는다면 -->
 					                                                 	<th:block th:if="${chat.new_pic_name == null || #strings.isEmpty(chat.new_pic_name)}">
 						                                                    <div class="box msg p-2 d-inline-block mb-1" 
 						                                                    th:text="${chat.content}"></div>
 						                                                    <!-- 읽음확인 -->
-						                                                 	<div class="d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 					                                                 	</th:block>
 					                                                </div>
 					                                                <!-- 작성시간 -->

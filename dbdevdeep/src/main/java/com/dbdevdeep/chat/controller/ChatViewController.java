@@ -87,7 +87,7 @@ public class ChatViewController {
 	    int headCount = chatService.headCountByRoomNo(roomNo);
 	    model.addAttribute("headCount", headCount);
 	    
-		// 메세지 + 읽음확인 + 상태이력 리스트 가져오기 + 웹소켓 호출
+		// 메세지 + 읽음확인 + 상태이력 리스트 가져오기 + 조건부 웹소켓 호출
 	    List<CustomChatContainerDto> combinedList = chatService.selectmsgHistoryList(roomNo, login_id);
 	    model.addAttribute("combinedList", combinedList);
 	    
