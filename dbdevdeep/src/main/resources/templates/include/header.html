@@ -149,7 +149,7 @@
               <a class="nav-link dropdown-toggle pl-md-3 position-relative" href="javascript:void(0)" id="bell"
                 role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span class="nav_text"><i data-feather="bell" class="svg-icon" style="width: 24px; height: 24px;"></i></span>
-                <span id="alertNum" class="badge badge-primary notify-no rounded-circle" style="padding: 6px; top:20px; right:8px;"></span>
+                <span id="alertNum" class="badge badge-primary notify-no rounded-circle"></span>
               </a>
               <div class="dropdown-menu dropdown-menu-left mailbox animated bounceInDown" id="notification">
 	                <ul class="list-style-none">
@@ -310,8 +310,7 @@
 			   		// a 태그의 개수 출력
 			   		const count = anchorTags.length;
 			   		
-			   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
-			   		document.getElementById("alertNum").style.color = '#0031AE';
+			   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
 		        });
 		    });
 		}
@@ -488,8 +487,7 @@
 	   		// a 태그의 개수 출력
 	   		const count = anchorTags.length;
 	   		
-	   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
-	   		document.getElementById("alertNum").style.color = '#0031AE';
+	   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
         } 
     })
     .catch(error => console.error('Error:', error));
@@ -537,8 +535,7 @@
       	   		// a 태그의 개수 출력
       	   		const count = anchorTags.length;
       	   		
-      	   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
-      	   		document.getElementById("alertNum").style.color = '#0031AE';
+      	   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
 				} 
 			});
 		    
@@ -583,8 +580,7 @@
 	       	   		// a 태그의 개수 출력
 	       	   		const count = anchorTags.length;
 	       	   		
-	       	   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
-	       	   		document.getElementById("alertNum").style.color = '#0031AE';
+	       	   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
 							} 
 						});
 		    

@@ -108,8 +108,7 @@ let socket;
 					   		// a 태그의 개수 출력
 					   		const count = anchorTags.length;
 					   		
-					   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
-					   		document.getElementById("alertNum").style.color = '#0031AE';
+					   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
 						} else if (alertStatus == 'X') {
 							const alertLink = document.querySelector(`a[data-a-alert-no="${alert.alarm_no}"]`);
               if (alertLink) {
