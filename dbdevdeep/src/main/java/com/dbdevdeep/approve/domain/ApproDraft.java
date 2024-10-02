@@ -37,19 +37,9 @@ public class ApproDraft {
     @ManyToOne
     @JoinColumn(name = "emp_id")
     private Employee employee;
-
-    @ManyToOne
-    @JoinColumn(name = "temp_no")
-    private TempEdit tempEdit;
     
-    @Column(name = "draft_name")
-    private String draftName;
-
     @Column(name = "appro_time")
     private LocalDateTime approTime;
-
-    @Column(name = "appro_type")
-    private int approType;
 
     @Column(name = "appro_title")
     private String approTitle;
@@ -64,25 +54,10 @@ public class ApproDraft {
     @Column(name = "new_file")
     private String newFile;
 
-    @Column(name = "file_root")
-    private String fileRoot;
-
-    @Column(name = "vac_type")
-    private int vacType;
-
-    @Column(name = "start_time")
-    private LocalDateTime startTime;
-
-    @Column(name = "end_time")
-    private LocalDateTime endTime;
-    
     @Column(name = "consult_draft_root")
     private String consultDraftRoot;
     
     @Column(name = "approval_draft_root")
     private String approvalDraftRoot;
-    
-    @Column(name = "ref_draft_root")
-    private String refDraftRoot;
     
 }

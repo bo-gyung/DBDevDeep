@@ -414,6 +414,15 @@
 							  document.getElementById('attend_date').value = attendDate;
 							  document.getElementById('check_in_time').value = checkInTime;
 							  
+						  } else if(workStatus == 3) {
+							  document.getElementById('checkStatus').innerText = '결근';
+							  document.getElementById('checkInBtn').disabled = true;
+							  document.getElementById('checkOutBtn').disabled = true;
+							  
+							  document.getElementById('checkStatus').classList.add('work-check-none');
+							  document.getElementById('checkStatus').classList.remove('work-check-in');
+							  document.getElementById('checkStatus').classList.remove('work-check-out');
+							  
 						  } else {
 							  document.getElementById('checkStatus').innerText = '퇴근';
 							  document.getElementById('checkOutBtn').disabled = true;
