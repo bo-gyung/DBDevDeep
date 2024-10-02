@@ -3,6 +3,8 @@ package com.dbdevdeep.attendance.domain;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.dbdevdeep.employee.domain.Employee;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,6 +57,19 @@ public class AttendanceDto {
 				.work_status(attend.getWorkStatus())
 				.late_status(attend.getLateStatus())
 				.overtime_sum(attend.getOvertimeSum())
+				.build();
+	}
+	
+	public Attendance toEntityWithJoin(Employee e) {
+		return Attendance.builder()
+				.employee(e)
+				.attendNo(attend_no)
+				.attendDate(attend_date)
+				.checkInTime(check_in_time)
+				.checkOutTime(check_out_time)
+				.workStatus(work_status)
+				.lateStatus(late_status)
+				.overtimeSum(overtime_sum)
 				.build();
 	}
 }

@@ -26,97 +26,141 @@ let socket;
 		    if (message.alert) {
 		        const alert = message.alert;
 		        
-		        const alertRefName = alert.reference_name;
-		        
 		        const alertStatus = alert.alarm_status;
 		        
 		        if(alertStatus == 'N') {
-	        	    let title
-	        	    let content
-	        	   
-	        	    if(alertRefName == 'approve') {
-	        	 	   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 결재' + alert.alarm_title.split(' ')[2] + '이 있습니다.';
-	        	 	   title = '결재'
-	        	    } else if(alertRefName == 'notice') {
-						content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 공지가 있습니다.';
-	        	 	   title = '공지';
-	        	    }
-			       
+							const alertRefName = alert.reference_name;
+	      	   
+	      	    let title
+	      	    let content
+	      	    let type = alert.alarm_title.split(' ').pop();
+      	   		let last_content = type == '참조' ? '가 참조되었습니다.' : ' 결재가 ' + type + '되었습니다.'
+	      	   
+	      	    if(alertRefName == 'approve') {
+	      	 	   content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\'' + last_content;
+	      	 	   title = '결재'
+	      	    } else if(alertRefName == 'notice') {
+								content = '[' + alert.alarm_title + '] ' + '\'' + alert.alarm_content + '\' 공지가 있습니다.';
+	      	 	   	title = '공지';
+	      	    } else if(alertRefName == 'employee') {
+			      		 content = '[' + alert.alarm_title + '] ' + alert.alarm_content;
+			    		   title = '행정';
+		      	   }
+	      	    
+	      	    // 날짜 포맷팅
+	    	 	    const currentDate = new Date();
+	    	 	    const alarmDate = new Date(alert.alarm_time);
+	    	 	    let formattedTime;
+	
+	    	 	    const isSameDay = currentDate.toDateString() === alarmDate.toDateString();
+	
+	    	 	    if (isSameDay) {
+	    	 	        formattedTime = alarmDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+	    	 	    } else {
+	    	 	        formattedTime = alarmDate.toISOString().slice(0, 10).replace(/-/g, '.') + ' ' +  alarmDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+	    	 	    }
+		       
 			        const alertHtml = `
-			        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;" data-a-alert-no="${alert.alarm_no}">
-				        	<div data-alert-no="${alert.alarm_no}"
-				        		onclick="alertMoveFunc('${alert.reference_name}', '${alert.alarm_no}', '${alert.reference_no}');"
-				        		onmouseover="this.style.cursor='pointer'"
-				        		onmouseout="this.style.curosr='auto'"
-			        			class="w-75 message-item d-flex align-items-center">
-					        	<div class="btn btn-info rounded-circle btn-circle">
-						        	<i cloass="far fa-file-alt"></i>
-						        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
-						        		<circle cx="12" cy="12" r="10"></circle>
-						        		<line x1="12" y1="16" x2="12" y2="12"></line>
-						        		<line x1="12" y1="8" x2="12" y2="8"></line>
-						        	</svg>
-					            </div>
-					            <div class="w-100 d-inline-block v-middle pl-2">
-					                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
-					                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-					                    ${content}
-					                </span>
-					                <span class="font-12 text-nowrap d-block text-muted">
-					                    ${new Date(alert.alarm_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-					                </span>
-					            </div>
-				        	</div>
-				            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;"
-				            	data-alert-no="${alert.alarm_no}"
+	        	<a href="javascript:void(0)" class="message-item d-flex align-items-center border-bottom px-3 py-2 " style="cursor: auto;" data-a-alert-no="${alert.alarm_no}">
+		        	<div data-alert-no="${alert.alarm_no}"
+		        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});"
+		        		onmouseover="this.style.cursor='pointer'"
+		        		onmouseout="this.style.curosr='auto'"
+	        			class="w-75 message-item d-flex align-items-center">
+			        	<div class="btn btn-info rounded-circle btn-circle">
+				        	<i cloass="far fa-file-alt"></i>
+				        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
+				        		<circle cx="12" cy="12" r="10"></circle>
+				        		<line x1="12" y1="16" x2="12" y2="12"></line>
+				        		<line x1="12" y1="8" x2="12" y2="8"></line>
+				        	</svg>
+			            </div>
+			            <div class="w-100 d-inline-block v-middle pl-2">
+			                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
+			                <span class="font-12 text-nowrap d-block text-muted text-truncate">
+			                    ${content}
+			                </span>
+			                <span class="font-12 text-nowrap d-block text-muted">
+			                    ${formattedTime}
+			                </span>
+			            </div>
+		        	</div>
+		            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;">
+		            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"
+		            		data-alert-no="${alert.alarm_no}"
 				        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
 			        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
-				        		onmouseout="this.style.color='lightgray'">
-				            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"></i>
-				            </div>
-			          </a>
-			        `;
+				        		onmouseout="this.style.color='lightgray'"></i>
+		            </div>
+	          </a>
+	        `;
+			        
 			        
 			
-			        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
-			        document.getElementById('alertDiv').innerHTML += alertHtml;
-			        
-			        const alertDiv = document.getElementById('alertDiv');
-				} else if(alertStatus == 'X') {
-					const alertLink = document.querySelector(`a[data-a-alert-no="${alert.alarm_no}"]`);
-                    if (alertLink) {
-                        alertLink.remove();
-                    }
-				}
-				
-		   		// alertDiv 안의 a 태그를 모두 선택
-		   		const anchorTags = alertDiv.getElementsByTagName('a');
-		   	
-		   		// a 태그의 개수 출력
-		   		const count = anchorTags.length;
-		   		
-		   		document.getElementById("alertNum").innerText = count == 0? '' : count;
-		   		
+				        // 원하는 위치에 공지 추가 (예: #alert-container라는 ID의 요소)
+				        document.getElementById('alertDiv').innerHTML += alertHtml;
+				        
+				        const alertDiv = document.getElementById('alertDiv');
+		       	
+					   		// alertDiv 안의 a 태그를 모두 선택
+					   		const anchorTags = alertDiv.getElementsByTagName('a');
+					   	
+					   		// a 태그의 개수 출력
+					   		const count = anchorTags.length;
+					   		
+					   		document.getElementById("alertNum").innerText = count == '0'? '' : count;
+						} else if (alertStatus == 'X') {
+							const alertLink = document.querySelector(`a[data-a-alert-no="${alert.alarm_no}"]`);
+              if (alertLink) {
+                  alertLink.remove();
+              }
+			                   
+              const alertDiv = document.getElementById('alertDiv');
+			                  	
+      	   		// alertDiv 안의 a 태그를 모두 선택
+      	   		const anchorTags = alertDiv.getElementsByTagName('a');
+      	   	
+      	   		// a 태그의 개수 출력
+      	   		const count = anchorTags.length;
+      	   		
+      	   		document.getElementById("alertNum").innerText = count == '0'? '' : ' ';
+      	   		document.getElementById("alertNum").style.color = '#0031AE';
+						}
+		        
+		        
 		    } else if(message.res_code =='200' && message.res_type =='chat'){
-				// 웹소켓 채팅 관련 이벤트
+				// 웹소켓 채팅 : 새 메세지 작성 관련 이벤트
 				
 				if(message.now_page =='chat'){
-					// 채팅 페이지에 접속한 사용자 : 채팅방 목록 리로드
+					// 채팅 페이지에 접속한 사용자
+					// 채팅방 목록 리로드
 					updateChatRoomList();
+					// 헤더에 배지알림
+					chatAlertReload();
 					
 					if(message.room_in =='Y'){
-						// 현재 채팅방에 접속해있는 사용자 : 채팅 메세지목록 리로드
+						// 현재 채팅방에 접속해있는 사용자
+						// 채팅 메세지목록 리로드
 						loadChatroom(message.room_no);
 						
 					} else if(message.room_in =='N'){
-						// 현재 채팅방에 접속하고 있지 않은 사용자 : 채팅방 목록에 배지알림
-						chatAlertReload;
+						// 다른 채팅방에 접속해있는 사용자
 					}
 				} else if(message.now_page =='no_chat'){
-					// 채팅 페이지에 접속하고 있지 않은 사용자 : 헤더에 배지알림
-					
+					// 채팅 페이지에 접속하고 있지 않은 사용자
+					// 헤더에 배지알림
+					chatAlertReload();
 				}
+			} else if(message.res_code =='200' && message.res_type =='read'){
+				// 웹소켓 채팅 : 읽음 확인 관련 이벤트
+				if(message.now_page =='chat' && message.room_in =='Y'){
+					// 현재 채팅방에 접속해있는 사용자
+					// 채팅 메세지목록 리로드
+					loadChatroom(message.room_no);	
+				} 
 			}
+		
+		
 		};
 
 

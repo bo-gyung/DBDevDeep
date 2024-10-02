@@ -86,8 +86,13 @@
 					<div class="col-12">
 						<div class="card">
 							<div class="card-body" style="padding: 50px;">
-								<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 140px;">
-									<div style="font-size: 30px;">직원 목록</div>
+								<div class="row">
+									<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 140px;">
+										<div style="font-size: 30px;">직원 목록</div>
+									</div>
+									<div class="col d-flex justify-content-end align-items-center">
+										<input type="button" value="직원 정보 엑셀로 받기" onclick="downSelectedExcelFunc()" class="btn btn-info">
+									</div>
 								</div>
 								<div class="table-responsive">
 									<div class="mt-4">
@@ -123,6 +128,7 @@
 									<table id="address_all_book" class="table table-hover table-bordered no-wrap" style="width: 100%">
 										<thead>
 											<tr>
+												<th><input type="checkbox" id="selectAllCheckbox"></th>
 												<th scope="col">번호</th>
 												<th scope="col">직원번호</th>
 												<th scope="col">직원명</th>
@@ -141,6 +147,9 @@
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(resultList)}">
 												<tr th:each="employee, employeeStat : ${resultList}" th:data-emp="${employee.emp_id}" class="employee-detail" style="cursor: pointer;" th:unless="${employee.emp_id == #authentication.principal.dto.emp_id}">
+													<td>
+									          <input type="checkbox" th:value="${employee.emp_id}" class="employee-checkbox" />
+									        </td>	
 													<td scope="row" th:text="${employeeStat.count}"></td>
 													<td th:text="${employee.emp_id}"></td>
 													<td th:text="${employee.emp_name}"></td>
@@ -197,10 +206,10 @@
 											.val());
 								});
 
-						table.column(3).search(
+						table.column(4).search(
 								statusFilters.join('|'), true,
 								false).draw();
-						table.column(4).search(
+						table.column(5).search(
 								jobFilters.join('|'), true,
 								false).draw();
 					}
@@ -275,6 +284,37 @@
 					// 페이지 로드 시 초기 업데이트
 					updateStatusCells();
 				});
+			</script>
+			
+			<script>
+				document.getElementById("selectAllCheckbox").addEventListener("change", function() {
+		        const checkboxes = document.querySelectorAll(".employee-checkbox");
+		        checkboxes.forEach(checkbox => {
+		            checkbox.checked = this.checked; // 전체 선택 체크박스의 상태를 각 체크박스에 반영
+		        });
+		    });
+			
+				const csrfToken = document.getElementById("csrf_token_header").value;
+				const downSelectedExcelFunc = () => {
+			        const selectedIds = [];
+			        const checkboxes = document.querySelectorAll(".employee-checkbox:checked");
+			        checkboxes.forEach(checkbox => {
+			            selectedIds.push(checkbox.value);
+        			});
+
+			        // 선택된 직원 ID가 있을 경우에만 요청
+			        if (selectedIds.length > 0) {
+			            // URL에 선택된 ID를 쿼리 파라미터로 추가
+			            const url = `/employee/excel/${selectedIds.join(',')}`;
+			            window.location.href = url; // 다운로드 요청
+			        } else {
+			            Swal.fire({
+			            	icon: 'info',
+			            	title: '선택된 직원이 없습니다.',
+			            	confirmButtonText: "닫기"
+			            })
+			        }
+		    }
 			</script>
 
 		</div>

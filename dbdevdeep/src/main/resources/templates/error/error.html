@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/error_layout}">
+<th:block layout:fragment="content">
+	<style>
+		.container {
+			padding-top: 200px;
+		}
+	</style>
+	<body class="vh-100">
+		<div class="container">
+			<div class="text-center align-items-center justify-content-center">
+				<img src="/assets/images/error-message.png" alt="오류 이미지" class="image" width="20%">
+				<br><br>
+				<h1 class="display-4"></h1>
+				<p class="lead">접근이 거부되었습니다. 권한이 필요합니다.</p>
+				<a href="/" class="btn btn-info">홈으로</a>
+			</div>
+		</div>
+	</body>
+</th:block>
+</html>

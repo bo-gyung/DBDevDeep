@@ -87,18 +87,13 @@ public class ChatViewController {
 	    int headCount = chatService.headCountByRoomNo(roomNo);
 	    model.addAttribute("headCount", headCount);
 	    
-	    
-		// 메세지 + 읽음확인 + 상태이력 리스트 가져오기
+		// 메세지 + 읽음확인 + 상태이력 리스트 가져오기 + 웹소켓 호출
 	    List<CustomChatContainerDto> combinedList = chatService.selectmsgHistoryList(roomNo, login_id);
 	    model.addAttribute("combinedList", combinedList);
 	    
-	    
-		
 		// fragment만 반환
 	    return "chat/chatpage :: chatContainer";
-	    
-	    
-	    
+
 	}
 	
 	// 메인페이지 헤더에 표시될 채팅 읽음 확인 개수 조회
@@ -115,7 +110,6 @@ public class ChatViewController {
 		String emp_id = user.getUsername();
 		
 		int result = chatService.selectChatReadCheckByEmpId(emp_id);
-		
 		resultMap.put("res_code", "200");
 		resultMap.put("res_msg", "읽지 않은 메세지 조회 생성에 성공하였습니다.");
 		resultMap.put("unread_count", String.valueOf(result));

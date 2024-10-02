@@ -5,7 +5,7 @@
 <mapper namespace="com.dbdevdeep.employee.mybatis.mapper.EmployeeVoMapper">
 	<update id="updateLoginYn" parameterType="com.dbdevdeep.employee.vo.EmployeeVo">
 		UPDATE `employee`
-		SET login_yn = #{login_yn}
+		SET login_yn = #{login_yn}, account_status = #{account_status}
 		<where>
 			emp_id = #{emp_id}
 		</where>
