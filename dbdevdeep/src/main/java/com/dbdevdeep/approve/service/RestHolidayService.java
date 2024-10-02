@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.StringHttpMessageConverter;
 
 import com.dbdevdeep.approve.domain.HolidayDto;
 import com.dbdevdeep.approve.domain.HolidayResponseDto;
@@ -56,4 +55,6 @@ public class RestHolidayService {
 
         return holidays;
     }
+    
+
 }
