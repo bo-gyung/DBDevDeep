@@ -272,7 +272,7 @@
 							<div class="tab-pane" id="class-history">
 								<div class="form-group">
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<div class="table-responsive">
 												<table  class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
@@ -313,7 +313,7 @@
 							<div class="tab-pane" id="employee-status">
 								<div class="form-group">
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<label>전근</label>
 											<div class="table-responsive">
 												<table class="table table-bordered no-wrap" style="width: 100%">
@@ -351,7 +351,7 @@
 										</div>
 									</div>
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<label>휴직</label>
 											<div class="table-responsive">
 												<table class="table table-bordered no-wrap" style="width: 100%">
@@ -402,7 +402,7 @@
 										</div>
 									</div>
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<label>퇴직</label>
 											<div class="table-responsive">
 												<table class="table table-bordered no-wrap" style="width: 100%">
@@ -444,12 +444,6 @@
 										<div class="col-md-12" style="margin-top: 40px;">
 											<div class="table-responsive">
 												<table id="employee-attend" class="table table-hover table-bordered no-wrap" style="width: 100%">
-													<colgroup>
-														<col style="width: 10%;">
-														<col style="width: 30%;">
-														<col style="width: 30%;">
-														<col style="width: 30%;">
-													</colgroup>
 													<thead>
 														<tr>
 															<th scope="col">번호</th>
@@ -495,7 +489,18 @@
 																	<td th:text="${#temporals.format(attend.check_out_time, 'HH:mm:ss')}"></td>
 																</th:block>
 																<!-- 퇴근시간 end -->
-																<td th:text="${attend.work_status == 0? '출근전' : attend.work_status == 1? '출근' : '퇴근'}"></td>
+																<td th:text="${attend.work_status == 0 ? '출근전' : 
+																               attend.work_status == 1 ? '출근' : 
+																               attend.work_status == 2 ? '퇴근' : 
+																               attend.work_status == 3 ? '결근' : 
+																               attend.work_status == 4 ? '연차' : 
+																               attend.work_status == 5 ? '공가' : 
+																               attend.work_status == 6 ? '병가' : 
+																               attend.work_status == 7 ? '조퇴' : 
+																               attend.work_status == 8 ? '경조사' : 
+																               attend.work_status == 9 ? '출산휴가' : 
+																               attend.work_status == 10 ? '반차' : ''}">
+																</td>
 																<td th:if="${attend.late_status == 'Y'}"><i class="fas fa-check"></i></td>
 																<td th:unless="${attend.late_status == 'Y'}"></td>
 																<td th:text="${attend.overtime_sum}"></td>
@@ -932,6 +937,14 @@
 								<option value="0">출근전</option>
 								<option value="1">출근</option>
 								<option value="2">퇴근</option>
+								<option value="3">결근</option>
+								<option value="4">연차</option>
+								<option value="5">공가</option>
+								<option value="6">병가</option>
+								<option value="7">조퇴</option>
+								<option value="8">경조사</option>
+								<option value="9">출산휴가</option>
+								<option value="10">반차</option>
 							</select>
 							<div id="work_status_feedback" class="mt-2"></div>
 						</div>
@@ -1060,7 +1073,7 @@
 		// 수정 페이지로 이동
 		$(document).ready(function () {
 			$('#editEmployee').click(function() {
-				location.href='/employee/edit/' + $('#emp_id').val();
+				location.href='/employee/list/edit/' + $('#emp_id').val();
 			});
 		});
 		

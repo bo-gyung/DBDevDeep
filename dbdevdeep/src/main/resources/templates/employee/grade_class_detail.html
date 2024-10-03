@@ -158,9 +158,9 @@
 								<input type="hidden" name="teacher_no" id="add_teacher_no">
 
 								<div class="form-group">
-									<label for="emailaddress">직원명</label>
+									<label for="emailaddress">교사명</label>
 									<select class="form-control" name="teach_emp_id">
-										<option value="0">직원을 선택하세요</option>
+										<option value="0">교사를 선택하세요</option>
 										<th:block th:each="emp : ${empList}">
 											<option th:text="${emp.emp_name + '(' + emp.emp_id + ')'}" th:value="${emp.emp_id}"></option>
 										</th:block>
@@ -198,7 +198,7 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header modal-colored-header bg-info">
-							<h4 class="modal-title" id="info-header-modalLabel">직원 반 수정</h4>
+							<h4 class="modal-title" id="info-header-modalLabel">반배정 수정</h4>
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 						</div>
 						<div class="modal-body">
@@ -206,7 +206,7 @@
 									<input class="form-control" type="hidden" name="teacher_no" id="edit_teacher_no">
 
 								<div class="form-group">
-									<label for="emailaddress">직원명</label>
+									<label for="emailaddress">교사명</label>
 									<!-- <input class="form-control" type="text" name="emp_id" id="edit_emp_name"> -->
 									<select class="form-control" name="teach_emp_id">
 										<option id="selectTeacher"></option>

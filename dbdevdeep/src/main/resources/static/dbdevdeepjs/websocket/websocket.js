@@ -74,24 +74,24 @@ let socket;
 				        		<line x1="12" y1="16" x2="12" y2="12"></line>
 				        		<line x1="12" y1="8" x2="12" y2="8"></line>
 				        	</svg>
-			            </div>
-			            <div class="w-100 d-inline-block v-middle pl-2">
-			                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
-			                <span class="font-12 text-nowrap d-block text-muted text-truncate">
-			                    ${content}
-			                </span>
-			                <span class="font-12 text-nowrap d-block text-muted">
-			                    ${formattedTime}
-			                </span>
-			            </div>
-		        	</div>
-		            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;">
-		            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"
-		            		data-alert-no="${alert.alarm_no}"
-				        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
-			        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
-				        		onmouseout="this.style.color='lightgray'"></i>
 		            </div>
+		            <div class="w-100 d-inline-block v-middle pl-2">
+		                <h6 class="message-title mb-0 mt-1">[${title}]</h6>
+		                <span class="font-12 text-nowrap d-block text-muted text-truncate">
+		                    ${content}
+		                </span>
+		                <span class="font-12 text-nowrap d-block text-muted">
+		                    ${formattedTime}
+		                </span>
+		            </div>
+		        	</div>
+	            <div class="d-inline-block v-middle text-right" style="color: lightgray; width: 25% !important;">
+	            	<i class="fas fa-times" style="margin-top: 6px; font-size: 20px;"
+	            		data-alert-no="${alert.alarm_no}"
+			        		onclick="alertDeleteFunc('${alert.reference_name}', ${alert.alarm_no});"
+		        			onmouseover="this.style.color='#0031AE'; this.style.cursor='pointer'"
+			        		onmouseout="this.style.color='lightgray'"></i>
+	            </div>
 	          </a>
 	        `;
 			        

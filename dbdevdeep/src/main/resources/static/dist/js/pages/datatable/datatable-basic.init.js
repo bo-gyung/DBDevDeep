@@ -223,6 +223,7 @@ $('#holiday_config').DataTable({
 /******************************************
  * 			3. address_book Table
  * ****************************************/
+
 // 주소록 페이징
 $('#address_book').DataTable({
 	// 화면 크기에 따라 컬럼 width 자동 조절
@@ -1208,9 +1209,10 @@ $('#employee-attend').DataTable({
 		{ "width": "10%", "targets": 2, "className": "text-center" },
 		{ "width": "10%", "targets": 3, "className": "text-center" },
 		{ "width": "10%", "targets": 4, "className": "text-center" },
-		{ "width": "10%", "targets": 5, "className": "text-center" }
+		{ "width": "10%", "targets": 5, "className": "text-center" },
+		{ "width": "10%", "targets": 6, "className": "text-center" }
 	],
-	"order": [[5, "desc"]],
+	"order": [[1, "desc"]],
 	// 정보 표시 해제
 	info: false,
 	// DataTables의 DOM 구조를 재정의

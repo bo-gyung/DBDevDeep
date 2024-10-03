@@ -107,11 +107,9 @@
 												<tr th:each="log, logStat : ${logDtoList}">
 													<td scope="row" th:text="${logStat.count}"></td>
 													<td th:text="${log.emp_id}"></td>
-													<!-- <td th:text="${log.emp_name}"></td> -->
 													<td th:text="${log.stop_date}"></td>
 													<td th:text="${log.stop_reason}"></td>
 													<td th:text="${log.admin_id}"></td>
-													<!-- <td th:text="${log.admin_name}"></td> -->
 													<td th:text="${#temporals.format(log.log_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
 												</tr>
 											</th:block>

@@ -119,18 +119,16 @@ label, input[type='checkbox'] {
 											<tr>
 												<th scope="col">번호</th>
 												<th scope="col">직원번호</th>
-												<!-- <th scope="col">직원성명</th> -->
 												<th scope="col">작업내용</th>
 												<th scope="col">작업유형</th>
 												<th scope="col">행정직원번호</th>
-												<!-- <th scope="col">행정직원성명</th> -->
 												<th scope="col">작업시간</th>
 											</tr>
 										</thead>
 										<tbody>
 											<th:block th:if="${#lists.isEmpty(logDtoList)}">
 												<tr>
-													<td colspan="5" class="history">기록이 없습니다.</td>
+													<td colspan="6" class="history">기록이 없습니다.</td>
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(logDtoList)}">

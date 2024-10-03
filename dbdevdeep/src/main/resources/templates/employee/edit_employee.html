@@ -73,25 +73,18 @@
 .swal-custom-button:hover {
   background-color: #002685 !important;
 }
+input[readonly] {
+	background-color: #e8eaec;
+}
 </style>
-		<!-- ============================================================== -->
-		<!-- End Left Sidebar - style you can find in sidebar.scss  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- Page wrapper  -->
-		<!-- ============================================================== -->
 		<div class="page-wrapper">
-			<!-- ============================================================== -->
-			<!-- Container fluid  -->
-			<!-- ============================================================== -->
 			<div class="container-fluid">
-				<!-- ============================================================== -->
-				<!-- Start Page Content -->
-				<!-- ============================================================== -->
 				<div class="col-sm-12 col-md-12">
 					<div class="card">
-						<div class="card-body">
-							<h4 class="card-title">직원 정보 수정</h4>
+						<div class="card-body" style="padding: 50px 80px;">
+							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+									<div style="font-size: 30px;">직원 계정 등록</div>
+							</div>
 							<hr>
 							<form id="employeeAddFrm">
 								<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
@@ -191,8 +184,8 @@
 												<label for="gov_id">우편번호 <span style="color: red;">*</span></label>
 												<div class="row">
 													<div class="col-md-8">
-														<input type="text" name="emp_post_code" class="form-control" id="sample6_postcode" th:value="${empDto.emp_post_code}" placeholder="우편번호" onclick="sample6_execDaumPostcode()" readonly><br> 
-														<input type="text" name="emp_addr" class="form-control" id="sample6_address" th:value="${empDto.emp_addr}" placeholder="주소" readonly><br> 
+														<input type="text" name="emp_post_code" class="form-control" id="sample6_postcode" th:value="${empDto.emp_post_code}" placeholder="우편번호" onclick="sample6_execDaumPostcode()" readonly style="background-color:white;"><br> 
+														<input type="text" name="emp_addr" class="form-control" id="sample6_address" th:value="${empDto.emp_addr}" placeholder="주소" readonly style="background-color:white;"><br> 
 														<input type="text" name="emp_detail_addr" class="form-control" id="sample6_detailAddress" th:value="${empDto.emp_detail_addr}" placeholder="상세주소"> 
 														<input type="text" id="sample6_extraAddress" placeholder="참고항목" hidden="hidden">
 														<div id="emp_post_code_feedback" class="mt-2"></div>
