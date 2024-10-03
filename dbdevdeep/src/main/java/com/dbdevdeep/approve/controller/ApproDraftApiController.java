@@ -97,7 +97,7 @@ public class ApproDraftApiController {
 	    return resultMap;
 	}
 	
-	// 임시 상세
+	// 임시 삭제
 	@ResponseBody
 	@DeleteMapping("/draftAppro/{draft_no}")
 	public Map<String, String> deleteDocuAppro(@PathVariable("draft_no") Long draft_no){
