@@ -127,11 +127,10 @@ public class ApproDraftService {
 		return aDto;
 	}
 
-	// 보고서 삭제
+	// 임시 보고서 삭제
 	public int deleteDocuDraft(Long draft_no) {
 		int result = 0;
 		try {
-			
 			approDraftRepository.deleteById(draft_no);
 			
 			result = 1;

@@ -173,7 +173,7 @@ public class ApproveService {
 		Department department = departmentRepository.findByDeptCode(deptCode);
 		Job job = jobRepository.findByJobCode(jobCode);
 		ApproveLine approveLine = approveLineRepository.findByApproveIdAndEmpId(approNo, principalId);
-		VacationRequest vacationRequest = vacationRequestRepository.findByApprove(approve);
+		VacationRequest vacationRequest = null;
 		
 		ApproveLineDto alDto = new ApproveLineDto().toDto(approveLine);
 		alDto.setAppro_line_no(approveLine.getApproLineNo());
@@ -227,8 +227,11 @@ public class ApproveService {
 				aDto.setAppro_status(1);
 				Approve finalApprove = aDto.toEntity(employee, department, job, null);
 				Approve a = approveRepository.save(finalApprove);
-
-				createAttendance(employee, vacationRequest);
+				
+				if (approve.getApproType() == 0) { 
+				    vacationRequest = vacationRequestRepository.findByApprove(approve);
+				    createAttendance(employee, vacationRequest);
+				}
 				
 				// 승인 시 alert에 저장
 				// 최종 승인 시 결재 요청자에게 alert

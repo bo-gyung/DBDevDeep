@@ -168,7 +168,7 @@ public class VacationRequestService {
 		}
 	
 	// 휴가 반려 처리
-		@Transactional
+		
 		public int backApproveLine(ApproveLineDto approveLineDto, String empId, int vacType, LocalDateTime startDate,
 				LocalDateTime endDate, String deptCode, String jobCode) {
 			// 1. 필수 엔티티 조회

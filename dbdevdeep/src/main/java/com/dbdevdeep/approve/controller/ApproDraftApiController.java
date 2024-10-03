@@ -85,7 +85,7 @@ public class ApproDraftApiController {
 	        
 	        if (approDraftService.saveDraft(dto) != null) {
 	            resultMap.put("res_code", "200");
-	            resultMap.put("res_msg", "게시글이 성공적으로 등록되었습니다.");
+	            resultMap.put("res_msg", "임시 보관함에 등록되었습니다.");
 	        }
 
 	    } catch (Exception e) {
