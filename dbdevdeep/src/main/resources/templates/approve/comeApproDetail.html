@@ -34,62 +34,61 @@
 										
 										    <!-- 협의 영역 -->
 										    <div th:if="${cDto != null and #lists.size(cDto) > 0}">
-										        <table border="1" style="text-align: center; width: 120px;">
+										        <table border="1" style="text-align: center; width: 180px; table-layout: fixed;">
 										            <tr>
-										            <td rowspan="3">협의</td>
+										                <td rowspan="3" style="width: 50px; height: 50px;">협의</td> <!-- 셀 높이를 고정 -->
 										                <th:block th:each="item : ${cDto}">
-										                    <td th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[0] : '직원'}"></td>
+										                    <td style="width: 85px; height: 30px;" th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[0] : '직원'}"></td>
 										                </th:block>
 										            </tr>
 										            <tr>
 										                <th:block th:each="item : ${cDto}">
-										                    <td th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[1] : item.appro_line_name}"></td>
+										                    <td style="width: 85px; height: 30px;" th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[1] : item.appro_line_name}"></td>
 										                </th:block>
 										            </tr>
 										            <tr>
 										                <th:block th:each="item : ${cDto}">
-										                <td>
-										                    <span th:if="${item.appro_line_sign == '반려'}" style="color: red;">반려</span>
-										                    <span th:if="${item.appro_line_sign != null and item.appro_line_sign != '' and item.appro_line_sign != '반려'}">
-										                        <img th:src="@{'/signatures/' + ${item.appro_line_sign}}" alt="서명 이미지" style="max-width: 100px; max-height: 50px;"/>
-										                    </span>
-										                    <span th:if="${item.appro_line_sign == null or item.appro_line_sign == ''}">-</span>
-										                </td>
-										            </th:block>
+										                    <td style="width: 65px; height: 80px;"> <!-- 이미지 셀 높이를 넉넉히 고정 -->
+										                        <span th:if="${item.appro_line_sign == '반려'}" style="color: red;">반려</span>
+										                        <span th:if="${item.appro_line_sign != null and item.appro_line_sign != '' and item.appro_line_sign != '반려'}">
+										                            <img th:src="@{'/signatures/' + ${item.appro_line_sign}}" alt="서명 이미지" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
+										                        </span>
+										                        <span th:if="${item.appro_line_sign == null or item.appro_line_sign == ''}">-</span>
+										                    </td>
+										                </th:block>
 										            </tr>
 										        </table>
 										    </div>
-										    <div>
-										    	<table>
-										    	<tr><td></td><td></td><td></td><td></td></tr>
-										    	</table>
-										    </div>
+												<div>
+											    	<table>
+											    	<tr><td></td><td></td><td></td><td></td></tr>
+											    	</table>
+											    </div>
+
 										    <!-- 결재 영역 -->
 										    <div>
-										        <table border="1" style="text-align: center; width: 250px;">
+										        <table border="1" style="text-align: center; width: 180px; table-layout: fixed;">
 										            <tr>
-										            <td rowspan="3">결재</td>
+										                <td rowspan="3" style="width: 50px; height: 50px;">결재</td>
 										                <th:block th:each="item : ${lDto}">
-										                    <td th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[0] : '직원'}"></td>
+										                    <td style="width: 85px; height: 30px;" th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[0] : '직원'}"></td>
 										                </th:block>
 										            </tr>
-										            
 										            <tr>
 										                <th:block th:each="item : ${lDto}">
-										                    <td th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[1] : item.appro_line_name}"></td>
+										                    <td style="width: 85px; height: 30px;" th:text="${#strings.contains(item.appro_line_name, ' ') ? item.appro_line_name.split(' ')[1] : item.appro_line_name}"></td>
 										                </th:block>
 										            </tr>
-										
 										            <tr>
 										                <th:block th:each="item : ${lDto}">
-										                <td>
-										                    <span th:if="${item.appro_line_sign == '반려'}" style="color: red;">반려</span>
-										                    <span th:if="${item.appro_line_sign != null and item.appro_line_sign != '' and item.appro_line_sign != '반려'}">
-										                        <img th:src="@{'/signatures/' + ${item.appro_line_sign}}" alt="서명 이미지" style="max-width: 100px; max-height: 50px;"/>
-										                    </span>
-										                    <span th:if="${item.appro_line_sign == null or item.appro_line_sign == ''}">-</span>
-										                </td>
-										            </th:block>
+										                    <td style="width: 65px; height: 80px;"> <!-- 이미지 셀 높이를 넉넉히 고정 -->
+										                        <span th:if="${item.appro_line_sign == '반려'}" style="color: red;">반려</span>
+										                        <span th:if="${item.appro_line_sign != null and item.appro_line_sign != '' and item.appro_line_sign != '반려'}">
+										                            <img th:src="@{'/signatures/' + ${item.appro_line_sign}}" alt="서명 이미지" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
+										                        </span>
+										                        <span th:if="${item.appro_line_sign == null or item.appro_line_sign == ''}">-</span>
+										                    </td>
+										                </th:block>
 										            </tr>
 										        </table>
 										    </div>
