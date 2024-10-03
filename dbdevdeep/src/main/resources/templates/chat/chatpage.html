@@ -19,6 +19,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="imgModalLabel">사진 상세보기</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+	                        aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body text-center">
                     <img id="modalImage" src="" alt="" class="img-fluid">
@@ -26,7 +28,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light"
                         data-dismiss="modal">닫기</button>
-                    <a id="downloadBtn" href="" download class="btn btn-primary" style="display:none;">저장하기</a>
+                    <a id="downloadBtn" href="" download class="btn btn-primary" style="display:none;">저장</a>
 				</div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -63,7 +65,9 @@
                                             <li>
                                                 <div class="message-center">
                                                     <th:block th:if="${#lists.isEmpty(ccrDtoList)}">
-                                                    	<p>생성된 채팅방이 없습니다.</p>
+                                                    	<div style="text-align : center; height: 50vh; line-height : 35vh;">
+			                                                생성된 채팅방이 없습니다.
+	                                                	</div>
                                                     </th:block>
                                                     <th:block th:if="${!#lists.isEmpty(ccrDtoList)}">
                                                     	<!-- 채팅방 -->

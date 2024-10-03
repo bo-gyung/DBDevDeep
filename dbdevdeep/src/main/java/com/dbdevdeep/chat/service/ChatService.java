@@ -275,6 +275,7 @@ public class ChatService {
 			// 채팅방 정보 업데이트 (라스트챗, 라스트타임)
 			chatMapper.updateChatRoom(newVo);
 			// 작성자 읽음확인
+			chatMapper.createChatReadCheck(vo.getMsg_no(),vo.getWriter_id());
 			
 			// 채팅 메세지가 생성된 채팅방의 참여중인 인원 리스트 (메세지 작성자 제외)
 			Map<String, Object> params = new HashMap<>();
