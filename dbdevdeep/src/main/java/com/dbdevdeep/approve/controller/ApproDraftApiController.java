@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dbdevdeep.FileService;
+import com.dbdevdeep.approve.domain.ApproDraft;
 import com.dbdevdeep.approve.domain.ApproDraftDto;
 import com.dbdevdeep.approve.domain.ApproFileDto;
 import com.dbdevdeep.approve.domain.ApproveDto;
@@ -55,7 +56,8 @@ public class ApproDraftApiController {
 	
 	@ResponseBody
 	@PostMapping("/draftApprove")
-	public Map<String, String> draftApprove(@RequestParam("appro_content") String approContent, @RequestParam("appro_title") String approTitle, @RequestParam("emp_id") String empId, @RequestParam("consult") String consult,
+	public Map<String, String> draftApprove(@RequestParam(value= "draft_no", required = false) Long draftNo
+			,@RequestParam("appro_content") String approContent, @RequestParam("appro_title") String approTitle, @RequestParam("emp_id") String empId, @RequestParam("consult") String consult,
 		    @RequestParam("approval") String approval, @RequestParam(value = "file_name") MultipartFile file) {
 	    Map<String, String> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "404");
@@ -83,7 +85,9 @@ public class ApproDraftApiController {
 	            }
 	        }
 	        
-	        if (approDraftService.saveDraft(dto) != null) {
+	        ApproDraft savedDraft = approDraftService.saveDraft(dto, draftNo);
+	        
+	        if (savedDraft != null) {
 	            resultMap.put("res_code", "200");
 	            resultMap.put("res_msg", "임시 보관함에 등록되었습니다.");
 	        }

@@ -80,19 +80,34 @@ public class ApproDraftService {
 	}
 
 	// 보고서 임시 저장
-	public ApproDraft saveDraft(ApproDraftDto dto) {
+	public ApproDraft saveDraft(ApproDraftDto dto, Long draftNo) {
 	    Employee employee = employeeRepository.findByempId(dto.getEmp_id());
-
-	    ApproDraft aDraft = ApproDraft.builder()
-	            .employee(employee)
-	            .approTime(null)
-	            .approTitle(dto.getAppro_title())
-	            .approContent(dto.getAppro_content())
-	            .oriFile(dto.getOri_file())
-	            .newFile(dto.getNew_file())
-	            .consultDraftRoot(dto.getConsult_draft_root())
-	            .approvalDraftRoot(dto.getApproval_draft_root())
-	            .build();
+	    ApproDraft aDraft = null;
+	    
+	    if(draftNo != null) {
+	    	aDraft = ApproDraft.builder()
+	    			.employee(employee)
+	    			.draftNo(draftNo)
+	    			.approTime(null)
+	    			.approTitle(dto.getAppro_title())
+	    			.approContent(dto.getAppro_content())
+	    			.oriFile(dto.getOri_file())
+	    			.newFile(dto.getNew_file())
+	    			.consultDraftRoot(dto.getConsult_draft_root())
+	    			.approvalDraftRoot(dto.getApproval_draft_root())
+	    			.build();
+	    }else {
+	    	aDraft = ApproDraft.builder()
+	    			.employee(employee)
+	    			.approTime(null)
+	    			.approTitle(dto.getAppro_title())
+	    			.approContent(dto.getAppro_content())
+	    			.oriFile(dto.getOri_file())
+	    			.newFile(dto.getNew_file())
+	    			.consultDraftRoot(dto.getConsult_draft_root())
+	    			.approvalDraftRoot(dto.getApproval_draft_root())
+	    			.build();
+	    }
 
 	    return approDraftRepository.save(aDraft);
 	}
