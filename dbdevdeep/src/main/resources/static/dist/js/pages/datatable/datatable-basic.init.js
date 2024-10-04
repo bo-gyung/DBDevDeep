@@ -1591,7 +1591,7 @@ $('#schedule_list').DataTable({
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
-			$('#approveDocu_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+			$('#schedule_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
 		});
 
 		// Enter 키로 검색하기
@@ -1794,7 +1794,7 @@ $('#place_list').DataTable({
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
-			$('#approveDocu_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+			$('#place_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
 		});
 
 		// Enter 키로 검색하기
@@ -1893,7 +1893,7 @@ $('#item_list').DataTable({
 
 		searchButton.on('click', function() {
 			var searchTerm = searchInput.val();  // 검색어 가져오기
-			$('#approveDocu_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+			$('#item_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
 		});
 
 		// Enter 키로 검색하기
