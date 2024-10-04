@@ -66,7 +66,7 @@
 									<div style="font-size: 30px;">학생 정보 수정</div>
 								</div>
 								<hr>
-						<form id="student_create_form">
+						<form id="student_update_form">
 							<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 							<div class="form-body">
 								<div class="row">
@@ -93,10 +93,11 @@
 
 									<div class="col-md-9 m-auto">
 										<div class="form-group">
+										<input type="hidden" name="student_no" th:value="${dto.student_no}">
 											<label for="name">이름 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-8">
-													<input class="form-control" type="text" id="name" name="student_name" placeholder="이름을 입력하세요.">
+													<input class="form-control" type="text" id="name" name="student_name" th:value="${dto.student_name}">
 												</div>
 											</div>
 										</div>
@@ -105,7 +106,7 @@
 											<label for="student_status">재학 여부 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-8">
-													<select class="form-control" id="student_status" name="student_status">
+													<select class="form-control" id="student_status" name="student_status" th:value="${dto.student_status}">
 									                        <option value="재학">재학</option>
 									                        <option value="휴학">휴학</option>
 									                        <option value="전학">전학</option>
@@ -120,7 +121,7 @@
 											<label for="student_birth">생년월일 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-8">
-													<input class="form-control" type="date" name="student_birth" id="student_birth">
+													<input class="form-control" type="date" name="student_birth" id="student_birth" th:value="${dto.student_birth}">
 												</div>
 											</div>
 										</div>
@@ -129,7 +130,7 @@
 											<label for="zipcode">우편번호 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-8">
-													<input class="form-control" type="text" id="zipcode" name="student_post_code">
+													<input class="form-control" type="text" id="zipcode" name="student_post_code" th:value="${dto.student_post_code}">
 												</div>
 												<div class="col-md-1">
 		                    						<input type="button" id="student_location" value="우편번호 찾기" class="btn waves-effect waves-light btn-primary">
@@ -141,7 +142,7 @@
 											<label for="student_address">주소 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-8">
-													<input class="form-control" type="text" id="student_address" name="student_addr">
+													<input class="form-control" type="text" id="student_address" name="student_addr" th:value="${dto.student_addr}">
 												</div>
 											</div>
 										</div>
@@ -150,7 +151,7 @@
 											<label for="address-detail">상세주소 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-8">
-													<input class="form-control" type="text" id="address-detail" name="student_detail_addr">
+													<input class="form-control" type="text" id="address-detail" name="student_detail_addr" th:value="${dto.student_detail_addr}">
 												</div>
 											</div>
 										</div>
@@ -160,13 +161,13 @@
 											<label for="phone">전화번호 <span style="color: red;">*</span></label>
 											<div class="row">
 												<div class="col-md-2">
-													<input class="form-control" type="text" id="sp1" maxlength="3">
+													<input class="form-control" type="text" id="sp1" maxlength="3" th:value="${dto.student_phone.split('-')[0]}">
 												</div>
 												<div class="col-md-3">
-													<input class="form-control" type="text" id="sp2" maxlength="4">
+													<input class="form-control" type="text" id="sp2" maxlength="4" th:value="${dto.student_phone.split('-')[1]}">
 												</div>
 												<div class="col-md-3">
-													<input class="form-control" type="text" id="sp3" maxlength="4">
+													<input class="form-control" type="text" id="sp3" maxlength="4" th:value="${dto.student_phone.split('-')[2]}">
 												</div>
 												<input type="hidden" name="student_phone" id="student_phone">
 											</div>
@@ -177,8 +178,8 @@
 											<label>성별</label>
 											<div class="row">
 												<div class="col-md-8">
-													<input type="radio" id="male" name="student_gender" value="M"> 남자&nbsp;&nbsp;
-			                    					<input type="radio" id="female" name="student_gender" value="W"> 여자
+													<input type="radio" id="male" name="student_gender" value="M" th:checked="${dto.student_gender=='M'}"> 남자&nbsp;&nbsp;
+			                    					<input type="radio" id="female" name="student_gender" value="W" th:checked="${dto.student_gender=='W'}"> 여자
 												</div>
 											</div>
 										</div>
@@ -188,7 +189,7 @@
 												<div class="col-md-2">
 													<br> 
 													<input type="button" onclick="cancelBtn();" class="btn waves-effect waves-light btn-light" value="취소">
-													<input type="submit" class="btn waves-effect waves-light btn-primary" value="등록"> 
+													<input type="submit" class="btn waves-effect waves-light btn-primary" value="수정"> 
 												</div>
 											</div>
 										</div>
@@ -224,7 +225,11 @@
 		<script src="/dist/js/custom.min.js"></script>
 		<script
 			src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-		
+	<script>
+	  	const cancelBtn = () => {
+	  		window.location.href = '[[${'/student/' + dto.student_no}]]';
+	  	}
+	</script>	
 	<script>
 		window.onload = function(){
 		    document.getElementById("student_location").addEventListener("click", function(){ //주소입력칸을 클릭하면

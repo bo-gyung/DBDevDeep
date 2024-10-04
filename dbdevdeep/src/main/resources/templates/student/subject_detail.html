@@ -12,33 +12,23 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 </style>
 	<body>
 		<div class="page-wrapper">
-			<div class="page-breadcrumb">
-				<div class="row">
-					<div class="col-7 align-self-center">
-						<div class="d-flex align-items-center">
-							<nav aria-label="breadcrumb">
-								<ol class="breadcrumb m-0 p-0">
-									<li class="breadcrumb-item"><a href="index.html"
-										class="text-muted">Home</a></li>
-									<li class="breadcrumb-item text-muted active"
-										aria-current="page">Library</li>
-								</ol>
-							</nav>
-						</div>
-					</div>
-				</div>
-			</div>
 			<div class="container-fluid">
 				<div class="row">
 					<div class="col-12">
 						<div class="card">
 							<div class="card-body">
-								<h4 class="card-title">과목 정보</h4>
+								<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
+			                        <div style="font-size:30px;">과목 정보</div>
+			                        <br>
+			                    </div>
+			                    
 								<div class="student-info">
 									<div class="student-details">
 										<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 												
-												<p th:text="${subjectDetail.teacher_history.getTYear} + '학년도 ' + ${subjectDetail.subject_semester} + '학기 ' + ${subjectDetail.teacher_history.grade} + '학년 ' +${subjectDetail.teacher_history.getGradeClass} + '반 '"></p>
+												<p th:text="${subjectDetail.teacher_history.getTYear} + '학년도 ' + ${subjectDetail.subject_semester} + '학기 ' + ${subjectDetail.teacher_history.grade} + '학년 ' +${subjectDetail.teacher_history.getGradeClass} + '반 '" style="font-size:20px;"></p>
+												
+												
 												<table class="table table-hover table-bordered no-wrap" style="width:50%">
 												    <colgroup>
 												        <col style="width: 20%">
@@ -59,11 +49,11 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 												                등록된 수업 시간 정보가 없습니다.
 												            </span>
 												            <span th:if="${!#lists.isEmpty(timetableDetail)}">
-    <span th:each="timetableDetailItem, iterStat : ${timetableDetail}">
-        <span th:text="${timetableDetailItem.day} + '요일 ' + ${timetableDetailItem.period} + '교시'"></span>
-        <span th:if="${!iterStat.last}">, </span>
-    </span>
-</span>
+														    <span th:each="timetableDetailItem, iterStat : ${timetableDetail}">
+														        <span th:text="${timetableDetailItem.day} + '요일 ' + ${timetableDetailItem.period} + '교시'"></span>
+														        <span th:if="${!iterStat.last}">, </span>
+															    </span>
+															</span>
 
 												        </td>
 												    </tr>
@@ -74,7 +64,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											
 												<div class="academic-info">
 													<h3>평가 과정</h3>
-													<table class="table table-hover table-bordered no-wrap" style="width:50%">
+													<table class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
 														<thead>
 															<tr>
 																<th>평가 항목</th>
@@ -100,9 +90,13 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 												</div>
 										
 									</div>
-									<a th:href="@{/student/subject}">목록으로</a><br>
-									<a>수정</a><br>
-									<a th:onclick="subjectDelete([[${subjectDetail.subject_no}]])">삭제</a>
+									<div class="col d-flex justify-content-start">
+										<button type="button" class="btn btn-outline-secondary m-1" 
+					                            onclick="location.href='/student/subject'">목록</button>
+										</div>
+										<div class="col d-flex justify-content-end align-items-center">
+											<a th:onclick="subjectDelete([[${subjectDetail.subject_no}]])" class="btn waves-effect waves-light btn-light m-1">삭제</a>
+										</div>
 								</div>
 							</div>
 						</div>

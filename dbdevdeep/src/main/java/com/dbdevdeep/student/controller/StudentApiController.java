@@ -205,10 +205,33 @@ public class StudentApiController {
 	    return data;
 	}
 	
+	// 반배정시 학년도에 따른 학년 데이터 가져오기(직원용)
+	@GetMapping("/employee/student/student_class/selectByYear/{t_year}")
+	@ResponseBody
+	public List<TeacherHistoryDto> getDataByYearforEmp(@PathVariable("t_year") String t_year) {
+		// 학년도에 해당하는 데이터를 가져옵니다.
+	    List<TeacherHistoryDto> data = teacherHistoryService.selectClassByYearList(t_year);
+	    // 데이터를 JSON 형식으로 반환합니다.
+	    return data;
+	}
+	
 	// 학년 이력 내림차순 조회
 	@GetMapping("/student/student_class/selectByYearAndGrade/{t_year}/{grade}")
 	@ResponseBody
 	public List<TeacherHistoryDto> getDataByYearAndGrade(@PathVariable("t_year") String t_year, @PathVariable("grade") String grade) {
+	    // t_year와 grade에 해당하는 데이터를 조회
+	    List<TeacherHistoryDto> data = teacherHistoryService.getDataByYearAndGradeList(t_year, grade);
+	    List<TeacherHistoryDto> filteredData = data.stream()
+                .filter(Objects::nonNull) // null이 아닌 객체만 필터링
+                .collect(Collectors.toList());
+
+	    return filteredData;
+	}
+	
+	// 학년 이력 내림차순 조회(직원)
+	@GetMapping("/employee/student/student_class/selectByYearAndGrade/{t_year}/{grade}")
+	@ResponseBody
+	public List<TeacherHistoryDto> getDataByYearAndGradeforEmp(@PathVariable("t_year") String t_year, @PathVariable("grade") String grade) {
 	    // t_year와 grade에 해당하는 데이터를 조회
 	    List<TeacherHistoryDto> data = teacherHistoryService.getDataByYearAndGradeList(t_year, grade);
 	    List<TeacherHistoryDto> filteredData = data.stream()
