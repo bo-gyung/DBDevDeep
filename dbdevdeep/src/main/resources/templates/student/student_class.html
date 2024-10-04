@@ -263,7 +263,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								title : '성공',
 								text : data.res_msg
 							}).then((result)=>{
-								location.href = `/student/${studentNo}`;
+								location.href = `/student/list/${studentNo}`;
 							});
 						}else{
 							Swal.fire({

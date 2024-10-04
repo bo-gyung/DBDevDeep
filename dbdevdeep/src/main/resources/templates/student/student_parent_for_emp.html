@@ -16,7 +16,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 				<div class="row">
 					<div class="col-12">
 						<div class="card">
-							<div class="card-body">
+							<div class="card-body" style="padding: 50px 80px;">
 								<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
 				                        <div style="font-size:30px;">가족 사항 수정</div>
 				                        <br>
@@ -164,7 +164,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			                            </div>
 		                            </div>
 		                            <div class="modal-footer">
-		                                <a th:href="@{/employee/student/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
+		                                <a th:href="@{/employee/student/list/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
 		                                <button type="button" class="btn waves-effect waves-light btn-primary m-1" id="updateStudentBtn">수정</button>
 		                            </div>
 		                        </form>
@@ -210,7 +210,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									</div>
 								</div>
 									<div class="modal-footer">
-										<a th:href="@{/employee/student/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
+										<a th:href="@{/employee/student/list/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
 										<input type="submit" class="btn waves-effect waves-light btn-primary m-1" value="등록"><br> 
 									</div>
 								</form>
@@ -235,7 +235,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script> -->
 			<script>
 			  	const cancelBtn = () => {
-			        window.location.href = `/employee/student/[[${sdto.student_no}]]`;
+			        window.location.href = `/employee/student/list/[[${sdto.student_no}]]`;
 			  	}
 			</script>	
 		<script>
@@ -297,7 +297,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								title : '성공',
 								text : data.res_msg
 							}).then((result)=>{
-								location.href = "/employee/student/parent/" + studentNo;
+								location.href = "/employee/student/list/parent/" + studentNo;
 							});
 						}else{
 							Swal.fire({
@@ -398,7 +398,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		                    title: '성공',
 		                    text: data.res_msg
 		                }).then((result) => {
-		                    location.href = `/employee/student/parent/${studentNo}`; // 성공 시 상세 페이지로 이동
+		                    location.href = `/employee/student/list/parent/${studentNo}`; // 성공 시 상세 페이지로 이동
 		                });
 		            } else {
 		                Swal.fire({

@@ -50,7 +50,7 @@ public class PlaceScheduleViewController {
 	
 	
 	// 일정등록목록 상세조회
-	@GetMapping("/schedule/detail/{placeScheduleNo}")
+	@GetMapping("/schedule_list/detail/{placeScheduleNo}")
 	public String getScheduleDetail(@PathVariable("placeScheduleNo") Long placeScheduleNo, Model model) {
 		  // Service를 통해 일정 상세 정보 가져오기
 	    PlaceItemScheduleVo scheduleDetail = placeScheduleService.getScheduleDetail(placeScheduleNo);

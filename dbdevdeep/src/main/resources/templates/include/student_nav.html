@@ -1,6 +1,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="studentNavLayout">
+	<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 현재 페이지 URL 가져오기
+            const currentUrl = window.location.pathname;
+
+
+            // 사이드바 내비게이션 항목을 선택
+            const navItems = document.querySelectorAll('.sidebar-item a');
+            navItems.forEach(item => {
+                // 링크의 href 속성과 현재 URL을 비교
+                if (currentUrl.includes(item.getAttribute('href'))) {
+                		const gGrandLi = item.parentNode.parentNode.parentNode;
+                		const grandA = gGrandLi.querySelector('a');
+                		const grandUi = gGrandLi.querySelector('ul');
+                		const parentLi = item.parentNode;
+                		
+	                    gGrandLi.classList.add('selected');
+	                    grandA.classList.add('active');
+	                    grandUi.classList.add('in', 'collapse');
+	                    parentLi.classList.add('active');
+	                    item.classList.add('active');
+	                    
+	                    const studentRecordLink = document.querySelector('a.sidebar-link[href="/student/record"]');
+	                    
+	                    if(studentRecordLink == item) {
+	                    	item.classList.add('active');
+	                    	parentLi.classList.add('selected');
+	                    } 
+                }
+            });
+        });
+    </script>
 	 <aside class="left-sidebar" data-sidebarbg="skin6">
       <!-- Sidebar scroll-->
       <div class="scroll-sidebar" data-sidebarbg="skin6">

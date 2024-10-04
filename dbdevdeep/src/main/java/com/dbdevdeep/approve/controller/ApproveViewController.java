@@ -41,7 +41,7 @@ public class ApproveViewController {
 	}
 	
 	//목록조회
-	@GetMapping("/approve")
+	@GetMapping("/approves")
 	public String selectApproveList(Model model) {
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -96,7 +96,7 @@ public class ApproveViewController {
 		}
 		
 	// 결재 작성
-	@GetMapping("/approve/create")
+	@GetMapping("/approves/create")
     public String showApproCreatePage() {
         return "approve/approCreate";
 	}
@@ -176,7 +176,7 @@ public class ApproveViewController {
 				}
 		
 	// 결재 상세
-	@GetMapping("/approve/{appro_no}")
+	@GetMapping("/approves/{appro_no}")
 	public String selectBoardOne(Model model, @PathVariable("appro_no") Long approNo) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
@@ -254,7 +254,7 @@ public class ApproveViewController {
 		}
 
 	// 결재 수정
-	@GetMapping("/approve/update/{appro_no}")
+	@GetMapping("/approves/update/{appro_no}")
 	public String updateApproOne(Model model, @PathVariable("appro_no") Long approNo) {
 		Map<String, Object> detailMap = approveService.getApproveDetail(approNo);
 		model.addAllAttributes(detailMap);
