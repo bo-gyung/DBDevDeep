@@ -413,7 +413,9 @@ document.addEventListener('DOMContentLoaded', function () {
 					customClass: {
                         confirmButton: 'swal-custom-button'
                     }
+					
 				});
+				
 			}  else {
 				const formData = new FormData(form); // FormData 사용, 파일 포함
 
@@ -437,9 +439,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		                    title: '성공',
 		                    text: data.res_msg,
 		                    confirmButtonText : '닫기',
-							customClass: {
+		                    customClass: {
 		                        confirmButton: 'swal-custom-button'
 		                    }
+		                    
 		                }).then((result) => {
 		                    location.href = "/places";
 		                });
@@ -449,9 +452,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		                    title: '실패',
 		                    text: data.res_msg,
 		                    confirmButtonText : "닫기",
-							customClass: {
+		                    customClass: {
 		                        confirmButton: 'swal-custom-button'
 		                    }
+		                    
 		                });
 		            }
 		        })

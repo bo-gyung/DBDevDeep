@@ -14,6 +14,10 @@
     <link href="/dist/css/style.min.css" rel="stylesheet">
     <style>
     
+    .btn-color:disabled {
+	opacity: 100 !important;
+}
+    
  /* 기존 .event-clickable을 포함한 다른 가능한 요소들에 적용 */
 .fc-event, .event-clickable {
     cursor: pointer !important;
@@ -365,39 +369,19 @@
                     </tbody>
                 </table>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn waves-effect waves-light btn-outline-secondary public-btn" data-dismiss="modal">닫기</button>
-                <button type="button" class="btn waves-effect waves-light btn-primary public-btn" id="delete-schedule-button">삭제</button>
+            <div class="modal-footer" style="margin-top: -1vh; border-top:none !important;">
+                <!-- 삭제 버튼을 먼저 배치 -->
+                <div sec:authorize="hasAnyAuthority('D3')">
+                    <button type="button" class="btn btn-light public-btn" id="delete-schedule-button">삭제</button>
+                </div>
+                <!-- 닫기 버튼 배치 -->
+                <button type="button" class="btn btn-outline-secondary public-btn" data-dismiss="modal">닫기</button>
             </div>
             <!-- CSRF 토큰 추가 -->
             <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
         </div>
     </div>
 </div>
-
-        <!-- 수정 모달 HTML -->
-        <div class="modal fade" id="scheduleEditModal" tabindex="-1" role="dialog" aria-labelledby="scheduleEditModalLabel">
-            <div class="modal-dialog modal-dialog-centered custom-modal-size" style="max-width:54%; width: 54%; height:72%;">
-                <div class="modal-content" style="height:72%;">
-                    <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
-                        <div class="modal-title" id="scheduleEditModalLabel">일정 수정</div>
-                        <button type="button" class="close" data-dismiss="modal" >X</button>
-                    </div>
-                    <form id="scheduleEditFrm">
-                        <div class="modal-body" style="padding:0px;">
-                            <table style="border-bottom:none; border-top:none;" class="table bordered">
-                                <tbody id="scheduleEditContent"></tbody>
-                            </table>
-                        </div>
-                        <div class="modal-footer" style="margin-top:-16px;">
-                            <button type="button" class="btn waves-effect waves-light btn-outline-secondary public-btn" data-dismiss="modal">취소</button>
-                            <button type="button" class="btn waves-effect waves-light btn-primary public-btn" id="editSubmitButton">등록</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
     </div>
 
 <script>
