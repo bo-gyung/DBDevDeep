@@ -15,17 +15,31 @@
         padding: 8px;
         text-align: center;
     }
-
+	input[type="text"] {
+        width: 80px; /* 너비 설정 */
+        height: 30px; /* 높이 설정 */
+        padding: 5px; /* 내부 여백 */
+        font-size: 14px; /* 글꼴 크기 */
+    }
 </style>
 <body>
 		<div class="page-wrapper">
 			<div class="page-breadcrumb">
 				<div class="row">
+				<div class="col-sm-12 col-md-12">
 				<div class="card">
 					<div id="content" class="card-body">
-					<button id="download_excel">엑셀 다운</button>
+					<div class="row" style="margin-left:0px !important; margin-right:0px !important;">
+	                    <div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:320px;">
+	                        <div style="font-size:30px;"><span th:text="${studentDto.student_name}"></span>학생 성적 관리</div>
+	                    </div>			
+	                    <div class="col d-flex justify-content-end align-items-center">
+							<button id="download_excel" class="btn btn-info">엑셀로 받기</button>
+						</div>			
+					</div>
+					
+					
 			            <form id="score_register_form" method="post">
-			            <h3>학생 성적 관리</h3>
 			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 			            <!-- 각 과목별로 테이블을 생성 -->
 			            <div th:each="subject : ${subjectList}">
@@ -52,6 +66,7 @@
 							        </tr>
 							    </thead>
 							    <tbody>
+
 							        <!-- 과목 별로 하나의 row를 생성 -->
 							        <tr>
 							            <td th:text="${subject.subject_name}"></td>
@@ -73,11 +88,18 @@
 							</table>
 
 						</div>
-							<input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
-				            <input type="submit" value="등록">
+						<br>
+						<div class="row">
+					    <div class="col d-flex justify-content-end align-items-center">
+							<br> 
+							<input type="button" onclick="cancelBtn();" class="btn waves-effect waves-light btn-light" value="취소">
+							<input type="submit" class="btn waves-effect waves-light btn-primary" value="등록"> 
+						</div>
+						</div>
 	            		</form>
 	            		
 					</div>
+            	</div>
             	</div>
 				</div>
 			<div class="container-fluid">
@@ -94,6 +116,11 @@
 	<script src="/dist/js/sidebarmenu.js"></script>
 	<script src="/dist/js/custom.min.js"></script>
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+	  	const cancelBtn = () => {
+	  		window.location.href = '/student/score';
+	  	}
+	</script>
 	<script>
 	  $(document).ready(function () {
 		  const studentNo = document.getElementById("student_no").value; 

@@ -1,5 +1,7 @@
 package com.dbdevdeep.student.controller;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,10 +77,12 @@ public class PdfDownloadController {
 	    
         // PDF 생성
         byte[] pdfBytes = pdfService.createPdf(dto, studentClassResultList,resultList,subjectList,curriList,scoreList,totalScoreMap);
-
+        
+        String fileName = dto.getStudent_name() + " 생활기록부.pdf";
+        String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString()).replace("+", "_");
         // PDF 응답 설정
         response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=student_" + student_no + ".pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=" + encodedFileName + ".pdf");
         response.getOutputStream().write(pdfBytes);
         response.getOutputStream().flush();
     }

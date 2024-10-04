@@ -113,9 +113,8 @@ public class PdfService {
                 .toList();
 
             // 과목명을 제목으로 추가
-            document.add(new Paragraph(subject.getTeacher_history().getTYear() + "년도 " + subject.getSubject_semester() + "학기").setFont(koreanFont));
+            document.add(new Paragraph(subject.getTeacher_history().getTYear() + "년도 " + subject.getSubject_semester() + "학기 " + subject.getSubject_name()).setFont(koreanFont));
 
-            document.add(new Paragraph("\n과목: " + subject.getSubject_name()).setFont(koreanFont));
 
          // 테이블 생성
             float[] subjectColumnWidths;
