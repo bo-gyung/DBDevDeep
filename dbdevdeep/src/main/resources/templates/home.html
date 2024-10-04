@@ -11,6 +11,10 @@
      </head>
      <th:block layout:fragment="content">
 		<style>
+			.fc-daygrid-day:hover {
+			    cursor: pointer; /* 마우스 커서가 손 모양으로 변경 */
+			}
+			
 			.holiday-number {
 				color: #FF0000 !important; /* 숫자 색상을 빨간색으로 설정 */
 			}
@@ -215,8 +219,8 @@
 			}
 			#schedule tbody tr td{
 				font-size:16px;
-				padding-left:10px;
-				padding-right:10px;
+				padding-left:8px;
+				padding-right:8px;
 				padding-top:12px;
 				padding-bottom:12px;
 			}
@@ -311,50 +315,9 @@
 								                                    	
 									<div class="left-side" style="width: 45%;">
 								        <div style="font-size: 20px; text-align: center; color:black;">TIME LINE</div>
-										<table id="schedule" class="mt-1 d-flex justify-content-center">
-											
-			                                <tbody class="scrollable-list" style="padding: 13px; height:28vh; overflow-y: auto;">
-			                                    <th:block th:if="${#lists.isEmpty(todaySchedule)}">
-	                                        		<tr>
-	                                        			<td colspan="7">오늘의 일정이 없습니다.</td>
-	                                        		</tr>
-	                                        	</th:block>
-	                                        	<th:block th:if="${!#lists.isEmpty(todaySchedule)}">
-	                                        		<tr th:each="schedule : ${todaySchedule}">
-														<!-- 첫 번째 컬럼: category_color로 동그라미 색 설정 -->
-												        <td class="text-dark text-center" style="width:10%;">
-												            <div th:style="'width: 20px; height: 20px; border-radius:5px; background-color: #' + ${schedule.category_color} + ';'"></div>
-												        </td>
-												
-														<!-- 두 번째 컬럼: start_time, end_time 또는 기타 조건에 따른 텍스트 표시 -->
-														<td class="text-dark text-center" style="width:25%;">
-														    <!-- 종일 일정일 경우 '종일' 표시 -->
-														    <span th:if="${schedule.is_all_day == 'Y'}" th:text="'종일'"></span>
-														
-														    <!-- 기간 일정인 경우 -->
-														    <span th:if="${schedule.start_date != schedule.end_date}">
-														        <!-- 오늘 시작하는 기간 일정일 경우 start_time 표시 -->
-														        <span th:if="${schedule.start_date == today}" th:text="${#temporals.format(schedule.start_time, 'HH:mm')}"></span>
-														
-														        <!-- 오늘 종료하는 기간 일정일 경우 end_time 표시 -->
-														        <span th:if="${schedule.end_date == today}" th:text="${#temporals.format(schedule.end_time, 'HH:mm')}"></span>
-														
-														        <!-- 오늘도 진행 중인 기간 일정일 경우 '진행 중' 표시 -->
-														        <span th:if="${schedule.start_date < today && schedule.end_date > today}" th:text="'진행 중'"></span>
-														    </span>
-														
-														    <!-- 시간 일정인 경우 start_time 표시 -->
-														    <span th:if="${schedule.start_date == schedule.end_date && schedule.is_all_day != 'Y'}" th:text="${#temporals.format(schedule.start_time, 'HH:mm')}"></span>
-														</td>
-																										
-												        <!-- 세 번째 컬럼: schedule_title과 종료 날짜 표시 -->
-														<td class="text-dark text-left" style="width:65%;">
-														    <span th:text="${schedule.schedule_title}"></span>
-														 	<!-- 기간 일정 중 오늘 종료하는 경우 (종료) 표시 -->
-														    <span th:if="${schedule.start_date != schedule.end_date && schedule.end_date == today}" th:text="' (종료)'"></span>
-	                                       			</tr>
-	                                        	</th:block>
-		                                		                      		
+										<table id="schedule" class="mt-1 d-flex justify-content-center" style="margin:0 !important;">
+			                                <tbody class="scrollable-list" style="padding-top: 13px; font-size:15px !important; padding-left:0 !important; padding-right:0 !important; height:28vh; overflow-y: auto;">
+			                                    
 		                                	</tbody>
 		                                </table>
 			                    	</div>
@@ -519,10 +482,7 @@
                     
                 </div>
             </div>
-	        <footer class="footer text-center text-muted">
-	                All Rights Reserved by Adminmart. Designed and Developed by <a
-	                    href="">DBDevDeep</a>.
-	        </footer>  
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 	    </div>
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
@@ -577,9 +537,19 @@
                             console.error('Error fetching holiday data:', error);
                             failureCallback(error);
                         });
+                },
+             	// 날짜 클릭 시 타임라인 업데이트
+                dateClick: function(info) {
+                    const selectedDate = info.dateStr; // 클릭된 날짜
+                    updateTimeline(selectedDate);
                 }
             });
             calendar.render();
+            
+         // 기본적으로 오늘의 일정을 타임라인에 표시
+            const today = new Date().toLocaleDateString('en-CA'); // 로컬 시간 기준의 오늘 날짜 (YYYY-MM-DD 형식)
+            updateTimeline(today); // 오늘 날짜로 타임라인 업데이트
+            
         }, 100);  // 100ms 지연 후 렌더링
 
         // 윈도우 리사이즈 이벤트 발생
@@ -622,6 +592,77 @@
                 }
             }
         });
+    }
+    
+ 	// 타임라인을 업데이트하는 함수
+    function updateTimeline(selectedDate) {
+        // 서버에서 선택된 날짜의 일정을 가져옴 (비동기 호출)
+        fetch(`/getScheduleForDate?date=${selectedDate}`)
+            .then(response => response.json())
+            .then(scheduleData => {
+                // 타임라인을 업데이트
+                const scheduleEl = document.querySelector('#schedule tbody.scrollable-list');
+                scheduleEl.innerHTML = ''; // 기존 타임라인 초기화
+
+                if (scheduleData.length === 0) {
+                    scheduleEl.innerHTML = `<tr><td colspan="7">선택한 날짜에 일정이 없습니다.</td></tr>`;
+                } else {
+                    scheduleData.forEach(schedule => {
+                    	const time = schedule.is_all_day === 'Y' ? '종일' : formatTime(schedule.start_time);
+
+                        // 종료 표시 처리
+                        const end = (schedule.start_date !== schedule.end_date && schedule.end_date === selectedDate) ? ' (종료)' : '';
+
+                        // 오늘 날짜 비교 및 진행 중 처리
+                        const today = new Date().toISOString().split('T')[0]; // 오늘 날짜 (YYYY-MM-DD 형식)
+                        const ongoing = (schedule.start_date < today && schedule.end_date > today) ? '진행 중' : '';
+
+                        // HTML 생성 부분, 변경된 구조
+                        const rowHtml = `
+                            <tr>
+                                <!-- 첫 번째 컬럼: category_color로 동그라미 색 설정 -->
+                                <td class="text-dark text-center">
+                                    <div style="width: 20px; height: 20px; border-radius:5px; background-color: #${schedule.category_color};"></div>
+                                </td>
+
+                                <!-- 두 번째 컬럼: start_time, end_time 또는 기타 조건에 따른 텍스트 표시 -->
+                                <td class="text-dark text-center">
+                                    <!-- 종일 일정일 경우 '종일' 표시 -->
+                                    ${schedule.is_all_day === 'Y' ? '<span>종일</span>' : ''}
+                                    <!-- 기간 일정인 경우 -->
+                                    ${(schedule.start_date !== schedule.end_date) ? `
+                                        <!-- 오늘 시작하는 기간 일정일 경우 start_time 표시 -->
+                                        ${schedule.start_date === selectedDate ? `<span>${time}</span>` : ''}
+                                        <!-- 오늘 종료하는 기간 일정일 경우 end_time 표시 -->
+                                        ${schedule.end_date === selectedDate ? `<span>${formatTime(schedule.end_time)}</span>` : ''}
+                                        <!-- 오늘도 진행 중인 기간 일정일 경우 '진행 중' 표시 -->
+                                        ${ongoing ? '<span>진행 중</span>' : ''}
+                                    ` : ''}
+                                    <!-- 시간 일정인 경우 start_time 표시 -->
+                                    ${(schedule.start_date === schedule.end_date && schedule.is_all_day !== 'Y') ? `<span>${time}</span>` : ''}
+                                </td>
+
+                                <!-- 세 번째 컬럼: schedule_title과 종료 날짜 표시 -->
+                                <td class="text-dark text-left" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">
+                                    <span>${schedule.schedule_title}</span>
+                                    <!-- 기간 일정 중 오늘 종료하는 경우 (종료) 표시 -->
+                                    ${(schedule.start_date !== schedule.end_date && schedule.end_date === selectedDate) ? `<span> (종료)</span>` : ''}
+                                </td>
+                            </tr>
+                        `;
+
+                        scheduleEl.insertAdjacentHTML('beforeend', rowHtml);
+                    });
+                }
+            })
+            .catch(error => console.error('Error fetching schedule for selected date:', error));
+    }
+ 
+ 	// 시간 형식 변환 함수 (HH:mm 형식으로 변환)
+    function formatTime(timeString) {
+        if (!timeString) return '';  // 시간 값이 없는 경우 빈 문자열 반환
+        const [hours, minutes] = timeString.split(':');
+        return `${hours}:${minutes}`;
     }
 	</script>
     <script src="assets/libs/jquery/dist/jquery.min.js"></script>

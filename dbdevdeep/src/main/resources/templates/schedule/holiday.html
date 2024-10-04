@@ -354,8 +354,7 @@
 		        </div>
 		    </div>
 		</div>
-		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
-        </footer>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
     </div>
 
 	<script>
@@ -621,8 +620,16 @@
 	
 	            $('#holidayDetailContent').html(`
 	                <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
-	                    <div class="modal-title" id="holidayDetailModalLabel">휴일 정보</div>
+	                    <div class="modal-title" id="holidayDetailModalLabel" style="flex-grow: 1;">
+	                    	<i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
+	                    	휴일 정보
+	                    </div>
+	                    	
 	                    <div style="font-size:16px;">등록일 : ${formattedModTime}</div>
+	                    
+	    	            <button type="button" id="modalCloseButton" class="close" data-dismiss="modal" aria-label="Close" style="margin-left: auto;">
+	    	                <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
+	    	            </button>
 	                </div>
 	                <div class="modal-body" style="padding:0px;">
 	                    <table style="border-bottom:none; border-top:none;" class="table bordered">
@@ -643,15 +650,24 @@
 	                    </table>
 	                </div>
 	                <div class="modal-footer" style="margin-top:-15px;">
-	                    <button type="button" class="btn btn-primary" id="updateButton">수정</button>
 	                    <button type="button" class="btn waves-effect waves-light btn-outline-secondary" id="closeModalButton">닫기</button>
+	                    <button type="button" class="btn btn-primary" id="updateButton">수정</button>
 	                </div>
 	            `);
+	            
+	            // Feather Icons 초기화
+	    	    if (typeof feather !== 'undefined') {
+	    	        feather.replace();  // Feather Icons가 로드된 경우에만 초기화
+	    	    }
 	
 	            $('#holidayDetailModal').modal('show');
 	            
 	            // 닫기 버튼 클릭 시 모달 닫기
 	            $('#closeModalButton').on('click', function () {
+	                $('#holidayDetailModal').modal('hide');
+	            });
+	            
+	            $('#modalCloseButton').on('click', function () {
 	                $('#holidayDetailModal').modal('hide');
 	            });
 	

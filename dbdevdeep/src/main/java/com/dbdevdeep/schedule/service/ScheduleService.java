@@ -234,14 +234,15 @@ public class ScheduleService {
             .collect(Collectors.toList());
     }
 
-    public List<ScheduleDto> selectTodaySchedule(String empId) {
+    public List<ScheduleDto> selectTodaySchedule(String empId, String dateStr) {
         LocalDate today = LocalDate.now();  // 오늘의 날짜
+        String todayStr = today.toString();  // 오늘 날짜를 문자열로 변환
 
         // 오늘 날짜의 공용 일정 가져오기 (calendarType = 0)
-        List<Schedule> publicSchedules = scheduleRepository.findSchedulesForToday(0, today);
+        List<Schedule> publicSchedules = scheduleRepository.findPublicSchedulesForTodayWithRepeat(dateStr);
 
-        // 오늘 날짜의 개인 일정 가져오기 (calendarType = 1)
-        List<Schedule> privateSchedules = scheduleRepository.findSchedulesForToday(1, empId, today);
+        // 오늘 날짜의 개인 일정 가져오기 (calendarType = 1, empId 포함)
+        List<Schedule> privateSchedules = scheduleRepository.findPrivateSchedulesForTodayWithRepeat(empId, dateStr);
 
         // 두 목록 합치기
         List<Schedule> combinedSchedules = new ArrayList<>();
