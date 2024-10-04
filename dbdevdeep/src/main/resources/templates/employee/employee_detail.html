@@ -995,38 +995,53 @@
 				const csrfToken = document.getElementById("csrf_token").value;
 				const payload = new FormData(document.getElementById('resetPw'));
 				
-				fetch('/reset-pw', {
-					method: 'PUT',
-					headers : {
-						'X-CSRF-TOKEN': csrfToken
-					},
-					body: payload
-				})
-				.then(response => response.json())
-				.then(data=>{
-					if(data.res_code == '200'){
-						Swal.fire({
-							icon :'success',
-							title:'성공',
-							text : data.res_msg,
-							confirmButtonText:"닫기",
-							customClass: {
-		                        confirmButton: 'swal-custom-button'
-		                    }
+				Swal.fire({
+		            title: '비밀번호를 초기화하시겠습니까?',
+		            text: '초기화 시 해당 기록이 남습니다.',
+		            icon: 'warning',
+		            showCancelButton: true,
+		            confirmButtonColor: '#0031AE',
+		    	    cancelButtonColor: '#E8EAEC',
+		            confirmButtonText: '확인',
+		            cancelButtonText: '취소',
+		            reverseButtons: true,
+		        })
+		    	.then((result) => {
+		    		if(result.isConfirmed){
+		    			fetch('/reset-pw', {
+							method: 'PUT',
+							headers : {
+								'X-CSRF-TOKEN': csrfToken
+							},
+							body: payload
 						})
-						
-					} else{
-						Swal.fire({
-							icon:'error',
-							title:'실패',
-							text: data.res_msg,
-							confirmButtonText:"닫기",
-							customClass: {
-		                        confirmButton: 'swal-custom-button'
-		                    }
+						.then(response => response.json())
+						.then(data=>{
+							if(data.res_code == '200'){
+								Swal.fire({
+									icon :'success',
+									title:'성공',
+									text : data.res_msg,
+									confirmButtonText:"닫기",
+									customClass: {
+				                        confirmButton: 'swal-custom-button'
+				                    }
+								})
+								
+							} else{
+								Swal.fire({
+									icon:'error',
+									title:'실패',
+									text: data.res_msg,
+									confirmButtonText:"닫기",
+									customClass: {
+				                        confirmButton: 'swal-custom-button'
+				                    }
+								});
+							}
 						});
-					}
-				});
+		    		}
+		    	})
 			})
 			
 			$('#transFrm').submit(function(e) {

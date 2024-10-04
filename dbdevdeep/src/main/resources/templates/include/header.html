@@ -322,9 +322,7 @@
 		    const notificationItems = document.querySelectorAll('.schedule-message-item'); // 모든 알림 항목을 선택
 	
 		    notificationItems.forEach(item => {
-		        item.addEventListener('click', function() {
-		        		console.log(item.parentNode.parentNode);
-		        	
+		        item.addEventListener('click', function() {		        	
 		            const title = item.getAttribute('data-title'); // data-* 속성에서 title 값을 가져옴
 		            const message = item.getAttribute('data-message'); // data-* 속성에서 message 값을 가져옴
 		            const time = item.getAttribute('data-time'); // data-* 속성에서 time 값을 가져옴
