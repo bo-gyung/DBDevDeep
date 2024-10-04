@@ -30,8 +30,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.dbdevdeep.approve.domain.ApproDraft;
 import com.dbdevdeep.approve.domain.ApproFile;
 import com.dbdevdeep.approve.domain.Approve;
+import com.dbdevdeep.approve.repository.ApproDraftRepository;
 import com.dbdevdeep.approve.repository.ApproFileRepository;
 import com.dbdevdeep.approve.repository.ApproveRepository;
 import com.dbdevdeep.document.domain.FileDto;
@@ -64,17 +66,18 @@ public class FileService {
 	private final StudentRepository studentRepository;
 	private final FolderRepository folderRepository;
 	private final FileRepository fileRepository;
+	private final ApproDraftRepository approDraftRepository;
 	
 	@Autowired
 	public FileService(EmployeeRepository employeeRepository, ApproFileRepository approFileRepository,
 			ApproveRepository approveRepository, PlaceRepository placeRepository, 
 			FolderRepository folderRepository, FileRepository fileRepository, @Lazy FolderService folderService,
-			ItemRepository itemRepository, StudentRepository studentRepository) {
+			ItemRepository itemRepository, StudentRepository studentRepository, ApproDraftRepository approDraftRepository) {
 		this.employeeRepository = employeeRepository;
 		this.approFileRepository = approFileRepository;
 		this.approveRepository = approveRepository;
 		this.placeRepository = placeRepository;
-
+		this.approDraftRepository = approDraftRepository;
 		this.itemRepository = itemRepository;
 
 		this.studentRepository = studentRepository;
@@ -835,6 +838,32 @@ public class FileService {
 			e.printStackTrace();
 			return new ResponseEntity<Object>(null,HttpStatus.CONFLICT);
 		}
+	}
+	
+	public int approDraftFileDelete(Long draft_no) {
+		int result = -1;
+
+		try {
+			ApproDraft approvDraft = approDraftRepository.findByDraftNo(draft_no);
+			if (approvDraft.getNewFile() == null) {
+				return 0;
+			}
+
+				String newFileName = approvDraft.getNewFile();
+				String resultDir = fileDir + "approve\\" + URLDecoder.decode(newFileName, "UTF-8");
+
+				if (resultDir != null && !resultDir.isEmpty()) {
+					File actualFile = new File(resultDir);
+					if (actualFile.exists()) {
+						actualFile.delete();
+					}
+				}
+			result = 1; 
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return result;
 	}
 	
 }

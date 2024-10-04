@@ -96,13 +96,13 @@ public class ApproveViewController {
 		}
 		
 	// 결재 작성
-	@GetMapping("/approCreate")
+	@GetMapping("/approve/create")
     public String showApproCreatePage() {
         return "approve/approCreate";
 	}
 	
 	// 보고서 작성
-	@GetMapping("/docuCreate")
+	@GetMapping("/approveDocu/docuCreate")
     public String showDocuCreatePage(Model model) {
 		List<TempEditDto> tempList = tempEditService.callTemp();
 		model.addAttribute("tempList",tempList);
@@ -110,7 +110,7 @@ public class ApproveViewController {
 	}
 	
 	// 보고서 상세
-	@GetMapping("/docuDetail/{appro_no}")
+	@GetMapping("/approveDocu/{appro_no}")
 	public String docuDetailOne(Model model, @PathVariable("appro_no") Long approNo) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
@@ -132,7 +132,7 @@ public class ApproveViewController {
 	}
 		
 	// 요청 받은 보고서 상세
-		@GetMapping("/comeDocuDetail/{appro_no}")
+		@GetMapping("/comeDocu/{appro_no}")
 		public String comeDocuDetail(Model model, @PathVariable("appro_no") Long approNo) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			String username = authentication.getName();
@@ -154,7 +154,7 @@ public class ApproveViewController {
 		}
 
 		// 완료된 보고서 상세
-				@GetMapping("/comepleteDocuDetail/{appro_no}")
+				@GetMapping("/completeDocu/{appro_no}")
 				public String comepleteDocuDetail(Model model, @PathVariable("appro_no") Long approNo) {
 					Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 					String username = authentication.getName();
@@ -176,7 +176,7 @@ public class ApproveViewController {
 				}
 		
 	// 결재 상세
-	@GetMapping("/approDetail/{appro_no}")
+	@GetMapping("/approve/{appro_no}")
 	public String selectBoardOne(Model model, @PathVariable("appro_no") Long approNo) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
@@ -202,7 +202,7 @@ public class ApproveViewController {
 	}
 	
 	// 받은 결재 상세
-		@GetMapping("/comeApproDetail/{appro_no}")
+		@GetMapping("/comeApprove/{appro_no}")
 		public String comeBoardOne(Model model, @PathVariable("appro_no") Long approNo) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			String username = authentication.getName();
@@ -228,7 +228,7 @@ public class ApproveViewController {
 		}
 	
 	// 참조 상세
-		@GetMapping("/refDetail/{appro_no}")
+		@GetMapping("/refApprove/{appro_no}")
 		public String refBoardOne(Model model, @PathVariable("appro_no") Long approNo) {
 			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 			String username = authentication.getName();
@@ -254,7 +254,7 @@ public class ApproveViewController {
 		}
 
 	// 결재 수정
-	@GetMapping("/approUpdate/{appro_no}")
+	@GetMapping("/approve/update/{appro_no}")
 	public String updateApproOne(Model model, @PathVariable("appro_no") Long approNo) {
 		Map<String, Object> detailMap = approveService.getApproveDetail(approNo);
 		model.addAllAttributes(detailMap);
@@ -262,7 +262,7 @@ public class ApproveViewController {
 	}
 	
 	// 보고서 수정
-	@GetMapping("/docuUpdate/{appro_no}")
+	@GetMapping("/approveDocu/docuUpdate/{appro_no}")
 	public String updateDocuOne(Model model, @PathVariable("appro_no") Long approNo) {
 		Map<String, Object> detailMap = approveService.getDocuDetail(approNo);
 		

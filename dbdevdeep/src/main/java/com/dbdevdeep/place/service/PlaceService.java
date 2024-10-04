@@ -157,6 +157,8 @@ public class PlaceService {
 		if(p == null) {
 			throw new EntityNotFoundException("Place not found for place_no: " + place_no);
 		}
+		
+		
 		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 		
 		PlaceDto dto = PlaceDto.builder()
@@ -217,8 +219,8 @@ public class PlaceService {
                 newPicName = fileService.placeUpload(file);  // 파일 업로드 후 새로운 파일 이름 반환
             } else {
                 // 파일이 없는 경우 기본값 설정
-                oriPicName = "Default oriPicName";
-                newPicName = "Default newPicName";
+            	 oriPicName = "noimage.png"; // 기본 이미지 파일 이름
+            	 newPicName = "/assets/images/noimage.png"; // 파일이 저장된 경로
             }
             
             // Place 엔티티 빌드

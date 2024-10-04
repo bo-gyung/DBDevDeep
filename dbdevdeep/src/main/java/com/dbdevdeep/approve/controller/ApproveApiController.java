@@ -617,8 +617,17 @@ public class ApproveApiController {
 				DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 				LocalDate startDateLocal = LocalDate.parse(startDate, dateFormatter);
 				LocalDate endDateLocal = LocalDate.parse(endDate, dateFormatter);
-				startDateTime = startDateLocal.atStartOfDay();
-				endDateTime = endDateLocal.atStartOfDay();
+				
+				if(vacType == 6) {
+					startDateTime = startDateLocal.atTime(8, 0);
+					endDateTime = endDateLocal.atTime(12, 0);
+				}else if(vacType == 7) {
+					startDateTime = startDateLocal.atTime(12, 0);
+					endDateTime = endDateLocal.atTime(16, 0);
+				}else {
+					startDateTime = startDateLocal.atTime(8, 0);
+					endDateTime = endDateLocal.atTime(16, 0);
+				}
 			}
 
 			vacationRequestDto.setVac_yn("Y");
