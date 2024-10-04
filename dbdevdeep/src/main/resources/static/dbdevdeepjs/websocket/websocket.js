@@ -65,10 +65,10 @@ let socket;
 		        	<div data-alert-no="${alert.alarm_no}"
 		        		onclick="alertMoveFunc('${alert.reference_name}', ${alert.alarm_no});"
 		        		onmouseover="this.style.cursor='pointer'"
-		        		onmouseout="this.style.curosr='auto'"
+		        		onmouseout="this.style.cursor='auto'"
 	        			class="w-75 message-item d-flex align-items-center">
 			        	<div class="btn btn-info rounded-circle btn-circle">
-				        	<i cloass="far fa-file-alt"></i>
+				        	<i class="far fa-file-alt"></i>
 				        	<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-info text-white">
 				        		<circle cx="12" cy="12" r="10"></circle>
 				        		<line x1="12" y1="16" x2="12" y2="12"></line>
