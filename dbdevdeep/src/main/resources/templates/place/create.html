@@ -7,6 +7,10 @@
   
   <style>
   
+  
+  
+ 
+  
      .custom-file-upload {
         display: inline-block;
         padding: 8px 16px;
@@ -403,6 +407,7 @@ document.addEventListener('DOMContentLoaded', function () {
 					title: '실패',
 					text: vali_text,
 					confirmButtonText : "닫기"
+					
 				});
 			}  else {
 				const formData = new FormData(form); // FormData 사용, 파일 포함
@@ -427,6 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		                    title: '성공',
 		                    text: data.res_msg,
 		                    confirmButtonText : '닫기'
+		                    
 		                }).then((result) => {
 		                    location.href = "/place";
 		                });
@@ -436,6 +442,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		                    title: '실패',
 		                    text: data.res_msg,
 		                    confirmButtonText : "닫기"
+		                    
 		                });
 		            }
 		        })

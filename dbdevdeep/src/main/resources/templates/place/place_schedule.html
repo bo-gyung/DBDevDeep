@@ -353,15 +353,20 @@
                     </tbody>
                 </table>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn waves-effect waves-light btn-outline-secondary public-btn" data-dismiss="modal">닫기</button>
-                <button type="button" class="btn waves-effect waves-light btn-primary public-btn" id="delete-schedule-button">삭제</button>
+            <div class="modal-footer d-flex justify-content-end">
+                <!-- 삭제 버튼을 먼저 배치 -->
+                <div sec:authorize="hasAnyAuthority('D3')">
+                    <button type="button" class="btn btn-light public-btn" id="delete-schedule-button">삭제</button>
+                </div>
+                <!-- 닫기 버튼 배치 -->
+                <button type="button" class="btn btn-outline-secondary public-btn" data-dismiss="modal">닫기</button>
             </div>
             <!-- CSRF 토큰 추가 -->
             <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
         </div>
     </div>
 </div>
+
 
         <!-- 수정 모달 HTML -->
         <div class="modal fade" id="scheduleEditModal" tabindex="-1" role="dialog" aria-labelledby="scheduleEditModalLabel">
