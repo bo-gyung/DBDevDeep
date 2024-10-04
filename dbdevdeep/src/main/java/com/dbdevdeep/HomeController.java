@@ -27,6 +27,8 @@ import com.dbdevdeep.approve.service.ApproveService;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.service.AttendanceService;
 import com.dbdevdeep.document.domain.FileDto;
+import com.dbdevdeep.notice.dto.NoticeDto;
+import com.dbdevdeep.notice.service.NoticeService;
 import com.dbdevdeep.schedule.domain.ScheduleDto;
 import com.dbdevdeep.schedule.service.ScheduleService;
 
@@ -41,6 +43,7 @@ public class HomeController {
 	private final ScheduleService scheduleService;
 	private final FileService fileService;
 	private final ApproveService approveService;
+	private final NoticeService noticeService;
 
 	@GetMapping({"", "/"})
 	public String home(Model model, HttpSession session) {
@@ -81,6 +84,10 @@ public class HomeController {
 		
 		Map<String, Integer> approveCounts = approveService.getApproveCount(empId);
         model.addAttribute("approveCounts", approveCounts);
+        
+        // 공지사항 목록 가져오기
+    	List<NoticeDto> noticeList = noticeService.selectHomeNoticeList();
+		model.addAttribute("noticeList",noticeList);
 		
 		return "home";
 	}
@@ -106,7 +113,7 @@ public class HomeController {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Content-type", "application/json");
-
+        
         BufferedReader rd;
         if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
             rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));

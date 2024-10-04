@@ -50,6 +50,36 @@ public class NoticeService {
 		this.alertRepository = alertRepository;
 	}
 	
+	// 홈화면 공지사항 목록 조회
+	public List<NoticeDto> selectHomeNoticeList(){
+		
+		// 게시글 리스트 불러오기 (LIMIT 6)
+		List<Notice> noticeList = noticeRepository.findTop6ByOrderByRegTimeDesc();
+		
+		// Entity 데이터를 Dto로 옮기기
+		List<NoticeDto> noticeDtoList = new ArrayList<NoticeDto>();
+		for(Notice n : noticeList) {
+			NoticeDto dto = NoticeDto.builder()
+					.notice_no(n.getNoticeNo())
+					.writer_id(n.getEmployee().getEmpId())
+					.writer_name(n.getEmployee().getEmpName())
+					.category_no(n.getNoticeCategory().getCategoryNo())
+					.category_name(n.getNoticeCategory().getCategoryName())
+					.notice_title(n.getNoticeTitle())
+					.notice_content(n.getNoticeContent())
+					.is_important(n.getIsImportant())
+					.is_cmt(n.getIsCmt())
+					.reg_time(n.getRegTime())
+					.mod_time(n.getModTime())
+					.is_att(n.getIsAtt())
+					.build();
+			
+			noticeDtoList.add(dto);
+		}
+		
+		return noticeDtoList;
+	}
+	
 	// 공지사항 목록 조회
 	public List<NoticeDto> selectNoticeList(NoticeDto noticeDto){
 		// 게시글 리스트 불러오기

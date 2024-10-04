@@ -132,11 +132,6 @@ let socket;
 				
 				if(message.now_page =='chat'){
 					// 채팅 페이지에 접속한 사용자
-					// 채팅방 목록 리로드
-					updateChatRoomList();
-					// 헤더에 배지알림
-					chatAlertReload();
-					
 					if(message.room_in =='Y'){
 						// 현재 채팅방에 접속해있는 사용자
 						// 채팅 메세지목록 리로드
@@ -144,7 +139,11 @@ let socket;
 						
 					} else if(message.room_in =='N'){
 						// 다른 채팅방에 접속해있는 사용자
+						// 헤더에 배지알림
+						chatAlertReload();
 					}
+					// 채팅방 목록 리로드
+					updateChatRoomList();
 				} else if(message.now_page =='no_chat'){
 					// 채팅 페이지에 접속하고 있지 않은 사용자
 					// 헤더에 배지알림

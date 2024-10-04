@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.dbdevdeep.FileService;
+import com.dbdevdeep.approve.domain.ApproDraft;
 import com.dbdevdeep.approve.domain.ApproDraftDto;
 import com.dbdevdeep.approve.domain.ApproFileDto;
 import com.dbdevdeep.approve.domain.ApproveDto;
@@ -55,7 +56,8 @@ public class ApproDraftApiController {
 	
 	@ResponseBody
 	@PostMapping("/draftApprove")
-	public Map<String, String> draftApprove(@RequestParam("appro_content") String approContent, @RequestParam("appro_title") String approTitle, @RequestParam("emp_id") String empId, @RequestParam("consult") String consult,
+	public Map<String, String> draftApprove(@RequestParam(value= "draft_no", required = false) Long draftNo
+			,@RequestParam("appro_content") String approContent, @RequestParam("appro_title") String approTitle, @RequestParam("emp_id") String empId, @RequestParam("consult") String consult,
 		    @RequestParam("approval") String approval, @RequestParam(value = "file_name") MultipartFile file) {
 	    Map<String, String> resultMap = new HashMap<>();
 	    resultMap.put("res_code", "404");
@@ -83,9 +85,11 @@ public class ApproDraftApiController {
 	            }
 	        }
 	        
-	        if (approDraftService.saveDraft(dto) != null) {
+	        ApproDraft savedDraft = approDraftService.saveDraft(dto, draftNo);
+	        
+	        if (savedDraft != null) {
 	            resultMap.put("res_code", "200");
-	            resultMap.put("res_msg", "게시글이 성공적으로 등록되었습니다.");
+	            resultMap.put("res_msg", "임시 보관함에 등록되었습니다.");
 	        }
 
 	    } catch (Exception e) {
@@ -97,7 +101,7 @@ public class ApproDraftApiController {
 	    return resultMap;
 	}
 	
-	// 임시 상세
+	// 임시 삭제
 	@ResponseBody
 	@DeleteMapping("/draftAppro/{draft_no}")
 	public Map<String, String> deleteDocuAppro(@PathVariable("draft_no") Long draft_no){
@@ -105,7 +109,7 @@ public class ApproDraftApiController {
 		map.put("res_code", "404");
 		map.put("res_msg", "삭제중 오류가 발생하였습니다.");
 		
-		int fileDeleteResult = fileService.approFileDelete(draft_no);
+		int fileDeleteResult = fileService.approDraftFileDelete(draft_no);
 		
 		if(fileDeleteResult >=0 ) {
 			if(approDraftService.deleteDocuDraft(draft_no) > 0) {

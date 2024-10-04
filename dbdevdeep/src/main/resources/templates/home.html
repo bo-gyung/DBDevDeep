@@ -11,6 +11,10 @@
      </head>
      <th:block layout:fragment="content">
 		<style>
+			/* 다섯번째 td 요소에 커서 포인터 추가 */
+			#notice tbody tr td:nth-child(3) {
+			    cursor: pointer;
+			}
 			.holiday-number {
 				color: #FF0000 !important; /* 숫자 색상을 빨간색으로 설정 */
 			}
@@ -450,36 +454,22 @@
                                 <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:5px; overflow-y: auto;">
                                 	<table id="notice" class="w-100">
 	                                	<tbody>
-	                                		<tr>
-	                                			<td class="text-dark text-left" style="width:20%;">[사이트]</td>
-	                                			<td class="text-dark text-left" style="width:60%;">그룹웨어 시스텝 점검 안내</td>
-	                                			<td class="text-dark text-right" style="width:20%;">2024.09.27</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[공고]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 교직원 연수 안내</td>
-	                                			<td class="text-dark text-right">2024.09.26</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 운동회 일정 안내</td>
-	                                			<td class="text-dark text-right">2024.09.25</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
+		                                	<th:block th:if="${#lists.isEmpty(noticeList)}">
+		                                		<tr>
+		                                			<td colspan="4">게시글이 존재하지 않습니다.</td>
+		                                		</tr>
+		                                	</th:block>
+		                                	<th:block th:if="${!#lists.isEmpty(noticeList)}">
+		                                		<tr th:each="notice, noticeStat : ${noticeList}">
+		                                			<td th:text="${notice.notice_no}" style="display:none;"></td>
+		                                			<td class="text-dark text-left" style="width:20%;" 
+		                                			th:text="${notice.category_name}">[카테고리]</td>
+		                                			<td class="text-dark text-left" style="width:60%;" 
+		                                			th:text="${notice.notice_title}">제목</td>
+		                                			<td class="text-dark text-right" style="width:20%;" 
+		                                			th:text="${#temporals.format(notice.reg_time, 'yyyy.MM.dd')}">날짜</td>
+		                                		</tr>
+		                                	</th:block>
 	                                	</tbody>
 	                                </table>
                                 </div>
@@ -524,6 +514,17 @@
 	                    href="">DBDevDeep</a>.
 	        </footer>  
 	    </div>
+    <script>
+	    $('#notice').on('click', 'td:nth-child(3)', function () {
+	        // 클릭된 행에서 해당 게시글의 번호를 추출합니다.
+	        var noticeNo = $(this).closest('tr').find('td:nth-child(1)').text(); // 번호가 있는 td를 선택
+	
+	        // 게시글 상세 페이지로 이동합니다.
+	        if (noticeNo) {
+	            window.location.href = '/notice/' + noticeNo;
+	        }
+	    });
+	</script>
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('calendar');
@@ -624,6 +625,7 @@
         });
     }
 	</script>
+	
     <script src="assets/libs/jquery/dist/jquery.min.js"></script>
     <script src="assets/libs/popper.js/dist/umd/popper.min.js"></script>
     <script src="assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
