@@ -13,7 +13,7 @@
     
         body {
             background-color: #f7f7f7;
-            font-family: 'Arial', sans-serif;
+            
         }
 
         .container {
@@ -27,7 +27,7 @@
         }
 
         label {
-            font-weight: bold;
+            
             margin-bottom: 8px;
         }
 
@@ -189,9 +189,9 @@
 									    <div class="col-sm-10">
 									        <!-- 이미지 파일을 업로드하는 대신, 이미지를 표시합니다. -->
 									        <img id="placeImage"
-									             th:if="${imageUrl != null}"
-									             th:src="@{${imageUrl}}" 
-									             alt="장소 이미지" style="max-width: 500px; height: auto;" />
+										     th:if="${imageUrl != null}"
+										     th:src="@{${imageUrl}}" 
+										     alt="장소 이미지" style="max-width: 500px; height: auto;" />
 									    </div>
                                 </div>
 
