@@ -65,10 +65,14 @@
                             	<!-- 채팅방 목록 시작 -->
                                 <div class="col-lg-3 border-right">
                                    	<!-- 채팅방 목록 검색창 시작 -->
-                                    <div class="card-body border-bottom">
-                                        <form>
-                                            <input class="form-control" type="text" placeholder="Search Contact">
-                                        </form>
+                                	<div class="card-body border">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="input-field mt-0 mb-0">
+                                                	<div class="point_label text-secondary" style="height: 4.1vh; line-height : 4.1vh;" >참여중인 채팅방 목록</div>
+                                                   </div>
+                                            </div>
+                                        </div>
                                     </div>
                                     <!-- 채팅방 목록 검색창 검색창 끝 -->
                                     <!-- 개설된 채팅방 목록 시작 -->
@@ -126,7 +130,8 @@
 			                                        <div class="row">
 			                                            <div class="col-12">
 			                                                <div class="input-field mt-0 mb-0">
-			                                                	<div th:text="${roomName}" style="height: 4.1vh; line-height : 4.1vh;"></div>
+			                                                	<div th:text="${roomName}" style="height: 4.1vh; line-height : 4.1vh;" 
+			                                                	class="point_label text-secondary"></div>
 			                                                    <input type="hidden" id="thisRoomNo" th:value="${roomNo}">
 			                                                </div>
 			                                            </div>
@@ -157,7 +162,7 @@
 						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
 						                                                 			th:alt="${chat.ori_pic_name}" 
-						                                                 			style="max-width: 12.5vw; height: auto;" 
+						                                                 			style="max-width: 12.5vw; height: auto; cursor: pointer;" 
 							                                                        onerror="this.onerror=null; 
 							                                                        		this.src='/assets/images/noimage.png';
 							                                                        		this.alt='no image';" 
@@ -198,7 +203,7 @@
 					                                                 	<th:block th:if="${chat.new_pic_name != null}">
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
 						                                                 			th:alt="${chat.ori_pic_name}" 
-						                                                 			style="max-width: 12.5vw; height: auto;" 
+						                                                 			style="max-width: 12.5vw; height: auto; cursor: pointer;" 
 							                                                        onerror="this.onerror=null; 
 							                                                        		this.src='/assets/images/noimage.png';
 							                                                        		this.alt='no image';" 
