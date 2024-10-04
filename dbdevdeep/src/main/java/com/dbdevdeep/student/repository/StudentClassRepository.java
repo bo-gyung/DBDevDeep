@@ -31,6 +31,7 @@ public interface StudentClassRepository extends JpaRepository<StudentClass, Long
 	
 	@Query("SELECT sc " +
 		       "FROM StudentClass sc " +
-		       "WHERE sc.teacherHistory = :teacherHistory")
+		       "WHERE sc.teacherHistory = :teacherHistory "+
+		       "ORDER BY sc.studentId ASC")
 		List<StudentClass> findByTeacherHistory(@Param("teacherHistory") TeacherHistory teacherHistory);
 }

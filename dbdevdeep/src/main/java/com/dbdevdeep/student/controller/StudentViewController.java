@@ -38,6 +38,7 @@ public class StudentViewController {
 		this.teacherHistoryService = teacherHistoryService;
 	}
 	
+	// 홈페이지
 	@GetMapping("/student")
 	public String studentMainPage(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,7 +64,6 @@ public class StudentViewController {
 	            timeTableMap.put(key, t.getSubject_no().toString());
 	        }
 	    }
-	    
 	    
 	    model.addAttribute("mystudentList",mystudentList);
 	    model.addAttribute("empname",empName);
@@ -231,7 +231,9 @@ public class StudentViewController {
 	// 성적 등록 페이지로 이동
 		@GetMapping("/student/score")
 		public String listScorePage(Model model, SubjectDto sdto, StudentClassDto cdto) {
-			List<StudentClassDto> resultList = studentService.selectStudentList(cdto);
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String empId = authentication.getName(); // 현재 로그인된 사용자의 emp_id 가져오기
+			List<StudentClassDto> resultList = studentService.findMyStudentList(empId);
 			List<SubjectDto> subjectList = studentService.mySubjectList();
 			model.addAttribute("subjectList",subjectList);
 			model.addAttribute("resultList",resultList);
@@ -309,7 +311,7 @@ public class StudentViewController {
 		        // 계산된 총점을 문자열로 변환하여 Map에 저장
 		        totalScoreMap.put(subject.getSubject_no(), String.format("%.2f", totalScore));
 		    }
-
+		    model.addAttribute("studentDto",studentDto);
 			model.addAttribute("scoreList",scoreMap);
 			model.addAttribute("subjectList",subjectList);
 			model.addAttribute("resultList",studentDto);
