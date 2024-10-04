@@ -29,6 +29,7 @@ import com.dbdevdeep.employee.service.TeacherHistoryService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -42,8 +43,23 @@ public class EmployeeViewController {
 	private final AlertService alertService;
 	
 	@GetMapping("/login")
-	public String loginPage() {
+	public String login(HttpServletRequest request, Model model) {
 		
+		Object errorNum = request.getSession().getAttribute("loginErrorNum");
+		
+		request.getSession().removeAttribute("loginError"); // 메시지를 사용한 후 세션에서 제거
+		request.getSession().removeAttribute("loginErrorNum");
+		
+		model.addAttribute("error", false);
+		
+		if(errorNum != null) {
+			int errNum = (int) errorNum;
+			
+			if (errNum != 0) {
+				model.addAttribute("error", true);
+				model.addAttribute("errorNum", errNum);
+			}
+		}
 		return "employee/login";
 	}
 
@@ -57,9 +73,11 @@ public class EmployeeViewController {
 
 		List<EmployeeDto> resultList = employeeService.selectYEmployeeList();
 		List<String> attendDtoList = attendanceService.selectByToDayList();
+		List<String> attendDtoListLeave = attendanceService.selectByToDayListLeave();
 		List<TeacherHistoryDto> historyList = teacherHistoryService.selectClassByOrderLastesList();
 
 		model.addAttribute("attendDtoList", attendDtoList);
+		model.addAttribute("attendDtoListLeave", attendDtoListLeave);
 		model.addAttribute("resultList", resultList);
 		model.addAttribute("historyList", historyList);
 
@@ -194,15 +212,33 @@ public class EmployeeViewController {
 		AuditLogDto logDto = employeeService.selectAuditLogDto(audit_no);
 
 		try {
-			if(logDto.getOri_data() != null) {
-				EmployeeDto oriData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
+			if("emp_info".equals(logDto.getChanged_item())) {
+				if(logDto.getOri_data() != null) {
+					EmployeeDto oriData = objectMapper.readValue(logDto.getOri_data(), EmployeeDto.class);
+					
+					model.addAttribute("oriData", oriData);
+				}
 				
-				model.addAttribute("oriData", oriData);
+				EmployeeDto newData = objectMapper.readValue(logDto.getNew_data(), EmployeeDto.class);
+				
+				model.addAttribute("newData", newData);				
+			} else if("attend".equals(logDto.getChanged_item())){
+				if(logDto.getOri_data() != null) {
+					AttendanceDto oriData = objectMapper.readValue(logDto.getOri_data(), AttendanceDto.class);
+					
+					model.addAttribute("oriData", oriData);
+				}
+				
+				AttendanceDto newData = objectMapper.readValue(logDto.getNew_data(), AttendanceDto.class);
+				
+				model.addAttribute("newData", newData);	
+			} else {
+				if(logDto.getOri_data() != null) {					
+					model.addAttribute("oriData", "****");
+				}
+				model.addAttribute("newData", "****");	
 			}
 			
-			EmployeeDto newData = objectMapper.readValue(logDto.getNew_data(), EmployeeDto.class);
-
-			model.addAttribute("newData", newData);
 
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
@@ -243,7 +279,7 @@ public class EmployeeViewController {
 		return "employee/log-leave";
 	}
 	
-	@GetMapping("/my-alert")
+	@GetMapping("/mypage/alert")
 	public String myAlertPage(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User) authentication.getPrincipal();

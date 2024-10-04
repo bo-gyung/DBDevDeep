@@ -21,23 +21,32 @@ import com.dbdevdeep.approve.service.RestHolidayService;
 import com.dbdevdeep.attendance.domain.Attendance;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
 import com.dbdevdeep.attendance.repository.AttendanceRepository;
+import com.dbdevdeep.employee.domain.AuditLog;
+import com.dbdevdeep.employee.domain.AuditLogDto;
 import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.EmployeeDto;
+import com.dbdevdeep.employee.repository.AuditLogRepository;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@EnableScheduling 
+@EnableScheduling
 @Service
 public class AttendanceService {
 
 	private final AttendanceRepository attendanceRepository;
 	private final EmployeeRepository employeeRepository;
+	private final ObjectMapper objectMapper;
+	private final AuditLogRepository auditLogRepository;
 	private final RestHolidayService restHolidayService;
 
 	@Autowired
 	public AttendanceService(AttendanceRepository attendanceRepository, EmployeeRepository employeeRepository,
-			RestHolidayService restHolidayService) {
+			ObjectMapper objectMapper, AuditLogRepository auditLogRepository, RestHolidayService restHolidayService) {
 		this.attendanceRepository = attendanceRepository;
 		this.employeeRepository = employeeRepository;
+		this.objectMapper = objectMapper;
+		this.auditLogRepository = auditLogRepository;
 		this.restHolidayService = restHolidayService;
 	}
 
@@ -54,27 +63,21 @@ public class AttendanceService {
 			int year = attendDate.getYear();
 			int month = attendDate.getMonthValue();
 			int date = attendDate.getDayOfMonth();
-			if(date == 1) {
+			if (date == 1) {
 				overtime = 0;
-			}else {
-				overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
+			} else {
+				overtime = attendanceRepository.findByLastInfo(employee, year, month).orElse(0);
 			}
-			
+
 			LocalDateTime checkOutTime = LocalDateTime.now();
 
 			LocalTime thresholdTime = LocalTime.of(8, 0); // 8시 기준
-      boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
-      String lateStatus = isLate ? "Y" : "N";
-			
-			Attendance attendance = Attendance.builder()
-          .employee(employee)
-          .attendDate(attendDate)
-          .checkInTime(checkInTime)
-          .checkOutTime(null)
-          .workStatus(1)
-          .lateStatus(lateStatus)
-          .overtimeSum(overtime)
-          .build();
+			boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
+			String lateStatus = isLate ? "Y" : "N";
+
+			Attendance attendance = Attendance.builder().employee(employee).attendDate(attendDate)
+					.checkInTime(checkInTime).checkOutTime(null).workStatus(1).lateStatus(lateStatus)
+					.overtimeSum(overtime).build();
 
 			attendanceRepository.save(attendance);
 
@@ -120,75 +123,84 @@ public class AttendanceService {
 		int overtimeSum = 0;
 		try {
 			Employee employee = employeeRepository.findByempId(dto.getEmp_id());
-			
+
 			LocalDate attendDate = dto.getAttend_date();
 			int year = attendDate.getYear();
 			int month = attendDate.getMonthValue();
 			LocalDateTime checkInTime = dto.getCheck_in_time();
 			LocalDateTime checkOutTime = LocalDateTime.now();
-			
-			int overtimeEnd = checkOutTime.getHour()-16;
-			
-			overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
-			if(overtime > 67) {
+
+			int overtimeEnd = checkOutTime.getHour() - 16;
+
+			overtime = attendanceRepository.findByLastInfo(employee, year, month).orElse(0);
+			if (overtime > 67) {
 				overtimeSum = overtime;
-			}else {
+			} else {
 				overtimeSum = overtime + overtimeEnd;
 			}
-			
+
 			LocalTime thresholdTime = LocalTime.of(8, 0); // 8시 기준
-      boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
-      String lateStatus = isLate ? "Y" : "N";
-			
-			Attendance attendance = Attendance.builder()
-          .employee(employee)
-          .attendNo(dto.getAttend_no())
-          .attendDate(attendDate)
-          .checkInTime(checkInTime)
-          .checkOutTime(checkOutTime)
-          .workStatus(2)
-          .lateStatus(lateStatus)
-          .overtimeSum(overtimeSum)
-          .build();
-			
+			boolean isLate = checkInTime.toLocalTime().isAfter(thresholdTime);
+			String lateStatus = isLate ? "Y" : "N";
+
+			Attendance attendance = Attendance.builder().employee(employee).attendNo(dto.getAttend_no())
+					.attendDate(attendDate).checkInTime(checkInTime).checkOutTime(checkOutTime).workStatus(2)
+					.lateStatus(lateStatus).overtimeSum(overtimeSum).build();
+
 			attendanceRepository.save(attendance);
-			
+
 			result = 1;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return result;
 	}
-	
+
+	// 오늘 출근한 사람들 list
 	public List<String> selectByToDayList() {
 		List<String> dtoList = new ArrayList<>();
-		
-		LocalDate now = LocalDate.now(); 
-		
+
+		LocalDate now = LocalDate.now();
+
 		List<Attendance> attendList = attendanceRepository.selectByToDayList(now);
-		
-		for(Attendance attend : attendList) {
+
+		for (Attendance attend : attendList) {
 			String list = attend.getEmployee().getEmpId();
-			
+
 			dtoList.add(list);
 		}
-		
+
+		return dtoList;
+	}
+
+	// 오늘 퇴근한 사람들 list
+	public List<String> selectByToDayListLeave() {
+		List<String> dtoList = new ArrayList<>();
+
+		LocalDate now = LocalDate.now();
+
+		List<Attendance> attendList = attendanceRepository.selectByToDayListLeave(now);
+
+		for (Attendance attend : attendList) {
+			String list = attend.getEmployee().getEmpId();
+
+			dtoList.add(list);
+		}
+
 		return dtoList;
 	}
 
 	// vacationHour 출력
 	public EmployeeDto employeeInfo(String empId) {
 		Employee employee = employeeRepository.findByempId(empId);
-		EmployeeDto dto = EmployeeDto.builder()
-				.vacation_hour(employee.getVacationHour())
-				.build();
-		
+		EmployeeDto dto = EmployeeDto.builder().vacation_hour(employee.getVacationHour()).build();
+
 		return dto;
 	}
-	
+
 	// 월별 기본 정보 조회
-	public List<AttendanceDto> findByYearAndMonth(String empId, int year, int month){
+	public List<AttendanceDto> findByYearAndMonth(String empId, int year, int month) {
 		List<Attendance> aList = null;
 		LocalDate startDate = LocalDate.of(year, month, 1);
 		LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
@@ -197,76 +209,106 @@ public class AttendanceService {
 		Employee employee = employeeRepository.findByempId(empId);
 		aList = attendanceRepository.findByYearAndMonth(employee, startDate, endDate, today);
 		List<AttendanceDto> aDtoList = new ArrayList<AttendanceDto>();
-		for(Attendance a : aList) {
+		for (Attendance a : aList) {
 			AttendanceDto dto = new AttendanceDto().toDto(a);
 			aDtoList.add(dto);
 		}
 		return aDtoList;
 	}
-	
+
 	// 직원 상세 페이지 근태기록 출력
 	public List<AttendanceDto> findByempId(String empId) {
 		List<AttendanceDto> attendDtoList = new ArrayList<AttendanceDto>();
 		Employee employee = employeeRepository.findByempId(empId);
-		
+
 		List<Attendance> attendList = attendanceRepository.findByEmpIdList(employee);
-		
-		for(Attendance a : attendList) {
+
+		for (Attendance a : attendList) {
 			AttendanceDto dto = new AttendanceDto().toDto(a);
-			
+
 			attendDtoList.add(dto);
 		}
-		
+
 		return attendDtoList;
 	}
-	
-	 @Scheduled(cron = "0 1 16 * * *")
-	    public void noCheckIn() {
-	        LocalDate today = LocalDate.now();
-	        int overtime = 0;
-	        int year = today.getYear();
-			int month = today.getMonthValue();
-	        int date = today.getDayOfMonth();
 
-	        Set<LocalDate> holidays = new HashSet<>(restHolidayService.getHolidays(today.getYear(), today.getMonthValue()));
+	public Attendance employeeAttendanceChange(AttendanceDto dto, String admin_id) {
+		Employee employee = employeeRepository.findByempId(dto.getEmp_id());
+		Employee admin = employeeRepository.findByempId(admin_id);
 
-	        List<Employee> employees = employeeRepository.findAll();
+		Attendance attend = dto.toEntityWithJoin(employee);
 
-	        for (Employee employee : employees) {
-	            if (isWeekendOrHoliday(today, new ArrayList<>(holidays))) {
-	                continue;
-	            }
+		Attendance oriDataEntity = attendanceRepository.findByattendNo(dto.getAttend_no());
+		AttendanceDto oriDataDto = new AttendanceDto().toDto(oriDataEntity);
 
-	            Attendance attendance = attendanceRepository.findByEmpAndDate(employee, today);
-	            if(date == 1) {
-	            	overtime = 0;
-	            }else {
-	            	overtime = attendanceRepository.findByLastInfo(employee , year , month).orElse(0);
-	            }
+		Attendance attendance = attendanceRepository.save(attend);
 
-	            if (attendance == null) {
-	                Attendance newAttendance = Attendance.builder()
-	                    .employee(employee)
-	                    .attendDate(today)
-	                    .checkInTime(null)
-	                    .checkOutTime(null)
-	                    .workStatus(3)
-	                    .lateStatus("N")
-	                    .overtimeSum(overtime)
-	                    .build();
+		String oriData = convertDtoToJson(oriDataDto);
+		String newData = convertDtoToJson(dto);
 
-	                attendanceRepository.save(newAttendance);
-	            }
-	        }
-	    }
+		AuditLogDto auditDto = new AuditLogDto();
 
-	    private boolean isWeekendOrHoliday(LocalDate date, List<LocalDate> holidays) {
-	        DayOfWeek dayOfWeek = date.getDayOfWeek();
-	        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
-	            return true;
-	        }
+		auditDto.setAudit_type("U");
+		auditDto.setChanged_item("attend");
+		auditDto.setNew_data(newData);
+		auditDto.setOri_data(oriData);
 
-	        return holidays.contains(date);
-	    }
-	
+		AuditLog auditLog = auditDto.toEntityWithJoin(employee, admin);
+
+		auditLogRepository.save(auditLog);
+
+		return attendance;
+	}
+
+	// Dto를 Json 형태로 변환
+	public String convertDtoToJson(AttendanceDto attendDto) {
+		try {
+			return objectMapper.writeValueAsString(attendDto);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Scheduled(cron = "0 1 16 * * *")
+	public void noCheckIn() {
+		LocalDate today = LocalDate.now();
+		int overtime = 0;
+		int year = today.getYear();
+		int month = today.getMonthValue();
+		int date = today.getDayOfMonth();
+
+		Set<LocalDate> holidays = new HashSet<>(restHolidayService.getHolidays(today.getYear(), today.getMonthValue()));
+
+		List<Employee> employees = employeeRepository.findAll();
+
+		for (Employee employee : employees) {
+			if (isWeekendOrHoliday(today, new ArrayList<>(holidays))) {
+				continue;
+			}
+
+			Attendance attendance = attendanceRepository.findByEmpAndDate(employee, today);
+			if (date == 1) {
+				overtime = 0;
+			} else {
+				overtime = attendanceRepository.findByLastInfo(employee, year, month).orElse(0);
+			}
+
+			if (attendance == null) {
+				Attendance newAttendance = Attendance.builder().employee(employee).attendDate(today).checkInTime(null)
+						.checkOutTime(null).workStatus(3).lateStatus("N").overtimeSum(overtime).build();
+
+				attendanceRepository.save(newAttendance);
+			}
+		}
+	}
+
+	private boolean isWeekendOrHoliday(LocalDate date, List<LocalDate> holidays) {
+		DayOfWeek dayOfWeek = date.getDayOfWeek();
+		if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+			return true;
+		}
+
+		return holidays.contains(date);
+	}
 }

@@ -74,7 +74,7 @@ public class StudentViewController {
 
 	
 	// 학생등록 페이지로 이동
-	@GetMapping("/student/create")
+	@GetMapping("/employee/student/create")
 	public String createStudentPage() {
 		
 		
@@ -90,7 +90,7 @@ public class StudentViewController {
 	}
 	
 	// 학생 목록 페이지로 이동(직원)
-		@GetMapping("/student/list/emp")
+		@GetMapping("/employee/student/list")
 		public String listStudentPageEmp(Model model, StudentClassDto dto) {
 			List<StudentClassDto> resultList = studentService.selectStudentList(dto);
 			model.addAttribute("resultList",resultList);
@@ -111,7 +111,7 @@ public class StudentViewController {
 	}
 	
 	// 학생 정보 상세 페이지로 이동
-	@GetMapping("/student/emp/{student_no}")
+	@GetMapping("/employee/student/{student_no}")
 	public String selectStudentOneEmp(Model model,
 			@PathVariable("student_no") Long student_no) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
@@ -132,7 +132,7 @@ public class StudentViewController {
 	}
 	
 	// 학생 정보 수정 페이지로 이동
-	@GetMapping("/student/update/emp/{student_no}")
+	@GetMapping("/employee/student/update/{student_no}")
 	public String updateStudentInfoEmp(@PathVariable("student_no") Long student_no,Model model) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
 		model.addAttribute("dto",dto);
@@ -160,7 +160,7 @@ public class StudentViewController {
 	}
 	
 	// 학년 이력 정보 수정 페이지로 이동(반배정)(교직원)
-		@GetMapping("/student/class/emp/{student_no}")
+		@GetMapping("/employee/student/class/{student_no}")
 		public String classAssignEmp(@PathVariable("student_no") Long student_no, Model model) {
 		    List<TeacherHistoryDto> resultList = teacherHistoryService.selectClassList();
 		    StudentDto sdto = studentService.selectStudentOne(student_no);
@@ -191,7 +191,7 @@ public class StudentViewController {
 	}
 	
 	// 학부모 정보 등록 페이지(교직원)
-		@GetMapping("/student/parent/emp/{student_no}")
+		@GetMapping("/employee/student/parent/{student_no}")
 		public String parentInfoEmp(@PathVariable("student_no") Long student_no, Model model) {
 			List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
 			StudentDto sdto = studentService.selectStudentOne(student_no);

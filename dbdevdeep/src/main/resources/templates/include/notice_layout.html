@@ -34,15 +34,13 @@ xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
 		    const navItems = document.querySelectorAll('.nav-item');
-	
+
 		    if (navItems[0]) {
 		    	navItems[0].classList.add('active');
 		    }
 		});
 	</script>
 	
-	<!-- 웹소켓 연결 설정 js -->
-    <script th:src="@{/dbdevdeepjs/websocket/websocket.js}"></script>
 
 </body>
 </html>

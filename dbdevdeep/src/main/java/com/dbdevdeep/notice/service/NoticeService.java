@@ -25,8 +25,6 @@ import com.dbdevdeep.notice.repository.NoticeReadCheckRepository;
 import com.dbdevdeep.notice.repository.NoticeRepository;
 import com.dbdevdeep.websocket.config.WebSocketHandler;
 
-import jakarta.transaction.Transactional;
-
 @Service
 public class NoticeService {
 	
@@ -50,6 +48,36 @@ public class NoticeService {
 		this.noticeCategoryRepository = noticeCategoryRepository;
 		this.webSocketHandler = webSocketHandler;
 		this.alertRepository = alertRepository;
+	}
+	
+	// 홈화면 공지사항 목록 조회
+	public List<NoticeDto> selectHomeNoticeList(){
+		
+		// 게시글 리스트 불러오기 (LIMIT 6)
+		List<Notice> noticeList = noticeRepository.findTop6ByOrderByRegTimeDesc();
+		
+		// Entity 데이터를 Dto로 옮기기
+		List<NoticeDto> noticeDtoList = new ArrayList<NoticeDto>();
+		for(Notice n : noticeList) {
+			NoticeDto dto = NoticeDto.builder()
+					.notice_no(n.getNoticeNo())
+					.writer_id(n.getEmployee().getEmpId())
+					.writer_name(n.getEmployee().getEmpName())
+					.category_no(n.getNoticeCategory().getCategoryNo())
+					.category_name(n.getNoticeCategory().getCategoryName())
+					.notice_title(n.getNoticeTitle())
+					.notice_content(n.getNoticeContent())
+					.is_important(n.getIsImportant())
+					.is_cmt(n.getIsCmt())
+					.reg_time(n.getRegTime())
+					.mod_time(n.getModTime())
+					.is_att(n.getIsAtt())
+					.build();
+			
+			noticeDtoList.add(dto);
+		}
+		
+		return noticeDtoList;
 	}
 	
 	// 공지사항 목록 조회
@@ -129,14 +157,12 @@ public class NoticeService {
 					.build();
 			
 			noticeReadCheckRepository.save(newNrc);
-			
 			result=1;
 		}
 		return result;
 	}
 	
 	// 공지사항 게시글 작성
-	@Transactional
 	public int createNotice(NoticeDto dto) {
 		int result = -1;
 		
@@ -218,26 +244,25 @@ public class NoticeService {
 	}
 	
 	// 공지사항 게시글 삭제
-	@Transactional
 	public int deleteNotice(Long notice_no) {
 		int result = -1;
 		try {
 			noticeRepository.deleteById(notice_no);
 			
 			List<Alert> alertList = alertRepository.findByreferenceNameandreferenceNo("notice", notice_no);
-			
-			for(Alert alert : alertList) {
+			for (Alert alert : alertList) {
 				AlertDto alertDto = new AlertDto().toDto(alert);
-				
+
 				alertDto.setAlarm_status("X");
 				Alert a = alertDto.toEntity(alert.getEmployee());
-				
+				alertRepository.delete(alert);
+
+				// alert_status를 x로 처리하여 websocket_handler로 전송
+				// 이미 전송된 websocket 알람을 삭제하기 위함
 				try {
-					alertRepository.delete(a);
-					
-					webSocketHandler.sendAlert(a);
-				} catch (IOException except) {
-					except.printStackTrace();
+					webSocketHandler.sendAlert(a); 
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 			

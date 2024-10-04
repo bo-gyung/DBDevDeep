@@ -19,6 +19,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="imgModalLabel">사진 상세보기</h4>
+                    <button type="button" class="close" data-dismiss="modal"
+	                        aria-hidden="true">×</button>
                 </div>
                 <div class="modal-body text-center">
                     <img id="modalImage" src="" alt="" class="img-fluid">
@@ -26,7 +28,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-light"
                         data-dismiss="modal">닫기</button>
-                    <a id="downloadBtn" href="" download class="btn btn-primary" style="display:none;">저장하기</a>
+                    <a id="downloadBtn" href="" download class="btn btn-primary" style="display:none;">저장</a>
 				</div>
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
@@ -63,7 +65,9 @@
                                             <li>
                                                 <div class="message-center">
                                                     <th:block th:if="${#lists.isEmpty(ccrDtoList)}">
-                                                    	<p>생성된 채팅방이 없습니다.</p>
+                                                    	<div style="text-align : center; height: 50vh; line-height : 35vh;">
+			                                                생성된 채팅방이 없습니다.
+	                                                	</div>
                                                     </th:block>
                                                     <th:block th:if="${!#lists.isEmpty(ccrDtoList)}">
                                                     	<!-- 채팅방 -->
@@ -138,7 +142,7 @@
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
 					                                                 		<!-- 읽음확인 -->
 						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 						                                                 	<img th:src="@{'/UploadImg/chat/' + ${chat.new_pic_name}}" 
 						                                                 			th:alt="${chat.ori_pic_name}" 
 						                                                 			style="max-width: 12.5vw; height: auto;" 
@@ -155,7 +159,7 @@
 					                                                 	<div class="chat-content text-right d-inline-block pl-3">
 						                                                 	<!-- 읽음확인 -->
 						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 						                                                    <div class="box msg p-2 d-inline-block mb-1" 
 						                                                    th:text="${chat.content}"></div>
 						                                                </div>
@@ -190,16 +194,16 @@
 					                                                 				data-toggle="modal" data-target="#imgModal" 
 							                                                        onclick="openModal(this)">
 					                                                        <!-- 읽음확인 -->
-						                                                 	<div class="d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 					                                                 	</th:block>
 					                                                 	<!-- 사진파일이 존재하지 않는다면 -->
 					                                                 	<th:block th:if="${chat.new_pic_name == null || #strings.isEmpty(chat.new_pic_name)}">
 						                                                    <div class="box msg p-2 d-inline-block mb-1" 
 						                                                    th:text="${chat.content}"></div>
 						                                                    <!-- 읽음확인 -->
-						                                                 	<div class="d-inline-block font-10 p-1" style="vertical-align: bottom;" 
-						                                                 	th:text="${headCount-chat.chat_read_check}"></div>
+						                                                 	<div class="text-right d-inline-block font-10 p-1" style="vertical-align: bottom;" 
+						                                                 	th:text="${(headCount-chat.chat_read_check) == 0 ? '' : headCount-chat.chat_read_check}"></div>
 					                                                 	</th:block>
 					                                                </div>
 					                                                <!-- 작성시간 -->
@@ -429,17 +433,56 @@
 		        }
 			})
 		}
+		
+		// 헤더 알림 리로드
+		const headerAlertReload = function(){
+
+			const csrfToken = document.getElementById("csrf_token_header").value;
+			const chatAlertElement = document.getElementById("chat_alert_place");
+            
+         	// 로그인한 사용자가 확인하지 않은 채팅 메세지 개수 출력
+			fetch('/chat/alert/header',{
+				method: 'GET',
+	            headers: {
+	                'Content-Type': 'application/json',
+	                'X-CSRF-TOKEN': csrfToken
+	            }
+			})
+			.then(response=>response.json())
+			.then(data=>{
+				// 가져온 데이터(읽지 않은 메시지 개수)를 chat_alert_place에 넣기
+				const unreadCount = data.unread_count || 0; // 데이터가 없을 경우 0으로 설정
+				chatAlertElement.textContent = unreadCount;
+				
+	            if (chatAlertElement.textContent == 0) {
+		            // chatAlertElement.textContent가 0개일 때
+	                chatAlertElement.style.display = "none";
+	            } else {
+	            	// 다시 보이도록 설정 (기본 스타일)
+	                chatAlertElement.style.display = "";
+	            }
+
+	            // chatAlertElement.textContent가 10보다 작으면 특정 스타일 추가
+	            if (chatAlertElement.textContent < 10) {
+	                chatAlertElement.style.aspectRatio = "1/1"; // 스타일 추가
+	            } else {
+	                // unreadCount가 10과 같거나 크면 스타일 제거
+	                chatAlertElement.style.aspectRatio = ""; // 스타일 제거
+	            }
+				
+			})
+		}
 
 		
 		// 채팅방 목록을 클릭하여 채팅방 입장
 		function enterChatRoom(element){
-			
 			const roomNo = element.querySelector('input[type="hidden"]').value;
 			loadChatroom(roomNo);
 			sendRoomNoInfo(roomNo);
 			updateChatRoomList();
 			
 		}
+		
 		
 		// 채팅방 대화내용 불러오기, 갱신하기
 		function loadChatroom(roomNo){
@@ -458,6 +501,9 @@
 		        document.getElementById('chat_container').innerHTML = fragment;
 				// 메시지가 로드된 후 스크롤을 아래로 이동
 	            scrollToBottom();
+				// 헤더 알림 리로드
+	            headerAlertReload();
+				
 			})
 		}
 		

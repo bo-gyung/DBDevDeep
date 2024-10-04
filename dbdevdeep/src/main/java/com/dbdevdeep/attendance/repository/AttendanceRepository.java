@@ -16,8 +16,11 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>{
 	@Query("SELECT a FROM Attendance a WHERE a.attendDate = :ld AND a.employee = :employee")
 	Attendance findByTodayCheckTime(@Param("employee") Employee employee, @Param("ld") LocalDate ld);
 	
-	@Query("SELECT a FROM Attendance a WHERE a.attendDate = :now")
+	@Query("SELECT a FROM Attendance a WHERE a.attendDate = :now AND workStatus = 1")
 	List<Attendance> selectByToDayList(@Param("now") LocalDate now); 
+	
+	@Query("SELECT a FROM Attendance a WHERE a.attendDate = :now AND workStatus = 2")
+	List<Attendance> selectByToDayListLeave(@Param("now") LocalDate now); 
 
 	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee AND a.attendDate BETWEEN :startDate AND :endDate AND a.attendDate <= :today ORDER BY a.attendDate DESC")
 	List<Attendance> findByYearAndMonth(@Param("employee") Employee employee, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate, @Param("today") LocalDate today);
@@ -30,6 +33,8 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long>{
 	
 	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee")
 	List<Attendance> findByEmpIdList(@Param("employee") Employee employee);
+	
+	Attendance findByattendNo(Long attend_no);
 	
 	@Query("SELECT a FROM Attendance a WHERE a.employee = :employee AND a.attendDate = :attendDate")
 	Attendance findByEmpAndDate(@Param("employee") Employee employee , @Param("attendDate") LocalDate attendDate);

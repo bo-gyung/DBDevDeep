@@ -13,6 +13,23 @@
 	    padding: 0; /* 기본 패딩 제거 */
 	    font-size: inherit; /* 상속된 폰트 크기 사용 */
 	}
+	
+	.ql-container{
+		font-size:16px !important;
+	}
+	
+	.swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
 </style>
 <body>
 		<!-- ============================================================== -->
@@ -39,21 +56,15 @@
 	                                    <div class="col-md-2">
 	                                    	<small id="category_help" class="form-text text-muted">공지분류</small>
 	                                        <select style="color:black;" class="custom-select mr-sm-2" id="category_no" name="category_no">
-	                                            <option value="0">공지분류</option>
+	                                            <option value="0">분류를 선택하세요.</option>
 	                                            <option value="1" th:selected="${dto.category_no}=='1'">학사일정</option>
 	                                            <option value="2" th:selected="${dto.category_no}=='2'">사이트</option>
 	                                            <option value="3" th:selected="${dto.category_no}=='3'">공고</option>
 	                                        </select>
 	                                    </div>
-		                                <div class="col-md-8">
+		                                <div class="col-md-10">
 	                                    	<small id="check_list_help" class="form-text text-muted">체크여부</small>
-	                                    	<div class="row" >
-		                                    	<div class="custom-control custom-checkbox col-md-2">
-			                                        <input type="checkbox" class="custom-control-input" 
-			                                        id="is_important" name="is_important" value="1" 
-			                                        th:checked="${dto.is_important}">
-				                                    <label class="custom-control-label mr-sm-3" for="is_important">상단 고정</label>
-			                                	</div>
+	                                    	<div class="d-flex align-items-center" style="margin-top:6px;">
 			                                	<div class="custom-control custom-checkbox col-md-2">
 				                                    <input type="checkbox" class="custom-control-input" 
 				                                    id="is_cmt" name="is_cmt" value="1" 
@@ -88,16 +99,6 @@
 											</div>
                                        	</div>
                                 	</div>
-                                	<div class="row">
-                                        <div class="col-md-11">
-                                            <label class="form-control" for="notice_attr_file">파일을 선택하세요.</label>
-                                            <input type="file" class="custom-file-input" id="notice_attr_file" name="notice_attr_file">
-                                        </div>
-                                        <div class="col-md-1">
-                                            <button class="btn btn-outline-secondary" type="button" onclick="fileInput()" 
-                                            style="cursor: pointer;">첨부</button>
-                                        </div>
-                                    </div>
                                     <input type="hidden" id="notice_no" name="notice_no" th:value="${dto.notice_no}">
                                     <input type="hidden" th:value="${dto.notice_content}" style="display: none" id="ori_content">
                                     <input type="hidden" id="notice_content" name="notice_content">
@@ -114,37 +115,12 @@
                         </div>
                     </div>
                 </div>
-                <!-- ============================================================== -->
-                <!-- End Page Content -->
-                <!-- ============================================================== -->
-                <!-- ============================================================== -->
-                <!-- Right sidebar -->
-                <!-- ============================================================== -->
-                <!-- .right-sidebar -->
-                <!-- ============================================================== -->
-                <!-- End Right sidebar -->
-                <!-- ============================================================== -->
             </div>
-            <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <footer class="footer text-center text-muted">
-                All Rights Reserved by Adminmart. Designed and Developed by <a
-                    href="https://wrappixel.com">WrapPixel</a>.
+            <footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.
             </footer>
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
-        <!-- ============================================================== -->
     <!-- Include the Quill library -->
 	<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-	<!-- ============================================================== -->
 	<!-- Quill editor를 이용해 게시글 수정 --> 
     <script>
     
@@ -198,7 +174,11 @@
       		Swal.fire({
  	  			icon:'error',
  	  			title:'실패',
- 	  			text: vali_text
+ 	  			text: vali_text,
+                confirmButtonText: '확인',
+                customClass: {
+                    confirmButton: 'swal-custom-button'
+                }
  	   		});
       		
       	} else{
@@ -233,7 +213,11 @@
 					Swal.fire({
 						icon :'success',
 						title:'성공',
-						text : data.res_msg
+						text : data.res_msg,
+		                confirmButtonText: '확인',
+		                customClass: {
+		                    confirmButton: 'swal-custom-button'
+		                }
 					}).then((result)=>{
 						location.href="/notice";
 					});
@@ -241,7 +225,11 @@
 					Swal.fire({
 						icon:'error',
 						title:'실패',
-						text: data.res_msg
+						text: data.res_msg,
+		                confirmButtonText: '확인',
+		                customClass: {
+		                    confirmButton: 'swal-custom-button'
+		                }
 					});
 				}
 			})	

@@ -1,6 +1,7 @@
 package com.dbdevdeep.employee.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.dbdevdeep.alert.domain.Alert;
@@ -101,10 +102,13 @@ public class Employee {
 	private String loginYn;
 
 	@Column(name = "account_status")
-	private String accountStatus;
+	private int accountStatus;
 
 	@Column(name = "chat_status_msg")
 	private String chatStatusMsg;
+	
+	@Column(name = "account_time")
+	private LocalDateTime accountTime;
 
 	// 직원 반 배정 관련
 	@OneToMany(mappedBy = "employee")

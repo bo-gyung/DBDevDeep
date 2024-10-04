@@ -45,6 +45,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	    private WebSocketSession session;
 	    private String nowPage;
 	    private int nowRoomNo;
+
     }
 	
 
@@ -127,7 +128,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 	}
 
 	// 채팅방 메세지 전송 메서드(일대일/단체)
-	public void sendPrivateChatMsg(List<String> members, int room_no) {
+	public void sendChatMsg(List<String> members, int room_no) {
 		
 		for (String m : members) {
 	        UserSessionInfo userSessionInfo = clients.get(m);
@@ -175,18 +176,75 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
 
 	}
+	
+	// 채팅방 읽음확인 변경 업데이트 메소드
+	public void readChatMsg(List<String> members, int room_no) {
+
+		for (String m : members) {
+	        UserSessionInfo userSessionInfo = clients.get(m);
+	        
+	        if (userSessionInfo != null && userSessionInfo.getSession().isOpen()) {
+	        	
+	        	try {
+	        		
+	        		Map<String,String> resultMap = new HashMap<String,String>();
+	    			resultMap.put("res_code", "404");
+	    			resultMap.put("res_msg", "채팅 전송중 오류가 발생하였습니다.");
+	    			
+		        	if(userSessionInfo.getNowPage().equals("/chat")) {
+		        		// (1) 채팅 페이지에 접속한 사용자
+		        		resultMap.put("res_code", "200");
+		        		resultMap.put("res_type", "read");
+		        		resultMap.put("now_page", "chat");
+		        		resultMap.put("room_in", "N");
+		        		
+		        		if(userSessionInfo.getNowRoomNo() == room_no) {
+		        			// (2) 채팅 페이지에 접속하고, 현재 채팅방에 접속해있는 사용자
+		        			resultMap.put("room_in", "Y");
+		        			resultMap.put("room_no", String.valueOf(room_no));
+		        		}
+		        	} else {
+		        		// (3) 채팅 페이지에 접속하고 있지 않은 사용자
+	        			resultMap.put("res_code", "200");
+	        			resultMap.put("res_type", "read");
+	        			resultMap.put("now_page", "no_chat");
+		        	}
+		        	
+		        	userSessionInfo.getSession().sendMessage(new TextMessage(new ObjectMapper().writeValueAsString(resultMap)));
+	        	
+                } catch (IOException e) {
+                    // IOException 발생 시 처리 (예: 메시지 전송 실패)
+                    System.err.println("메시지 전송 중 오류 발생: " + e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    // 기타 예외 처리
+                    System.err.println("알 수 없는 오류 발생: " + e.getMessage());
+                    e.printStackTrace();
+                }
+                
+            }
+        }
+		
+		
+		
+		
+	}
 
 
 	// 특정 사용자에게 알림을 보내는 메서드
 	public void sendAlert(Alert alert) throws IOException {
 		UserSessionInfo userSessionInfo = clients.get(alert.getEmployee().getEmpId());
-		if (userSessionInfo != null && userSessionInfo.getSession().isOpen()) {
-			try {
-				String alertJson = alertMessageHandler.sendAlertMessageToUser(alert);
-				userSessionInfo.getSession().sendMessage(new TextMessage(alertJson));
-			} catch (Exception e) {
-				e.printStackTrace();
+        
+        if (userSessionInfo != null && userSessionInfo.getSession().isOpen()) {
+        	WebSocketSession session = userSessionInfo.getSession();
+			if (session != null && session.isOpen()) {
+				try {
+					String alertJson = alertMessageHandler.sendAlertMessageToUser(alert);
+					session.sendMessage(new TextMessage(alertJson));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-		}
+        }
 	}
 }

@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
      layout:decorate="~{include/home_layout}">
@@ -12,6 +11,10 @@
      </head>
      <th:block layout:fragment="content">
 		<style>
+			/* 다섯번째 td 요소에 커서 포인터 추가 */
+			#notice tbody tr td:nth-child(3) {
+			    cursor: pointer;
+			}
 			.holiday-number {
 				color: #FF0000 !important; /* 숫자 색상을 빨간색으로 설정 */
 			}
@@ -227,6 +230,12 @@
 				padding-top:8px;
 				padding-bottom:8px;		
 			}
+			.content {
+				display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 1; /* 최대 줄 수 */ text-overflow: ellipsis; /* '...' 표시 */ white-space: normal; /* 줄바꿈 허용 */
+			}
+			.weather_pic_div {
+				width: 80px; height: 80px; background-size: cover;
+			}
 			
 		</style>
 		
@@ -243,7 +252,7 @@
                                 <div id="" class="mt-4" style="height:28vh; width:100%;">
 									<div>
 								    	<div class="d-flex justify-content-between" style="width:100%;">
-											<div style="border:2px solid #FFB800; width:100%; height:13.5vh; border-radius:10px; margin-right:10px;
+											<div style="border:2px solid #FFB800; width:100%; height:13.5vh; border-radius:5px; margin-right:10px;
 											display: flex; flex-direction: column; justify-content: center; align-items: center; cursor:pointer;" onclick="window.location.href='/approve'">
 												<div class="text-dark"><img src="/assets/images/holiday.png" style="width:20px; height:20px; margin-right:1px;">
 													휴가 결재 요청
@@ -253,7 +262,7 @@
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>
 											</div>
-											<div class="d-flex" style="border:2px solid #50C10B; width:100%; height:13.5vh; border-radius:10px;
+											<div class="d-flex" style="border:2px solid #50C10B; width:100%; height:13.5vh; border-radius:5px;
 											display: flex; flex-direction: column; justify-content: center; align-items: center; cursor:pointer;" onclick="window.location.href='/comeApprove'">
 												<div class="text-dark"><img src="/assets/images/holiday.png" style="width:20px; height:20px; margin-right:1px;">
 													휴가 결재 대기
@@ -268,7 +277,7 @@
 								
 								    <div style="height: 50%; margin-top:10px;">
 								    	<div class="d-flex justify-content-between" style="width:100%;">
-											<div style="border:2px solid #FFB800; width:100%; height:13.5vh; border-radius:10px; margin-right:10px;
+											<div style="border:2px solid #FFB800; width:100%; height:13.5vh; border-radius:5px; margin-right:10px;
 											display: flex; flex-direction: column; justify-content: center; align-items: center; cursor:pointer;" onclick="window.location.href='/approveDocu'">
 												<div class="text-dark"><img src="/assets/images/document.png" style="width:20px; height:20px; margin-right:1px;">
 													보고서 결재 요청
@@ -278,7 +287,7 @@
 													<span style="font-size: 16px !important; margin-left:2px;">건</span>
 												</div>
 											</div>
-											<div class="d-flex" style="border:2px solid #50C10B; width:100%; height:13.5vh; border-radius:10px;
+											<div class="d-flex" style="border:2px solid #50C10B; width:100%; height:13.5vh; border-radius:5px;
 											display: flex; flex-direction: column; justify-content: center; align-items: center; cursor:pointer;" onclick="window.location.href='/comeDocu'">
 												<div class="text-dark"><img src="/assets/images/document.png" style="width:20px; height:20px; margin-right:1px;">
 													보고서 결재 대기
@@ -359,16 +368,81 @@
                     </div>
 					
                 	<div class="col-lg-3 col-md-12">
-                        <div class="card">
-                            <div class="card-body" style="padding:30px;">
-                                <div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
-	                                <h4 class="card-title mt-1" style="margin: 0px; font-size:20px;">오늘의 날씨</h4>
-	                                                          	
-                            	</div>
-                                <div id="" class="mt-4" style="height:28vh; width:100%;"></div>
-                            </div>
-                        </div>
-                    </div>
+						<div class="card">
+							<div class="card-body">
+								<div class="d-flex d-lg-flex d-md-block align-items-center" style="height: 24px;">
+									<h4 class="card-title" style="margin: 0px; font-size:20px;">오늘의 날씨</h4>
+								</div>
+								<div id="" class="row" style="height: 31.6vh; width: 100%; margin-left: 4px;">
+									<div class="col-lg-12 col-md-12">
+										<div class="row">
+											<div class="col-lg-6 col-md-12 d-flex" style="justify-content: center; align-items: center; ">
+													<div th:if="${resultMap.PTY == '0' && resultMap.WSD == '0' && resultMap.SKY == '1'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-sun.png');"></div>
+													<div th:if="${resultMap.PTY == '0' && resultMap.WSD == '0' && resultMap.SKY == '3'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-sun-cloud.png');"></div>
+													<div th:if="${resultMap.PTY == '0' && resultMap.WSD == '0' && resultMap.SKY == '4'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-cloud.png');"></div>
+													<div th:if="${resultMap.PTY == '0' && (resultMap.WSD == '1' || resultMap.WSD == '2' || resultMap.WSD == '3')}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-wind.png');"></div>
+													<div th:if="${(resultMap.PTY == '1' || resultMap.PTY == '2') && (resultMap.WSD == '0' || resultMap.WSD == '1')}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-heavy-rain.png');"></div>
+													<div th:if="${(resultMap.PTY == '1' || resultMap.PTY == '2') && (resultMap.WSD == '2' || resultMap.WSD == '3')}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-wind-rain.png');"></div>
+													<div th:if="${resultMap.PTY == '3'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-snow.png');"></div>
+													<div th:if="${resultMap.PTY == '4'}" class="weather_pic_div" style="background-image: url('/assets/images/weather/icon-rain.png');"></div>
+											</div>
+											<div class="col-lg-6 col-md-12">
+												<div>
+													<div style="font-size: 30px;" th:text="${resultMap.TMP + ' ℃'}"></div>
+													<div th:text="${'습도 ' + resultMap.REH + '%'}"></div>
+													<div th:text="${'풍속 ' + resultMap.WSDV + 'm/s'}"></div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-12 col-md-12">
+										<div class="row">
+											<div class="col-lg-6 col-md-12">
+												<table style="width: 100%; background-color: #e8eaec; margin-bottom: 20px; border-radius: 2px;">
+													<tr>
+														<th style="padding: 6px; text-align: center;">최저기온</th>
+													</tr>
+													<tr>
+														<td style="padding: 6px; text-align: center;" th:text="${resultMap.TMN + ' ℃'}"></td>
+													</tr>
+												</table>									
+											</div>
+											<div class="col-lg-6 col-md-12">
+												<table style="width: 100%; background-color: #e8eaec; margin-bottom: 20px; border-radius: 2px;">
+													<tr>
+														<th style="padding: 6px; text-align: center;">강수확률</th>
+													</tr>
+													<tr>
+														<td style="padding: 6px; text-align: center;" th:text="${resultMap.POP + ' %'}"></td>
+													</tr>
+												</table>
+											</div>
+											<div class="col-lg-6 col-md-12">
+												<table style="width: 100%; background-color: #e8eaec;border-radius: 2px;">
+													<tr>
+														<th style="padding: 6px; text-align: center;">최고기온</th>
+													</tr>
+													<tr>
+														<td style="padding: 6px; text-align: center;" th:text="${resultMap.TMX + ' ℃'}"></td>
+													</tr>
+												</table>
+											</div>
+											<div class="col-lg-6 col-md-12">
+												<table style="width: 100%; background-color: #e8eaec; border-radius: 2px;">
+													<tr>
+														<th style="padding: 6px; text-align: center;">강수량</th>
+													</tr>
+													<tr>
+														<td style="padding: 6px; text-align: center;" th:text="${resultMap.PCP == '강수없음'? resultMap.PCP : resultMap.PCP + 'mm'}"></td>
+													</tr>
+												</table>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
                     
                     <div class="col-lg-6 col-md-12">
                         <div class="card">
@@ -377,39 +451,25 @@
 	                                <h4 class="card-title mt-1" style="margin: 0px; font-size:20px;">공지사항</h4>
 	                                <div class="ml-auto"><a th:href="@{/notice}" style="font-size: 14px; color:#7C8798; cursor: pointer;" onmouseover="this.style.color='black'; this.style.textDecoration='underline';" onmouseout="this.style.color='#7C8798'; this.style.textDecoration='none';">더보기</a></div>
                             	</div>
-                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:10px; overflow-y: auto;">
+                                <div id="" class="mt-4" style="height:28vh; width:100%; padding:17px; border:2px solid #E2E2E2; border-radius:5px; overflow-y: auto;">
                                 	<table id="notice" class="w-100">
 	                                	<tbody>
-	                                		<tr>
-	                                			<td class="text-dark text-left" style="width:20%;">[사이트]</td>
-	                                			<td class="text-dark text-left" style="width:60%;">그룹웨어 시스텝 점검 안내</td>
-	                                			<td class="text-dark text-right" style="width:20%;">2024.09.27</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[공고]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 교직원 연수 안내</td>
-	                                			<td class="text-dark text-right">2024.09.26</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 운동회 일정 안내</td>
-	                                			<td class="text-dark text-right">2024.09.25</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
-	                                		<tr>
-	                                			<td class="text-dark text-left">[학사일정]</td>
-	                                			<td class="text-dark text-left">2024학년도 2학기 방과후 프로그램 안내</td>
-	                                			<td class="text-dark text-right">2024.09.24</td>
-	                                		</tr>
+		                                	<th:block th:if="${#lists.isEmpty(noticeList)}">
+		                                		<tr>
+		                                			<td colspan="4">게시글이 존재하지 않습니다.</td>
+		                                		</tr>
+		                                	</th:block>
+		                                	<th:block th:if="${!#lists.isEmpty(noticeList)}">
+		                                		<tr th:each="notice, noticeStat : ${noticeList}">
+		                                			<td th:text="${notice.notice_no}" style="display:none;"></td>
+		                                			<td class="text-dark text-left" style="width:20%;" 
+		                                			th:text="${notice.category_name}">[카테고리]</td>
+		                                			<td class="text-dark text-left" style="width:60%;" 
+		                                			th:text="${notice.notice_title}">제목</td>
+		                                			<td class="text-dark text-right" style="width:20%;" 
+		                                			th:text="${#temporals.format(notice.reg_time, 'yyyy.MM.dd')}">날짜</td>
+		                                		</tr>
+		                                	</th:block>
 	                                	</tbody>
 	                                </table>
                                 </div>
@@ -445,6 +505,8 @@
                             </div>
                         </div>
                     </div>
+                    
+                    
                 </div>
             </div>
 	        <footer class="footer text-center text-muted">
@@ -452,6 +514,17 @@
 	                    href="">DBDevDeep</a>.
 	        </footer>  
 	    </div>
+    <script>
+	    $('#notice').on('click', 'td:nth-child(3)', function () {
+	        // 클릭된 행에서 해당 게시글의 번호를 추출합니다.
+	        var noticeNo = $(this).closest('tr').find('td:nth-child(1)').text(); // 번호가 있는 td를 선택
+	
+	        // 게시글 상세 페이지로 이동합니다.
+	        if (noticeNo) {
+	            window.location.href = '/notice/' + noticeNo;
+	        }
+	    });
+	</script>
 	<script>
 	document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('calendar');
@@ -490,7 +563,6 @@
                                     end: holiday.is_period === 'Y' ? new Date(new Date(holiday.end_date).setDate(new Date(holiday.end_date).getDate())).toISOString().split('T')[0] : holiday.start_date, // 종료일을 다음 날로 설정
                                     classNames: ['fc-holiday'], // fc-holiday 클래스 부여
                                 };
-
                                 // YEARLY 반복 이벤트 처리
                                 if (holiday.repeat_type === 'YEARLY') {
                                     return createYearlyEvents(holiday); // 반복 이벤트 처리
@@ -553,6 +625,7 @@
         });
     }
 	</script>
+	
     <script src="assets/libs/jquery/dist/jquery.min.js"></script>
     <script src="assets/libs/popper.js/dist/umd/popper.min.js"></script>
     <script src="assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -567,11 +640,8 @@
     <!--This page JavaScript -->
     <script src="assets/extra-libs/c3/d3.min.js"></script>
     <script src="assets/extra-libs/c3/c3.min.js"></script>
-    <script src="assets/libs/chartist/dist/chartist.min.js"></script>
-    <script src="assets/libs/chartist-plugin-tooltips/dist/chartist-plugin-tooltip.min.js"></script>
     <script src="assets/extra-libs/jvector/jquery-jvectormap-2.0.2.min.js"></script>
     <script src="assets/extra-libs/jvector/jquery-jvectormap-world-mill-en.js"></script>
-    <script src="dist/js/pages/dashboards/dashboard1.min.js"></script>
     </th:block>
 </body>
 
