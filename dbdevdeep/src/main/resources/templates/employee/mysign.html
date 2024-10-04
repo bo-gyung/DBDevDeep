@@ -78,10 +78,12 @@
 			<!-- ============================================================== -->
 			<div class="row">
 				<div class="col-12">
-					<div class="card" style="padding: 40px;">
+					<div class="card" style="padding: 50px 80px;">
 						<div class="card-body show" id="pwcheck">
-							<h4 class="card-title">비밀번호 확인</h4>
-							<hr>
+							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+									<div style="font-size: 30px;">비밀번호 확인</div>
+								</div>
+								<hr>
 							<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 							<form id="pwcheckFrm">
 								<div class="form-body">
@@ -102,7 +104,9 @@
 						</div>
 
 						<div class="card-body hidden" id="signDiv">
-							<h4 class="card-title">내 서명</h4>
+							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+								<div style="font-size: 30px;">내 서명</div>
+							</div>
 							<hr>
 							<div class="form-body" style="margin-bottom: 40px;">
 								<div class="row">

@@ -74,6 +74,10 @@
 		.swal-custom-button:hover {
 		  background-color: #002685 !important;
 		}
+		
+		input[readonly] {
+			background-color: #e9ecef;
+		}
 	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
@@ -157,15 +161,6 @@
 							<form class="pl-3 pr-3" id="addClassFrm">
 								<input type="hidden" name="teacher_no" id="add_teacher_no">
 
-								<div class="form-group">
-									<label for="emailaddress">교사명</label>
-									<select class="form-control" name="teach_emp_id">
-										<option value="0">교사를 선택하세요</option>
-										<th:block th:each="emp : ${empList}">
-											<option th:text="${emp.emp_name + '(' + emp.emp_id + ')'}" th:value="${emp.emp_id}"></option>
-										</th:block>
-									</select>
-								</div>
 
 								<div class="form-group">
 									<label for="password">학년</label> <input class="form-control" type="text" name="grade" id="add_grade" readonly>
@@ -178,7 +173,19 @@
 								<div class="form-group">
 									<label for="password">학년도</label> <input class="form-control" type="text" name="t_year" readonly id="add_t_year">
 								</div>
-
+								
+								<hr>
+								
+								<div class="form-group">
+									<label for="emailaddress">교사명</label>
+									<select class="form-control" name="teach_emp_id">
+										<option value="0">교사를 선택하세요</option>
+										<th:block th:each="emp : ${empList}">
+											<option th:text="${emp.emp_name + '(' + emp.emp_id + ')'}" th:value="${emp.emp_id}"></option>
+										</th:block>
+									</select>
+								</div>
+								
 								<div class="form-group text-center">
 									<button class="btn btn-primary" type="submit" id="addTeacherBtn">직원 등록</button>
 								</div>
@@ -216,11 +223,7 @@
 								<div class="form-group">
 									<label for="password">학년도</label> <input class="form-control" type="text" name="t_year" readonly id="edit_t_year">
 								</div>
-								<br>
-								<div class="form-group text-center">
-									<button class="btn btn-primary" type="submit">직원 수정</button>
-								</div>
-
+								<hr>
 								<div class="form-group">
 									<label for="emailaddress">교사명</label>
 									<!-- <input class="form-control" type="text" name="emp_id" id="edit_emp_name"> -->
@@ -231,6 +234,10 @@
 										</th:block>
 									</select>
 								</div>
+								<div class="form-group text-center">
+									<button class="btn btn-primary" type="submit">직원 수정</button>
+								</div>
+
 
 
 							</form>
@@ -248,11 +255,11 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header modal-colored-header bg-info">
-							<h4 class="modal-title" id="info-header-modalLabel">반 생성</h4>
+							<h4 class="modal-title" id="info-header-modalLabel">반 수정</h4>
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 						</div>
 						<div class="modal-body">
-							<div class="text-center">재생성하실 반 개수를 선택해주세요</div>
+							<div class="text-center">반 수를 입력해주세요</div>
 							<hr>
 							<form class="pl-3 pr-3" id="editClassForm">
 								<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
@@ -269,7 +276,7 @@
 								<br>
 								<div class="d-flex justify-content-end">
 									<button type="button" class="btn waves-effect waves-light btn-light m-1" data-dismiss="modal" aria-hidden="true">취소</button>
-									<button type="submit" class="btn waves-effect waves-light btn-primary m-1" id="editClass">반 수정</button>
+									<button type="submit" class="btn waves-effect waves-light btn-primary m-1" id="editClass">수정</button>
 								</div>
 							</form>
 
