@@ -3,89 +3,176 @@
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
      layout:decorate="~{include/student_layout}">
 <th:block layout:fragment="content">
+<style>
+	.addPic {
+	background-color: gainsboro;
+	width: 100%;
+	aspect-ratio: 1/1;
+	border-radius: 50%;
+	border: none;
+	font-size: 25px;
+	}
+	
+	.addPic, .littleButton {
+		transition: background-color 0.3s ease;
+	}
+	
+	.addPic:hover, .littleButton:hover {
+		background-color: rgb(189, 189, 189);
+		cursor: pointer;
+	}
+	
+	.littleButton {
+		background-color: gainsboro;
+		width: 35px;
+		height: 35px;
+		border-radius: 50%;
+		border: none;
+		font-size: 15px;
+		text-align: center;
+		position: relative;
+		bottom: 35px;
+		left: 85px;
+	}
+	
+	.preview-container {
+		border-radius: 50%;
+		overflow: hidden;
+		width: 100%;
+		aspect-ratio: 1/1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px solid lightgray;
+	}
+	
+	#imagePreview {
+		width: 100%;
+		aspect-ratio: 1/1;
+		object-fit: cover;
+	}
+	
+	.hidden {
+		display: none;
+	}
+</style>
 <body>
-		<div class="page-wrapper">
-			<div class="page-breadcrumb">
-				<div class="row">
-					<div id="content">
-			            <form id="subject_create_form" method="post">
-			            <h3>과목 정보 등록</h3>
-			            <div class="form-section">
-			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-			                <div class="form-group">
-			                    <label for="name">과목명</label>
-			                    <input type="text" id="name" name="subject_name" placeholder="과목명을 입력하세요.">
-			                </div>
-			                <div>
-			                	<label for="subject_semester">학기:</label>
-			                	<select id="subject_semester" name="subject_semester">
-			                		<option value="" disabled selected>학기를 선택하세요</option>
-			                		<option value="1">1학기</option>
-			                		<option value="2">2학기</option>
-			                	</select>
-			                </div>
-			                
-			                
-			                <!-- 수업 시간 정보 -->
-					        <div>
-					            <h3>수업 시간</h3>
-					            <div id="class-time-container">
-					                <!-- 첫 번째 수업 시간 필드 (초기 필드) -->
-					                <div class="class-time-row">
-					                    <label>요일:</label>
-					                    <select name="timeTable[0].day">
-			                				<option value="" disabled selected>요일을 선택하세요.</option>
-					                        <option value="월">월</option>
-					                        <option value="화">화</option>
-					                        <option value="수">수</option>
-					                        <option value="목">목</option>
-					                        <option value="금">금</option>
-					                    </select>
-					                    <label>교시:</label>
-					                    <select name="timeTable[0].period">
-					                    	<option value="" disabled selected>교시를 선택하세요.</option>
-					                    	<option value="1">1교시</option>
-					                    	<option value="2">2교시</option>
-					                    	<option value="3">3교시</option>
-					                    	<option value="4">4교시</option>
-					                    	<option value="5">5교시</option>
-					                    	<option value="6">6교시</option>
-					                    </select>
-					                </div>
-					            </div>
-					            <!-- 수업 시간 추가 버튼 -->
-					            <button type="button" onclick="addClassTime()" style="margin-left: 10px;">+</button>
-					        </div>
-					        
-					         <!-- 평가 과정 정보 -->
-					        <div>
-					            <h3>평가 과정 :</h3>
-					            <div id="evaluation-container">
-					                <!-- 첫 번째 평가 항목 필드 (초기 필드) -->
-					                <div class="evaluation-row">
-					                    <label>평가 과정:</label>
-					                    <input type="text" name="curriculum[0].curriculum_content" placeholder="평가 과정명"/>
-					                    <label>반영 비율:</label>
-					                    <input type="text" name="curriculum[0].curriculum_ratio" placeholder="%"/>
-					                    <label>만점:</label>
-					                    <input type="text" name="curriculum[0].curriculum_max_score"/>
-					                </div>
-					            </div>
-					            <button type="button" onclick="addEvaluation()" style="margin-left: 10px;">+</button>
-					        </div>
-			                <div class="form-group" style="text-align: right;">
-				                <input type="button" value="취소" th:onclick="|location.href='@{/student/subject}'|">
-				                <input type="submit" value="등록">
-				            </div>
-				            </div>
-	            		</form>
+<div class="page-wrapper">
+		<div class="container-fluid">
+			<div class="col-sm-12 col-md-12">
+				<div class="card">
+					<div class="card-body" style="padding: 50px;">
+						<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+							<div style="font-size: 30px;">과목 정보 등록</div>
+						</div>
+						<hr>
+						<form id="subject_create_form" method="post">
+							<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+							<div class="form-body">
+								<div class="row">
+									<div class="col-md-1 "></div>
+
+									<div class="col-md-9 m-auto">
+									
+										<div class="form-group">
+											<label for="name">과목명 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<input class="form-control" type="text" id="name" name="subject_name" placeholder="과목명을 입력하세요.">
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group">
+											<label for="subject_semester">학기 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<select class="form-control" id="subject_semester" name="subject_semester">
+								                        <option value="" disabled selected>학기를 선택하세요</option>
+								                		<option value="1">1학기</option>
+								                		<option value="2">2학기</option>
+									                </select>
+												</div>
+											</div>
+										</div>
+										
+										
+										<!-- 수업 시간 정보 -->
+										<div id="class-time-container" class="form-group">
+											<label class="col-md-3">요일</label>
+											<label class="col-md-5">교시</label>
+											<div class="class-time-row">
+											<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+												<div class="col-md-3">
+													<select class="form-control" name="timeTable[0].day">
+						                				<option value="" disabled selected>요일을 선택하세요.</option>
+								                        <option value="월">월</option>
+								                        <option value="화">화</option>
+								                        <option value="수">수</option>
+								                        <option value="목">목</option>
+								                        <option value="금">금</option>
+								                    </select>
+												</div>
+												<div class="col-md-5">
+								                    <select class="form-control" name="timeTable[0].period">
+								                    	<option value="" disabled selected>교시를 선택하세요.</option>
+								                    	<option value="1">1교시</option>
+								                    	<option value="2">2교시</option>
+								                    	<option value="3">3교시</option>
+								                    	<option value="4">4교시</option>
+								                    	<option value="5">5교시</option>
+								                    	<option value="6">6교시</option>
+								                    </select>
+												</div>
+												<div class="col-md-1">
+		                    						<input type="button" id="student_location" onclick="addClassTime()" value="+" class="btn waves-effect waves-light btn-primary">
+												</div>
+											</div>
+											</div>
+										</div>
+										
+										<!-- 평가 과정 정보 -->
+										<div id="evaluation-container" class="form-group">
+											<label class="col-md-4">평가 과정</label>
+						                    <label class="col-md-2">반영 비율</label>
+						                    <label class="col-md-2">만점</label>
+						                    <div class="evaluation-row">
+											<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+												<div class="col-md-4">
+					                    			<input type="text" class="form-control" name="curriculum[0].curriculum_content" placeholder="평가 과정명"/>
+												</div>
+												<div class="col-md-2">
+								                    <input type="text" class="form-control" name="curriculum[0].curriculum_ratio" placeholder="%"/>
+												</div>
+												<div class="col-md-2">
+								                    <input type="text" class="form-control" name="curriculum[0].curriculum_max_score"/>
+												</div>
+												<div class="col-md-1">
+		                    						<input type="button" id="student_location" onclick="addEvaluation()" value="+" class="btn waves-effect waves-light btn-primary">
+												</div>
+											</div>
+											</div>
+										</div>	
+										
+										
+										
+										<div class="form-group">
+											<div class="row">
+												<div class="col-md-8"></div>
+												<div class="col-md-2">
+													<input type="button" onclick="cancelBtn();" class="btn waves-effect waves-light btn-light" value="취소">
+													<input type="submit" class="btn waves-effect waves-light btn-primary" value="등록"> 
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</form>
 					</div>
-            
 				</div>
-			<div class="container-fluid">
 			</div>
 		</div>
-	</div>
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
 	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -103,28 +190,34 @@
             const classTimeIndex = document.querySelectorAll(".class-time-row").length;
 
             const newClassTime = `
-                <div class="class-time-row">
-            	<label>요일:</label>
-	                <select name="timeTable[${classTimeIndex}].day">
-	    				<option value="" disabled selected>요일을 선택하세요.</option>
-	                    <option value="월">월</option>
-	                    <option value="화">화</option>
-	                    <option value="수">수</option>
-	                    <option value="목">목</option>
-	                    <option value="금">금</option>
-	                </select>
-	                <label>교시:</label>
-	                <select name="timeTable[${classTimeIndex}].period">
-	                	<option value="" disabled selected>교시를 선택하세요.</option>
-	                	<option value="1">1교시</option>
-	                	<option value="2">2교시</option>
-	                	<option value="3">3교시</option>
-	                	<option value="4">4교시</option>
-	                	<option value="5">5교시</option>
-	                	<option value="6">6교시</option>
-	                </select>
-                    <button type="button" onclick="removeElement(this)">삭제</button>
-                </div>
+            	<div class="class-time-row">
+				<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+					<div class="col-md-3">
+						<select class="form-control" name="timeTable[${classTimeIndex}].day">
+            				<option value="" disabled selected>요일을 선택하세요.</option>
+	                        <option value="월">월</option>
+	                        <option value="화">화</option>
+	                        <option value="수">수</option>
+	                        <option value="목">목</option>
+	                        <option value="금">금</option>
+	                    </select>
+					</div>
+					<div class="col-md-5">
+	                    <select class="form-control" name="timeTable[${classTimeIndex}].period">
+	                    	<option value="" disabled selected>교시를 선택하세요.</option>
+	                    	<option value="1">1교시</option>
+	                    	<option value="2">2교시</option>
+	                    	<option value="3">3교시</option>
+	                    	<option value="4">4교시</option>
+	                    	<option value="5">5교시</option>
+	                    	<option value="6">6교시</option>
+	                    </select>
+					</div>
+					<div class="col-md-1">
+						<input type="button" id="student_location" onclick="removeElement(this)" value="삭제" class="btn waves-effect waves-light btn-primary">
+					</div>
+				</div>
+				</div>
             `;
 
             classTimeContainer.insertAdjacentHTML('beforeend', newClassTime);
@@ -136,15 +229,22 @@
             const evaluationIndex = document.querySelectorAll(".evaluation-row").length;
 
             const newEvaluation = `
-                <div class="evaluation-row">
-	            	<label>평가 과정:</label>
-	                <input type="text" name="curriculum[${evaluationIndex}].curriculum_content" placeholder="평가 과정명">
-	                <label>반영 비율:</label>
-	                <input type="text" name="curriculum[${evaluationIndex}].curriculum_ratio" placeholder="%">
-	                <label>만점:</label>
-	                <input type="text" name="curriculum[${evaluationIndex}].curriculum_max_score">
-                    <button type="button" onclick="removeElement(this)">삭제</button>
-                </div>
+            	<div class="evaluation-row">
+            	<div class="row" style="margin-top: 10px; margin-bottom: 10px;">
+					<div class="col-md-4">
+	        			<input type="text" class="form-control" name="curriculum[${evaluationIndex}].curriculum_content" placeholder="평가 과정명"/>
+					</div>
+					<div class="col-md-2">
+	                    <input type="text" class="form-control" name="curriculum[${evaluationIndex}].curriculum_ratio" placeholder="%"/>
+					</div>
+					<div class="col-md-2">
+	                    <input type="text" class="form-control" name="curriculum[${evaluationIndex}].curriculum_max_score"/>
+					</div>
+					<div class="col-md-1">
+						<button type="button" onclick="removeElement(this)" class="btn waves-effect waves-light btn-primary">삭제</button>
+					</div>
+				</div>
+				</div>
             `;
 
             evaluationContainer.insertAdjacentHTML('beforeend', newEvaluation);
@@ -152,7 +252,8 @@
 
         // 삭제 버튼 기능
         function removeElement(button) {
-            button.parentElement.remove();
+        	const row = button.closest('.row');  // 버튼이 속한 가장 가까운 row 요소를 찾음
+            row.remove();  // row 전체를 삭제
         }
     </script>
 	<script>
@@ -264,6 +365,11 @@
 	        });
 			}
 	    });
+	</script>
+	<script>
+	  	const cancelBtn = () => {
+	  		window.location.href = '/student/subject';
+	  	}
 	</script>
 </body>
 
