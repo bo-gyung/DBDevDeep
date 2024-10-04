@@ -186,7 +186,7 @@ public class EmployeeViewController {
 		return "employee/employee_detail";
 	}
 
-	@GetMapping("/employee/edit/{emp_id}")
+	@GetMapping("/employee/list/edit/{emp_id}")
 	public String employeeDetailEdit(Model model, @PathVariable("emp_id") String emp_id) {
 
 		EmployeeDto empDto = employeeService.selectEmployeeOne(emp_id);

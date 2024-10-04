@@ -129,6 +129,8 @@ public class HomeController {
         conn.disconnect();
         String responseBody = sb.toString();
         
+        System.out.println(responseBody);
+        
 		try {
 			JSONObject jsonObject = new JSONObject(responseBody);
 			JSONArray items = jsonObject.getJSONObject("response").getJSONObject("body").getJSONObject("items").getJSONArray("item");

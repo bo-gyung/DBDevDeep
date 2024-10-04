@@ -7,6 +7,31 @@
 		    padding-top: 10px !important;
 		}
 	</style>
+	<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 현재 페이지 URL 가져오기
+            const currentUrl = window.location.pathname;
+
+
+            // 사이드바 내비게이션 항목을 선택
+            const navItems = document.querySelectorAll('.sidebar-item a');
+            navItems.forEach(item => {
+                // 링크의 href 속성과 현재 URL을 비교
+                if (currentUrl.includes(item.getAttribute('href'))) {
+                		const gGrandLi = item.parentNode.parentNode.parentNode;
+                		const grandA = gGrandLi.querySelector('a');
+                		const grandUi = gGrandLi.querySelector('ul');
+                		const parentLi = item.parentNode;
+                		
+                    gGrandLi.classList.add('selected');
+                    grandA.classList.add('active');
+                    grandUi.classList.add('in', 'collapse');
+                    parentLi.classList.add('active');
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
 	 <aside class="left-sidebar" data-sidebarbg="skin6">
       <!-- Sidebar scroll-->
       <div class="scroll-sidebar" data-sidebarbg="skin6">
@@ -14,18 +39,17 @@
 
         <nav class="sidebar-nav">
           <ul id="sidebarnav">
-
             <li class="sidebar-item">
              <a class="sidebar-link has-arrow active" href="javascript:void(0)"
                 aria-expanded="false">
                 <span class="hide-menu">자원 관리</span></a>
               <ul aria-expanded="false" class="collapse  first-level base-level-line">
                 <li class="sidebar-item">
-                	<a th:href="@{/place}" class="sidebar-link">
+                	<a th:href="@{/places}" class="sidebar-link">
                 	<span class="hide-menu"> 장소 관리 </span></a>
                 </li>
                 <li class="sidebar-item">
-                <a th:href="@{/item}" class="sidebar-link">
+                <a th:href="@{/items}" class="sidebar-link">
                 	<span class="hide-menu"> 기자재 관리 </span></a>
                 </li>
               </ul>
