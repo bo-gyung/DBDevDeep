@@ -1973,7 +1973,8 @@ $('#student_list').DataTable({
 	 "responsive": true,
 	 // 컬럼 width 비율 조절
 	 "columnDefs": [
-        { "width": "0%", "targets": 0 },
+
+		{ "width": "0%", "targets": 0 },
         { "width": "15%", "targets": 1 },
         { "width": "15%", "targets": 2 },
         { "width": "15%", "targets": 3 },
@@ -1982,9 +1983,8 @@ $('#student_list').DataTable({
         { "width": "15%", "targets": 6 }
     ],
 	"order": [[2, "desc"]], 
-
-	// 정보 표시 해제
-	info: false,
+	
+		info: false,
 	// DataTables의 DOM 구조를 재정의
 	// 표시건수, 검색, 테이블, 페이징의 위치 재설정
 	// (정보 표시 부분을 제외)
@@ -2073,6 +2073,8 @@ $('#student_list').DataTable({
 		$('div.dataTables_filter').hide();
 	}
 });
+
+
 
 $('#student_emp_list').DataTable({
 	// 화면 크기에 따라 컬럼 width 자동 조절
@@ -2379,13 +2381,14 @@ $('#subject_list').DataTable({
 			}
 		});
 
-		searchBoxContainer.append(searchInput).append(searchButton);
-		searchBoxWrapper.append(searchBoxContainer);
 
-		// 페이징 밑에 검색 박스 추가
-		$('.dataTables_paginate').after(searchBoxContainer);
+			searchBoxContainer.append(searchInput).append(searchButton);
+			searchBoxWrapper.append(searchBoxContainer);
 
-		// DataTables 기본 검색창 숨기기
-		$('div.dataTables_filter').hide();
-	}
-});
+			// 페이징 밑에 검색 박스 추가
+			$('.dataTables_paginate').after(searchBoxContainer);
+
+			// DataTables 기본 검색창 숨기기
+			$('div.dataTables_filter').hide();
+		}
+	});

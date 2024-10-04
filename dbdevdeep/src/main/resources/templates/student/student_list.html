@@ -1,7 +1,19 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
 <html xmlns:th="http://www.thymeleaf.org" 
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
      layout:decorate="~{include/student_layout}">
+=======
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{include/student_layout}">
+<head>
+    <!-- This page plugin CSS -->
+    <link href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/dist/css/style.min.css" rel="stylesheet">
+</head>
+>>>>>>> branch 'develop' of https://github.com/bo-gyung/DBDevDeep.git
 <th:block layout:fragment="content">
 <style>
 	.form-control{
@@ -180,7 +192,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        	<th:block th:if="${#lists.isEmpty(resultList)}">
+	                                        <th:block th:if="${#lists.isEmpty(resultList)}">
 												<tr>
 													<td colspan="6">존재하는 학생 정보가 없습니다.</td>
 												</tr>
@@ -189,6 +201,7 @@
 											    <tr th:each="studentClass, studentClassStat : ${resultList}">
 											        <td style="display:none;" th:text="${studentClass.student.studentNo}"></td>
 													<th:block th:if="${studentClass.teacher_history != null}">
+														<input type="hidden" th:value="${studentClass.student.studentNo}">
 									                    <td th:text="${studentClass.teacher_history.grade} + '학년'"></td>
 									                    <td th:text="${studentClass.teacher_history.gradeClass} + '반'"></td>
 									                    <td th:text="${studentClass.student_id} + '번'"></td>
