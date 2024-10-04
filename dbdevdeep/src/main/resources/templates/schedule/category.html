@@ -417,6 +417,20 @@
 	window.showRegistrationForm = function () {
 	    resetForm(); // 폼 초기화
 	    selectColor(""); // 선택된 색상 초기화
+	    const categoryNameInput = document.getElementById('categoryName');
+	    categoryNameInput.disabled = false; // input 활성화
+	    
+	    const deleteButton = document.getElementById('cancel-delete-button');
+     	const updateButton = document.getElementById('create-update-button');
+     	deleteButton.disabled = false;
+        updateButton.disabled = false;
+     	
+     	// alert-message 요소를 DOM에서 제거
+        const alertMessage = document.querySelector('.alert-message');
+        if (alertMessage) {
+            alertMessage.remove(); // 경고 메시지 삭제
+        }
+
 
 	    // 등록 폼으로 전환 (버튼 텍스트 "등록"으로 변경)
 	    const submitButton = document.querySelector('#form-container button[type="submit"]');
