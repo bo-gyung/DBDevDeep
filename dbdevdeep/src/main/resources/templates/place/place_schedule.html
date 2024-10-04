@@ -154,6 +154,18 @@
 		.fc-button-active:hover {
 			background-color: #3e59e3 !important;
 		}
+		
+		.swal-custom-button {
+		  background-color: #0031AE !important;
+		  color: white; /* 버튼 텍스트 색상 */
+		  border: none; /* 버튼 테두리 제거 */
+		  padding: 10px 20px; /* 버튼 패딩 */
+		  font-size: 16px; /* 버튼 폰트 크기 */
+		  cursor: pointer; /* 마우스 커서 포인터 */
+		}
+		.swal-custom-button:hover {
+		  background-color: #002685 !important;
+		}
     </style>
 </head>
 
@@ -722,7 +734,10 @@ $(document).ready(function () {
                 icon: 'error',
                 title: '실패',
                 text: vali_text,
-                confirmButtonText: "닫기"
+                confirmButtonText: "닫기",
+				customClass: {
+                    confirmButton: 'swal-custom-button'
+                }
             });
             return;
         }
@@ -769,7 +784,10 @@ $(document).ready(function () {
                     icon: 'success',
                     title: '성공',
                     text: data.res_msg,
-                    confirmButtonText: '닫기'
+                    confirmButtonText: '닫기',
+					customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
                 }).then((result) => {
                     if (calendar) {
                         calendar.refetchEvents();
@@ -782,7 +800,10 @@ $(document).ready(function () {
                     icon: 'error',
                     title: '실패',
                     text: data.res_msg, // 서버에서 전달된 메시지 사용
-                    confirmButtonText: "닫기"
+                    confirmButtonText: "닫기",
+					customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
                 });
             }
         })
@@ -792,7 +813,10 @@ $(document).ready(function () {
                 icon: 'error',
                 title: '서버 오류',
                 text: '일정 등록 중 오류가 발생했습니다.', // 기본 오류 메시지
-                confirmButtonText: "닫기"
+                confirmButtonText: "닫기",
+				customClass: {
+                    confirmButton: 'swal-custom-button'
+                }
             });
         });
     });

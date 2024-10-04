@@ -227,7 +227,7 @@
 			src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	<script>
 	  	const cancelBtn = () => {
-	  		window.location.href = '[[${'/student/' + dto.student_no}]]';
+	  		window.location.href = '[[${'/student/list/' + dto.student_no}]]';
 	  	}
 	</script>	
 	<script>
@@ -309,7 +309,7 @@
 								title : '성공',
 								text : data.res_msg
 							}).then((result)=>{
-								location.href = "/student/"+studentNo;
+								location.href = "/student/list/"+studentNo;
 							});
 						}else{
 							Swal.fire({

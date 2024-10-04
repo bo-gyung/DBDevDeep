@@ -31,7 +31,7 @@
         }
 
         input, select, textarea {
-            border: 1px solid #ccc;
+            border: 1px solid #e8eaec;
             border-radius: 4px;
             padding: 10px;
             font-size: 16px;
@@ -39,6 +39,7 @@
             box-sizing: border-box;
             margin-bottom: 15px;
             text-align: left; /* 입력 필드 내용 왼쪽 정렬 */
+            background-color: #e8eaec;
         }
 
         /* 레이블과 입력 필드 간격 조정 */
@@ -82,7 +83,7 @@
         <div class="page-wrapper">
             <div class="container-fluid">
                 <div class="card">
-                    <div class="card-body">
+                    <div class="card-body" style="padding: 50px 80px;">
                         <!-- hr 태그로 나눠지기 전 모습 -->
                         <h3 class="card-title">일정 상세조회</h3>
                         <hr>
@@ -100,7 +101,7 @@
                                 <div class="field-container">
                                     <label>일정 내용</label>
                                     <div class="field-content">
-                                        <textarea readonly th:text="${scheduleDetail.place_schedule_content}" style="width: 100%; height: 120px; resize : none;"></textarea>
+                                        <textarea readonly th:text="${scheduleDetail.place_schedule_content}" style="width: 485px; height: 120px; resize : none;"></textarea>
                                     </div>
                                 </div>
 
