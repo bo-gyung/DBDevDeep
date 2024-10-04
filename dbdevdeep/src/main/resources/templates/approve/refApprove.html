@@ -189,7 +189,7 @@
                                         		<td>
                                         		 <a th:href="@{refApprove/{no}(no=${ref.appro_no})}" th:text = "${ref.appro_title}" style="color: black"></a>
                                         		</td>
-                                        		<td th:text="${ref.appro_time}"></td>
+                                        		<td th:text="${#temporals.format(ref.appro_time, 'yyyy.MM.dd HH:mm')}"></td>
                                         		<td th:text="${ref.appro_name}"></td>
                                         		<td th:switch="${ref.appro_status}">
 												    <span th:case="0">결재대기중</span>

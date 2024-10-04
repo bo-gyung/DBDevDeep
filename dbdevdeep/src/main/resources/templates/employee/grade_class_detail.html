@@ -198,24 +198,13 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header modal-colored-header bg-info">
-							<h4 class="modal-title" id="info-header-modalLabel">반배정 수정</h4>
+							<h4 class="modal-title" id="info-header-modalLabel">반 배정 수정</h4>
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 						</div>
 						<div class="modal-body">
 							<form class="pl-3 pr-3" id="editClassFrm">
 									<input class="form-control" type="hidden" name="teacher_no" id="edit_teacher_no">
-
-								<div class="form-group">
-									<label for="emailaddress">교사명</label>
-									<!-- <input class="form-control" type="text" name="emp_id" id="edit_emp_name"> -->
-									<select class="form-control" name="teach_emp_id">
-										<option id="selectTeacher"></option>
-										<th:block th:each="emp : ${empList}">
-											<option th:text="${emp.emp_name} + '(' + ${emp.emp_id} + ')'" th:value="${emp.emp_id}"></option>
-										</th:block>
-									</select>
-								</div>
-
+									
 								<div class="form-group">
 									<label for="password">학년</label> <input class="form-control" type="text" name="grade" id="edit_grade" readonly>
 								</div>
@@ -231,6 +220,18 @@
 								<div class="form-group text-center">
 									<button class="btn btn-primary" type="submit">직원 수정</button>
 								</div>
+
+								<div class="form-group">
+									<label for="emailaddress">교사명</label>
+									<!-- <input class="form-control" type="text" name="emp_id" id="edit_emp_name"> -->
+									<select class="form-control" name="teach_emp_id">
+										<option id="selectTeacher"></option>
+										<th:block th:each="emp : ${empList}">
+											<option th:text="${emp.emp_name} + '(' + ${emp.emp_id} + ')'" th:value="${emp.emp_id}"></option>
+										</th:block>
+									</select>
+								</div>
+
 
 							</form>
 

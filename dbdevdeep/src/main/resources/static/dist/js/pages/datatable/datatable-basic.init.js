@@ -1583,23 +1583,34 @@ $('#schedule_list').DataTable({
           }
       });
   },
-"initComplete": function () {
-var searchBoxContainer = $('<div class="custom-dataTables_filter" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px;"></div>');
-var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="height: 46px; padding: 8px 12px; width: 300px; box-sizing: border-box;">');
-var searchButton = $('<button class="btn btn-primary ml-2" style="height:46px;">검색</button>');
+	"initComplete": function() {
+		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
+		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
+		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
-searchButton.on('click', function () {
-var searchTerm = searchInput.val();  // 검색어 가져오기
-$('#place_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
-});
+		searchButton.on('click', function() {
+			var searchTerm = searchInput.val();  // 검색어 가져오기
+			$('#approveDocu_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+		});
 
-searchBoxContainer.append(searchInput).append(searchButton);
+		// Enter 키로 검색하기
+		searchInput.on('keypress', function(e) {
+			if (e.which === 13) {  // Enter 키 코드
+				e.preventDefault();  // 기본 Enter 동작 방지
+				searchButton.click();  // 검색 버튼 클릭 이벤트 호출
+			}
+		});
 
-			// 페이징 밑에 검색 박스 추가
-$('.dataTables_paginate').after(searchBoxContainer);
-			// DataTables 기본 검색창 숨기기
-$('div.dataTables_filter').hide();
-}
+		searchBoxContainer.append(searchInput).append(searchButton);
+		searchBoxWrapper.append(searchBoxContainer);
+
+		// 페이징 밑에 검색 박스 추가
+		$('.dataTables_paginate').after(searchBoxContainer);
+
+		// DataTables 기본 검색창 숨기기
+		$('div.dataTables_filter').hide();
+	}
 });
 
 
@@ -1775,23 +1786,34 @@ $('#place_list').DataTable({
           }
       });
   },
-"initComplete": function () {
-var searchBoxContainer = $('<div class="custom-dataTables_filter" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px;"></div>');
-var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="height: 46px; padding: 8px 12px; width: 300px; box-sizing: border-box;">');
-var searchButton = $('<button class="btn btn-primary ml-2" style="height:46px;">검색</button>');
+	"initComplete": function() {
+		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
+		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
+		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
-searchButton.on('click', function () {
-var searchTerm = searchInput.val();  // 검색어 가져오기
-$('#place_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
-});
+		searchButton.on('click', function() {
+			var searchTerm = searchInput.val();  // 검색어 가져오기
+			$('#approveDocu_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+		});
 
-searchBoxContainer.append(searchInput).append(searchButton);
+		// Enter 키로 검색하기
+		searchInput.on('keypress', function(e) {
+			if (e.which === 13) {  // Enter 키 코드
+				e.preventDefault();  // 기본 Enter 동작 방지
+				searchButton.click();  // 검색 버튼 클릭 이벤트 호출
+			}
+		});
 
-			// 페이징 밑에 검색 박스 추가
-$('.dataTables_paginate').after(searchBoxContainer);
-			// DataTables 기본 검색창 숨기기
-$('div.dataTables_filter').hide();
-}
+		searchBoxContainer.append(searchInput).append(searchButton);
+		searchBoxWrapper.append(searchBoxContainer);
+
+		// 페이징 밑에 검색 박스 추가
+		$('.dataTables_paginate').after(searchBoxContainer);
+
+		// DataTables 기본 검색창 숨기기
+		$('div.dataTables_filter').hide();
+	}
 });
 /******************************************
  * 			item Table
@@ -1863,23 +1885,34 @@ $('#item_list').DataTable({
           }
       });
   },
-"initComplete": function () {
-var searchBoxContainer = $('<div class="custom-dataTables_filter" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 30px;"></div>');
-var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="height: 46px; padding: 8px 12px; width: 300px; box-sizing: border-box;">');
-var searchButton = $('<button class="btn btn-primary ml-2" style="height:46px;">검색</button>');
+	"initComplete": function() {
+		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
+		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
+		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
+		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
 
-searchButton.on('click', function () {
-var searchTerm = searchInput.val();  // 검색어 가져오기
-$('#item_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
-});
+		searchButton.on('click', function() {
+			var searchTerm = searchInput.val();  // 검색어 가져오기
+			$('#approveDocu_config').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+		});
 
-searchBoxContainer.append(searchInput).append(searchButton);
+		// Enter 키로 검색하기
+		searchInput.on('keypress', function(e) {
+			if (e.which === 13) {  // Enter 키 코드
+				e.preventDefault();  // 기본 Enter 동작 방지
+				searchButton.click();  // 검색 버튼 클릭 이벤트 호출
+			}
+		});
 
-			// 페이징 밑에 검색 박스 추가
-$('.dataTables_paginate').after(searchBoxContainer);
-			// DataTables 기본 검색창 숨기기
-$('div.dataTables_filter').hide();
-}
+		searchBoxContainer.append(searchInput).append(searchButton);
+		searchBoxWrapper.append(searchBoxContainer);
+
+		// 페이징 밑에 검색 박스 추가
+		$('.dataTables_paginate').after(searchBoxContainer);
+
+		// DataTables 기본 검색창 숨기기
+		$('div.dataTables_filter').hide();
+	}
 });
 
 
