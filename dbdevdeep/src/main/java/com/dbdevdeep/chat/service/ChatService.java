@@ -150,9 +150,21 @@ public class ChatService {
 		// 해당 채팅방에서 읽지않은 메세지 읽음처리하기
 		// 1. 사용자가 읽지않은 메세지 조회
 		List<ChatMsgVo> unreadMsgList = chatMapper.selectUnreadCheck(roomNo, login_id);
-		// 2. 읽음처리
-		for(ChatMsgVo msg : unreadMsgList) {
-			chatMapper.createChatReadCheck(msg.getMsg_no(),login_id);
+		
+		if(unreadMsgList.size()>0) {
+			// 2. 읽지않은 메세지가 존재한다면
+			// (1) 읽음처리
+			for(ChatMsgVo msg : unreadMsgList) {
+				chatMapper.createChatReadCheck(msg.getMsg_no(),login_id);
+			}
+			// (2) 웹소켓 호출
+			// 채팅방 참여자 목록 조회
+			Map<String, Object> params = new HashMap<>();
+			params.put("room_no", roomNo);
+			params.put("emp_id", login_id);
+			List<String> members = chatMapper.otherMemberIds(params);
+			// 웹소켓 핸들러 호출
+			webSocketHandler.readChatMsg(members,roomNo);
 		}
 	    
 		// 메세지 리스트 조회
@@ -206,14 +218,6 @@ public class ChatService {
 	    // 타임스탬프 기준으로 리스트 정렬
 	    combinedList.sort(Comparator.comparing(CustomChatContainerDto::getTimestamp));
 	    
-	    // 채팅방 참여자 목록 조회
-	    Map<String, Object> params = new HashMap<>();
-		params.put("room_no", roomNo);
-		params.put("emp_id", login_id);
-	    List<String> members = chatMapper.otherMemberIds(params);
-	    // 웹소켓 핸들러 호출
- 		webSocketHandler.readChatMsg(members,roomNo);
-
 	    return combinedList;
 		
 	}
@@ -271,6 +275,7 @@ public class ChatService {
 			// 채팅방 정보 업데이트 (라스트챗, 라스트타임)
 			chatMapper.updateChatRoom(newVo);
 			// 작성자 읽음확인
+			chatMapper.createChatReadCheck(vo.getMsg_no(),vo.getWriter_id());
 			
 			// 채팅 메세지가 생성된 채팅방의 참여중인 인원 리스트 (메세지 작성자 제외)
 			Map<String, Object> params = new HashMap<>();
