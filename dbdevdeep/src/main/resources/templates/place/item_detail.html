@@ -203,7 +203,7 @@
                                 <!-- 버튼 -->
                                 <div class="row mb-3">
                                     <div class="col-sm-6 text-left">
-                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/item'">목록</button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/items'">목록</button>
                                     </div>
                                     <div class="col-sm-6 text-right">
                                         <button type="button" class="btn btn-secondary" onclick="deleteItem()" sec:authorize="hasAnyAuthority('D3')">삭제</button>
@@ -240,7 +240,7 @@
     
     const updateItem = function() {
     	const itemNo = document.getElementById('item_no').value;
-    	const url = '/item/update/' + encodeURIComponent(itemNo);
+    	const url = '/items/update/' + encodeURIComponent(itemNo);
     	window.location.href = url;
     }
     
@@ -276,7 +276,7 @@
                             text: data.res_msg,
                             confirmButtonText: '닫기'
                         }).then(() => {
-                            location.href = '/item';
+                            location.href = '/items';
                         });
                     } else {
                         Swal.fire({

@@ -221,7 +221,7 @@
 		<div class="row mb-3">
             <!-- 취소 버튼 -->
             <div class="col-sm-6 text-left">
-                <button type="button" class="btn btn-secondary" onclick = "location.href='/place'">취소</button>
+                <button type="button" class="btn btn-secondary" onclick = "location.href='/places'">취소</button>
             </div>
         
         
@@ -353,7 +353,7 @@
 		                    text: data.res_msg,
 		                    confirmButtonText : '닫기'
 		                }).then((result) => {
-		                    location.href = "/place";
+		                    location.href = "/places";
 		                });
 		            } else {
 		                Swal.fire({

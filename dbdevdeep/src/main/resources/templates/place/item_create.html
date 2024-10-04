@@ -219,7 +219,7 @@
                             <div class="row mb-3">
                             	 <!-- 취소 버튼 -->
 						            <div class="col-sm-6 text-left">
-						                <button type="button" class="btn btn-secondary" onclick = "location.href='/item'">취소</button>
+						                <button type="button" class="btn btn-secondary" onclick = "location.href='/items'">취소</button>
 						            </div>
 						            
                             	<!-- 등록 버튼 -->
@@ -410,7 +410,7 @@ form.addEventListener('submit', (e) => {
                     text: data.res_msg,
                     confirmButtonText: '닫기'
                 }).then(() => {
-                    location.href = "/item";
+                    location.href = "/items";
                 });
             } else {
                 Swal.fire({

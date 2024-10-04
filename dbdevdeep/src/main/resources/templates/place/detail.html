@@ -197,7 +197,7 @@
 
                                 <div class="row mb-3">
                                     <div class="col-sm-6 text-left">
-                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/place'">목록</button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/places'">목록</button>
                                     </div>
                                     <div class="col-sm-6 text-right">
                                         <button type="button" class="btn btn-secondary" onclick="deletePlace()" sec:authorize="hasAnyAuthority('D3')">삭제</button>
@@ -231,7 +231,7 @@
                 // 수정하기
                 const updatePlace = function () {
                     const placeNo = document.getElementById('placeNo').value;
-                    const url = '/place/update/' + encodeURIComponent(placeNo);
+                    const url = '/places/update/' + encodeURIComponent(placeNo);
                     window.location.href = url;
                 }
 				// 삭제하기
@@ -266,7 +266,7 @@
                                         text: data.res_msg,
                                         confirmButtonText: '닫기'
                                     }).then(() => {
-                                        location.href = '/place';
+                                        location.href = '/places';
                                     });
                                 } else {
                                     Swal.fire({
