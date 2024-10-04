@@ -9,6 +9,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 	white-space: nowrap;
 	justify-content: center;
 }
+
 </style>
 	<body>
 		<div class="page-wrapper">
@@ -16,7 +17,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 				<div class="row">
 					<div class="col-12">
 						<div class="card">
-							<div class="card-body">
+							<div class="card-body" style="padding: 50px 80px;">
 							
 								<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
 			                        <div style="font-size:30px;">학생 반이력 수정</div>
@@ -263,7 +264,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								title : '성공',
 								text : data.res_msg
 							}).then((result)=>{
-								location.href = `/employee/student/${studentNo}`;
+								location.href = `/employee/student/list/${studentNo}`;
 							});
 						}else{
 							Swal.fire({
@@ -297,7 +298,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								text : data.res_msg ,
 								confirmButtonText:"닫기"
 							}).then((result)=>{
-								location.href=`/employee/student/class/${studentNo}`;
+								location.href=`/employee/student/list/class/${studentNo}`;
 							});
 						} else{
 							Swal.fire({

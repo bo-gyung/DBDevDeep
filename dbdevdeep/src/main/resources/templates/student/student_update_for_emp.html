@@ -61,7 +61,7 @@
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
 				<div class="card">
-					<div class="card-body" style="padding: 50px;">
+					<div class="card-body" style="padding: 50px 80px;">
 						<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
 									<div style="font-size: 30px;">학생 정보 수정</div>
 								</div>
@@ -227,7 +227,7 @@
 			src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	<script>
 	  	const cancelBtn = () => {
-	  		window.location.href = '[[${'/employee/student/' + dto.student_no}]]';
+	  		window.location.href = '[[${'/employee/student/list/' + dto.student_no}]]';
 	  	}
 	</script>	
 	<script>
@@ -309,7 +309,7 @@
 								title : '성공',
 								text : data.res_msg
 							}).then((result)=>{
-								location.href = "/employee/student/"+studentNo;
+								location.href = "/employee/student/list/"+studentNo;
 							});
 						}else{
 							Swal.fire({

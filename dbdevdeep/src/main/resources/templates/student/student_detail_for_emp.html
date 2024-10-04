@@ -3,6 +3,20 @@
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
+	<style>
+		.col-md-2 a {
+			background-color: #0031AE;
+			padding: 8px 12px;
+			color: white;
+			border-radius: 2px;
+			margin-left: 9px;
+		}
+		
+		.custom-col-md-2 {
+			margin-right: 0px;
+			padding-right: 0px;
+		}
+	</style>
 
 	<body>
 		<div class="page-wrapper">
@@ -10,7 +24,7 @@
 				<div class="row">
 					<div class="col-12">
 						<div class="card">
-							<div class="card-body">
+							<div class="card-body" style="padding: 50px 80px">
 								<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
 				                        <div style="font-size:30px;">학생 상세 정보</div>
 				                        <br>
@@ -58,8 +72,8 @@
 													<div class="col-md-10">
 														<h3>학년 이력 조회</h3>
 													</div>
-													<div class="col-md-2">
-														<a th:href="@{/employee/student/class/{std_no}(std_no=${dto.student_no})}" >학년 이력 수정</a><br> 
+													<div class="col-md-2 custom-col-md-2">
+														<a th:href="@{/employee/student/list/class/{std_no}(std_no=${dto.student_no})}" >학년 이력 수정</a><br> 
 													</div>
 												</div>
 													<table class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
@@ -103,8 +117,8 @@
 													<div class="col-md-10">
 														<h3>가족사항</h3>
 													</div>
-													<div class="col-md-2">
-														<a th:href="@{/employee/student/parent/{std_no}(std_no=${dto.student_no})}">가족사항 수정</a>
+													<div class="col-md-2 custom-col-md-2">
+														<a th:href="@{/employee/student/list/parent/{std_no}(std_no=${dto.student_no})}">가족 사항 수정</a>
 													</div>
 												</div>
 													<table class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
@@ -149,7 +163,7 @@
 										</div>
 										<div class="col d-flex justify-content-end align-items-center">
 											<a th:onclick="studentDelete([[${dto.student_no}]])" class="btn waves-effect waves-light btn-light m-1">삭제</a>
-											<a th:href="@{/employee/student/update/{student_no}(student_no=${dto.student_no})}" class="btn waves-effect waves-light btn-primary m-1">수정</a><br>
+											<a th:href="@{/employee/student/list/update/{student_no}(student_no=${dto.student_no})}" class="btn waves-effect waves-light btn-primary m-1">수정</a><br>
 										</div>
 									</div>
 								</div>
