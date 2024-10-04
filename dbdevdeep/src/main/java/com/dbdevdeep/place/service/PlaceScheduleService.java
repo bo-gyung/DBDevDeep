@@ -49,16 +49,32 @@ public class PlaceScheduleService {
 	
 	
 	// 일정현황리스트
+	// 일정현황리스트
 	public List<PlaceItemScheduleVo> scheduleList() {
 	    List<PlaceItemScheduleVo> totalSchedule = placeScheduleVoMapper.getTotalScheduleList();
-	    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+	    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
 
 	    for (PlaceItemScheduleVo schedule : totalSchedule) {
+	        // 등록 날짜 포맷팅
 	        if (schedule.getReg_date() != null) {
-	            String formattedDate = schedule.getReg_date().format(dateFormatter);
+	            DateTimeFormatter regDateFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+	            String formattedDate = schedule.getReg_date().format(regDateFormatter);
 	            schedule.setFormattedRegDate(formattedDate);
-	            
 	        }
+
+	        // 이용 시간 포맷팅 (yyyy.MM.dd HH:mm ~ yyyy.MM.dd HH:mm)
+	        if (schedule.getStart_date() != null && schedule.getStart_time() != null 
+	                && schedule.getEnd_date() != null && schedule.getEnd_time() != null) {
+	            // 시작 날짜 및 시간
+	            LocalDateTime startDateTime = LocalDateTime.of(schedule.getStart_date(), schedule.getStart_time());
+	            // 종료 날짜 및 시간
+	            LocalDateTime endDateTime = LocalDateTime.of(schedule.getEnd_date(), schedule.getEnd_time());
+
+	            // 날짜와 시간을 포맷팅한 문자열 생성
+	            String formattedUsageTime = startDateTime.format(dateTimeFormatter) + " ~ " + endDateTime.format(dateTimeFormatter);
+	            schedule.setFormattedUsageTime(formattedUsageTime);
+	        }
+
 	        // 학년/반 정보 설정 및 제목 구성
 	        String formattedTitle = schedule.getPlace_schedule_title(); // 기본 제목 설정
 
@@ -70,13 +86,15 @@ public class PlaceScheduleService {
 	                formattedTitle = latestHistory.getGrade() + "학년 " + latestHistory.getGradeClass() + "반 - " + schedule.getPlace_schedule_title();
 	            }
 	        }
-	        
+
 	        // 구성된 제목을 VO에 설정
 	        schedule.setPlace_schedule_title(formattedTitle);
 	    }
 
 	    return totalSchedule;
 	}
+
+
 	//일정 삭제
 	  public int deletePlaceSchedule(Long place_schedule_no) {
 		  try {
@@ -120,7 +138,7 @@ public class PlaceScheduleService {
 		    Integer itemQuantity = null;
 
 		    if (place.getPlaceNo() == 0) {
-		        // item이 null일 수 있으므로 null 체크
+		      
 		        if (item != null) {
 		            itemNo = item.getItemNo();
 		            itemName = item.getItemName();
@@ -130,7 +148,7 @@ public class PlaceScheduleService {
 		            itemQuantity = 0;
 		        }
 		    } else {
-		        // item이 null일 수 있으므로 null 체크
+		        
 		        if (item != null) {
 		            itemNo = item.getItemNo();
 		            itemName = item.getItemName();

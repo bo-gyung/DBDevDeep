@@ -12,6 +12,14 @@
 
 	<style>
 	
+	
+	 /* 일정제목 셀의 마우스 커서 변경 */
+    #schedule_list td:first-child {
+        cursor: pointer;
+    }
+	
+	
+	
 	/* th의 텍스트와 아이콘을 가운데 정렬하고 함께 붙이기 */
 table.dataTable thead th {
   text-align: center; /* 텍스트와 아이콘을 가운데 정렬 */
@@ -172,7 +180,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 												<td th:text="${schedule.place_schedule_title}"></td>
 												<td th:text="${schedule.place_name}"></td>
 												<td th:text="${schedule.item_name}"></td>
-												<td th:text="${schedule.start_date + ' ' + schedule.start_time + ' ~ ' + schedule.end_date + ' ' + schedule.end_time}"></td>
+												<td th:text="${schedule.formattedUsageTime}"></td>
 												<td th:text="${schedule.emp_name}"></td>
 												<td th:text="${schedule.formattedRegDate}"></td>
 											</tr>
@@ -235,9 +243,9 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		<script src="assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 		<script src="dist/js/pages/datatable/datatable-basic.init.js"></script>
 		 <script>
-			// 일정 항목을 클릭했을 때 상세 조회 페이지로 이동
-		    $('#schedule_list').on('click', 'tr', function () {
-		        let scheduleNo = $(this).data('schedule-no'); // data-* 속성을 통해 scheduleNo 가져오기
+		 // 일정제목 셀만 클릭했을 때 상세 조회 페이지로 이동
+		    $('#schedule_list').on('click', 'td:first-child', function () {
+		        let scheduleNo = $(this).closest('tr').data('schedule-no'); // 해당 행의 scheduleNo 가져오기
 
 		        if (scheduleNo) {
 		            window.location.href = '/schedule/detail/' + scheduleNo;

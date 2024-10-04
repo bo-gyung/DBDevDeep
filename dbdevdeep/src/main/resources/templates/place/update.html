@@ -6,6 +6,31 @@
   <!-- 부트스트랩 CSS 추가 -->
   
   <style>
+  
+  
+   .custom-file-upload {
+        display: inline-block;
+        padding: 8px 16px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: white; /* 기본 배경색 */
+        font-size: 16px;
+        color: #555; /* 기본 텍스트 색상 */
+        text-align: center;
+        box-sizing: border-box;
+        transition: background-color 0.3s, color 0.3s; /* 호버 효과 전환 시간 */
+    }
+
+    .custom-file-upload:hover {
+        background-color: #6c757d; /* 호버 시 배경색 */
+        color: white; /* 호버 시 텍스트 색상 */
+        border-color: #6c757d; /* 호버 시 테두리 색상 */
+    }
+
+    
+  
+  
  
  input[type="text"] {
     		width : 485px;
@@ -16,7 +41,7 @@
  
 body {
     background-color: #f7f7f7;
-    font-family: 'Arial', sans-serif;
+    
 }
 
 .container {
@@ -30,7 +55,7 @@ body {
 }
 
 label {
-    font-weight: bold;
+ 
     margin-bottom: 8px;
 }
 
@@ -200,27 +225,31 @@ input, select, textarea {
 
         
 
-        <div class="row mb-3">
-            <!-- 8. 파일 업로드 -->
-            <label for="file" class="col-sm-2 col-form-label">이미지</label>
-            <div class="col-sm-10">
-                <input type="file" class="form-control" id="file" name="file" accept="image/*">
-            </div>
-        </div>
-
-
-		<div class="row mb-3">
-            <!-- 취소 버튼 -->
-            <div class="col-sm-6 text-left">
-                <button type="button" class="btn btn-secondary" onclick = "location.href='/place'">취소</button>
-            </div>
+<div class="row mb-3">
+    <!-- 8. 파일 업로드 -->
+    <label for="file" class="col-sm-2 col-form-label">이미지</label>
+    <div class="col-sm-10">
+        <!-- 숨겨진 파일 입력 필드 -->
+        <input type="file" class="form-control file-input" id="file" name="file" accept="image/*" style="display: none;" onchange="updateFileName()">
+        
+        <!-- 커스텀 버튼 -->
+        <button type="button" class="custom-file-upload" onclick="document.getElementById('file').click();">파일 추가</button>
         
         
-            <!-- 수정 버튼 -->
-            <div class="col-sm-6 text-right">
-                <button type="submit" class="btn btn-primary">수정</button>
-            </div>
-        </div>
+    </div>
+</div>
+
+
+		<div class="row mb-3 justify-content-center">
+    <div class="col-sm-6 d-flex justify-content-center">
+        <!-- 취소 버튼 -->
+        <button type="button" class="btn btn-secondary mx-2" onclick="location.href='/place'">취소</button>
+        
+        <!-- 수정 버튼 -->
+        <button type="submit" class="btn btn-primary mx-2">수정</button>
+    </div>
+</div>
+
         <input type="hidden" class="form-control" id="place_no" name="place_no" th:value="${dto.place_no}">
     </form>
 </div>
