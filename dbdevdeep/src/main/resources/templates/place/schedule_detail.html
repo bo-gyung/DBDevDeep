@@ -1,135 +1,176 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{include/place_layout}">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{include/place_layout}">
 <th:block layout:fragment="content">
 
     <style>
-        .modal-container {
-            max-width: 60%; /* 폼 너비를 줄입니다. */
-            width: 60%;
-            height: auto;
-            margin: 80px auto; /* 상단과 좌우 여백을 줍니다. */
+        input[type="text"], textarea {
+            width: 485px;
+        }
+        
+        body {
+            background-color: #f7f7f7;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .container {
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
-            position: relative;
-            left: 5%; /* 오른쪽으로 이동 */
+            max-width: 100%;
+            width: 90%; /* 폼의 너비 조정 */
+            margin: 40px auto;
         }
 
-        .modal-header {
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-align: left; /* 레이블 왼쪽 정렬 */
+        }
+
+        input, select, textarea {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%; /* 입력 필드의 너비 조정 */
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            text-align: left; /* 입력 필드 내용 왼쪽 정렬 */
+        }
+
+        /* 레이블과 입력 필드 간격 조정 */
+        .field-container {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 24px;
-            background-color: #007bff;
-            color: white;
-            padding: 20px;
+            margin-bottom: 20px;
+            align-items: center; /* 레이블과 입력 필드의 세로 정렬을 맞춥니다. */
         }
 
-        .modal-body {
-            padding: 40px;
-            font-size: 16px;
+        .field-container label {
+            width: 20%; /* 레이블의 너비를 조정하여 간격을 확보합니다. */
+            margin-right: 20px; /* 레이블과 입력 필드 사이의 간격 */
+            text-align: left; /* 레이블을 왼쪽 정렬 */
         }
 
-        .table-bordered {
-            border: 1px solid #e8eef3;
-            width: 100%;
-            margin: 30px 0;
+        .field-container .field-content {
+            width: 80%; /* 입력 필드 컨테이너의 너비 조정 */
         }
 
-        .table-bordered th, .table-bordered td {
-            border: 1px solid #e8eef3;
-            padding: 15px;
-            font-size: 16px;
+        .details-container {
+            width: 60%;
+            margin: 0 auto;
         }
 
-        .table-bordered th {
-            background-color: #f2f2f2;
-            width: 30%;
-            text-align: center;
-        }
-
-        .modal-footer {
+        .button-container {
             display: flex;
-            justify-content: flex-end;
-            padding: 20px;
-            border-top: 1px solid #e8eef3;
-        }
-
-        .btn {
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 5px;
+            justify-content: flex-start; /* 버튼을 좌측 하단에 배치 */
+            margin-top: 20px;
         }
 
         .btn-outline-secondary {
-            margin-right: 15px;
+            padding: 8px 16px; /* 버튼 크기 조정 */
+            font-size: 16px; /* 버튼 글자 크기 조정 */
+            border-radius: 4px;
+            cursor: pointer;
         }
     </style>
 
-    <div class="modal-container">
-        <div class="modal-header modal-colored-header bg-primary">
-            <div>일정 상세 정보</div>
-            <button type="button" class="close" onclick="window.history.back();">
-                <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
-            </button>
-        </div>
-        <div class="modal-body">
-            <table class="table table-bordered">
-                <tbody>
-                    <tr>
-                        <th>일정 제목</th>
-                        <td th:text="${scheduleDetail.place_schedule_title}"></td>
-                    </tr>
-                    <tr>
-                        <th>일정 내용</th>
-                        <td th:text="${scheduleDetail.place_schedule_content}"></td>
-                    </tr>
-                    <tr>
-                        <th>장소</th>
-                        <td th:text="${scheduleDetail.place_name}"></td>
-                    </tr>
-                    <tr>
-                        <th>기자재</th>
-                        <td th:text="${scheduleDetail.item_name}"></td>
-                    </tr>
-                    <tr>
-                        <th>관리번호</th>
-                        <td th:text="${scheduleDetail.management_no}"></td>
-                    </tr>
-                    <tr>
-                        <th>이용 시간</th>
-                        <td th:text="${scheduleDetail.formattedUsageTime}"></td>
-                    </tr>
-                    <tr>
-                        <th>신청인</th>
-                        <td th:text="${scheduleDetail.emp_name}"></td>
-                    </tr>
-                    <tr>
-                        <th>등록 날짜</th>
-                        <td th:text="${scheduleDetail.formattedRegDate}"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" onclick="window.history.back();">취소</button>
-            
-        </div>
-    </div>
+    <body>
+        <!-- 일정 상세 조회 -->
+        <div class="page-wrapper">
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- hr 태그로 나눠지기 전 모습 -->
+                        <h3 class="card-title">일정 상세조회</h3>
+                        <hr>
 
-		<!-- JavaScript 파일 로딩 -->
-	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
-    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
-    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="/dist/js/app-style-switcher.js"></script>
-    <script src="/dist/js/feather.min.js"></script>
-    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
-    <script src="/dist/js/sidebarmenu.js"></script>
-    <script src="/dist/js/custom.min.js"></script>
-</th:block>
+                        <div>
+                            <!-- 상세 정보 폼 -->
+                            <form>
+                                <div class="field-container">
+                                    <label>일정 제목</label>
+                                    <div class="field-content">
+                                        <input type="text" th:value="${scheduleDetail.place_schedule_title}" readonly />
+                                    </div>
+                                </div>
+
+                                <div class="field-container">
+                                    <label>일정 내용</label>
+                                    <div class="field-content">
+                                        <textarea readonly th:text="${scheduleDetail.place_schedule_content}" style="width: 100%; height: 120px; resize : none;"></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="field-container">
+                                    <label>장소</label>
+                                    <div class="field-content">
+                                        <input type="text" th:value="${scheduleDetail.place_name}" readonly />
+                                    </div>
+                                </div>
+
+                                <div class="field-container">
+                                    <label>기자재</label>
+                                    <div class="field-content">
+                                        <input type="text" th:value="${scheduleDetail.item_name}" readonly />
+                                    </div>
+                                </div>
+
+                                <div class="field-container">
+                                    <label>관리번호</label>
+                                    <div class="field-content">
+                                        <input type="text" th:value="${scheduleDetail.management_no}" readonly />
+                                    </div>
+                                </div>
+
+                                <div class="field-container">
+                                    <label>이용 시간</label>
+                                    <div class="field-content">
+                                        <input type="text" th:value="${scheduleDetail.formattedUsageTime}" readonly />
+                                    </div>
+                                </div>
+
+                                <div class="field-container">
+                                    <label>신청인</label>
+                                    <div class="field-content">
+                                        <input type="text" th:value="${scheduleDetail.emp_name}" readonly />
+                                    </div>
+                                </div>
+
+                                <div class="field-container">
+                                    <label>등록 날짜</label>
+                                    <div class="field-content">
+                                        <input type="text" th:value="${scheduleDetail.formattedRegDate}" readonly />
+                                    </div>
+                                </div>
+
+                                <!-- 버튼 섹션을 폼 아래 왼쪽 하단에 배치 -->
+                                <div class="button-container">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="window.history.back();">목록</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="footer text-center text-muted">
+                All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
+            </footer>
+        </div>
+
+        <!-- 스크립트 로드 -->
+        <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+        <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+        <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="/dist/js/app-style-switcher.js"></script>
+        <script src="/dist/js/feather.min.js"></script>
+        <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+        <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+        <script src="/dist/js/sidebarmenu.js"></script>
+        <script src="/dist/js/custom.min.js"></script>
+    </body>
 </html>
