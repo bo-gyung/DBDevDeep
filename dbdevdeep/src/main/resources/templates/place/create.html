@@ -1,11 +1,38 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
 
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
   <!-- 부트스트랩 CSS 추가 -->
   
   <style>
+  
+     .custom-file-upload {
+        display: inline-block;
+        padding: 8px 16px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: white; /* 기본 배경색 */
+        font-size: 16px;
+        color: #555; /* 기본 텍스트 색상 */
+        text-align: center;
+        box-sizing: border-box;
+        transition: background-color 0.3s, color 0.3s; /* 호버 효과 전환 시간 */
+    }
+
+    .custom-file-upload:hover {
+        background-color: #6c757d; /* 호버 시 배경색 */
+        color: white; /* 호버 시 텍스트 색상 */
+        border-color: #6c757d; /* 호버 시 테두리 색상 */
+    }
+
+    #imagePreview {
+        display: block;
+        margin-top: 10px;
+    }
+  
  	
  	input[type="text"] {
     		width : 485px;
@@ -15,7 +42,7 @@
  
   body {
         background-color: #f7f7f7;
-        font-family: 'Arial', sans-serif;
+        
     }
 
     .container {
@@ -29,7 +56,7 @@
     }
 
     label {
-        font-weight: bold;
+       
         margin-bottom: 8px;
     }
 
@@ -87,9 +114,22 @@
     .unusable-fields {
       display: none;
     }
+    
+    .swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
  
   </style>
-
+</head>
+<th:block layout:fragment="content">
 <body>
 
 <!-- 등록폼 -->
@@ -107,8 +147,8 @@
   				<div class="row">
                 	<div class="col-sm-12">
                         <div class="card">
-                            <div class="card-body">
-                                <h3 class="card-title">장소 등록</h3>
+                            <div class="card-body" style="padding: 50px 80px;">
+                                <div style="font-size:30px; color:black">장소 등록</div>
                                 <hr>
     <form id="createForm" th:action="@{/place}" enctype="multipart/form-data" method="post">
       <!-- CSRF 토큰 추가 -->
@@ -125,11 +165,11 @@
         <!-- 2. 사용 가능 시간 -->
         <div class="row mb-3">
             <label for="startTime" class="col-sm-2 col-form-label">사용 가능 시간</label>
-            <div class="col-sm-4">
+            <div class="col-sm-2" style="max-width:200px !important;">
                 <input type="time" class="form-control" id="startTime" name="place_start_time" required>
             </div>
             <label class="col-sm-1 col-form-label text-center">~</label>
-            <div class="col-sm-4">
+            <div class="col-sm-2" style="max-width:200px !important;">
                 <input type="time" class="form-control" id="endTime" name="place_end_time" required>
             </div>
         </div>
@@ -146,23 +186,18 @@
           <div class="row mb-3">
             <!-- 4. 위치 선택 -->
             <label for="location" class="col-sm-2 col-form-label">위치</label>
-            <div class="col-sm-10">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="floor_1" name="place_location" value="학교 1층" checked>
-                    <label class="form-check-label" for="floor_1">학교 1층</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="floor_2" name="place_location" value="학교 2층">
-                    <label class="form-check-label" for="floor_2">학교 2층</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="floor_3" name="place_location" value="학교 3층">
-                    <label class="form-check-label" for="floor_3">학교 3층</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="playground" name="place_location" value="운동장">
-                    <label class="form-check-label" for="playground">운동장</label>
-                </div>
+            <div class="col-sm-10 align-items-center d-flex" style="padding:5px 15px;">
+                <input type="radio" id="floor_1" name="place_location" value="학교 1층" checked style="max-width:20px; margin-bottom:0 !important;">
+                <label for="floor_1" style="margin-bottom:0 !important; margin-left: 5px;">학교 1층</label>
+                
+                <input type="radio" id="floor_2" name="place_location" value="학교 2층" style="max-width:20px; margin-left:100px; margin-bottom:0 !important;">
+                <label for="floor_2" style="margin-bottom:0 !important; margin-left: 5px;">학교 2층</label>
+                
+                <input type="radio" id="floor_3" name="place_location" value="학교 3층" style="max-width:20px; margin-left:100px; margin-bottom:0 !important;">
+                <label for="floor_3" style="margin-bottom:0 !important; margin-left: 5px;">학교 3층</label>
+
+                <input type="radio" id="playground" name="place_location" value="운동장" style="max-width:20px; margin-left:100px; margin-bottom:0 !important;">
+                <label for="playground" style="margin-bottom:0 !important; margin-left: 5px;">운동장</label>
             </div>
         </div>
         
@@ -171,15 +206,11 @@
 		 <div class="row mb-3">
             <!-- 5. 사용 가능 여부 -->
             <label for="usable" class="col-sm-2 col-form-label">사용 가능 여부</label>
-            <div class="col-sm-10">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" id="usable" name="place_status" value="Y" checked onchange="toggleUnusableFields()">
-                    <label class="form-check-label" for="usable">사용 가능</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" id="unusable" name="place_status" value="N" onchange="toggleUnusableFields()">
-                    <label class="form-check-label" for="unusable">사용 불가능</label>
-                </div>
+            <div class="col-sm-10 align-items-center d-flex" style="padding:5px 15px;">
+                <input type="radio" id="usable" name="place_status" value="Y" checked onchange="toggleUnusableFields()" style="max-width:20px; margin-bottom:0 !important;">
+                <label for="usable" style="margin-bottom:0 !important; margin-left: 5px;">사용 가능</label>
+                <input type="radio" id="unusable" name="place_status" value="N" onchange="toggleUnusableFields()" style="max-width:20px; margin-left:93px; margin-bottom:0 !important;">
+                <label for="unusable" style="margin-bottom:0 !important; margin-left: 5px;">사용 불가능</label>
             </div>
         </div>
         <!-- 숨겨진 필드: 사용 불가능한 사유 및 기간 -->
@@ -210,24 +241,32 @@
       
 
         <div class="row mb-3">
-            <!-- 8. 파일 업로드 -->
-            <label for="file" class="col-sm-2 col-form-label">이미지</label>
-            <div class="col-sm-10">
-                <input type="file" class="form-control" id="file" name="file" accept="image/*">
-            </div>
-        </div>
+    <!-- 8. 파일 업로드 -->
+    <label for="file" class="col-sm-2 col-form-label">이미지</label>
+    <div class="col-sm-10">
+        <!-- 숨겨진 파일 입력 필드 -->
+        <input type="file" class="form-control file-input" id="file" name="file" accept="image/*" style="display: none;" onchange="previewImage()">
+        
+        <!-- 커스텀 버튼 -->
+        <button type="button" class="custom-file-upload" onclick="document.getElementById('file').click();">파일 추가</button>
+    </div>
+</div>
+
+<!-- 이미지 미리보기 영역 -->
+<div class="row mb-3">
+    <label class="col-sm-2 col-form-label">이미지 미리보기</label>
+    <div class="col-sm-10">
+        <img id="imagePreview" src="/assets/images/noimage.png" alt="이미지 미리보기" style="max-width: 200px; max-height: 200px;">
+    </div>
+</div>
+
 
 
 		<div class="row mb-3">
-            <!-- 취소 버튼 -->
-            <div class="col-sm-6 text-left">
-                <button type="button" class="btn btn-secondary" onclick = "location.href='/place'">취소</button>
-            </div>
-        
-        
             <!-- 등록 버튼 -->
-            <div class="col-sm-6 text-right">
-                <button type="submit" class="btn btn-primary">등록</button>
+            <div class="col-sm-12 text-center">
+                <button type="button" class="btn btn-light m-1" onclick = "location.href='/places'">취소</button>
+                <button type="submit" class="btn btn-info m-1">등록</button>
             </div>
         </div>
     </form>
@@ -237,6 +276,32 @@
 </div>
 
 <script>
+
+//파일관련 
+function previewImage() {
+    const fileInput = document.getElementById('file');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    if (fileInput.files && fileInput.files[0]) {
+        // 파일이 선택된 경우: 이미지 미리보기 업데이트
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+        };
+        reader.readAsDataURL(fileInput.files[0]);
+    } else {
+        // 파일이 선택되지 않은 경우: 기본 이미지로 설정
+        imagePreview.src = '/assets/images/noimage.png';
+    }
+}
+
+// 페이지 로드시 초기 상태 설정
+document.addEventListener('DOMContentLoaded', function () {
+    previewImage();  // 페이지 로드 시 미리보기 설정
+});
+
+
+
 	function toggleUnusableFields(){
 		// 사용 가능 여부 라디오 버튼의 값
 		const isUsable = document.getElementById('usable').checked ? 'true' : 'false';
@@ -278,6 +343,11 @@
 		// 사유 입력 여부 확인
 		const unusableReason = form.unuseable_reason.value;
 		
+		// 파일 입력 요소를 가져오기
+	    const fileInput = document.getElementById('file');
+	    const imagePreview = document.getElementById('imagePreview');
+		
+		
 		  let vali_check = false; // 유효성 검사 플래그
 		  let vali_text = ""; 
 		    
@@ -295,6 +365,11 @@
 				form.place_start_time.focus();
 			} else if (startTime >= endTime) {
 				vali_text += '종료 시간은 시작 시간보다 이후여야 합니다.';
+				
+			} else if (!fileInput.files || fileInput.files.length === 0) {
+		        // 파일 입력 유효성 검사
+		        vali_text += '이미지 파일을 선택하세요.';
+		        fileInput.focus();	
 			} else if(!isUsable) {
 				if(unusableReason === ''){
 					vali_text += '사유를 입력하세요.';
@@ -327,8 +402,13 @@
 					icon:'error',
 					title: '실패',
 					text: vali_text,
-					confirmButtonText : "닫기"
+					confirmButtonText : "닫기",
+					customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
+					
 				});
+				
 			}  else {
 				const formData = new FormData(form); // FormData 사용, 파일 포함
 
@@ -351,16 +431,24 @@
 		                    icon: 'success',
 		                    title: '성공',
 		                    text: data.res_msg,
-		                    confirmButtonText : '닫기'
+		                    confirmButtonText : '닫기',
+		                    customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
+		                    
 		                }).then((result) => {
-		                    location.href = "/place";
+		                    location.href = "/places";
 		                });
 		            } else {
 		                Swal.fire({
 		                    icon: 'error',
 		                    title: '실패',
 		                    text: data.res_msg,
-		                    confirmButtonText : "닫기"
+		                    confirmButtonText : "닫기",
+		                    customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
+		                    
 		                });
 		            }
 		        })
@@ -370,34 +458,9 @@
 		    }
 		});
 </script>
-				<!-- ============================================================== -->
-				<!-- End PAge Content -->
-				<!-- ============================================================== -->
-				<!-- ============================================================== -->
-				<!-- Right sidebar -->
-				<!-- ============================================================== -->
-				<!-- .right-sidebar -->
-				<!-- ============================================================== -->
-				<!-- End Right sidebar -->
-				<!-- ============================================================== -->
 			</div>
-			<!-- ============================================================== -->
-			<!-- End Container fluid  -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- footer -->
-			<!-- ============================================================== -->
-			<footer class="footer text-center text-muted">
-				All Rights Reserved by Adminmart. Designed and Developed by <a
-					href="https://wrappixel.com">WrapPixel</a>.
-			</footer>
-			<!-- ============================================================== -->
-			<!-- End footer -->
-			<!-- ============================================================== -->
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
 
 
 <!-- 부트스트랩 JS 및 의존성 추가 -->

@@ -545,16 +545,15 @@
 	
 	            Swal.fire({
 	                title: '삭제하시겠습니까?',
-	                text: '선택된 항목들이 삭제됩니다.',
 	                icon: 'warning',
-	                showCancelButton: true,
-	                confirmButtonColor: '#5f76e8',
-	                cancelButtonColor: '#e8eaec',
-	                confirmButtonText: '삭제',
-	                cancelButtonText: '취소',
-	                customClass: {
-	                    cancelButton: 'custom-cancel-button'
-	                }
+	                text: '선택된 항목들이 삭제됩니다.',
+	    	        showCancelButton: true,
+	    	        confirmButtonText: '삭제',
+	    	        cancelButtonText: '취소',
+	    	        customClass: {
+	    	            confirmButton: 'swal-custom-button',
+	    	            cancelButton: 'swal-cancel-button'
+	    	        }
 	            }).then((result) => {
 	                if (result.isConfirmed) {
 	                    Promise.all(selectedHolidays.map(holidayNo => {

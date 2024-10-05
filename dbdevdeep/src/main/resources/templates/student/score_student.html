@@ -2,7 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
      layout:decorate="~{include/student_layout}">
-<th:block layout:fragment="content">
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
+	
 <style>
     /* 테이블 스타일 */
     table {
@@ -15,24 +17,57 @@
         padding: 8px;
         text-align: center;
     }
-
+	input[type="text"] {
+        width: 80px; /* 너비 설정 */
+        height: 30px; /* 높이 설정 */
+        padding: 5px; /* 내부 여백 */
+        font-size: 14px; /* 글꼴 크기 */
+    }
+	.custom-cancel-button{
+		color: black !important;
+	}
+	
+	.swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
 </style>
+</head>
+
+<th:block layout:fragment="content">
 <body>
 		<div class="page-wrapper">
 			<div class="page-breadcrumb">
 				<div class="row">
+				<div class="col-sm-12 col-md-12">
 				<div class="card">
-					<div id="content" class="card-body">
-					<button id="download_excel">엑셀 다운</button>
+					<div id="content" class="card-body" style="padding:50px 80px">
+					<div class="row" style="margin-left:0px !important; margin-right:0px !important;">
+	                    <div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:320px;">
+	                        <div style="font-size:30px; color:black;"><span th:text="${studentDto.student_name}"></span>학생 성적 관리</div>
+	                    </div>			
+	                    <div class="col d-flex justify-content-end align-items-center">
+							<button id="download_excel" class="btn btn-info">엑셀로 받기</button>
+						</div>			
+					</div>
+					
+					
 			            <form id="score_register_form" method="post">
-			            <h3>학생 성적 관리</h3>
 			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 			            <!-- 각 과목별로 테이블을 생성 -->
 			            <div th:each="subject : ${subjectList}">
 						    <br>
-						    <h3 th:text="${subject.subject_name}"></h3> <!-- 과목명 표시 -->
+						    <h3 th:text="${subject.subject_name}" style="color:black;"></h3> <!-- 과목명 표시 -->
 						    
-						    <table>
+						    <table class="mt-3" style="font-size:13px;">
 							    <thead>
 							        <tr>
 							            <th rowspan="2">과목</th>
@@ -52,6 +87,7 @@
 							        </tr>
 							    </thead>
 							    <tbody>
+
 							        <!-- 과목 별로 하나의 row를 생성 -->
 							        <tr>
 							            <td th:text="${subject.subject_name}"></td>
@@ -73,16 +109,24 @@
 							</table>
 
 						</div>
-							<input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
-				            <input type="submit" value="등록">
+						<br>
+						<div class="row">
+					    <div class="col d-flex justify-content-end align-items-center">
+							<br> 
+							<input type="button" onclick="cancelBtn();" class="btn waves-effect waves-light btn-light m-1" value="취소">
+							<input type="submit" class="btn waves-effect waves-light btn-primary m-1" style="margin-right:0 !important;" value="등록"> 
+						</div>
+						</div>
 	            		</form>
 	            		
 					</div>
+            	</div>
             	</div>
 				</div>
 			<div class="container-fluid">
 			</div>
 		</div>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 	</div>
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
@@ -94,6 +138,11 @@
 	<script src="/dist/js/sidebarmenu.js"></script>
 	<script src="/dist/js/custom.min.js"></script>
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+	  	const cancelBtn = () => {
+	  		window.location.href = '/student/score';
+	  	}
+	</script>
 	<script>
 	  $(document).ready(function () {
 		  const studentNo = document.getElementById("student_no").value; 
@@ -156,7 +205,11 @@
 		            Swal.fire({
 		                icon: 'success',
 		                title: '성공',
-		                text: data.res_msg
+		                text: data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 		            }).then((result) => {
 		                location.href = "/student/score";
 		            });
@@ -164,7 +217,11 @@
 		            Swal.fire({
 		                icon: 'error',
 		                title: '실패',
-		                text: data.res_msg
+		                text: data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 		            });
 		        }
 		    });

@@ -193,7 +193,8 @@
                                         	<th:block th:if="${!#lists.isEmpty(resultList)}">
                                         		<tr th:each="notice, noticeStat : ${resultList}">
                                         			<td th:text="${notice.notice_no}" style="display:none;"></td>
-                                        			<td th:text="${notice.read_check==1 ? 'V' : ''}"></td>
+                                        			<td th:if="${notice.read_check==1}"><i class="fas fa-check"></i></td>
+                                        			<td th:unless="${notice.read_check==1}"></td>
                                         			<td th:text="${noticeStat.count}"></td>
                                         			<td th:text="${notice.category_name}"></td>
                                         			<td th:text="${notice.notice_title}" style="text-align:left !important;"></td>
@@ -209,7 +210,8 @@
                     </div>
                 </div>
             </div>
-	    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
+	    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.
+	        </footer>
         </div>
     <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap tether Core JavaScript -->
@@ -243,5 +245,4 @@
 	    });
 	</script>
 </body>
-
 </html>

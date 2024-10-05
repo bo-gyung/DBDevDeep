@@ -2,8 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/student_layout}">
-<th:block layout:fragment="content">
+	
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
+
 	<style>
+		/* 활성화된 탭의 색상을 변경 */
+		.nav-tabs .nav-link.active {
+		    color: #0031AE !important;  /* 클릭된 상태의 글씨 색상을 회색으로 변경 */
+		    background-color: white !important;
+		}
+		
+		/* 비활성화된 탭의 색상을 검정으로 변경 */
+		.nav-tabs .nav-link {
+		    color: black !important;  /* 클릭되지 않은 상태의 글씨 색상을 검정으로 변경 */
+		}
+		
+		.nav-tabs .nav-link:hover {
+		    color: #0031AE !important;  /* 클릭되지 않은 상태의 글씨 색상을 검정으로 변경 */
+		}
+		
 			div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		  white-space: nowrap;
 		  justify-content: center;
@@ -42,7 +60,7 @@
         }
 
         .tab-menu button {
-            background-color: lightgray;
+            background-color: #1555d5; /* 하늘색으로 변경 */
             border: none;
 			padding: 5px 20px;
             cursor: pointer;
@@ -51,11 +69,11 @@
         }
 
         .tab-menu button:hover {
-            background-color: darkgray;
+            background-color: #195de5; /* 더 밝은 하늘색 */
         }
 
         .tab-menu button.active {
-            background-color: black;
+            background-color: #abc4f6; /* 좀 더 짙은 하늘색 */
             color: white;
         }
 
@@ -139,7 +157,14 @@
 		table.dataTable thead .sorting_desc:after {
 		  content: "\25BC"; /* 아래쪽 삼각형 화살표 */
 		}
+		
+		.custom-pointer {
+			cursor: pointer;
+		}
     </style>
+    </head>
+    
+    <th:block layout:fragment="content">
 	<body>
 		<body>
 		<!-- ============================================================== -->
@@ -153,21 +178,29 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body" style="padding:50px 80px">
-		                        <div class="row mb-2">
-		                        	<div class="col-6 d-flex justify-content-start" style="padding-top:10px; padding-left:0px;">
-		                        		<div class="tab-menu">
-									        <button id="subject-tab" class="active">과목별 등록</button>
-									        <button id="individual-tab">개인별 등록</button>
-									    </div>
-		                        	</div>
-		                        </div>
+								<div class="row" style="margin-left:0px !important; margin-right:0px !important; display:flex; align-items: center;">
+								    <ul class="nav nav-tabs nav-bordered mb-3">
+		                        		<li class="nav-item">
+									        <a href="#subject" data-toggle="tab" aria-expanded="true" class="nav-link active" id="subject-tab">
+								                <i class="mdi mdi-home-variant d-lg-none d-block mr-1"></i>
+								                <span class="d-none d-lg-block" style="font-size:24px;">과목별 등록</span>
+								        	</a>
+								        </li>
+		                        		<li class="nav-item">								        
+									        <a href="#individual" data-toggle="tab" aria-expanded="false" class="nav-link" id="individual-tab">
+								                <i class="mdi mdi-account-circle d-lg-none d-block mr-1"></i>
+								                <span class="d-none d-lg-block" style="font-size:24px;">개인별 등록</span>
+									        </a>
+									    </li>
+									</ul>
+	                        	</div>
 		                        
 		                        <!-- 과목별 등록 리스트 -->	
                                	<div id="subject-content" class="tab-content active">
-							        <h2>2024 학년도 5학년 4반 2학기 교육 과정</h2>
 							        <table id="subject_list" class="table table-hover table-bordered no-wrap" style="width:100%">
                                         <thead>
                                             <tr>
+                                            	<th scope="col" style="display:none;">subjectNo</th>
 												<th scope="col">학년도</th>
 												<th scope="col">학기</th>
 												<th scope="col">학년</th>
@@ -183,7 +216,7 @@
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(subjectList)}">
-											    <tr th:each="subject, subjectStat : ${subjectList}">
+											    <tr th:each="subject, subjectStat : ${subjectList}" class="custom-pointer">
 											        <td style="display:none;" th:text="${subject.subject_no}"></td>
 													<td th:text="${subject.teacher_history.getTYear}"></td>
 											        <td th:text="${subject.subject_semester}"></td>
@@ -200,10 +233,10 @@
 							    
 							    <!-- 개인별 등록 리스트 -->
 							    <div id="individual-content" class="tab-content">
-							        <h2>5학년 4반 성적 관리</h2>
 							        <table id="student_list" class="table table-hover table-bordered no-wrap" style="width:100%">
                                         <thead>
                                             <tr>
+                                            	<th scope="col" style="display:none;">studentNo</th>
 												<th scope="col">학년</th>
 												<th scope="col">반</th>
 												<th scope="col">번호</th>
@@ -243,24 +276,29 @@
                         </div>
                     </div>
                 </div>
-                <!-- ============================================================== -->
-                <!-- End PAge Content -->
-                <!-- ============================================================== -->
             </div>
+            <footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
         </div>
-		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
-		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
-		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-		<script src="/dist/js/app-style-switcher.js"></script>
-		<script src="/dist/js/feather.min.js"></script>
-		<script
-			src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
-		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
-		<script src="/dist/js/sidebarmenu.js"></script>
-		<script src="/dist/js/custom.min.js"></script>
-		<script
-			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
-		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+	    <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+	    <!-- Bootstrap tether Core JavaScript -->
+	    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	    <!-- apps -->
+	    <!-- apps -->
+	    <script src="/dist/js/app-style-switcher.js"></script>
+	    <script src="/dist/js/feather.min.js"></script>
+	    <!-- slimscrollbar scrollbar JavaScript -->
+	    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+	    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+	    <!--Wave Effects -->
+	    <!-- themejs -->
+	    <!--Menu sidebar -->
+	    <script src="/dist/js/sidebarmenu.js"></script>
+	    <!--Custom JavaScript -->
+	    <script src="/dist/js/custom.min.js"></script>
+	    <!--This page plugins -->
+	    <script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+	    <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
 		<script>
 	        // 각 버튼과 콘텐츠 요소를 선택
 	        const subjectTab = document.getElementById('subject-tab');
@@ -274,7 +312,119 @@
 	            individualTab.classList.remove('active');
 	            subjectContent.classList.add('active');
 	            individualContent.classList.remove('active');
+	            
+	            // 데이터테이블 초기화
+	            if ($.fn.DataTable.isDataTable('#subject_list')) {
+	                $('#subject_list').DataTable().destroy(); // 기존 테이블 초기화
+	            }
+	            
+	            $('#subject_list').DataTable({
+	            	// 화면 크기에 따라 컬럼 width 자동 조절
+	            	 "responsive": true,
+	            	 // 컬럼 width 비율 조절
+	            	 "columnDefs": [
+	                    { "width": "0%", "targets": 0 },
+	                    { "width": "15%", "targets": 1 },
+	                    { "width": "15%", "targets": 2 },
+	                    { "width": "10%", "targets": 3 },
+	                    { "width": "10%", "targets": 4 },
+	                    { "width": "25%", "targets": 5 },
+	                    { "width": "25%", "targets": 6 }
+	                ],
+
+	            	// 정보 표시 해제
+	            	info: false,
+	            	// DataTables의 DOM 구조를 재정의
+	            	// 표시건수, 검색, 테이블, 페이징의 위치 재설정
+	            	// (정보 표시 부분을 제외)
+	            	"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"clearfix">>>t<"row view-pager"<"col-sm-12"<ipf>>>',
+	            	// 페이지네이션 버튼을 전체 숫자와 함께 표시
+	            	pagingType: 'full_numbers',
+	            	// 페이지당 항목 수를 선택할 수 있는 옵션
+	            	lengthChange: false,
+	            	// 기본 페이지당 항목 수
+	            	pageLength: 10,
+
+	            	// 페이징 관련 설정
+	            	drawCallback: function(settings) {
+	            		var api = this.api();  // DataTables API 객체
+	            		var info = api.page.info();  // 현재 페이지 정보
+	            		// 전체 페이지 수
+	            		var totalPages = info.pages;
+	            		// 현재 페이지 번호
+	            		var currentPage = info.page;
+	            		// 표시할 페이지 버튼 수
+	            		var numButtons = 5;
+	            		// 시작 페이지와 종료 페이지 번호 계산
+	            		var startPage = Math.max(currentPage - Math.floor(numButtons / 2), 0);
+	            		var endPage = Math.min(startPage + numButtons - 1, totalPages - 1);
+	            		// endPage가 최대값에 도달한 경우 startPage 조정
+	            		if (endPage - startPage < numButtons - 1) {
+	            			startPage = Math.max(endPage - numButtons + 1, 0);
+	            		}
+	            		// 사용자 정의 페이지네이션 HTML 생성
+	            		var paginationHtml = '<ul class="pagination">';
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><<</a></li>';
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><</a></li>';
+	            		for (var i = startPage; i <= endPage; i++) {
+	            			var isActive = i === currentPage ? 'active' : '';  // 현재 페이지에 'active' 클래스 적용
+	            			paginationHtml += '<li class="paginate_button page-item ' + isActive + '"><a class="page-link" href="#" tabindex="0">' + (i + 1) + '</a></li>';
+	            		}
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">></a></li>';
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">>></a></li>';
+	            		paginationHtml += '</ul>';
+	            		// 페이지네이션 컨테이너 업데이트
+	            		$(api.table().container()).find('.dataTables_paginate').html(paginationHtml);
+	            		// 클릭 이벤트 핸들러 추가
+	            		$(api.table().container()).find('.paginate_button').on('click', function(e) {
+	            			e.preventDefault();  // 기본 링크 동작 방지
+	            			if ($(this).hasClass('disabled')) return;  // 비활성화된 버튼 클릭 방지
+	            			var idx = $(this).find('a').text();  // 클릭된 버튼의 텍스트 가져오기
+	            			if (idx === '<<') {
+	            				api.page('first').draw('page');  // 첫 페이지로 이동
+	            			} else if (idx === '<') {
+	            				api.page('previous').draw('page');  // 이전 페이지로 이동
+	            			} else if (idx === '>') {
+	            				api.page('next').draw('page');  // 다음 페이지로 이동
+	            			} else if (idx === '>>') {
+	            				api.page('last').draw('page');  // 마지막 페이지로 이동
+	            			} else {
+	            				api.page(parseInt(idx) - 1).draw('page');  // 선택된 페이지로 이동
+	            			}
+	            		});
+	            	},
+	            	"initComplete": function() {
+	            		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
+	            		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
+	            		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
+	            		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
+
+	            		searchButton.on('click', function() {
+	            			var searchTerm = searchInput.val();  // 검색어 가져오기
+	            			$('#subject_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+	            		});
+
+	            		// Enter 키로 검색하기
+	            		searchInput.on('keypress', function(e) {
+	            			if (e.which === 13) {  // Enter 키 코드
+	            				e.preventDefault();  // 기본 Enter 동작 방지
+	            				searchButton.click();  // 검색 버튼 클릭 이벤트 호출
+	            			}
+	            		});
+
+
+	            			searchBoxContainer.append(searchInput).append(searchButton);
+	            			searchBoxWrapper.append(searchBoxContainer);
+
+	            			// 페이징 밑에 검색 박스 추가
+	            			$('.dataTables_paginate').after(searchBoxContainer);
+
+	            			// DataTables 기본 검색창 숨기기
+	            			$('div.dataTables_filter').hide();
+	            		}
+	            	});
 	        });
+	        
 	
 	        // 개인별 등록 탭 클릭 시
 	        individualTab.addEventListener('click', () => {
@@ -282,6 +432,120 @@
 	            subjectTab.classList.remove('active');
 	            individualContent.classList.add('active');
 	            subjectContent.classList.remove('active');
+	            
+	            // #student_list 데이터테이블 초기화
+	            if ($.fn.DataTable.isDataTable('#student_list')) {
+	                $('#student_list').DataTable().destroy(); // 기존 테이블 초기화
+	            }
+	            // 정렬 설정
+	            var order = new Array();
+	            order.push(2);
+	            order.push('desc'); // 내림차순 정렬
+	            
+	            $('#student_list').DataTable({
+	            	// 화면 크기에 따라 컬럼 width 자동 조절
+	            	 "responsive": true,
+	            	 // 컬럼 width 비율 조절
+	            	 "columnDefs": [
+
+	            		{ "width": "0%", "targets": 0 },
+	                    { "width": "15%", "targets": 1 },
+	                    { "width": "15%", "targets": 2 },
+	                    { "width": "15%", "targets": 3 },
+	                    { "width": "25%", "targets": 4 },
+	                    { "width": "15%", "targets": 5 },
+	                    { "width": "15%", "targets": 6 }
+	                ],
+	                "order": [order], // 객체 배열이 아닌 배열로 전달
+	            	info: false,
+	            	// DataTables의 DOM 구조를 재정의
+	            	// 표시건수, 검색, 테이블, 페이징의 위치 재설정
+	            	// (정보 표시 부분을 제외)
+	            	"sDom": '<"row view-filter"<"col-sm-12"<"pull-left"l><"clearfix">>>t<"row view-pager"<"col-sm-12"<ipf>>>',
+	            	// 페이지네이션 버튼을 전체 숫자와 함께 표시
+	            	pagingType: 'full_numbers',
+	            	// 페이지당 항목 수를 선택할 수 있는 옵션
+	            	lengthChange: false,
+	            	// 기본 페이지당 항목 수
+	            	pageLength: 10,
+
+	            	// 페이징 관련 설정
+	            	drawCallback: function(settings) {
+	            		var api = this.api();  // DataTables API 객체
+	            		var info = api.page.info();  // 현재 페이지 정보
+	            		// 전체 페이지 수
+	            		var totalPages = info.pages;
+	            		// 현재 페이지 번호
+	            		var currentPage = info.page;
+	            		// 표시할 페이지 버튼 수
+	            		var numButtons = 5;
+	            		// 시작 페이지와 종료 페이지 번호 계산
+	            		var startPage = Math.max(currentPage - Math.floor(numButtons / 2), 0);
+	            		var endPage = Math.min(startPage + numButtons - 1, totalPages - 1);
+	            		// endPage가 최대값에 도달한 경우 startPage 조정
+	            		if (endPage - startPage < numButtons - 1) {
+	            			startPage = Math.max(endPage - numButtons + 1, 0);
+	            		}
+	            		// 사용자 정의 페이지네이션 HTML 생성
+	            		var paginationHtml = '<ul class="pagination">';
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><<</a></li>';
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === 0 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0"><</a></li>';
+	            		for (var i = startPage; i <= endPage; i++) {
+	            			var isActive = i === currentPage ? 'active' : '';  // 현재 페이지에 'active' 클래스 적용
+	            			paginationHtml += '<li class="paginate_button page-item ' + isActive + '"><a class="page-link" href="#" tabindex="0">' + (i + 1) + '</a></li>';
+	            		}
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">></a></li>';
+	            		paginationHtml += '<li class="paginate_button page-item ' + (currentPage === totalPages - 1 ? 'disabled' : '') + '"><a class="page-link" href="#" tabindex="0">>></a></li>';
+	            		paginationHtml += '</ul>';
+	            		// 페이지네이션 컨테이너 업데이트
+	            		$(api.table().container()).find('.dataTables_paginate').html(paginationHtml);
+	            		// 클릭 이벤트 핸들러 추가
+	            		$(api.table().container()).find('.paginate_button').on('click', function(e) {
+	            			e.preventDefault();  // 기본 링크 동작 방지
+	            			if ($(this).hasClass('disabled')) return;  // 비활성화된 버튼 클릭 방지
+	            			var idx = $(this).find('a').text();  // 클릭된 버튼의 텍스트 가져오기
+	            			if (idx === '<<') {
+	            				api.page('first').draw('page');  // 첫 페이지로 이동
+	            			} else if (idx === '<') {
+	            				api.page('previous').draw('page');  // 이전 페이지로 이동
+	            			} else if (idx === '>') {
+	            				api.page('next').draw('page');  // 다음 페이지로 이동
+	            			} else if (idx === '>>') {
+	            				api.page('last').draw('page');  // 마지막 페이지로 이동
+	            			} else {
+	            				api.page(parseInt(idx) - 1).draw('page');  // 선택된 페이지로 이동
+	            			}
+	            		});
+	            	},
+	            	"initComplete": function() {
+	            		var searchBoxWrapper = $('<div style="display: flex; justify-content: center; width: 100%;"></div>');
+	            		var searchBoxContainer = $('<div class="custom-dataTables_filter" style="position: relative; display: flex; align-items: center; width: 100%; max-width: 500px; margin: 15px auto 0 auto;"></div>');
+	            		var searchInput = $('<input type="text" class="form-control" placeholder="검색어를 입력해주세요" style="width: 100%; box-sizing: border-box; padding-right: 60px;">');
+	            		var searchButton = $('<i class="fas fa-search" style="cursor: pointer; color: #0031AE; position: absolute; right: 0px; top: 4px; height: 80%; border: none; border-radius: 2px; margin: 0; padding: 0 16px; display: flex; align-items: center;"></i>');
+
+	            		searchButton.on('click', function() {
+	            			var searchTerm = searchInput.val();  // 검색어 가져오기
+	            			$('#student_list').DataTable().search(searchTerm).draw();  // 검색어로 필터링
+	            		});
+
+	            		// Enter 키로 검색하기
+	            		searchInput.on('keypress', function(e) {
+	            			if (e.which === 13) {  // Enter 키 코드
+	            				e.preventDefault();  // 기본 Enter 동작 방지
+	            				searchButton.click();  // 검색 버튼 클릭 이벤트 호출
+	            			}
+	            		});
+
+	            		searchBoxContainer.append(searchInput).append(searchButton);
+	            		searchBoxWrapper.append(searchBoxContainer);
+
+	            		// 페이징 밑에 검색 박스 추가
+	            		$('.dataTables_paginate').after(searchBoxContainer);
+
+	            		// DataTables 기본 검색창 숨기기
+	            		$('div.dataTables_filter').hide();
+	            	}
+	            });
 	        });
 	    </script>
 		<script>

@@ -24,6 +24,25 @@
 	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script> 
 	
+	<style>
+	.custom-cancel-button{
+		color: black !important;
+	}
+	
+	.swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
+	</style>
+	
 	<script>
     var $j = jQuery.noConflict();
 
@@ -76,24 +95,31 @@
                         },
                         "types": {
                             "default": {
-                                "icon": "fas fa-user" // 아이콘 변경
+                            	"icon": "fas fa-user" // 아이콘 변경
+                            },
+                            "non_selectable": {
+                                "icon": false,
+                                "select_node": false 
                             }
                         },
                         "plugins": ["types", "checkbox"], // 체크박스 플러그인 활성화
                         "checkbox": {
                             "keep_selected_style": false,
                             "three_state": false,
-                            "cascade": ""
+                            "cascade": "",
+                            "visible": function(node) {
+                                return node.type !== "non_selectable";
+                            }
                         }
                     }).on("select_node.jstree", function (e, data) {
-                        // 학년 노드 클릭 시 자식 노드 선택
-                        if (data.node.text.includes('학년')) {
-                            $j('#jstree_modal').jstree('select_node', data.node.children_d);
+                        // 학년 노드는 선택되지 않도록
+                        if (data.node.type === 'non_selectable') {
+                            $j('#jstree_modal').jstree('deselect_node', data.node); // 선택 해제
                         }
                     }).on("deselect_node.jstree", function (e, data) {
-                        // 학년 노드 해제 시 자식 노드도 해제
-                        if (data.node.text.includes('학년')) {
-                            $j('#jstree_modal').jstree('deselect_node', data.node.children_d);
+                        // 학년 노드는 아무 동작도 하지 않음
+                        if (data.node.type === 'non_selectable') {
+                            e.preventDefault();
                         }
                     });
                 },
@@ -183,6 +209,8 @@
                 const gradeNode = {
                     "text": grade + "학년",
                     "state": { "opened": true },
+                    "type": "non_selectable",
+                    "icon": false,
                     "children": D4J4(items, historys, grade) // 특정 학년의 교직원 목록을 가져옴
                 };
                 gradeNodes.push(gradeNode);
@@ -192,6 +220,8 @@
             const etcNode = {
                 "text": "기타",
                 "state": { "opened": true },
+                "type": "non_selectable",
+                "icon": false,
                 "children": D4J4(items, historys, null) // 학년 정보가 없는 교직원 목록을 가져옴
             };
             gradeNodes.push(etcNode);
@@ -240,12 +270,6 @@
                 });
         }
 
-        // 부모 노드 클릭 시 아무런 동작도 하지 않도록 설정
-        $j('#jstree_modal').on("select_node.jstree", function(e, data) {
-            if (data.node.type === "non_selectable") {
-                data.instance.deselect_node(data.node);
-            }
-        });
 
         $j('#confirmSelection').click(function() {
             var selectedNodes = $j('#jstree_modal').jstree("get_selected", true);
@@ -255,7 +279,9 @@
 
             if (Array.isArray(names)) {
                 $j(targetCellId).val(names.join('>')); // 선택한 노드들의 텍스트를 조합하여 표시
-            } 
+            } else {
+                console.error("names is not an array:", names);
+            }
 
             $j('#treeModal').modal('hide');
         });
@@ -267,29 +293,14 @@
 
 <th:block layout:fragment="content">
 
-		<!-- ============================================================== -->
-		<!-- End Left Sidebar - style you can find in sidebar.scss  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- Page wrapper  -->
-		<!-- ============================================================== -->
 		<div class="page-wrapper">
-			<!-- ============================================================== -->
-			<!-- Container fluid  -->
-			<!-- ============================================================== -->
 			<div class="container-fluid">
-				<!-- ============================================================== -->
-				<!-- Start Page Content -->
-				<!-- ============================================================== -->
 				<div class="col-sm-12 col-md-12">
 					<div class="card">
-						<div class="card-body">
-							<h3 class="card-title">결재 수정</h3>
+						<div class="card-body" style="padding: 50px 80px">
+							<div style="font-size: 30px; color:black;">결재 수정</div>
 								<hr>
 									<div class="container-fluid">
-				<!-- ============================================================== -->
-				<!-- Start Page Content -->
-				<!-- ============================================================== -->
                 <div class="container">
                     <form id="approUpdate">
                                     <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
@@ -364,11 +375,11 @@
 								                	</td>
                                             </tr>
                                             <tr>
-                                                <td>신청사유</td>
+                                                <td style="vertical-align: middle;">신청사유</td>
                                                 <td colspan="3"><textarea class="form-control" rows="10" style="resize: none;" name="appro_content" th:text="${aDto.appro_content}"></textarea></td>
                                             </tr>
                                             <tr>
-                                                <td>참고사항</td>
+                                                <td style="vertical-align: middle;">참고사항</td>
                                                 <td colspan="3">*공가 - 예비군 /민방위의 경우 사후에 참석증을 반드시 제출부탁드립니다.<br>
                                                     *병가 - 연 25회 초과시 무급휴가로 전환 됩니다.<br>
                                                     *경조사 - 사전/사후에 행사일을 증명할 수 있는 서류 제출부탁드립니다.<br>
@@ -411,14 +422,16 @@
                                             <tr>
                                                 <td>기존파일</td>
                                                 <td colspan="3">
-											        <input type="text" th:value="${fDto != null ? fDto.ori_file : ''}" readonly style="border: 0; outline: none;"> 
+											        <input type="text" th:value="${fDto != null ? fDto.ori_file : ''}" readonly style="border: 0; outline: none; width: 100%;"> 
 											    </td>
                                             </tr>
                                             <tr>
                                                 <td>수정파일</td>
                                                 <td colspan="3">
-											        <input type="file" name="file_name">
-											    </td>
+												    <input type="file" id="fileInput" name="file_name" style="display: none;" onchange="displayFileName(event)">
+												    <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('fileInput').click();">파일 선택</button>
+												    <span id="fileNameDisplay" style="margin-left: 10px;">선택된 파일 없음</span>
+												</td>
                                             </tr>
                                             <tr>
                                                 <td colspan="4">
@@ -429,83 +442,42 @@
                                     </table>
                                     <div style="margin-left: auto; text-align: right; align-items: center;">
                                         <div class="text-center mt-3"> 
-											<input type="button" value="취소" id="returnList" class="btn btn-primary"></button>	
-                                            <button type="submit" class="btn btn-success" >수정</button>
+											<input type="button" value="취소" id="returnList" class="btn waves-effect waves-light btn-light m-1">	
+                                            <button type="submit" class="btn waves-effect waves-light btn-primary m-1" >수정</button>
                                         </div>
                                     </div>
                                 </form>
                             </div>
+                            <!-- 트리 모달창 -->
                             <div class="modal fade" id="treeModal" tabindex="-1" role="dialog" aria-labelledby="treeModalLabel" aria-hidden="true">
-							        <div class="modal-dialog" role="document">
-							            <div class="modal-content">
-							                <div class="modal-header">
-							                    <h5 class="modal-title" id="treeModalLabel">Select Nodes</h5>
-							                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-							                        <span aria-hidden="true">&times;</span>
-							                    </button>
+							    <div class="modal-dialog modal-dialog-centered custom-modal-size" style="max-width: 25%; width: 25%; height: 93%;">
+							        <div class="modal-content" style="height: 93%;">
+							            <div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
+							                <div class="modal-title" id="treeModalLabel">
+							                    <i data-feather="users" class="svg-icon mr-2 ml-1"></i> 직원 목록
 							                </div>
-							                <div class="modal-body">
-							                    <!-- 트리가 렌더링될 영역 -->
-							                    <div id="jstree_modal"></div>
-							                </div>
-							                <div class="modal-footer">
-							                    <button type="button" class="btn btn-primary" id="confirmSelection">확인</button>
-							                    <button type="submit" class="btn btn-secondary" data-dismiss="modal">닫기</button>
-							                </div>
+							                <button type="button" class="close" data-dismiss="modal">
+							                    <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
+							                </button>
+							            </div>
+							            <div class="modal-body" style="padding-left: 20px; padding-right: 20px; padding-top: 20px;">
+							                <!-- 트리가 렌더링될 영역 -->
+							                <div id="jstree_modal" style="height: calc(100% - 50px); overflow-y: auto;"></div>
+							            </div>
+							            <div class="modal-footer" style="padding-left: 20px; padding-right: 20px; padding-top: 17px;">
+							                <button type="button" class="btn waves-effect waves-light btn-outline-secondary" data-dismiss="modal">닫기</button>
+							                <button type="button" class="btn waves-effect waves-light btn-primary" id="confirmSelection">확인</button>
 							            </div>
 							        </div>
 							    </div>
-                <!-- ============================================================== -->
-                <!-- End PAge Content -->
-                <!-- ============================================================== -->
-                <!-- ============================================================== -->
-                <!-- Right sidebar -->
-                <!-- ============================================================== -->
-                <!-- .right-sidebar -->
-                <!-- ============================================================== -->
-                <!-- End Right sidebar -->
-                <!-- ============================================================== -->
+							</div>
 				            </div>
 						</div>
 					</div>
 				</div>
 			</div>
-			<!-- ============================================================== -->
-			<!-- End PAge Content -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- Right sidebar -->
-			<!-- ============================================================== -->
-			<!-- .right-sidebar -->
-			<!-- ============================================================== -->
-			<!-- End Right sidebar -->
-			<!-- ============================================================== -->
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Container fluid  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- footer -->
-		<!-- ============================================================== -->
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
-		<!-- ============================================================== -->
-		<!-- End footer -->
-		<!-- ============================================================== -->
-	</div>
-	<!-- ============================================================== -->
-	<!-- End Page wrapper  -->
-	<!-- ============================================================== -->
-	</div>
-	<!-- ============================================================== -->
-	<!-- End Wrapper -->
-	<!-- ============================================================== -->
-	<!-- End Wrapper -->
-	<!-- ============================================================== -->
-	<!-- All Jquery -->
-	<!-- ============================================================== -->
-	
 	
 	<!-- Bootstrap tether Core JavaScript -->
 	<script th:src="@{/assets/libs/popper.js/dist/umd/popper.min.js}"></script>
@@ -527,37 +499,50 @@
     <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
     
            <script th:inline="javascript">
-/*<![CDATA[*/
-var consultData = /*[[${cDto != null ? cDto : '[]'}]]*/ [];
-var approvalData = /*[[${lDto != null ? lDto : '[]'}]]*/ [];
-var referenceData = /*[[${rDto}]]*/ []; // rDto 데이터
-
-document.addEventListener("DOMContentLoaded", function() {
-    var consultNames = consultData.filter(function(item) {
-        return item.consult_yn === 'Y';
-    }).map(function(item) {
-        return item.appro_line_name + ' (' + item.emp_id + ')';
-    }).join(' > ');
-
-    var approvalNames = approvalData.filter(function(item) {
-        return item.consult_yn === 'N';
-    }).map(function(item) {
-        return item.appro_line_name + ' (' + item.emp_id + ')';
-    }).join(' > ');
-
-    var referenceNames = referenceData.map(function(item) {
-        return item.ref_name + ' (' + item.emp_id + ')';
-    }).join(' > ');
-
-    // Set the value to the input fields
-    document.getElementById('selectedNodesTable1').value = consultNames;
-    document.getElementById('selectedNodesTable2').value = approvalNames;
-    document.getElementById('selectedNodesTable3').value = referenceNames;
-});
-/*]]>*/
-</script>
+           
+           
+		/*<![CDATA[*/
+		var consultData = /*[[${cDto != null ? cDto : '[]'}]]*/ [];
+		var approvalData = /*[[${lDto != null ? lDto : '[]'}]]*/ [];
+		var referenceData = /*[[${rDto}]]*/ []; // rDto 데이터
+		
+		document.addEventListener("DOMContentLoaded", function() {
+		    var consultNames = consultData.filter(function(item) {
+		        return item.consult_yn === 'Y';
+		    }).map(function(item) {
+		        return item.appro_line_name + ' (' + item.emp_id + ')';
+		    }).join(' > ');
+		
+		    var approvalNames = approvalData.filter(function(item) {
+		        return item.consult_yn === 'N';
+		    }).map(function(item) {
+		        return item.appro_line_name + ' (' + item.emp_id + ')';
+		    }).join(' > ');
+		
+		    var referenceNames = referenceData.map(function(item) {
+		        return item.ref_name + ' (' + item.emp_id + ')';
+		    }).join(' > ');
+		
+		    // Set the value to the input fields
+		    document.getElementById('selectedNodesTable1').value = consultNames;
+		    document.getElementById('selectedNodesTable2').value = approvalNames;
+		    document.getElementById('selectedNodesTable3').value = referenceNames;
+		});
+		/*]]>*/
+		</script>
     
     <script>
+    
+    function displayFileName(event) {
+	    const fileInput = event.target;
+	    const fileNameDisplay = document.getElementById('fileNameDisplay');
+	    
+	    if (fileInput.files.length > 0) {
+	        fileNameDisplay.textContent = fileInput.files[0].name; // 첫 번째 파일 이름 출력
+	    } else {
+	        fileNameDisplay.textContent = '선택된 파일 없음'; // 파일 선택이 취소된 경우
+	    }
+	}
     
     document.addEventListener('DOMContentLoaded', function () {
         // 페이지 로드 시 초기화
@@ -654,18 +639,17 @@ document.addEventListener("DOMContentLoaded", function() {
             title: '수정을 취소 하시겠습니까?',
             text: '변경된 내용은 저장되지 않습니다.',
             icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#5f76e8',
-            cancelButtonColor: '#e8eaec',
-            confirmButtonText: '이동',
-            cancelButtonText: '취소',
-            customClass: {
-                cancelButton: 'custom-cancel-button'
-            }
+	        showCancelButton: true,
+	        confirmButtonText: '이동',
+	        cancelButtonText: '취소',
+	        customClass: {
+	            confirmButton: 'swal-custom-button',
+	            cancelButton: 'swal-cancel-button'
+	        }
         })
     	.then((result) => {
     		if(result.isConfirmed){
-    			window.location.href = '/approDetail/' + approNo;
+    			window.location.href = '/approves/' + approNo;
     		}
     	})
     })
@@ -688,12 +672,14 @@ document.addEventListener("DOMContentLoaded", function() {
 	        	Swal.fire({
 					icon:'error',
 					title:'제목을 입력해주세요',
+					confirmButtonColor: '#0031AE',
 					confirmButtonText:"닫기"
 				});
 	        } else if (!document.querySelector('input[name="vac_type_display"]:checked')){
 	        	Swal.fire({
 					icon:'error',
 					title:'종류를 선택해주세요',
+					confirmButtonColor: '#0031AE',
 					confirmButtonText:"닫기"
 				});
 	        	form.vac_type_display.focus()
@@ -703,6 +689,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	        	Swal.fire({
 					icon:'error',
 					title:'오전/오후를 선택해주세요',
+					confirmButtonColor: '#0031AE',
 					confirmButtonText:"닫기"
 				});
 	        	document.getElementById("half_one").focus();
@@ -711,6 +698,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	        	Swal.fire({
 					icon:'error',
 					title:'일정시작일을 입력해주세요',
+					confirmButtonColor: '#0031AE',
 					confirmButtonText:"닫기"
 				});
 	        	form.start_date.focus()
@@ -718,6 +706,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	        	Swal.fire({
 					icon:'error',
 					title:'일정종료일을 입력해주세요',
+					confirmButtonColor: '#0031AE',
 					confirmButtonText:"닫기"
 				});
 	        	form.end_date.focus()
@@ -725,6 +714,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	        	Swal.fire({
 					icon:'error',
 					title:'신청사유를 입력해주세요',
+					confirmButtonColor: '#0031AE',
 					confirmButtonText:"닫기"
 				});
 	        	form.appro_content.focus()
@@ -732,6 +722,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	        	Swal.fire({
 					icon:'error',
 					title:'결재자를 선택해주세요',
+					confirmButtonColor: '#0031AE',
 					confirmButtonText:"닫기"
 				});
 	        	form.approval.focus()
@@ -757,15 +748,17 @@ document.addEventListener("DOMContentLoaded", function() {
 							icon :'success',
 							title:'성공',
 							text : data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonColor: '#0031AE',
+							confirmButtonText:"확인"
 						}).then((result)=>{
-							location.href="/";
+							history.back();
 						});
 					} else{
 						Swal.fire({
 							icon:'error',
 							title:'실패',
 							text: data.res_msg,
+							confirmButtonColor: '#0031AE',
 							confirmButtonText:"닫기"
 						});
 					}

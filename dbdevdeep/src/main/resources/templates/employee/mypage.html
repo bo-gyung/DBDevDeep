@@ -5,6 +5,16 @@
 		th, td {
 			text-align: center;
 		}
+		
+		th {
+			background-color: #e8eaec;
+			font-weight: bold;
+		}
+		
+		th[rowspan="8"] {
+		    background-color: transparent; /* rowspan이 8인 th의 배경색을 투명으로 설정 */
+		    font-weight: normal; /* 선택사항: 글자 두께를 일반으로 설정 */
+		}
 	</style>
 	<div class="page-wrapper">
 		<div class="container-fluid">
@@ -13,22 +23,31 @@
 			<!-- ============================================================== -->
 			<div class="row">
 				<div class="col-12">
-					<div class="card" style="padding: 40px;">
+					<div class="card" style="padding: 50px 80px;">
 						<div class="card-body">
-							<h4 class="card-title">내 정보</h4>
-							<hr>
+							<div class="col-6 d-flex justify-content-start align-items-center" style="padding-left: 12px;">
+								<div style="font-size: 30px; color:black;">내 정보</div>
+							</div>
 
-							<ul class="nav nav-tabs nav-bordered mb-3">
-								<li class="nav-item"><a href="#employee_info" data-toggle="tab" aria-expanded="true" class="nav-link active"> <i class="mdi mdi-home-variant d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">직원정보</span>
-								</a></li>
+							<ul class="nav nav-tabs nav-bordered mb-3 justify-content-end" style="position:relative; top: -30px;">
+								<li class="nav-item">
+									<a href="#employee_info" data-toggle="tab" aria-expanded="true" class="nav-link active"> 
+										<i class="mdi mdi-home-variant d-lg-none d-block mr-1"></i> 
+										<span class="d-none d-lg-block">직원정보</span>
+									</a>
+								</li>
 								<li class="nav-item" th:if="${#authentication.principal.dto.dept_code == 'D4'}">
 									<a href="#class-history" data-toggle="tab" aria-expanded="false" class="nav-link"> 
 										<i class="mdi mdi-account-circle d-lg-none d-block mr-1"></i> 
 										<span class="d-none d-lg-block">학급이력</span>
 									</a>
 								</li>
-								<li class="nav-item"><a href="#employee-status" data-toggle="tab" aria-expanded="false" class="nav-link"> <i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i> <span class="d-none d-lg-block">재직이력</span>
-								</a></li>
+								<li class="nav-item">
+									<a href="#employee-status" data-toggle="tab" aria-expanded="false" class="nav-link"> 
+										<i class="mdi mdi-settings-outline d-lg-none d-block mr-1"></i> 
+										<span class="d-none d-lg-block">재직이력</span>
+									</a>
+								</li>
 							</ul>
 
 							<div class="tab-content">
@@ -87,7 +106,7 @@
 								<div class="tab-pane" id="class-history">
 									<div class="form-group">
 										<div class="row">
-											<div class="col-md-8" style="margin-top: 40px;">
+											<div class="col-md-12" style="margin-top: 10px;">
 												<div class="table-responsive">
 													<table id="employee_teacher_history_list" class="table table-bordered no-wrap" style="width: 100%">
 														<colgroup>
@@ -128,8 +147,8 @@
 								<div class="tab-pane" id="employee-status">
 									<div class="form-group">
 										<div class="row">
-											<div class="col-md-8" style="margin-top: 40px;">
-												<label>전근</label>
+											<div class="col-md-12" style="margin-top: 10px;">
+												<label style="font-size: 20px;">전근</label>
 												<div class="table-responsive">
 													<table id="employee_transfer_history_list" class="table table-bordered no-wrap" style="width: 100%">
 														<colgroup>
@@ -166,8 +185,8 @@
 											</div>
 										</div>
 										<div class="row">
-											<div class="col-md-8" style="margin-top: 40px;">
-												<label>휴직</label>
+											<div class="col-md-12" style="margin-top: 10px;">
+												<label style="font-size: 20px;">휴직</label>
 												<div class="table-responsive">
 													<table id="employee_rest_history_list" class="table table-bordered no-wrap" style="width: 100%">
 														<colgroup>
@@ -215,9 +234,7 @@
 			</div>
 
 		</div>
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 	</div>
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<!-- Bootstrap tether Core JavaScript -->

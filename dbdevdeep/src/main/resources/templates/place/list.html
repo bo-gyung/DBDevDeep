@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
-
+<head>
 	<!-- This page plugin CSS -->
 	<link
 		href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css"
@@ -11,6 +10,12 @@
 	<link href="/dist/css/style.min.css" rel="stylesheet">
 
 	<style>
+	
+	 /* 모든 td 요소에 마우스 커서를 손가락 모양으로 변경 */
+    #place_list td {
+        cursor: pointer;
+    }
+	
 	
 	/* th의 텍스트와 아이콘을 가운데 정렬하고 함께 붙이기 */
 table.dataTable thead th {
@@ -126,6 +131,8 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 }
 
 </style>
+</head>
+<th:block layout:fragment="content">
 <body>
 		<!-- ============================================================== -->
 		<!-- Page wrapper  -->
@@ -148,8 +155,8 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 										<div style="font-size: 30px;">장소관리</div>
 									</div>
 									<div class="col d-flex justify-content-end" sec:authorize="hasAnyAuthority('D3')">
-										<button type="button" onclick="location.href='/place/create'"
-										class="btn waves-effect waves-light btn-primary m-1" style="width:80px; height:50px;" >등록</button>
+										<button type="button" onclick="location.href='/places/create'"
+										class="btn waves-effect waves-light btn-primary m-1" style="width:72px; height:45px;">등록</button>
 									</div>
 								</div>
 							<div class="table-responsive mt-2">
@@ -187,34 +194,10 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 					</div>
 				</div>
 			</div>
-			<!-- ============================================================== -->
-			<!-- End Page Content -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- Right sidebar -->
-			<!-- ============================================================== -->
-			<!-- .right-sidebar -->
-			<!-- ============================================================== -->
-			<!-- End Right sidebar -->
-			<!-- ============================================================== -->
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Container fluid  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- footer -->
-		<!-- ============================================================== -->
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a
-				href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
-		<!-- ============================================================== -->
-		<!-- End footer -->
-		<!-- ============================================================== -->
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 </div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
+
 		<!-- All Jquery -->
 		<!-- ============================================================== -->
 		<script src="assets/libs/jquery/dist/jquery.min.js"></script>
@@ -242,7 +225,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 				let placeNo = $(this).closest('tr').find('td:nth-child(1)').text();
 				
 				if(placeNo){
-					window.location.href = '/place/' + placeNo;
+					window.location.href = '/places/' + placeNo;
 				}
 			});
 		</script>

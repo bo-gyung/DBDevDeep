@@ -29,7 +29,7 @@ public class PlaceViewController {
 	}
 	
 	// 수정하기
-	@GetMapping("/place/update/{place_no}")
+	@GetMapping("/places/update/{place_no}")
 	public String updatePlace(Model model, @PathVariable("place_no") Long place_no) {
 		
 		// 1. 로그인한 사람 정보
@@ -50,7 +50,7 @@ public class PlaceViewController {
 	
 	
 	// 상세 조회
-	@GetMapping("/place/{place_no}")
+	@GetMapping("/places/{place_no}")
 	public String detailPlace(Model model, @PathVariable("place_no") Long place_no) {
 		
 		// 1. 로그인한 사람 정보
@@ -77,7 +77,7 @@ public class PlaceViewController {
 	}
 	
 	// 등록
-	@GetMapping("/place/create")
+	@GetMapping("/places/create")
 	public String createPlace(Model model) {
 		
 		// 1. 로그인한 사람 정보
@@ -98,7 +98,7 @@ public class PlaceViewController {
 	
 	
 	// 목록조회
-	@GetMapping("/place")
+	@GetMapping("/places")
 	public String selectPlaceList(Model model, PlaceDto dto) {
 	// 리스트출력	
 	List<PlaceDto> resultList = placeService.selectPlaceList(dto);

@@ -4,6 +4,10 @@
      layout:decorate="~{include/notice_layout}">
 <th:block layout:fragment="content">
 <style>
+	.custom-cancel-button{
+		color: black !important;
+	}
+		
 	/* disabled 전용 입력 필드 스타일 */
 	input[type="text"][disabled] {
 	    border: none; /* 테두리 제거 */
@@ -341,11 +345,14 @@
     	Swal.fire({
 		      title: '삭제하시겠습니까?',
 		      icon: 'warning',
+		      text: '정말로 삭제하시겠습니까?',
 		      showCancelButton: true,
-              confirmButtonText: '확인',
-              customClass: {
-                  confirmButton: 'swal-custom-button'
-              }
+		      confirmButtonText: '삭제',
+		      cancelButtonText: '취소',
+		      customClass: {
+		      	confirmButton: 'swal-custom-button',
+	            cancelButton: 'swal-cancel-button'
+	          }
 		    })
 		    .then((result) => {
 		    	if(result.isConfirmed){
@@ -397,11 +404,14 @@
     	Swal.fire({
 		      title: '삭제하시겠습니까?',
 		      icon: 'warning',
+		      text: '정말로 삭제하시겠습니까?',
 		      showCancelButton: true,
-              confirmButtonText: '확인',
-              customClass: {
-                  confirmButton: 'swal-custom-button'
-              }
+		      confirmButtonText: '삭제',
+		      cancelButtonText: '취소',
+		      customClass: {
+		      	confirmButton: 'swal-custom-button',
+	            cancelButton: 'swal-cancel-button'
+	          }
 		    })
 		    .then((result) => {
 		    	if(result.isConfirmed){
@@ -567,8 +577,8 @@
    			// vali_check == false
    			
    			Swal.fire({
-  				icon:'error',
-  				title:'실패',
+  				icon:'warning',
+  				title:'경고',
   				text: vali_text,
                 confirmButtonText: '확인',
                 customClass: {
@@ -710,8 +720,8 @@
        			// vali_check == false
        			
        			Swal.fire({
-      				icon:'error',
-      				title:'실패',
+      				icon:'warning',
+      				title:'경고',
       				text: vali_text,
                     confirmButtonText: '확인',
                     customClass: {

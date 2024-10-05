@@ -2,8 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
      layout:decorate="~{include/employee_layout}">
-<th:block layout:fragment="content">
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
+
 <style>
+	.custom-cancel-button{
+		color: black !important;
+	}
+	
+	.swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
 	.addPic {
 	background-color: gainsboro;
 	width: 100%;
@@ -56,92 +74,151 @@
 		display: none;
 	}
 </style>
+</head>
+<th:block layout:fragment="content">
 <body>
-		<div class="page-wrapper">
-			<div class="page-breadcrumb">
-				<div class="row">
-					<div id="content">
-			            <form id="student_create_form" method="post">
-			            <h3>1 학생 정보 등록</h3>
-			            <div class="form-section">
-			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-			            
-			                <div class="form-group">
-			                    <label>사진</label>
-			                    <div class="row">
-									<div class="preview-container hidden" id="preview-container">
-										<img id="imagePreview" src="">
-									</div>
-									<input type="button" class="addPic" id="addPic" value="+">
+<div class="page-wrapper">
+		<div class="container-fluid">
+			<div class="col-sm-12 col-md-12">
+				<div class="card">
+					<div class="card-body" style="padding:50px 80px">
+						<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+									<div style="font-size: 30px; color:black;">학생 정보 등록</div>
 								</div>
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label for="name">이름</label>
-			                    <input type="text" id="name" name="student_name" placeholder="이름을 입력하세요.">
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label for="student_status">재학 여부</label>
-									<select id="student_status" name="student_status">
-					                        <option value="재학">재학</option>
-					                        <option value="휴학">휴학</option>
-					                        <option value="전학">전학</option>
-					                        <option value="졸업">졸업</option>
-					                        <option value="퇴학">퇴학</option>
-					                </select>
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label for="student_birth">생년월일</label>
-			                    <input type="date" name="student_birth" id="student_birth">
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label for="zipcode">우편번호</label>
-			                    <input type="text" id="zipcode" name="student_post_code">
-			                    <input type="button" id="student_location" value="우편찾기">
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label for="address">주소</label>
-			                    <input type="text" id="student_address" name="student_addr">
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label for="address-detail">상세주소</label>
-			                    <input type="text" id="address-detail" name="student_detail_addr">
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label for="phone">전화번호</label>
-			                    <input type="text" id="sp1" maxlength="3"> - 
-								<input type="text" id="sp2" maxlength="4"> - 
-								<input type="text" id="sp3" maxlength="4">
-								<input type="hidden" name="student_phone" id="student_phone">
-			                </div>
-			                
-			                <div class="form-group">
-			                    <label>성별</label>
-			                    <input type="radio" id="male" name="student_gender" value="M"> 남자
-			                    <input type="radio" id="female" name="student_gender" value="W"> 여자
-			                </div>
-			                
-			            </div>
-			                <div class="form-group" style="text-align: right;">
-				                <input type="button" value="취소" th:onclick="|location.href='@{/student}'|">
-				                <input type="submit" value="등록">
-				            </div>
-				            <input type="file" class="custom-file-input" id="inputGroupFile04" name="file">
-	            		</form>
+								<hr>
+						<form id="student_create_form">
+							<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
+							<div class="form-body">
+								<div class="row">
+									<div class="col-md-1 "></div>
+
+
+									<!-- 사진등록 -->
+									<div class="col-md-1 ">
+										<div class="form-group" style="margin-top: 20px;">
+											<label>사진</label>
+											<div class="row">
+												<div class="preview-container hidden" id="preview-container">
+													<img id="imagePreview" src="">
+												</div>
+												<input type="button" class="addPic" id="addPic" value="+">
+											</div>
+										</div>
+									</div>
+
+									<div class="col-md-9 m-auto">
+										<div class="form-group">
+											<label for="name">이름 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<input class="form-control" type="text" id="name" name="student_name" placeholder="이름을 입력하세요.">
+												</div>
+											</div>
+										</div>
+
+										<div class="form-group">
+											<label for="student_status">재학 여부 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<select class="form-control" id="student_status" name="student_status">
+									                        <option value="재학">재학</option>
+									                        <option value="휴학">휴학</option>
+									                        <option value="전학">전학</option>
+									                        <option value="졸업">졸업</option>
+									                        <option value="퇴학">퇴학</option>
+									                </select>
+												</div>
+											</div>
+										</div>
+										
+										<div class="form-group">
+											<label for="student_birth">생년월일 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<input class="form-control" type="date" name="student_birth" id="student_birth">
+												</div>
+											</div>
+										</div>
+										
+										<div class="form-group">
+											<label for="zipcode">우편번호 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<input class="form-control" type="text" id="zipcode" name="student_post_code">
+												</div>
+												<div class="col-md-1">
+		                    						<input type="button" id="student_location" value="우편번호 찾기" class="btn waves-effect waves-light btn-primary">
+												</div>
+											</div>
+										</div>
+										
+										<div class="form-group">
+											<label for="student_address">주소 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<input class="form-control" type="text" id="student_address" name="student_addr">
+												</div>
+											</div>
+										</div>
+										
+										<div class="form-group">
+											<label for="address-detail">상세주소 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-8">
+													<input class="form-control" type="text" id="address-detail" name="student_detail_addr">
+												</div>
+											</div>
+										</div>
+										
+										
+										<div class="form-group">
+											<label for="phone">전화번호 <span style="color: red;">*</span></label>
+											<div class="row">
+												<div class="col-md-2">
+													<input class="form-control" type="text" id="sp1" maxlength="3">
+												</div>
+												<div class="col-md-3">
+													<input class="form-control" type="text" id="sp2" maxlength="4">
+												</div>
+												<div class="col-md-3">
+													<input class="form-control" type="text" id="sp3" maxlength="4">
+												</div>
+												<input type="hidden" name="student_phone" id="student_phone">
+											</div>
+										</div>
+										
+										
+										<div class="form-group">
+											<label>성별</label>
+											<div class="row">
+												<div class="col-md-8">
+													<input type="radio" id="male" name="student_gender" value="M"> 남자&nbsp;&nbsp;
+			                    					<input type="radio" id="female" name="student_gender" value="W"> 여자
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<div class="row">
+												<div class="col-md-8"></div>
+												<div class="col-md-2">
+													<br> 
+													<input type="button" onclick="cancelBtn();" class="btn waves-effect waves-light btn-light" value="취소">
+													<input type="submit" class="btn waves-effect waves-light btn-primary" value="등록"> 
+												</div>
+											</div>
+										</div>
+										<input type="file" class="custom-file-input" id="inputGroupFile04" name="file">
+									</div>
+								</div>
+							</div>
+						</form>
 					</div>
-            
 				</div>
-			<div class="container-fluid">
 			</div>
 		</div>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 	</div>
-	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+	<!-- <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
 	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
 	<script src="/dist/js/app-style-switcher.js"></script>
@@ -149,20 +226,25 @@
 	<script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
 	<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
 	<script src="/dist/js/sidebarmenu.js"></script>
-	<script src="/dist/js/custom.min.js"></script>
+	<script src="/dist/js/custom.min.js"></script> -->
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	<script>
-	window.onload = function(){
-	    document.getElementById("student_location").addEventListener("click", function(){ //주소입력칸을 클릭하면
-	        //카카오 지도 발생
-	        new daum.Postcode({
-	            oncomplete: function(data) { //선택시 입력값 세팅
-	                document.getElementById("zipcode").value = data.zonecode;
-	                document.getElementById("student_address").value = data.address; // 주소 넣기
-	            }
-	        }).open();
-	    });
-	}
+	  	const cancelBtn = () => {
+	  		window.location.href = '/employee/student/list';
+	  	}
+	</script>
+	<script>
+		window.onload = function(){
+		    document.getElementById("student_location").addEventListener("click", function(){ //주소입력칸을 클릭하면
+		        //카카오 지도 발생
+		        new daum.Postcode({
+		            oncomplete: function(data) { //선택시 입력값 세팅
+		                document.getElementById("zipcode").value = data.zonecode;
+		                document.getElementById("student_address").value = data.address; // 주소 넣기
+		            }
+		        }).open();
+		    });
+		}
 	</script>
 		<!-- 사진 등록 -->
 	<script>
@@ -195,10 +277,13 @@
 	                reader.readAsDataURL(file);
 	            } else {
 	                Swal.fire({
-	                	icon:'error',
-						title:'실패',
+	                	icon:'warning',
+						title:'경고',
 						text: '이미지 파일만 선택할 수 있습니다.',
-						confirmButtonText:"닫기"
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 	                });
 	                fileInput.value = ''; 
 	                imagePreview.src = '';
@@ -278,7 +363,11 @@
 					Swal.fire({
 						icon : 'success',
 						title : '성공',
-						text : data.res_msg
+						text : data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then((result)=>{
 						location.href = "/employee/student/list";
 					});
@@ -286,7 +375,11 @@
 					Swal.fire({
 						icon : 'error',
 						title : '실패',
-						text : data.res_msg
+						text : data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 				

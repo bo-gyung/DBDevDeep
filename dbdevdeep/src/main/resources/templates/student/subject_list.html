@@ -2,62 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/student_layout}">
-<th:block layout:fragment="content">
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
+
 <style>
-	
-	input[type="checkbox"] {
-            width: 12px; /* 너비 설정 */
-            height: 12px; /* 높이 설정 */
-            transform: scale(1.5); /* 크기 조정 비율 */
-            -webkit-transform: scale(1.5); /* 크로스 브라우저 호환성 */
-            -moz-transform: scale(1.5); /* 크로스 브라우저 호환성 */
-            -ms-transform: scale(1.5); /* 크로스 브라우저 호환성 */
-            -o-transform: scale(1.5); /* 크로스 브라우저 호환성 */
-            margin: 5px; /* 여백 설정 */
+	.form-control{
+		margin-left:0px !important;
 	}
 	
-	/* 세 번째 td 요소에 커서 포인터 추가 */
-	#holiday_config tbody tr td:nth-child(3) {
+	.justify-content-end{
+		padding:0px !important;
+	}
+	
+   	body{
+   		color:#212529 !important;
+   	}
+   	
+   	/* td 요소에 커서 포인터 추가 */
+	#student_list tbody tr td {
 	    cursor: pointer;
 	}
-	
-	.custom-cancel-button{
-		color: black !important;
-	}
-	
-	.swal-custom-button {
-	  background-color: #5f76e8 !important;
-	  color: white; /* 버튼 텍스트 색상 */
-	  border: none; /* 버튼 테두리 제거 */
-	  padding: 10px 20px; /* 버튼 패딩 */
-	  font-size: 16px; /* 버튼 폰트 크기 */
-	  cursor: pointer; /* 마우스 커서 포인터 */
-	}
-	
-	.swal-custom-button:hover {
-	  background-color: #3e59e3 !important;
-	}
-
-	.modal.fade .modal-dialog {
-		max-width: 90%; /* 화면 크기에 따라 최대 너비를 90%로 설정 */
-    	width: 100%; /* 너비를 100%로 설정하여 부모 요소에 맞춤 */
-	    display: flex; /* Flexbox 설정으로 중앙 정렬 */
-	    align-items: center; /* 수직 중앙 정렬 */
-	    justify-content: center; /* 수평 중앙 정렬 */
-	    margin: 0 auto; /* 모달의 좌우 정렬 */
-	}	
-	
-	  /* 두 번째, 세 번째, 네 번째 th 요소에 오른쪽 패딩을 추가 */
-	  #holiday_config th:nth-child(2),
-	  #holiday_config th:nth-child(3),
-	  #holiday_config th:nth-child(4) {
-	      padding-right: 16px; /* 필요한 만큼의 오른쪽 패딩 추가 */
-	  }
 	
 	div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 	  white-space: nowrap;
 	  justify-content: center;
-	  margin-top:25px;
+	  margin-top:25px !important;
 	}
 
 	/* DataTables 검색 영역을 Flexbox로 설정하여 수평 및 수직 정렬 */
@@ -106,29 +75,112 @@
 	    vertical-align: middle;
 	    padding-bottom:8px;
 	}
-
-
+	
+	/* datatable css */
+	div.dataTables_wrapper div.dataTables_paginate ul.pagination {
+	  margin: 2px 0;
+	  white-space: nowrap;
+	  justify-content: center;
+	}
+	/* a 태그 속성 제거 */
+	a {
+	    text-decoration: none; /* 밑줄 제거 */
+	    color: inherit;        /* 기본 색상 제거, 부모 요소의 색상 사용 */
+	    cursor: pointer;       /* 커서 스타일 변경 */
+	}	
+	/* a 태그 호버 시 스타일 */
+	a:hover {
+	    text-decoration: none; /* 호버 시 밑줄 추가 */
+	    color: inherit;           /* 호버 시 색상 변경 */
+	}
+	
+	table.dataTable thead th.sorting,
+	table.dataTable thead th.sorting_desc,
+	table.dataTable thead th.sorting_asc{
+		padding-right:10px !important;
+	}
+	
+	/* th의 텍스트와 아이콘을 가운데 정렬하고 함께 붙이기 */
+	table.dataTable thead th {
+	  text-align: center; /* 텍스트와 아이콘을 가운데 정렬 */
+	  position: relative; /* 아이콘 위치를 상대적으로 설정 */
+	  padding-right: 10px; /* 오른쪽 패딩을 조정하여 아이콘 간격 조절 */
+	}
+	
+	/* 정렬 아이콘의 위치 및 정렬 설정 */
+	table.dataTable thead .sorting:before,
+	table.dataTable thead .sorting:after,
+	table.dataTable thead .sorting_asc:before,
+	table.dataTable thead .sorting_asc:after,
+	table.dataTable thead .sorting_desc:before,
+	table.dataTable thead .sorting_desc:after,
+	table.dataTable thead .sorting_asc_disabled:before,
+	table.dataTable thead .sorting_asc_disabled:after,
+	table.dataTable thead .sorting_desc_disabled:before,
+	table.dataTable thead .sorting_desc_disabled:after {
+	  display: inline-block; /* 아이콘을 인라인 블록으로 설정 */
+	  position: relative; /* 아이콘 위치를 텍스트 옆으로 설정 */
+	  margin-left: 10px; /* 텍스트와 아이콘 사이의 간격을 조정 */
+	  bottom: 0; /* 아이콘을 텍스트 높이에 맞추기 위해 위치 설정 */
+	  opacity: 0.7; /* 아이콘의 불투명도 설정 */
+	  content: ''; /* 정렬 아이콘을 CSS로 설정 */
+	}
+	
+	table.dataTable thead .sorting:after,
+	table.dataTable thead .sorting_asc:after,
+	table.dataTable thead .sorting_desc:after,
+	table.dataTable thead .sorting_asc_disabled:after,
+	table.dataTable thead .sorting_desc_disabled:after {
+	  content: "\25BC"; /* 아래쪽 화살표 */
+	}
+	/* 정렬 아이콘 활성화 시 스타일 */
+	table.dataTable thead .sorting_asc:after {
+	  content: "\25B2"; /* 위쪽 삼각형 화살표 */
+	}
+	
+	table.dataTable thead .sorting_desc:after {
+	  content: "\25BC"; /* 아래쪽 삼각형 화살표 */
+	}
+	
+	.custom-pointer {
+		cursor: pointer;
+	}
+	
+	
 </style>
+</head>
+<th:block layout:fragment="content">
 	<body>
 		<!-- ============================================================== -->
 		<!-- Page wrapper  -->
 		<!-- ============================================================== -->
 		<div class="page-wrapper">
-
+			
+			<!-- ============================================================== -->
+			<!-- Container fluid  -->
+			<!-- ============================================================== -->
 			<div class="container-fluid" style="margin-bottom:-10px;">
-
-                <div class="row">
+				<!-- ============================================================== -->
+				<!-- Start Page Content -->
+				<!-- ============================================================== -->
+				<div class="row">
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body" style="padding:50px 80px">
-		                        <div class="row mb-2">
-		                        	<div class="col-6 d-flex justify-content-start" style="padding-top:10px; padding-left:0px;">
-			                            <div style="font-size:36px; font-weight:bolder">교육 과목 목록</div>
-		                        	</div>
-                                <div class="table-responsive" style="margin-top:20px;">
-                                    <table id="subject_list" class="table table-hover table-bordered no-wrap" style="width:100%">
+                            	<div class="row" style="margin-left:0px !important; margin-right:0px !important;">
+				                    <div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
+				                        <div style="font-size:30px;">교육 과목 목록</div>
+				                    </div>		                        
+	                            	<div class="col d-flex justify-content-end">
+				                        <button type="button" style="width:72px; height:45px;" 
+				                        class="btn waves-effect waves-light btn-primary m-1" onclick="location.href='/student/subject/create'">등록</button>
+	                            	</div>						
+								</div>
+                                <div class="table-responsive mt-2" style="overflow-x: hidden;">
+                                    <table id="subject_list" class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
                                         <thead>
                                             <tr>
+                                            	<th scope="col" style="display:none;">subjectNo</th>
 												<th scope="col">학년도</th>
 												<th scope="col">학기</th>
 												<th scope="col">학년</th>
@@ -144,7 +196,7 @@
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(subjectList)}">
-											    <tr th:each="subject, subjectStat : ${subjectList}">
+											    <tr th:each="subject, subjectStat : ${subjectList}" class="custom-pointer">
 											        <td style="display:none;" th:text="${subject.subject_no}"></td>
 													<td th:text="${subject.teacher_history.getTYear}"></td>
 											        <td th:text="${subject.subject_semester}"></td>
@@ -155,39 +207,15 @@
 											    </tr>
 											    </th:block>
 										</tbody>
-                                        
                                     </table>
-                                    <a th:href="@{/student/subject/create}">등록</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- ============================================================== -->
-                <!-- End PAge Content -->
-                <!-- ============================================================== -->
-                <!-- ============================================================== -->
-                <!-- Right sidebar -->
-                <!-- ============================================================== -->
-                <!-- .right-sidebar -->
-                <!-- ============================================================== -->
-                <!-- End Right sidebar -->
-                <!-- ============================================================== -->
             </div>
-            <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
-        <!-- ============================================================== -->
-    </div>
 		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
 		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>

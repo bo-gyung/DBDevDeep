@@ -56,7 +56,7 @@
 	                                    <div class="col-md-2">
 	                                    	<small id="category_help" class="form-text text-muted">공지분류</small>
 	                                        <select style="color:black;" class="custom-select mr-sm-2" id="category_no" name="category_no">
-	                                            <option value="0">공지분류</option>
+	                                            <option value="0">분류를 선택하세요.</option>
 	                                            <option value="1" th:selected="${dto.category_no}=='1'">학사일정</option>
 	                                            <option value="2" th:selected="${dto.category_no}=='2'">사이트</option>
 	                                            <option value="3" th:selected="${dto.category_no}=='3'">공고</option>
@@ -172,8 +172,8 @@
       		// vali_check == false
       		
       		Swal.fire({
- 	  			icon:'error',
- 	  			title:'실패',
+ 	  			icon:'warning',
+ 	  			title:'경고',
  	  			text: vali_text,
                 confirmButtonText: '확인',
                 customClass: {

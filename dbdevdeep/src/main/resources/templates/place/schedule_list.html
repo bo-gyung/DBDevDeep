@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
 
+<head>
 	<!-- This page plugin CSS -->
 	<link
 		href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css"
@@ -11,6 +11,14 @@
 	<link href="/dist/css/style.min.css" rel="stylesheet">
 
 	<style>
+	
+	
+	 /* 일정제목 셀의 마우스 커서 변경 */
+    #schedule_list td:first-child {
+        cursor: pointer;
+    }
+	
+	
 	
 	/* th의 텍스트와 아이콘을 가운데 정렬하고 함께 붙이기 */
 table.dataTable thead th {
@@ -126,6 +134,8 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 }
 
 </style>
+</head>
+<th:block layout:fragment="content">
 <body>
 		<!-- ============================================================== -->
 		<!-- Page wrapper  -->
@@ -172,7 +182,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 												<td th:text="${schedule.place_schedule_title}"></td>
 												<td th:text="${schedule.place_name}"></td>
 												<td th:text="${schedule.item_name}"></td>
-												<td th:text="${schedule.start_date + ' ' + schedule.start_time + ' ~ ' + schedule.end_date + ' ' + schedule.end_time}"></td>
+												<td th:text="${schedule.formattedUsageTime}"></td>
 												<td th:text="${schedule.emp_name}"></td>
 												<td th:text="${schedule.formattedRegDate}"></td>
 											</tr>
@@ -184,34 +194,10 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 					</div>
 				</div>
 			</div>
-			<!-- ============================================================== -->
-			<!-- End Page Content -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- Right sidebar -->
-			<!-- ============================================================== -->
-			<!-- .right-sidebar -->
-			<!-- ============================================================== -->
-			<!-- End Right sidebar -->
-			<!-- ============================================================== -->
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Container fluid  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- footer -->
-		<!-- ============================================================== -->
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a
-				href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
-		<!-- ============================================================== -->
-		<!-- End footer -->
-		<!-- ============================================================== -->
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 </div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
+
 		<!-- All Jquery -->
 		<!-- ============================================================== -->
 		<script src="assets/libs/jquery/dist/jquery.min.js"></script>
@@ -235,12 +221,12 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		<script src="assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
 		<script src="dist/js/pages/datatable/datatable-basic.init.js"></script>
 		 <script>
-			// 일정 항목을 클릭했을 때 상세 조회 페이지로 이동
-		    $('#schedule_list').on('click', 'tr', function () {
-		        let scheduleNo = $(this).data('schedule-no'); // data-* 속성을 통해 scheduleNo 가져오기
+		 // 일정제목 셀만 클릭했을 때 상세 조회 페이지로 이동
+		    $('#schedule_list').on('click', 'td:first-child', function () {
+		        let scheduleNo = $(this).closest('tr').data('schedule-no'); // 해당 행의 scheduleNo 가져오기
 
 		        if (scheduleNo) {
-		            window.location.href = '/schedule/detail/' + scheduleNo;
+		            window.location.href = '/schedule_list/detail/' + scheduleNo;
 		        }
 		    });
 		</script> 
