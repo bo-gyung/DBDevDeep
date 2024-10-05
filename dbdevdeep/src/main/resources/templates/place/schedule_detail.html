@@ -2,8 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
 
+<head>
+    <link href="/dist/css/style.min.css" rel="stylesheet">
+    
     <style>
         input[type="text"], textarea {
             width: 485px;
@@ -77,7 +79,8 @@
             cursor: pointer;
         }
     </style>
-
+</head>
+<th:block layout:fragment="content">
     <body>
         <!-- 일정 상세 조회 -->
         <div class="page-wrapper">
@@ -157,10 +160,7 @@
                 </div>
             </div>
 
-            <!-- Footer -->
-            <footer class="footer text-center text-muted">
-                All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-            </footer>
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
         </div>
 
         <!-- 스크립트 로드 -->

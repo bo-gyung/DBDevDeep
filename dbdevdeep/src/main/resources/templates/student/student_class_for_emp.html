@@ -2,7 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/employee_layout}">
-<th:block layout:fragment="content">
+	
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
+
 	<style>
 div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 	margin: 2px 0;
@@ -11,6 +14,8 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 }
 
 </style>
+</head>
+<th:block layout:fragment="content">
 	<body>
 		<div class="page-wrapper">
 			<div class="container-fluid">
@@ -18,11 +23,10 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 					<div class="col-12">
 						<div class="card">
 							<div class="card-body" style="padding: 50px 80px;">
-							
-								<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
-			                        <div style="font-size:30px;">학생 반이력 수정</div>
-			                        <br>
-			                    </div>	
+									<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
+				                        <div style="font-size:30px; color:black;">학생 반이력 수정</div>
+				                    </div>
+			                    <hr>
 				                    
 								<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 								<input type="hidden" name="student_no" th:value="${sdto.student_no}">
@@ -140,6 +144,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 					</div>
 
 				</div>
+				<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 			</div>
 
 <!-- 		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
@@ -262,7 +267,11 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 							Swal.fire({
 								icon : 'success',
 								title : '성공',
-								text : data.res_msg
+								text : data.res_msg,
+			                    confirmButtonText: '확인',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							}).then((result)=>{
 								location.href = `/employee/student/list/${studentNo}`;
 							});
@@ -270,7 +279,11 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 							Swal.fire({
 								icon : 'error',
 								title : '실패',
-								text : data.res_msg
+								text : data.res_msg,
+			                    confirmButtonText: '확인',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							});
 						}
 						
@@ -296,7 +309,10 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								icon :'success',
 								title:'성공',
 								text : data.res_msg ,
-								confirmButtonText:"닫기"
+			                    confirmButtonText: '확인',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 							}).then((result)=>{
 								location.href=`/employee/student/list/class/${studentNo}`;
 							});
@@ -305,7 +321,10 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								icon:'error',
 								title:'실패',
 								text: data.res_msg,
-								confirmButtonText:"닫기"
+			                    confirmButtonText: '확인',
+			                    customClass: {
+			                        confirmButton: 'swal-custom-button'
+			                    }
 					 		});
 						}
 					})

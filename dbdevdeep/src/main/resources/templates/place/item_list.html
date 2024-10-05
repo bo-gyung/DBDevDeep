@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
-
+<head>
 	<!-- This page plugin CSS -->
 	<link
 		href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css"
@@ -142,19 +141,14 @@ a:hover {
 	color: inherit; /* 호버 시 색상 변경 */
 }
 </style>
+</head>
+<th:block layout:fragment="content">
 <body>
 		<!-- ============================================================== -->
 		<!-- Page wrapper  -->
 		<!-- ============================================================== -->
 		<div class="page-wrapper">
-
-			<!-- ============================================================== -->
-			<!-- Container fluid  -->
-			<!-- ============================================================== -->
 			<div class="container-fluid" style="margin-bottom:-10px;">
-				<!-- ============================================================== -->
-				<!-- Start Page Content -->
-				<!-- ============================================================== -->
 				<div class="row">
 					<div class="col-12">
 						<div class="card">
@@ -164,7 +158,7 @@ a:hover {
 										<div style="font-size: 30px;">기자재관리</div>
 									</div>
 									<div class="col d-flex justify-content-end" sec:authorize="hasAnyAuthority('D3')">
-										<button type="button" onclick="location.href='/items/create'" class="btn waves-effect waves-light btn-info m-1" >등록</button>
+										<button type="button" onclick="location.href='/items/create'" style="width:72px; height:45px;" class="btn waves-effect waves-light btn-primary m-1" >등록</button>
 									</div>
 								</div>
 							<div class="table-responsive mt-2">
@@ -204,36 +198,9 @@ a:hover {
 					</div>
 				</div>
 			</div>
-			<!-- ============================================================== -->
-			<!-- End Page Content -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- Right sidebar -->
-			<!-- ============================================================== -->
-			<!-- .right-sidebar -->
-			<!-- ============================================================== -->
-			<!-- End Right sidebar -->
-			<!-- ============================================================== -->
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Container fluid  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- footer -->
-		<!-- ============================================================== -->
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a
-				href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
-		<!-- ============================================================== -->
-		<!-- End footer -->
-		<!-- ============================================================== -->
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 </div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
-		<!-- All Jquery -->
-		<!-- ============================================================== -->
 		<script src="assets/libs/jquery/dist/jquery.min.js"></script>
 		<!-- Bootstrap tether Core JavaScript -->
 		<script src="assets/libs/popper.js/dist/umd/popper.min.js"></script>

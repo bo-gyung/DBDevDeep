@@ -2,7 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/student_layout}">
-<th:block layout:fragment="content">
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
+
 <style>
 	.form-control{
 		margin-left:0px !important;
@@ -146,6 +148,8 @@
 	
 	
 </style>
+</head>
+<th:block layout:fragment="content">
 	<body>
 		<!-- ============================================================== -->
 		<!-- Page wrapper  -->
@@ -210,8 +214,7 @@
                     </div>
                 </div>
             </div>
-	    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
-	        </footer>
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
         </div>
 		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
