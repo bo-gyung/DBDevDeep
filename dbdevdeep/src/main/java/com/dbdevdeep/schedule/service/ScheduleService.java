@@ -222,6 +222,7 @@ public class ScheduleService {
                 alertData.put("message", "\'" + s.getScheduleTitle() + "\' 일정이 " + msg); // 단일 따옴표 이스케이프
                 alertData.put("time", startDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
                 alertData.put("emp_id", s.getEmployee().getEmpId());
+                alertData.put("calendar_type",s.getCalendarType());
                 alertDataList.add(alertData);
             }
         }
@@ -229,19 +230,29 @@ public class ScheduleService {
     
     // 클라이언트 요청 시 알림 데이터를 반환하는 메서드
     public List<Map<String, Object>> getAlerts(String empId) {
-        return alertDataList.stream()
-            .filter(alert -> empId.equals(alert.get("emp_id")))
+    	// 공용 일정은 필터링 없이 반환
+        List<Map<String, Object>> publicAlerts = alertDataList.stream()
+            .filter(alert -> (int) alert.get("calendar_type") == 0) // 공용 일정
             .collect(Collectors.toList());
+
+        // 개인 일정은 empId로 필터링하여 반환
+        List<Map<String, Object>> personalAlerts = alertDataList.stream()
+            .filter(alert -> (int) alert.get("calendar_type") == 1 && empId.equals(alert.get("emp_id"))) // 개인 일정
+            .collect(Collectors.toList());
+
+        // 공용 일정과 개인 일정을 합쳐서 반환
+        publicAlerts.addAll(personalAlerts);
+        return publicAlerts;
     }
 
-    public List<ScheduleDto> selectTodaySchedule(String empId) {
+    public List<ScheduleDto> selectTodaySchedule(String empId, String dateStr) {
         LocalDate today = LocalDate.now();  // 오늘의 날짜
 
         // 오늘 날짜의 공용 일정 가져오기 (calendarType = 0)
-        List<Schedule> publicSchedules = scheduleRepository.findSchedulesForToday(0, today);
+        List<Schedule> publicSchedules = scheduleRepository.findPublicSchedulesForTodayWithRepeat(dateStr);
 
-        // 오늘 날짜의 개인 일정 가져오기 (calendarType = 1)
-        List<Schedule> privateSchedules = scheduleRepository.findSchedulesForToday(1, empId, today);
+        // 오늘 날짜의 개인 일정 가져오기 (calendarType = 1, empId 포함)
+        List<Schedule> privateSchedules = scheduleRepository.findPrivateSchedulesForTodayWithRepeat(empId, dateStr);
 
         // 두 목록 합치기
         List<Schedule> combinedSchedules = new ArrayList<>();

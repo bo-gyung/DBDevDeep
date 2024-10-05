@@ -158,11 +158,13 @@
         <div class="container-fluid">
             <div class="col-sm-12 col-md-12">
                 <div class="card">
-                    <div class="card-body">
-                        <h3 class="card-title" th:text="${#authentication.principal.dto.emp_name}+' 님의 근태관리'"></h3>
+                    <div class="card-body" style="padding:50px 80px">
+	                    <div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 300px;">
+	                        <div style="font-size:30px; color:black;" th:text="${#authentication.principal.dto.emp_name}+' 님의 근태관리'"></div>
+	                    </div>
                         <input type="hidden" id="enterUser" name="enterUser" th:value="${#authentication.principal.dto.emp_id}"> 
                         <hr>
-                                            <div class="table-responsive">
+                                            <div class="table-responsive" style="margin-top:20px;">
                                                 <table id="attendance_config" class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
                                                     <thead>
                                                         <div style="display: flex; justify-content: space-evenly; align-items: center;">
@@ -238,8 +240,8 @@
                     </div>
                 </div>
             </div>
-	    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
-	        </footer>
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
+
         </div>
 
 

@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
 
+<head>
 	<!-- This page plugin CSS -->
 	<link
 		href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css"
@@ -134,6 +134,8 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 }
 
 </style>
+</head>
+<th:block layout:fragment="content">
 <body>
 		<!-- ============================================================== -->
 		<!-- Page wrapper  -->
@@ -192,34 +194,10 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 					</div>
 				</div>
 			</div>
-			<!-- ============================================================== -->
-			<!-- End Page Content -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- Right sidebar -->
-			<!-- ============================================================== -->
-			<!-- .right-sidebar -->
-			<!-- ============================================================== -->
-			<!-- End Right sidebar -->
-			<!-- ============================================================== -->
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Container fluid  -->
-		<!-- ============================================================== -->
-		<!-- ============================================================== -->
-		<!-- footer -->
-		<!-- ============================================================== -->
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a
-				href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
-		<!-- ============================================================== -->
-		<!-- End footer -->
-		<!-- ============================================================== -->
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 </div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
+
 		<!-- All Jquery -->
 		<!-- ============================================================== -->
 		<script src="assets/libs/jquery/dist/jquery.min.js"></script>

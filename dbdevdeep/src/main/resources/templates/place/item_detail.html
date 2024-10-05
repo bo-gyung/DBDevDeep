@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
-
+<head>
+    <link href="/dist/css/style.min.css" rel="stylesheet">
   <!-- 부트스트랩 CSS 추가 -->
-  
   <style>
  	input[type="text"] {
     		width : 485px;
@@ -53,34 +52,6 @@
         font-weight: normal;
     }
     
-    .btn-outline-secondary {
-			 padding: 10px 20px;
-            font-size: 18px;
-            border-radius: 4px;
-            cursor: pointer;
-		}
-
-    .btn-secondary {
-    padding: 10px 20px;
-        font-size: 18px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
-        padding: 10px 20px;
-        font-size: 18px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004085;
-    }
-    
     .swal-custom-button {
 	  background-color: #0031AE !important;
 	  color: white; /* 버튼 텍스트 색상 */
@@ -94,7 +65,8 @@
 	}
 
   </style>
-
+</head>
+<th:block layout:fragment="content">
 <body>
 <!-- 장소 상세조회 -->
     <div class="page-wrapper">
@@ -102,8 +74,8 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title">기자재 상세조회</h3>
+                        <div class="card-body" style="padding: 50px 80px;">
+                            <div style="font-size:30px; color:black">기자재 상세조회</div>
                             <hr>
                             <form id="item_detailForm">
                                   
@@ -153,17 +125,14 @@
                                 <!-- 사용 가능 여부 -->
                                 <div class="row mb-3">
                                     <label for="item_status" class="col-sm-2 col-form-label">사용 가능 여부</label>
-                                    <div class="col-sm-10">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" id="usable" name="item_status" value="Y" 
-                                                   th:checked="${dto.item_status == 'Y'}" onchange="toggleUnusableFields()" disabled>
-                                            <label class="form-check-label" for="usable">사용 가능</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" id="unusable" name="item_status" value="N" 
-                                                   th:checked="${dto.item_status == 'N'}" onchange="toggleUnusableFields()" disabled>
-                                            <label class="form-check-label" for="unusable">사용 불가능</label>
-                                        </div>
+                                    <div class="col-sm-10 align-items-center d-flex" style="padding:5px 15px;">
+                                            <input type="radio" id="usable" name="item_status" value="Y" 
+                                                   th:checked="${dto.item_status == 'Y'}" onchange="toggleUnusableFields()" disabled style="max-width:20px; margin-bottom:0 !important;">
+                                            <label for="usable" style="margin-bottom:0 !important; margin-left: 5px;">사용 가능</label>
+
+                                            <input type="radio" id="unusable" name="item_status" value="N" 
+                                                   th:checked="${dto.item_status == 'N'}" onchange="toggleUnusableFields()" disabled style="max-width:20px; margin-left:93px; margin-bottom:0 !important;">
+                                            <label for="unusable" style="margin-bottom:0 !important; margin-left: 5px;">사용 불가능</label>
                                     </div>
                                 </div>
 
@@ -212,11 +181,11 @@
                                 <!-- 버튼 -->
                                 <div class="row mb-3">
                                     <div class="col-sm-6 text-left">
-                                        <button type="button" class="btn btn-outline-secondary" style="padding: 6px 12px;" onclick="location.href='/items'">목록</button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/items'">목록</button>
                                     </div>
                                     <div class="col-sm-6 text-right">
                                         <button type="button" class="btn btn-light" onclick="deleteItem()" sec:authorize="hasAnyAuthority('D3')">삭제</button>
-                                        <button type="button" class="btn btn-info" onclick="updateItem()" sec:authorize="hasAnyAuthority('D3')">수정</button>
+                                        <button type="button" class="btn btn-info m-1" onclick="updateItem()" sec:authorize="hasAnyAuthority('D3')">수정</button>
                                     </div>
                                 </div>
                             </form>
@@ -313,24 +282,8 @@
     
     
 </script>
-     <!-- ============================================================== -->
-            <!-- End Page Content -->
-            <!-- ============================================================== -->
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
         </div>
-        <!-- ============================================================== -->
-        <!-- End Container fluid  -->
-        <!-- ============================================================== -->
-
-        <footer class="footer text-center text-muted">
-            All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-        </footer>
-        <!-- ============================================================== -->
-        <!-- End footer -->
-        <!-- ============================================================== -->
-    </div>
-    <!-- ============================================================== -->
-    <!-- End Page wrapper  -->
-    <!-- ============================================================== -->
 
     <!-- 부트스트랩 JS 및 의존성 추가 -->
     <!-- ============================================================== -->

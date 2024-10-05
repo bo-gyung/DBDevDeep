@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
 
+<head>
+    <link href="/dist/css/style.min.css" rel="stylesheet">
   <!-- 부트스트랩 CSS 추가 -->
-  
   <style>
-  
-  
+
    .custom-file-upload {
         display: inline-block;
         padding: 8px 16px;
@@ -114,7 +113,8 @@ input, select, textarea {
 }
  
   </style>
-
+  </head>
+<th:block layout:fragment="content">
 <body>
 
 <!-- 수정폼 -->
@@ -133,7 +133,7 @@ input, select, textarea {
                 	<div class="col-sm-12">
                         <div class="card">
                             <div class="card-body" style="padding: 50px 80px;">
-                                <h3 class="card-title">장소 수정</h3>
+                                <div style="font-size:30px; color:black"3 class="card-title">장소 수정</div>
                                 <hr>
     <form id="updateForm"  th:action="@{/place/update/{place_no}(place_no=${dto.place_no})}" enctype="multipart/form-data">
       <!-- CSRF 토큰 추가 -->
@@ -151,11 +151,11 @@ input, select, textarea {
 		<!-- 2. 사용 가능 시간 -->
 		    <div class="row mb-3">
 		        <label for="startTime" class="col-sm-2 col-form-label">사용 가능 시간</label>
-		        <div class="col-sm-4">
+		        <div class="col-sm-2" style="max-width:200px !important;">
 		            <input type="time" class="form-control" id="startTime" name="place_start_time" th:value="${dto.place_start_time}" required>
 		        </div>
 		        <label class="col-sm-1 col-form-label text-center">~</label>
-		        <div class="col-sm-4">
+		        <div class="col-sm-2" style="max-width:200px !important;">
 		            <input type="time" class="form-control" id="endTime" name="place_end_time" th:value="${dto.place_end_time}" required>
 		        </div>
 		    </div>
@@ -171,23 +171,18 @@ input, select, textarea {
         <div class="row mb-3">
             <!-- 4. 위치 선택 -->
             <label for="location" class="col-sm-2 col-form-label">위치</label>
-            <div class="col-sm-10">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="floor_1" name="place_location" value="학교 1층" th:checked="${dto.place_location == '학교 1층'}">
-                    <label class="form-check-label" for="floor_1">학교 1층</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="floor_2" name="place_location" value="학교 2층" th:checked="${dto.place_location == '학교 2층'}">
-                    <label class="form-check-label" for="floor_2">학교 2층</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="floor_3" name="place_location" value="학교 3층" th:checked="${dto.place_location == '학교 3층'}">
-                    <label class="form-check-label" for="floor_3">학교 3층</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" id="playground" name="place_location" value="운동장" th:checked="${dto.place_location == '운동장'}">
-                    <label class="form-check-label" for="playground">운동장</label>
-                </div>
+            <div class="col-sm-10 align-items-center d-flex" style="padding:5px 15px;">
+                    <input type="radio" id="floor_1" name="place_location" value="학교 1층" style="max-width:20px; margin-bottom:0 !important;" th:checked="${dto.place_location == '학교 1층'}">
+                    <label for="floor_1" style="margin-bottom:0 !important; margin-left: 5px;">학교 1층</label>
+
+                    <input type="radio" id="floor_2" name="place_location" value="학교 2층" style="max-width:20px; margin-left:100px; margin-bottom:0 !important;" th:checked="${dto.place_location == '학교 2층'}">
+                    <label for="floor_2" style="margin-bottom:0 !important; margin-left: 5px;">학교 2층</label>
+
+                    <input type="radio" id="floor_3" name="place_location" value="학교 3층" style="max-width:20px; margin-left:100px; margin-bottom:0 !important;" th:checked="${dto.place_location == '학교 3층'}">
+                    <label for="floor_3" style="margin-bottom:0 !important; margin-left: 5px;">학교 3층</label>
+
+                    <input type="radio" id="playground" name="place_location" value="운동장" style="max-width:20px; margin-left:100px; margin-bottom:0 !important;" th:checked="${dto.place_location == '운동장'}">
+                    <label for="playground" style="margin-bottom:0 !important; margin-left: 5px;">운동장</label>
             </div>
         </div>
         
@@ -196,15 +191,12 @@ input, select, textarea {
         <div class="row mb-3">
             <!-- 5. 사용 가능 여부 -->
             <label for="usable" class="col-sm-2 col-form-label">사용 가능 여부</label>
-            <div class="col-sm-10">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" id="usable" name="place_status" value="Y" th:checked="${dto.place_status == 'Y'}" onchange="toggleUnusableFields()">
-                    <label class="form-check-label" for="usable">사용 가능</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="radio" id="unusable" name="place_status" value="N" th:checked="${dto.place_status == 'N'}" onchange="toggleUnusableFields()">
-                    <label class="form-check-label" for="unusable">사용 불가능</label>
-                </div>
+            <div class="col-sm-10 align-items-center d-flex" style="padding:5px 15px;">
+                    <input type="radio" id="usable" name="place_status" style="max-width:20px; margin-bottom:0 !important;" value="Y" th:checked="${dto.place_status == 'Y'}" onchange="toggleUnusableFields()">
+                    <label for="usable" style="margin-bottom:0 !important; margin-left: 5px;">사용 가능</label>
+
+                    <input type="radio" id="unusable" name="place_status" style="max-width:20px; margin-left:93px; margin-bottom:0 !important;" value="N" th:checked="${dto.place_status == 'N'}" onchange="toggleUnusableFields()">
+                    <label for="unusable" style="margin-bottom:0 !important; margin-left: 5px;">사용 불가능</label>
             </div>
         </div>
 
@@ -251,10 +243,10 @@ input, select, textarea {
 		<div class="row mb-3 justify-content-center">
     <div class="col-sm-6 d-flex justify-content-center">
         <!-- 취소 버튼 -->
-        <button type="button" class="btn btn-light mx-2" onclick="location.href='/places'">취소</button>
+        <button type="button" class="btn btn-light m-1" onclick="location.href='/places'">취소</button>
         
         <!-- 수정 버튼 -->
-        <button type="submit" class="btn mx-2 btn-info">수정</button>
+        <button type="submit" class="btn m-1 btn-info">수정</button>
     </div>
 </div>
 
@@ -403,34 +395,9 @@ input, select, textarea {
 	        }
 	    });
 </script>
-				<!-- ============================================================== -->
-				<!-- End PAge Content -->
-				<!-- ============================================================== -->
-				<!-- ============================================================== -->
-				<!-- Right sidebar -->
-				<!-- ============================================================== -->
-				<!-- .right-sidebar -->
-				<!-- ============================================================== -->
-				<!-- End Right sidebar -->
-				<!-- ============================================================== -->
 			</div>
-			<!-- ============================================================== -->
-			<!-- End Container fluid  -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- footer -->
-			<!-- ============================================================== -->
-			<footer class="footer text-center text-muted">
-				All Rights Reserved by Adminmart. Designed and Developed by <a
-					href="https://wrappixel.com">WrapPixel</a>.
-			</footer>
-			<!-- ============================================================== -->
-			<!-- End footer -->
-			<!-- ============================================================== -->
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
 
 
 <!-- 부트스트랩 JS 및 의존성 추가 -->
