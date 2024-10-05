@@ -151,7 +151,7 @@ public class ApproveService {
 				alertRepository.delete(alert);
 
 				// alert_status를 x로 처리하여 websocket_handler로 전송
-				// 이미 전송된 websocket 알람을 삭제하기 위함
+				// 이미 전송된 websocket 알림을 삭제하기 위함
 				try {
 					webSocketHandler.sendAlert(a); 
 				} catch (IOException e) {
