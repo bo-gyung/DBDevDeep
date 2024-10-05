@@ -87,7 +87,7 @@ table {
 									<div class="row">
 										<div class="col d-flex justify-content-between align-items-center">
 											<div style="font-size:24px; color:black;">학년 이력 조회</div>
-											<a th:href="@{/student/class/{std_no}(std_no=${dto.student_no})}" >학년 이력 수정</a>
+											<a th:href="@{/student/list/class/{std_no}(std_no=${dto.student_no})}" >학년 이력 수정</a>
 										</div>
 									</div>
 									<table class="table table-hover table-bordered no-wrap mt-2" style="width:100%; font-size: 13px; text-align: center;">
@@ -130,7 +130,7 @@ table {
 								<div class="row">
 									<div class="col d-flex justify-content-between align-items-center">
 										<div style="font-size:24px; color:black;">가족사항</div>
-										<a th:href="@{/student/parent/{std_no}(std_no=${dto.student_no})}">가족사항 수정</a>
+										<a th:href="@{/student/list/parent/{std_no}(std_no=${dto.student_no})}">가족사항 수정</a>
 									</div>
 								</div>
 									<table class="table table-hover table-bordered no-wrap mt-2" style="width:100%; font-size: 13px; text-align: center;">
