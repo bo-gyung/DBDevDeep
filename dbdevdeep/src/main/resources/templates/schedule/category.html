@@ -126,6 +126,12 @@
 		.color-list-item.selected { /* 선택된 색상의 테두리 강조 */
 		    border: 2px solid #555; /* 선택된 색상 테두리 강조 */
 		}
+
+		button.pubilc_btn {
+			width:72px;
+			font-size:16px;
+			height:45px;
+		}
 	</style>
 </head>
 <th:block layout:fragment="content">
@@ -231,8 +237,8 @@
 									    </table>
 									    <!-- 등록/취소 버튼 -->
 									    <div id="form-container" style="float:right; display: flex; align-items: center;">
-									        <button type="button" id="cancel-delete-button" class="btn waves-effect waves-light btn-light m-2">취소</button>
-									        <button type="submit" id="create-update-button" class="btn waves-effect waves-light btn-primary">등록</button>
+									        <button type="button" id="cancel-delete-button" class="btn waves-effect waves-light btn-light m-2 pubilc_btn">취소</button>
+									        <button type="submit" id="create-update-button" class="btn waves-effect waves-light btn-primary pubilc_btn">등록</button>
 									    </div>
 									    </form>
 									</div>
@@ -242,8 +248,7 @@
 				</div>
             </div>
         </div>
-    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
-        </footer>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
     </div>
     
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
@@ -412,6 +417,20 @@
 	window.showRegistrationForm = function () {
 	    resetForm(); // 폼 초기화
 	    selectColor(""); // 선택된 색상 초기화
+	    const categoryNameInput = document.getElementById('categoryName');
+	    categoryNameInput.disabled = false; // input 활성화
+	    
+	    const deleteButton = document.getElementById('cancel-delete-button');
+     	const updateButton = document.getElementById('create-update-button');
+     	deleteButton.disabled = false;
+        updateButton.disabled = false;
+     	
+     	// alert-message 요소를 DOM에서 제거
+        const alertMessage = document.querySelector('.alert-message');
+        if (alertMessage) {
+            alertMessage.remove(); // 경고 메시지 삭제
+        }
+
 
 	    // 등록 폼으로 전환 (버튼 텍스트 "등록"으로 변경)
 	    const submitButton = document.querySelector('#form-container button[type="submit"]');

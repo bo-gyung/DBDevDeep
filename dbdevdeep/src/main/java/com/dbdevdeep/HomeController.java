@@ -22,6 +22,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.dbdevdeep.approve.service.ApproveService;
 import com.dbdevdeep.attendance.domain.AttendanceDto;
@@ -53,11 +55,6 @@ public class HomeController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User)authentication.getPrincipal();
         String empId = user.getUsername();
-        
-        List<ScheduleDto> todaySchedule = scheduleService.selectTodaySchedule(empId);
-        
-        model.addAttribute("todaySchedule", todaySchedule);
-        model.addAttribute("today", LocalDate.now());
         
         // 공용 파일 최신순 가져오기
         List<FileDto> publicFiles = fileService.findPublicFilesOrderByModTimeDesc();
@@ -178,5 +175,17 @@ public class HomeController {
 		}
 		
 		return resultMap;
+    }
+	
+	// 선택된 날짜에 대한 일정을 가져오는 API 추가
+    @GetMapping("/getScheduleForDate")
+    @ResponseBody
+    public List<ScheduleDto> getScheduleForDate(@RequestParam("date") String dateStr) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        String empId = user.getUsername();
+        
+        // 선택된 날짜의 일정 데이터 가져오기
+        return scheduleService.selectTodaySchedule(empId, dateStr);
     }
 }

@@ -910,8 +910,7 @@ body {
 					</div>
 				</div>
 			</div>
-			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
-        	</footer>
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 		</div>
 		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 		<!-- Bootstrap tether Core JavaScript -->
@@ -987,27 +986,55 @@ body {
 
 	// 공통 함수: 날짜 유효성 검사
 	function setupDateValidation(modalPrefix) {
-	    document.getElementById(`${modalPrefix}_start_date`).addEventListener('change', function() {
+	    const startDateInput = document.getElementById(`${modalPrefix}_start_date`);
+	    const endDateInput = document.getElementById(`${modalPrefix}_end_date`);
+	    const repeatStartDateInput = document.getElementById(`${modalPrefix}_repeat_start_date`);
+	    const repeatEndDateInput = document.getElementById(`${modalPrefix}_repeat_end_date`);
+
+	    startDateInput.addEventListener('change', function() {
 	        const startDate = new Date(this.value);
-	        const endDateInput = document.getElementById(`${modalPrefix}_end_date`);
 	        const endDate = new Date(endDateInput.value);
 
 	        if (endDate < startDate) {
 	            endDateInput.value = this.value;  // 시작일이 변경되면 종료일도 최소 시작일로 설정
 	        }
 	        endDateInput.setAttribute('min', this.value);  // 종료일은 시작일 이후여야 함
+
+	        // 반복 시작일은 시작일 이후여야 함
+	        if (repeatStartDateInput) {
+	            repeatStartDateInput.setAttribute('min', this.value);
+	        }
 	    });
 
-	    document.getElementById(`${modalPrefix}_end_date`).addEventListener('change', function() {
+	    endDateInput.addEventListener('change', function() {
 	        const endDate = new Date(this.value);
-	        const startDateInput = document.getElementById(`${modalPrefix}_start_date`);
 	        const startDate = new Date(startDateInput.value);
 
 	        if (startDate > endDate) {
 	            startDateInput.value = this.value;  // 종료일이 변경되면 시작일도 최대 종료일로 설정
 	        }
 	        startDateInput.setAttribute('max', this.value);  // 시작일은 종료일 이전이어야 함
+
 	    });
+
+	    // 반복 시작일 유효성 검사
+	    if (repeatStartDateInput) {
+	        repeatStartDateInput.addEventListener('change', function() {
+	            const repeatStartDate = new Date(this.value);
+	            const startDate = new Date(startDateInput.value);
+
+	            // 반복 시작일은 시작일 이후여야 함
+	            if (repeatStartDate < startDate) {
+	                this.value = startDateInput.value; // 반복 시작일이 시작일 이전일 경우, 시작일로 설정
+	            }
+	            // 반복 종료일이 반복 시작일보다 이른 경우
+	            if (repeatEndDateInput && new Date(repeatEndDateInput.value) < repeatStartDate) {
+	                repeatEndDateInput.value = this.value; // 종료일이 시작일보다 이전일 경우, 시작일로 설정
+	            }
+	            repeatEndDateInput.setAttribute('min', this.value); // 반복 종료일은 반복 시작일 이후여야 함
+	        });
+	    }
+
 	}
 
 	// 공통 함수: 시간 유효성 검사
@@ -1887,15 +1914,24 @@ body {
         const scheduleDetailContent = document.getElementById('scheduleDetailContent');
         scheduleDetailContent.innerHTML = `
         	<div class="modal-header modal-colored-header bg-primary" style="display: flex; align-items: center; justify-content: space-between; font-size: 25px;">
-	            <div class="modal-title" id="holidayDetailModalLabel">
-	            	<i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
-	            	일정 정보
-	           	</div>
-	            <div style="font-size:16px; display:flex;">
-	            	<div style="margin-right:20px;">등록자 : ${data.emp_name}</div>
-		            <div>등록일 : ${formattedModTime}</div>
+	            <!-- 일정 정보 왼쪽 -->
+	            <div class="modal-title" id="holidayDetailModalLabel" style="flex-grow: 1;">
+	                <i data-feather="calendar" class="svg-icon mr-2 ml-1"></i>
+	                일정 정보
 	            </div>
-        	</div>
+	            
+	            <!-- 등록자, 등록일 가운데 -->
+	            <div style="font-size:16px; display:flex; align-items: center; margin-right: auto; margin-left: 20px;">
+	                <div style="margin-right:20px;">등록자 : ${data.emp_name}</div>
+	                <div>등록일 : ${formattedModTime}</div>
+	            </div>
+	
+	            <!-- X 버튼 오른쪽 -->
+	            <button type="button" id="modalCloseButton" class="close" data-dismiss="modal" aria-label="Close" style="margin-left: auto;">
+	                <i data-feather="x" class="svg-icon mr-2 ml-1"></i>
+	            </button>
+	        </div>
+
         	<div class="modal-body" style="padding:0px;">
 	            <table style="border-bottom:none; border-top:none;" class="table bordered">
 	                <tbody>
@@ -1997,9 +2033,9 @@ body {
                 </table>
             </div>
             <div class="modal-footer" style="margin-top: -1vh; border-top:none !important;">
-	            <button type="button" class="btn btn-primary public-btn" id="editButton">수정</button>
-	            <button type="button" class="btn btn-light public-btn" id="deleteButton">삭제</button>
 	            <button type="button" class="btn btn-outline-secondary public-btn" data-dismiss="modal" id="closeButton">닫기</button>
+	            <button type="button" class="btn btn-light public-btn" id="deleteButton">삭제</button>
+	            <button type="button" class="btn btn-primary public-btn" id="editButton">수정</button>
             </div>
         `;
         
@@ -2010,6 +2046,9 @@ body {
         
 	 	// 모달 닫기 버튼에 클릭 이벤트 추가
 	    document.getElementById('closeButton').addEventListener('click', function() {
+	        $('#scheduleDetailModal').modal('hide');
+	    });
+	    document.getElementById('modalCloseButton').addEventListener('click', function() {
 	        $('#scheduleDetailModal').modal('hide');
 	    });
         
@@ -2226,8 +2265,8 @@ body {
  	// 날짜와 시간을 "YYYY.MM.DD HH:MM ~ YYYY.MM.DD HH:MM" 형식으로 변환하는 함수
 	function formatPeriod(startDate, startTime, endDate, endTime, repeatType, currentDate, isAllDay) {
 	    // ISO 형식에서 날짜 부분만 잘라내고 반복 설정에 따라 계산
-	    const startDatePart = calculateNextRepeatDate(startDate.split('T')[0], repeatType, currentDate, startDate, isAllDay);  // 반복 유형에 따른 시작일 계산
-	    const endDatePart = calculateNextRepeatDate(endDate.split('T')[0], repeatType, currentDate, endDate, isAllDay);  // 반복 유형에 따른 종료일 계산
+	    const startDatePart = calculateNextRepeatDate(startDate.split('T')[0], repeatType, currentDate, startDate, isAllDay, endDate.split('T')[0]);  // 반복 유형에 따른 시작일 계산
+	    const endDatePart = calculateNextRepeatDate(endDate.split('T')[0], repeatType, currentDate, endDate, isAllDay, startDate.split('T')[0]);  // 반복 유형에 따른 종료일 계산
 	
 	    // 종일 일정인 경우 날짜만 반환
 	    if (isAllDay === 'Y') {
@@ -2247,7 +2286,7 @@ body {
 	}
 
     // 반복 설정이 있을 경우 특정 인스턴스에 따라 다음 반복 날짜 계산 함수
-    function calculateNextRepeatDate(dateString, repeatType, currentDate, originalDateString, isAllDay) {
+    function calculateNextRepeatDate(dateString, repeatType, currentDate, originalDateString, isAllDay, secondDateString) {
         const date = new Date(dateString);
         const baseDate = new Date(currentDate);  // 현재 인스턴스를 기준으로 계산
         const originalDate = new Date(originalDateString);  // 반복 설정의 시작 날짜
@@ -2267,7 +2306,7 @@ body {
                 // 매주 반복: 7일 추가
                 const weeksDifference = Math.floor((baseDate - originalDate) / (1000 * 60 * 60 * 24 * 7));
             
-                if (isAllDay === 'Y') {
+                if (isAllDay === 'Y' || dateString !== secondDateString) {
                     // 종일 일정의 경우, 주 단위로 7일 더하기 (기존 날짜에서 계산)
                     date.setDate(originalDate.getDate() + (weeksDifference + 1) * 7); 
                 } else {
@@ -2281,7 +2320,7 @@ body {
                 date.setDate(originalDate.getDate());  // 원래의 날짜를 유지
                 break;
             case 'YEARLY':       
-                if (isAllDay === 'Y') {
+                if (isAllDay === 'Y' || dateString !== originalDateString) {
                 	date.setFullYear(originalDate.getFullYear() + Math.floor((baseDate - originalDate) / (1000 * 60 * 60 * 24 * 365)) + 1);
                 } else {
                     date.setFullYear(originalDate.getFullYear() + Math.floor((baseDate - originalDate) / (1000 * 60 * 60 * 24 * 365)));

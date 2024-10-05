@@ -47,14 +47,7 @@
     </div><!-- /.modal -->
 	<!-- 사진 상세보기 모달창 끝 -->
 
-
-        <!-- ============================================================== -->
-        <!-- Page wrapper  -->
-        <!-- ============================================================== -->
         <div class="page-wrapper">
-			<!-- ============================================================== -->
-            <!-- Container fluid  -->
-            <!-- ============================================================== -->
             <div class="container-fluid pb-0 pt-4">
                 <div class="row">
                     <div class="col-md-12">
@@ -281,26 +274,9 @@
                     </div>
                 </div>
             </div>
-            <!-- ============================================================== -->
-            <!-- End Container fluid  -->
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- footer -->
-            <!-- ============================================================== -->
-            <footer class="footer text-center pt-0">
-                All Rights Reserved by Adminmart. Designed and Developed by <a
-                    href="https://wrappixel.com">WrapPixel</a>.
-            </footer>
-            <!-- ============================================================== -->
-            <!-- End footer -->
-            <!-- ============================================================== -->
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
         </div>
-        <!-- ============================================================== -->
-        <!-- End Page wrapper  -->
-        <!-- ============================================================== -->
-    <!-- ============================================================== -->
-    <!-- This page JavaScript -->
-    <!-- ============================================================== -->
+
 	<script type="text/javascript">
 	
 		
@@ -315,8 +291,8 @@
 		            sendMessage(); // 메시지 전송 함수 호출
 		        } else {
 		        	Swal.fire({
-						icon:'error',
-						title:'실패',
+						icon:'warning',
+						title:'경고',
 						text: '텍스트를 입력하세요.',
 		                confirmButtonText: '확인',
 		                customClass: {
@@ -346,13 +322,13 @@
 		            sendMessage(); // 메시지 전송 함수 호출
 		        } else {
 		        	Swal.fire({
-						icon:'error',
-						title:'실패',
+						icon:'warning',
+						title:'경고',
 						text: '텍스트를 입력하세요.',
-		                confirmButtonText: '확인',
-		                customClass: {
-		                    confirmButton: 'swal-custom-button'
-		                }
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 		        }
 		    }
@@ -423,7 +399,11 @@
 		            Swal.fire({
 		                icon: 'error',
 		                title: '실패',
-		                text: data.res_msg
+		                text: data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 		            });
 		        }
 			})
@@ -461,7 +441,11 @@
 		            Swal.fire({
 		                icon: 'error',
 		                title: '실패',
-		                text: data.res_msg
+		                text: data.res_msg,
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 		            });
 		        }
 			})

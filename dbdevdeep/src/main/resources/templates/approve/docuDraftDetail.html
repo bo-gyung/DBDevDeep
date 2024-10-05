@@ -285,8 +285,8 @@
 			<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
 				<div class="card">
-					<div class="card-body">
-						<h3 class="card-title">보고서 작성</h3>
+					<div class="card-body" style="padding: 50px 80px">
+						<div style="font-size: 30px; color:black;">보고서 작성</div>
 							<hr>
 								<div class="container-fluid">
            <div class="container">
@@ -427,12 +427,8 @@
 					</div>
 				</div>
 			</div>
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 		</div>
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
-	</div>
-	</div>
 	
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
 	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -469,13 +465,14 @@
 	            title: '목록으로 이동하시겠습니까?',
 	            text: '변경 내용이 저장되지 않습니다.',
 	            icon: 'warning',
-	            showCancelButton: true,
-	            confirmButtonColor: '#0031AE',
-	    	    cancelButtonColor: '#E8EAEC',
-	            confirmButtonText: '이동',
-	            cancelButtonText: '취소',
-	            reverseButtons: true,
-	        })
+    	        showCancelButton: true,
+    	        confirmButtonText: '삭제',
+    	        cancelButtonText: '취소',
+    	        customClass: {
+    	            confirmButton: 'swal-custom-button',
+    	            cancelButton: 'swal-cancel-button'
+	        	}
+	    	})
 	    	.then((result) => {
 	    		if(result.isConfirmed){
 	    			window.location.href = '/approvedraft';
@@ -575,8 +572,10 @@
                         icon: 'success',
                         title: '삭제 완료',
                         text: data.res_msg,
-                        confirmButtonColor: '#0031AE',  
-                        confirmButtonText: '확인'
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
                     }).then((result) => {
                         location.href = "/approvedraft"; // 삭제 후 리디렉션
                     });
@@ -586,8 +585,10 @@
                         icon: 'error',
                         title: '오류',
                         text: data.res_msg,
-                        confirmButtonColor: '#0031AE',
-                        confirmButtonText: '닫기'
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
                     });
                 }
             }).catch(error => {
@@ -596,8 +597,10 @@
                     icon: 'error',
                     title: '오류',
                     text: '삭제 중 문제가 발생했습니다.',
-                    confirmButtonColor: '#0031AE',
-                    confirmButtonText: '닫기'
+                    confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
                 });
             });
         }
@@ -623,10 +626,13 @@
 
 	        if (form.appro_title.value === "") {
 	            Swal.fire({
-	                icon: 'error',
-	                title: '제목을 입력해주세요',
-	                confirmButtonColor: '#0031AE',
-	                confirmButtonText: '닫기'
+	                icon: 'warning',
+	                title: '경고',
+	                text: '제목을 입력해주세요',
+                    confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 	            });
 	            return;
 	        }
@@ -653,8 +659,10 @@
 	                    icon: 'success',
 	                    title: '성공',
 	                    text: data.res_msg,
-	                    confirmButtonColor: '#0031AE',
-	                    confirmButtonText: "닫기"
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 	                }).then(() => {
 	                    location.href = "/approvedraft";
 	                });
@@ -663,8 +671,10 @@
 	                    icon: 'error',
 	                    title: '실패',
 	                    text: data.res_msg,
-	                    confirmButtonColor: '#0031AE',
-	                    confirmButtonText: "닫기"
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 	                });
 	            }
 	        })

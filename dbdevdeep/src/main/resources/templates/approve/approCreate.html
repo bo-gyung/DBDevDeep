@@ -275,6 +275,24 @@
     });
 </script>
 
+<style>
+	.custom-cancel-button{
+		color: black !important;
+	}
+	
+	.swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
+</style>
 
 
 </head>
@@ -285,12 +303,9 @@
 		<div class="container-fluid">
 			<div class="col-sm-12 col-md-12">
 				<div class="card">
-					<div class="card-body">
-						<h3 class="card-title">휴가 신청</h3>
+					<div class="card-body" style="padding: 50px 80px;">
+						<div style="font-size:30px; color:black">휴가 신청</div>
 						<hr>
-						<div class="container-fluid">
-
-
 							<div class="container">
 								<form id="approCreateFrm">
 									<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
@@ -448,10 +463,8 @@
 				</div>
 			</div>
 		</div>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 	</div>
-	<footer class="footer text-center text-muted">
-		All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-	</footer>
 
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
 	<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -556,11 +569,12 @@
 	            text: '입력된 항목들이 삭제됩니다.',
 	            icon: 'warning',
 	            showCancelButton: true,
-	            confirmButtonColor: '#0031AE',
-	    	    cancelButtonColor: '#E8EAEC',
-	            confirmButtonText: '이동',
-	            cancelButtonText: '취소',
-	            reverseButtons: true,
+    	        confirmButtonText: '이동',
+    	        cancelButtonText: '취소',
+    	        customClass: {
+    	            confirmButton: 'swal-custom-button',
+    	            cancelButton: 'swal-cancel-button'
+    	        }
 	        })
 	    	.then((result) => {
 	    		if(result.isConfirmed){
@@ -588,54 +602,71 @@
 	        // 유효성 검사
 	        if (form.appro_title.value == "") {
 	            Swal.fire({
-	                icon: 'error',
-	                title: '제목을 입력해주세요',
-	                confirmButtonColor: '#0031AE',
-	                confirmButtonText: "닫기"
+	                icon: 'warning',
+	                title: '경고',
+	                text: '제목을 입력해주세요!',
+	                confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 	            });
 	            return;
 	        } else if (!document.querySelector('input[name="vac_type"]:checked')) {
 	            Swal.fire({
-	                icon: 'error',
-	                title: '종류를 선택해주세요',
-	                confirmButtonColor: '#0031AE',
-	                confirmButtonText: "닫기"
+	                icon: 'warning',
+	                title: '경고',
+	                text: '종류를 선택해주세요!',
+	                confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 	            });
 	            form.vac_type.focus();
 	            return;
 	        }  else if (form.start_date.value == "") {
 	            Swal.fire({
-	                icon: 'error',
-	                title: '일정시작일을 입력해주세요',
-	                confirmButtonColor: '#0031AE',
-	                confirmButtonText: "닫기"
+	                icon: 'warning',
+	                title: '경고',
+	                text: '일정시작일을 입력해주세요!',
+	                confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 	            });
 	            form.start_date.focus();
 	            return;
 	        } else if (form.end_date.value == "") {
 	            Swal.fire({
-	                icon: 'error',
-	                title: '일정종료일을 입력해주세요',
-	                confirmButtonColor: '#0031AE',
-	                confirmButtonText: "닫기"
+	                icon: 'warning',
+	                title: '경고',
+	                text: '일정종료일을 입력해주세요!',
+	                confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 	            });
 	            form.end_date.focus();
 	            return;
 	        } else if (form.appro_content.value == "") {
 	            Swal.fire({
-	                icon: 'error',
-	                title: '신청사유를 입력해주세요',
-	                confirmButtonColor: '#0031AE',
-	                confirmButtonText: "닫기"
+	                icon: 'warning',
+	                title: '경고',
+	                text: '신청사유를 입력해주세요!',
+	                confirmButtonText: '확인',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 	            });
 	            form.appro_context.focus();
 	            return;
 	        } else if (form.approval.value == "") {
 	            Swal.fire({
-	                icon: 'error',
-	                title: '결재자를 선택해주세요',
-	                confirmButtonColor: '#0031AE',
-	                confirmButtonText: "닫기"
+	                icon: 'warning',
+	                title: '경고',
+	                text: '결재자를 선택해주세요!',
+                    customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
 	            });
 	            form.approval.focus();
 	            return;
@@ -655,8 +686,10 @@
 	                    icon: 'success',
 	                    title: '성공',
 	                    text: data.res_msg,
-	                    confirmButtonColor: '#0031AE',
-	                    confirmButtonText: "확인"
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 	                }).then(() => {
 	                    location.href = "/approves";
 	                });
@@ -665,8 +698,10 @@
 	                    icon: 'error',
 	                    title: '실패',
 	                    text: data.res_msg,
-	                    confirmButtonColor: '#0031AE',
-	                    confirmButtonText: "닫기"
+	                    confirmButtonText: '확인',
+	                    customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 	                });
 	            }
 	        })

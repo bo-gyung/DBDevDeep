@@ -140,7 +140,7 @@ public class StudentViewController {
 	}
 	
 	// 학년 이력 정보 수정 페이지로 이동(반배정)
-	@GetMapping("/student/class/{student_no}")
+	@GetMapping("/student/list/class/{student_no}")
 	public String classAssign(@PathVariable("student_no") Long student_no, Model model) {
 	    List<TeacherHistoryDto> resultList = teacherHistoryService.selectClassList();
 	    StudentDto sdto = studentService.selectStudentOne(student_no);
@@ -180,7 +180,7 @@ public class StudentViewController {
 		}
 	
 	// 학부모 정보 등록 페이지
-	@GetMapping("/student/parent/{student_no}")
+	@GetMapping("/student/list/parent/{student_no}")
 	public String parentInfo(@PathVariable("student_no") Long student_no, Model model) {
 		List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
 		StudentDto sdto = studentService.selectStudentOne(student_no);
