@@ -6,6 +6,17 @@
   <!-- 부트스트랩 CSS 추가 -->
   
   <style>
+  .swal-custom-button {
+  	background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
   
   .custom-file-upload {
         display: inline-block;
@@ -76,27 +87,6 @@ input, select, textarea {
     margin-left: 60px;
     font-weight: normal;
 }
-
-.btn-secondary, .btn-primary {
-    padding: 10px 20px;
-    font-size: 18px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #004085;
-}
-
-.form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-.unusable-fields {
-    display: none;
-}
  
   </style>
   
@@ -117,7 +107,7 @@ input, select, textarea {
   				<div class="row">
                 	<div class="col-sm-12">
                         <div class="card">
-                            <div class="card-body">
+                            <div class="card-body" style="padding: 50px 80px;">
                                 <h3 class="card-title">기자재 수정</h3>
                                 <hr>
 					        <form id="item_updateForm"  th:action="@{/item/update/{item_no}(item_no=${dto.item_no})}" method="post" enctype="multipart/form-data">
@@ -165,7 +155,7 @@ input, select, textarea {
                             <div class="row mb-3">
                                 <label for="item_content" class="col-sm-2 col-form-label">내용</label>
                                 <div class="col-sm-10">
-                                    <textarea class="form-control" id="item_content" name="item_content" style="width: 100%; height: 120px; resize : none;" th:text="${dto.item_content}"></textarea>
+                                    <textarea class="form-control" id="item_content" name="item_content" style="width: 485px; height: 120px; resize : none;" th:text="${dto.item_content}"></textarea>
                                 </div>
                             </div>
 
@@ -206,7 +196,7 @@ input, select, textarea {
 							    <div class="row mb-3">
 							        <label for="unuseable_reason" class="col-sm-2 col-form-label">사유</label>
 							        <div class="col-sm-10">
-							            <textarea class="form-control" id="unuseable_reason" name="unuseable_reason" style="width: 100%; height: 120px; resize : none;" th:text="${dto.unuseable_reason}"></textarea>
+							            <textarea class="form-control" id="unuseable_reason" name="unuseable_reason" style="width: 485px; height: 120px; resize : none;" th:text="${dto.unuseable_reason}"></textarea>
 							        </div>
 							    </div>
 							
@@ -238,10 +228,10 @@ input, select, textarea {
 							    <!-- 버튼들을 감싸는 Flex 컨테이너 -->
 							    <div class="col-sm-6 d-flex justify-content-center">
 							        <!-- 취소 버튼 -->
-							        <button type="button" class="btn btn-secondary mx-2" onclick="location.href='/item'">취소</button>
+							        <button type="button" class="btn btn-light mx-2" onclick="location.href='/items'">취소</button>
 							        
 							        <!-- 수정 버튼 -->
-							        <button type="submit" class="btn btn-primary mx-2">수정</button>
+							        <button type="submit" class="btn btn-info mx-2">수정</button>
 							    </div>
 							</div>
         
@@ -338,7 +328,10 @@ form.addEventListener('submit', (e) => {
             icon: 'error',
             title: '실패',
             text: vali_text,
-            confirmButtonText: '닫기'
+            confirmButtonText: '닫기',
+			customClass: {
+                confirmButton: 'swal-custom-button'
+            }
         });
     } else {
         // FormData로 파일을 포함한 데이터를 서버로 전송
@@ -360,16 +353,22 @@ form.addEventListener('submit', (e) => {
                     icon: 'success',
                     title: '성공',
                     text: data.res_msg,
-                    confirmButtonText: '닫기'
+                    confirmButtonText: '닫기',
+					customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
                 }).then(() => {
-                    location.href = "/item";
+                    location.href = "/items";
                 });
             } else {
                 Swal.fire({
                     icon: 'error',
                     title: '실패',
                     text: data.res_msg,
-                    confirmButtonText: '닫기'
+                    confirmButtonText: '닫기',
+					customClass: {
+                        confirmButton: 'swal-custom-button'
+                    }
                 });
             }
         })

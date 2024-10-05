@@ -2,6 +2,18 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/employee_layout}">
 <th:block layout:fragment="content">
 	<style>
+	
+		.swal-custom-button {
+		  background-color: #0031AE !important;
+		  color: white; /* 버튼 텍스트 색상 */
+		  border: none; /* 버튼 테두리 제거 */
+		  padding: 10px 20px; /* 버튼 패딩 */
+		  font-size: 16px; /* 버튼 폰트 크기 */
+		  cursor: pointer; /* 마우스 커서 포인터 */
+		}
+		.swal-custom-button:hover {
+		  background-color: #002685 !important;
+		}
 		.preview-container {
 			border-radius: 50%; overflow: hidden; width: 100%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center;
 		}
@@ -127,10 +139,6 @@
 						<div class="row" style="margin-left: 0px !important; margin-right: 0px !important; margin-bottom: 20px;">
 							<div class="col d-flex justify-content-start align-items-center" style="padding-left: 0px; max-width: 240px;">
 								<div style="font-size: 30px;">직원 상세 정보</div>
-							</div>
-							<div class="col d-flex justify-content-end">
-								<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/employee/list';">목록</button>
-								<button class="btn waves-effect waves-light btn-info" style="margin: 4px;" id="editEmployee" onclick="editEmployee();">수정</button>
 							</div>
 						</div>
 
@@ -264,7 +272,7 @@
 							<div class="tab-pane" id="class-history">
 								<div class="form-group">
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<div class="table-responsive">
 												<table  class="table table-bordered no-wrap" style="width: 100%">
 													<colgroup>
@@ -305,7 +313,7 @@
 							<div class="tab-pane" id="employee-status">
 								<div class="form-group">
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<label>전근</label>
 											<div class="table-responsive">
 												<table class="table table-bordered no-wrap" style="width: 100%">
@@ -343,7 +351,7 @@
 										</div>
 									</div>
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<label>휴직</label>
 											<div class="table-responsive">
 												<table class="table table-bordered no-wrap" style="width: 100%">
@@ -394,7 +402,7 @@
 										</div>
 									</div>
 									<div class="row">
-										<div class="col-md-8" style="margin-top: 40px;">
+										<div class="col-md-12" style="margin-top: 40px;">
 											<label>퇴직</label>
 											<div class="table-responsive">
 												<table class="table table-bordered no-wrap" style="width: 100%">
@@ -436,12 +444,6 @@
 										<div class="col-md-12" style="margin-top: 40px;">
 											<div class="table-responsive">
 												<table id="employee-attend" class="table table-hover table-bordered no-wrap" style="width: 100%">
-													<colgroup>
-														<col style="width: 10%;">
-														<col style="width: 30%;">
-														<col style="width: 30%;">
-														<col style="width: 30%;">
-													</colgroup>
 													<thead>
 														<tr>
 															<th scope="col">번호</th>
@@ -487,7 +489,18 @@
 																	<td th:text="${#temporals.format(attend.check_out_time, 'HH:mm:ss')}"></td>
 																</th:block>
 																<!-- 퇴근시간 end -->
-																<td th:text="${attend.work_status == 0? '출근전' : attend.work_status == 1? '출근' : '퇴근'}"></td>
+																<td th:text="${attend.work_status == 0 ? '출근전' : 
+																               attend.work_status == 1 ? '출근' : 
+																               attend.work_status == 2 ? '퇴근' : 
+																               attend.work_status == 3 ? '결근' : 
+																               attend.work_status == 4 ? '연차' : 
+																               attend.work_status == 5 ? '공가' : 
+																               attend.work_status == 6 ? '병가' : 
+																               attend.work_status == 7 ? '조퇴' : 
+																               attend.work_status == 8 ? '경조사' : 
+																               attend.work_status == 9 ? '출산휴가' : 
+																               attend.work_status == 10 ? '반차' : ''}">
+																</td>
 																<td th:if="${attend.late_status == 'Y'}"><i class="fas fa-check"></i></td>
 																<td th:unless="${attend.late_status == 'Y'}"></td>
 																<td th:text="${attend.overtime_sum}"></td>
@@ -502,7 +515,15 @@
 							</div>
 						</div>
 						<input type="hidden" id="csrf_token" th:value="${_csrf.token}">
-
+						<hr>
+						<div class="row">
+							<div class="col d-flex justify-content-start">
+								<button type="button" class="btn waves-effect waves-light btn-outline-secondary" style="margin: 4px;" onclick="location.href='/employee/list';">목록</button>
+							</div>
+							<div class="col d-flex justify-content-end">
+								<button class="btn waves-effect waves-light btn-info" style="margin: 4px;" id="editEmployee" onclick="editEmployee();">수정</button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -916,6 +937,14 @@
 								<option value="0">출근전</option>
 								<option value="1">출근</option>
 								<option value="2">퇴근</option>
+								<option value="3">결근</option>
+								<option value="4">연차</option>
+								<option value="5">공가</option>
+								<option value="6">병가</option>
+								<option value="7">조퇴</option>
+								<option value="8">경조사</option>
+								<option value="9">출산휴가</option>
+								<option value="10">반차</option>
 							</select>
 							<div id="work_status_feedback" class="mt-2"></div>
 						</div>
@@ -966,32 +995,53 @@
 				const csrfToken = document.getElementById("csrf_token").value;
 				const payload = new FormData(document.getElementById('resetPw'));
 				
-				fetch('/reset-pw', {
-					method: 'PUT',
-					headers : {
-						'X-CSRF-TOKEN': csrfToken
-					},
-					body: payload
-				})
-				.then(response => response.json())
-				.then(data=>{
-					if(data.res_code == '200'){
-						Swal.fire({
-							icon :'success',
-							title:'성공',
-							text : data.res_msg,
-							confirmButtonText:"닫기"
+				Swal.fire({
+		            title: '비밀번호를 초기화하시겠습니까?',
+		            text: '초기화 시 해당 기록이 남습니다.',
+		            icon: 'warning',
+		            showCancelButton: true,
+		            confirmButtonColor: '#0031AE',
+		    	    cancelButtonColor: '#E8EAEC',
+		            confirmButtonText: '확인',
+		            cancelButtonText: '취소',
+		            reverseButtons: true,
+		        })
+		    	.then((result) => {
+		    		if(result.isConfirmed){
+		    			fetch('/reset-pw', {
+							method: 'PUT',
+							headers : {
+								'X-CSRF-TOKEN': csrfToken
+							},
+							body: payload
 						})
-						
-					} else{
-						Swal.fire({
-							icon:'error',
-							title:'실패',
-							text: data.res_msg,
-							confirmButtonText:"닫기"
+						.then(response => response.json())
+						.then(data=>{
+							if(data.res_code == '200'){
+								Swal.fire({
+									icon :'success',
+									title:'성공',
+									text : data.res_msg,
+									confirmButtonText:"닫기",
+									customClass: {
+				                        confirmButton: 'swal-custom-button'
+				                    }
+								})
+								
+							} else{
+								Swal.fire({
+									icon:'error',
+									title:'실패',
+									text: data.res_msg,
+									confirmButtonText:"닫기",
+									customClass: {
+				                        confirmButton: 'swal-custom-button'
+				                    }
+								});
+							}
 						});
-					}
-				});
+		    		}
+		    	})
 			})
 			
 			$('#transFrm').submit(function(e) {
@@ -1014,7 +1064,10 @@
 							icon :'success',
 							title:'성공',
 							text : data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						})
 						
 					} else{
@@ -1022,7 +1075,10 @@
 							icon:'error',
 							title:'실패',
 							text: data.res_msg,
-							confirmButtonText:"닫기"
+							confirmButtonText:"닫기",
+							customClass: {
+		                        confirmButton: 'swal-custom-button'
+		                    }
 						});
 					}
 				});
@@ -1032,7 +1088,7 @@
 		// 수정 페이지로 이동
 		$(document).ready(function () {
 			$('#editEmployee').click(function() {
-				location.href='/employee/edit/' + $('#emp_id').val();
+				location.href='/employee/list/edit/' + $('#emp_id').val();
 			});
 		});
 		
@@ -1152,7 +1208,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then(() => {
 						location.href="/employee/list/" + document.getElementById('restFrm').emp_id.value;
 					})
@@ -1162,7 +1221,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			});
@@ -1226,7 +1288,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then(() => {
 						location.href="/employee/list/" + document.getElementById('leaveFrm').emp_id.value;
 					})
@@ -1236,7 +1301,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			});
@@ -1299,7 +1367,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then(() => {
 						location.href="/employee/list/" + document.getElementById('returnFrm').emp_id.value;
 					})
@@ -1309,7 +1380,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			});
@@ -1426,7 +1500,10 @@
 						icon :'success',
 						title:'성공',
 						text : data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					}).then((result)=>{
 						location.href="/employee/list/" + form.emp_id.value;
 					});
@@ -1435,7 +1512,10 @@
 						icon:'error',
 						title:'실패',
 						text: data.res_msg,
-						confirmButtonText:"닫기"
+						confirmButtonText:"닫기",
+						customClass: {
+	                        confirmButton: 'swal-custom-button'
+	                    }
 					});
 				}
 			})

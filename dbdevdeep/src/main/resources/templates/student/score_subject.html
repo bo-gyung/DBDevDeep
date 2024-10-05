@@ -20,14 +20,22 @@
 <body>
 <input type="hidden" id="subject_no" th:value="${subject.subject_no}">
 		<div class="page-wrapper">
-			<div class="page-breadcrumb">
-				<div class="row">
-					<div id="content" class="card">
-					<div class="card-body">
-					<button id="download_excel">엑셀 다운</button>
+			<div class="container-fluid" style="margin-bottom:-10px;">
+				<div class="col-sm-12 col-md-12">
+                        <div class="card">
+					<div class="card-body" style="padding: 50px 80px;">
+					
+					<div class="row" style="margin-left:0px !important; margin-right:0px !important;">
+	                    <div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:250px;">
+	                        <div style="font-size:30px;">과목 성적 등록</div>
+	                    </div>			
+	                    <div class="col d-flex justify-content-end align-items-center">
+							<button id="download_excel" class="btn btn-info">엑셀로 받기</button>
+						</div>			
+					</div>
+					<br>	
 					<th:block th:if="${username == subject.teacher_history.getEmployee().getEmpId()}">
 			            <form id="score_register_subject_form" method="post">
-			            <h3>과목 성적 등록</h3>
 			            <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
 			            	<table>
 						        <thead>
@@ -77,8 +85,14 @@
 					
 								</tbody>
 						    </table>
-						    <input type="button" value="취소" th:onclick="|location.href='@{/student/score}'|">
-				            <input type="submit" value="등록">
+						    <br>
+						    <div class="row">
+						    <div class="col d-flex justify-content-end align-items-center">
+								<br> 
+								<input type="button" onclick="cancelBtn();" class="btn waves-effect waves-light btn-light" value="취소">
+								<input type="submit" class="btn waves-effect waves-light btn-primary" value="등록"> 
+							</div>
+							</div>
 	            		</form>
 	            		</th:block>
 	            		<th:block th:if="${username != subject.teacher_history.getEmployee().getEmpId()}">
@@ -127,15 +141,14 @@
 					
 								</tbody>
 						    </table>
-						    <input type="button" value="목록으로" th:onclick="|location.href='@{/student/score}'|">
+						    <br>
+						    <input type="button" class="btn btn-outline-secondary m-1"  value="목록으로" th:onclick="|location.href='@{/student/score}'|">
 	            		</th:block>
 					</div>
             	</div>
 				</div>
-			<div class="container-fluid">
-			</div>
+				</div>
 		</div>
-	</div>
 	
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
 	<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
@@ -147,6 +160,11 @@
 	<script src="/dist/js/sidebarmenu.js"></script>
 	<script src="/dist/js/custom.min.js"></script>
 	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script>
+	  	const cancelBtn = () => {
+	  		window.location.href = '/student/score';
+	  	}
+	</script>
 	<script>
 	$(document).ready(function () {
 	    // subjectNo 변수를 제대로 가져오는지 확인

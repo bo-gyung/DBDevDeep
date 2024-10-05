@@ -154,8 +154,8 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 										<div style="font-size: 30px;">장소관리</div>
 									</div>
 									<div class="col d-flex justify-content-end" sec:authorize="hasAnyAuthority('D3')">
-										<button type="button" onclick="location.href='/place/create'"
-										class="btn waves-effect waves-light btn-primary m-1" style="width:80px; height:50px;" >등록</button>
+										<button type="button" onclick="location.href='/places/create'"
+										class="btn waves-effect waves-light btn-info m-1">등록</button>
 									</div>
 								</div>
 							<div class="table-responsive mt-2">
@@ -248,7 +248,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 				let placeNo = $(this).closest('tr').find('td:nth-child(1)').text();
 				
 				if(placeNo){
-					window.location.href = '/place/' + placeNo;
+					window.location.href = '/places/' + placeNo;
 				}
 			});
 		</script>

@@ -160,7 +160,7 @@
 		                        <div class="row mb-2">
 	                            </div>
 		                        	<div class="col-12 d-flex justify-content-end">
-			                            <button type="button" class="btn waves-effect waves-light btn-primary m-1" th:onclick="|location.href='@{/approve/create}'|">작성</button>
+			                            <button type="button" class="btn waves-effect waves-light btn-primary m-1" th:onclick="|location.href='@{/approves/create}'|">작성</button>
 		                        	</div>
                                 <div class="table-responsive">
                                     <table id="approve_config" class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
@@ -184,7 +184,7 @@
                                         <th:block th:if="${!#lists.isEmpty(resultList)}">
                                         	<tr th:each="approve, approveStat : ${resultList}">
                                         		<td>
-                                        		 <a th:href="@{approve/{no}(no=${approve.appro_no})}" th:text="${approve.appro_title}" style="color: black;"></a>
+                                        		 <a th:href="@{approves/{no}(no=${approve.appro_no})}" th:text="${approve.appro_title}" style="color: black;"></a>
 
                                         		</td>
                                         		<td th:text="${#temporals.format(approve.appro_time, 'yyyy.MM.dd HH:mm:ss')}"></td>

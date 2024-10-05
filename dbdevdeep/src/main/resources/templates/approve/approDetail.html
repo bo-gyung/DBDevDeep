@@ -248,7 +248,7 @@
 										    <button type="button" class="btn waves-effect waves-light btn-light m-1" 
 										            th:onclick="|approDelete(${aDto.appro_no})|">삭제</button>	
 										    <button type="button" class="btn waves-effect waves-light btn-primary m-1" 
-										            th:onclick="|location.href='/approve/update/' + ${aDto.appro_no}|">수정</button>
+										            th:onclick="|location.href='/approves/update/' + ${aDto.appro_no}|">수정</button>
 											</div>
 										</div>
                                     </div>
@@ -326,7 +326,7 @@
                         confirmButtonColor: '#0031AE',  
                         confirmButtonText: '확인'
                     }).then(() => {
-                        location.href = "/approve"; 
+                        location.href = "/approves"; 
                     });
                 } else {
                     Swal.fire({

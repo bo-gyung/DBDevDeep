@@ -34,7 +34,7 @@ public class ItemViewController {
 	}
 	
 	//수정하기
-	@GetMapping("/item/update/{item_no}")
+	@GetMapping("/items/update/{item_no}")
 	public String updateItem(Model model, @PathVariable("item_no") Long item_no) {
 		
 		// 1. 로그인한 사람 정보
@@ -53,7 +53,7 @@ public class ItemViewController {
 	}
 	
 	// 상세 조회
-	@GetMapping("/item/{item_no}")
+	@GetMapping("/items/{item_no}")
 	public String detailItem(Model model, @PathVariable("item_no") Long item_no) {
 		
 		// 1. 로그인한 사람 정보
@@ -79,7 +79,7 @@ public class ItemViewController {
 	
 	
 	// 등록
-	@GetMapping("/item/create")
+	@GetMapping("/items/create")
 	public String createItem(Model model) {
 	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 	    User user = (User) authentication.getPrincipal();
@@ -96,7 +96,7 @@ public class ItemViewController {
 	}
 	
 	// 장소별 항목 조회
-		@GetMapping("/item/place")
+		@GetMapping("/items/place")
 		public String selectItemsByPlace(@RequestParam("placeNo") Long placeNo, Model model) {
 			model.addAttribute("itemList", itemService.selectItemsByPlace(placeNo));
 			return "place/item_list";
@@ -104,7 +104,7 @@ public class ItemViewController {
 	
 	
 	// 목록조회
-	@GetMapping("/item")
+	@GetMapping("/items")
 	public String selectItemList(Model model,ItemDto itemDto) {
 		List<ItemDto> resultList = itemService.selectItemList(itemDto);
 		model.addAttribute("resultList",resultList);

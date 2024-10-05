@@ -42,7 +42,7 @@
         }
 
         .tab-menu button {
-            background-color: lightgray;
+            background-color: #1555d5; /* 하늘색으로 변경 */
             border: none;
 			padding: 5px 20px;
             cursor: pointer;
@@ -51,11 +51,11 @@
         }
 
         .tab-menu button:hover {
-            background-color: darkgray;
+            background-color: #195de5; /* 더 밝은 하늘색 */
         }
 
         .tab-menu button.active {
-            background-color: black;
+            background-color: #abc4f6; /* 좀 더 짙은 하늘색 */
             color: white;
         }
 
@@ -139,6 +139,10 @@
 		table.dataTable thead .sorting_desc:after {
 		  content: "\25BC"; /* 아래쪽 삼각형 화살표 */
 		}
+		
+		.custom-pointer {
+			cursor: pointer;
+		}
     </style>
 	<body>
 		<body>
@@ -164,10 +168,10 @@
 		                        
 		                        <!-- 과목별 등록 리스트 -->	
                                	<div id="subject-content" class="tab-content active">
-							        <h2>2024 학년도 5학년 4반 2학기 교육 과정</h2>
 							        <table id="subject_list" class="table table-hover table-bordered no-wrap" style="width:100%">
                                         <thead>
                                             <tr>
+                                            	<th scope="col" style="display:none;">subjectNo</th>
 												<th scope="col">학년도</th>
 												<th scope="col">학기</th>
 												<th scope="col">학년</th>
@@ -183,7 +187,7 @@
 												</tr>
 											</th:block>
 											<th:block th:if="${!#lists.isEmpty(subjectList)}">
-											    <tr th:each="subject, subjectStat : ${subjectList}">
+											    <tr th:each="subject, subjectStat : ${subjectList}" class="custom-pointer">
 											        <td style="display:none;" th:text="${subject.subject_no}"></td>
 													<td th:text="${subject.teacher_history.getTYear}"></td>
 											        <td th:text="${subject.subject_semester}"></td>
@@ -200,10 +204,10 @@
 							    
 							    <!-- 개인별 등록 리스트 -->
 							    <div id="individual-content" class="tab-content">
-							        <h2>5학년 4반 성적 관리</h2>
 							        <table id="student_list" class="table table-hover table-bordered no-wrap" style="width:100%">
                                         <thead>
                                             <tr>
+                                            	<th scope="col" style="display:none;">studentNo</th>
 												<th scope="col">학년</th>
 												<th scope="col">반</th>
 												<th scope="col">번호</th>
@@ -248,19 +252,26 @@
                 <!-- ============================================================== -->
             </div>
         </div>
-		<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
-		<script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
-		<script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
-		<script src="/dist/js/app-style-switcher.js"></script>
-		<script src="/dist/js/feather.min.js"></script>
-		<script
-			src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
-		<script src="/assets/extra-libs/sparkline/sparkline.js"></script>
-		<script src="/dist/js/sidebarmenu.js"></script>
-		<script src="/dist/js/custom.min.js"></script>
-		<script
-			src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
-		<script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
+	    <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
+	    <!-- Bootstrap tether Core JavaScript -->
+	    <script src="/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+	    <script src="/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+	    <!-- apps -->
+	    <!-- apps -->
+	    <script src="/dist/js/app-style-switcher.js"></script>
+	    <script src="/dist/js/feather.min.js"></script>
+	    <!-- slimscrollbar scrollbar JavaScript -->
+	    <script src="/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+	    <script src="/assets/extra-libs/sparkline/sparkline.js"></script>
+	    <!--Wave Effects -->
+	    <!-- themejs -->
+	    <!--Menu sidebar -->
+	    <script src="/dist/js/sidebarmenu.js"></script>
+	    <!--Custom JavaScript -->
+	    <script src="/dist/js/custom.min.js"></script>
+	    <!--This page plugins -->
+	    <script src="/assets/extra-libs/datatables.net/js/jquery.dataTables.min.js"></script>
+	    <script src="/dist/js/pages/datatable/datatable-basic.init.js"></script>
 		<script>
 	        // 각 버튼과 콘텐츠 요소를 선택
 	        const subjectTab = document.getElementById('subject-tab');

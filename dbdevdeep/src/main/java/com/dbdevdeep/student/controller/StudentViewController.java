@@ -38,6 +38,7 @@ public class StudentViewController {
 		this.teacherHistoryService = teacherHistoryService;
 	}
 	
+	// 홈페이지
 	@GetMapping("/student")
 	public String studentMainPage(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,7 +64,6 @@ public class StudentViewController {
 	            timeTableMap.put(key, t.getSubject_no().toString());
 	        }
 	    }
-	    
 	    
 	    model.addAttribute("mystudentList",mystudentList);
 	    model.addAttribute("empname",empName);
@@ -98,7 +98,7 @@ public class StudentViewController {
 		}
 	
 	// 학생 정보 상세 페이지로 이동
-	@GetMapping("/student/{student_no}")
+	@GetMapping("/student/list/{student_no}")
 	public String selectStudentOne(Model model,
 			@PathVariable("student_no") Long student_no) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
@@ -111,7 +111,7 @@ public class StudentViewController {
 	}
 	
 	// 학생 정보 상세 페이지로 이동
-	@GetMapping("/employee/student/{student_no}")
+	@GetMapping("/employee/student/list/{student_no}")
 	public String selectStudentOneEmp(Model model,
 			@PathVariable("student_no") Long student_no) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
@@ -124,7 +124,7 @@ public class StudentViewController {
 	}
 	
 	// 학생 정보 수정 페이지로 이동
-	@GetMapping("/student/update/{student_no}")
+	@GetMapping("/student/list/update/{student_no}")
 	public String updateStudentInfo(@PathVariable("student_no") Long student_no,Model model) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
 		model.addAttribute("dto",dto);
@@ -132,7 +132,7 @@ public class StudentViewController {
 	}
 	
 	// 학생 정보 수정 페이지로 이동
-	@GetMapping("/employee/student/update/{student_no}")
+	@GetMapping("/employee/student/list/update/{student_no}")
 	public String updateStudentInfoEmp(@PathVariable("student_no") Long student_no,Model model) {
 		StudentDto dto = studentService.selectStudentOne(student_no);
 		model.addAttribute("dto",dto);
@@ -160,7 +160,7 @@ public class StudentViewController {
 	}
 	
 	// 학년 이력 정보 수정 페이지로 이동(반배정)(교직원)
-		@GetMapping("/employee/student/class/{student_no}")
+		@GetMapping("/employee/student/list/class/{student_no}")
 		public String classAssignEmp(@PathVariable("student_no") Long student_no, Model model) {
 		    List<TeacherHistoryDto> resultList = teacherHistoryService.selectClassList();
 		    StudentDto sdto = studentService.selectStudentOne(student_no);
@@ -191,7 +191,7 @@ public class StudentViewController {
 	}
 	
 	// 학부모 정보 등록 페이지(교직원)
-		@GetMapping("/employee/student/parent/{student_no}")
+		@GetMapping("/employee/student/list/parent/{student_no}")
 		public String parentInfoEmp(@PathVariable("student_no") Long student_no, Model model) {
 			List<ParentDto> resultList = studentService.selectStudentParentList(student_no);
 			StudentDto sdto = studentService.selectStudentOne(student_no);
@@ -231,7 +231,9 @@ public class StudentViewController {
 	// 성적 등록 페이지로 이동
 		@GetMapping("/student/score")
 		public String listScorePage(Model model, SubjectDto sdto, StudentClassDto cdto) {
-			List<StudentClassDto> resultList = studentService.selectStudentList(cdto);
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			String empId = authentication.getName(); // 현재 로그인된 사용자의 emp_id 가져오기
+			List<StudentClassDto> resultList = studentService.findMyStudentList(empId);
 			List<SubjectDto> subjectList = studentService.mySubjectList();
 			model.addAttribute("subjectList",subjectList);
 			model.addAttribute("resultList",resultList);
@@ -309,7 +311,7 @@ public class StudentViewController {
 		        // 계산된 총점을 문자열로 변환하여 Map에 저장
 		        totalScoreMap.put(subject.getSubject_no(), String.format("%.2f", totalScore));
 		    }
-
+		    model.addAttribute("studentDto",studentDto);
 			model.addAttribute("scoreList",scoreMap);
 			model.addAttribute("subjectList",subjectList);
 			model.addAttribute("resultList",studentDto);

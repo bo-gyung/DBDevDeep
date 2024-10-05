@@ -149,35 +149,36 @@ public class PlaceService {
 	
 	
 	
-	//  게시글 상세조회
+	// 게시글 상세조회
 	public PlaceDto selectPlaceOne(Long place_no) {
-		
-		Place p = placeRepository.findByplaceNo(place_no);
-		
-		if(p == null) {
-			throw new EntityNotFoundException("Place not found for place_no: " + place_no);
-		}
-		
-		
-		DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-		
-		PlaceDto dto = PlaceDto.builder()
-				.place_name(p.getPlaceName())
-				.place_no(p.getPlaceNo())
-				.place_status(p.getPlaceStatus())
-				.place_start_time(p.getPlaceStarttime())
-				.place_end_time(p.getPlaceEndtime())
-				.unuseable_reason(p.getUnuseableReason())
-				   // 날짜 포맷 적용: null이 아닌 경우에만 포맷을 적용 ==> yyyy-MM-dd , yyyy.MM.dd
-				.unuseable_start_date(p.getUnuseableStartDate())
-                .unuseable_end_date(p.getUnuseableEndDate())
-				.ori_pic_name(p.getOriPicName() != null ? p.getOriPicName() : "Default oriPicname")
-                .new_pic_name(p.getNewPicName() != null ? p.getNewPicName() : "Default newPicname")			
-				.place_content(p.getPlaceContent())
-				.place_location(p.getPlaceLocation())
-				.build();
-		
-		return dto;
+
+	    Place p = placeRepository.findByplaceNo(place_no);
+
+	    if (p == null) {
+	        throw new EntityNotFoundException("Place not found for place_no: " + place_no);
+	    }
+
+	    DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+
+	    PlaceDto dto = PlaceDto.builder()
+	            .place_name(p.getPlaceName())
+	            .place_no(p.getPlaceNo())
+	            .place_status(p.getPlaceStatus())
+	            .place_start_time(p.getPlaceStarttime())
+	            .place_end_time(p.getPlaceEndtime())
+	            .unuseable_reason(p.getUnuseableReason())
+	            // 날짜 포맷 적용: null이 아닌 경우에만 포맷을 적용
+	            .unuseable_start_date(p.getUnuseableStartDate() != null && !p.getUnuseableStartDate().trim().isEmpty() ? 
+	                                  LocalDate.parse(p.getUnuseableStartDate()).format(outputFormatter) : null)
+	            .unuseable_end_date(p.getUnuseableEndDate() != null && !p.getUnuseableEndDate().trim().isEmpty() ? 
+	                                LocalDate.parse(p.getUnuseableEndDate()).format(outputFormatter) : null)
+	            .ori_pic_name(p.getOriPicName() != null ? p.getOriPicName() : "Default oriPicname")
+	            .new_pic_name(p.getNewPicName() != null ? p.getNewPicName() : "Default newPicname")
+	            .place_content(p.getPlaceContent())
+	            .place_location(p.getPlaceLocation())
+	            .build();
+
+	    return dto;
 	}
 	
 	

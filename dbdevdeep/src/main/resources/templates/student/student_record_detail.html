@@ -9,6 +9,11 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 	white-space: nowrap;
 	justify-content: center;
 }
+
+table {
+	font-size: 12px;
+}
+
 </style>
 
 <div class="page-wrapper">
@@ -26,43 +31,64 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		<div class="row">
 			<div class="col-12">
 				<div class="card">
-					<div class="card-body">
-						<h3 class="card-title">학생 상세 정보</h3>
+					<div class="card-body" style="padding: 50px 80px;">
+						<div class="row" style="margin-left:0px !important; margin-right:0px !important;">
+							<div class="col d-flex justify-content-start align-items-center" style="padding-left:0px; max-width:260px;">
+		                        <div style="font-size:30px;">생활기록부</div>
+		                        <br>
+		                    </div>
+		                    <div class="col d-flex justify-content-end align-items-center">
+								<button id="download_pdf" class="btn btn-info">PDF로 받기</button>
+							</div>	
+						</div>
+						<br>
 						<div class="student-info">
 							<div class="student-details">
+							<input type="hidden" id="student_no" name="student_no" th:value="${dto.student_no}" />
 								<div class="row">
-									<th:block th:if="${dto.student_new_pic != null}">
-										<img th:src="@{'/UploadImg/student/' + ${dto.student_new_pic}}" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1;">
-									</th:block>
-									<input type="hidden" id="student_no" name="student_no" th:value="${dto.student_no}" />
+									<div class="col-1"></div>
+									<div class="col-2 justify-content-center align-items-center">
+									    <th:block th:if="${dto.student_new_pic != null}">
+									        <img th:src="@{'/UploadImg/student/' + ${dto.student_new_pic}}" width="150px" style="border-radius: 50%; object-fit: cover; aspect-ratio: 1 / 1; margin-top: 30px;">
+									    </th:block>
+									</div>
+									<div class="col-1"></div>
+									<div class="col-8 justify-content-end align-items-center">
+										<table class="table table-bordered no-wrap">
+											<colgroup>
+												<col style="width: 20%">
+												<col style="width: 80%">
+											</colgroup>
+											<tr>
+												<th>이름</th>
+												<td th:text="${dto.student_name}"></td>
+											</tr>
+											<tr>
+												<th>생년월일</th>
+												<td th:text="${dto.student_birth}"></td>
+											</tr>
+											<tr>
+												<th>주소</th>
+												<td th:text="${dto.student_addr}+${dto.student_detail_addr}+'('+${dto.student_post_code}+')'"></td>
+											</tr>
+											<tr>
+												<th>전화번호</th>
+												<td th:text="${dto.student_phone}"></td>
+											</tr>
+										</table>				    
+									</div>
 								</div>
-								<table class="table table-bordered no-wrap">
-									<colgroup>
-										<col style="width: 20%">
-										<col style="width: 80%">
-									</colgroup>
-									<tr>
-										<th>이름</th>
-										<td th:text="${dto.student_name}"></td>
-									</tr>
-									<tr>
-										<th>생년월일</th>
-										<td th:text="${dto.student_birth}"></td>
-									</tr>
-									<tr>
-										<th>주소</th>
-										<td th:text="${dto.student_addr} + ' ' + ${dto.student_detail_addr} + ' (' + ${dto.student_post_code} + ')'"></td>
-									</tr>
-									<tr>
-										<th>전화번호</th>
-										<td th:text="${dto.student_phone}"></td>
-									</tr>
-								</table>
 								
 								<div class="academic-info">
-									<h3>학년 이력 조회</h3>
-									<a th:href="@{/student/class/{std_no}(std_no=${dto.student_no})}">학년 이력 수정</a><br>
-									<table class="table table-bordered no-wrap">
+									<div class="row">
+										<div class="col-md-10">
+											<h3>학년 이력 조회</h3>
+										</div>
+										<div class="col-md-2">
+											<a th:href="@{/student/class/{std_no}(std_no=${dto.student_no})}" >학년 이력 수정</a><br> 
+										</div>	
+									</div>
+									<table class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
 										<colgroup>
 											<col style="width: 20%">
 											<col style="width: 20%">
@@ -99,9 +125,15 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								</div>
 
 								<div class="academic-info">
-									<h3>가족사항</h3>
-									<a th:href="@{/student/parent/{std_no}(std_no=${dto.student_no})}">학부모 정보 수정</a>
-									<table class="table table-bordered no-wrap">
+								<div class="row">
+									<div class="col-md-10">
+										<h3>가족사항</h3>
+									</div>
+									<div class="col-md-2">
+										<a th:href="@{/student/parent/{std_no}(std_no=${dto.student_no})}">가족사항 수정</a>
+									</div>
+								</div>
+									<table class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
 										<colgroup>
 											<col style="width: 10%">
 											<col style="width: 15%">
@@ -137,7 +169,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								<div th:each="subject : ${subjectList}">
 									<br>
 									<h3 th:text="${subject.subject_name}"></h3>
-									<table class="table table-bordered no-wrap">
+									<table class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center; table-layout: fixed; overflow-x: auto;">
 										<thead>
 											<tr>
 												<th rowspan="2">과목</th>
@@ -146,7 +178,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											</tr>
 											<tr>
 												<th:block th:each="curri : ${curriList}" th:if="${curri.subject.subjectNo == subject.subject_no}">
-													<th>반영비율(%)</th>
+													<th style="padding: 16px 0px;">반영비율(%)</th>
 													<th>과목만점</th>
 													<th>점수</th>
 												</th:block>
@@ -167,12 +199,21 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									</table>
 								</div>
 							</div>
-							<a th:href="@{/student/list}">목록으로</a><br>
-							<a th:href="@{/student/update/{student_no}(student_no=${dto.student_no})}">수정</a><br>
-							<a th:onclick="studentDelete([[${dto.student_no}]])">삭제</a>
-							<button id="download_pdf">PDF 다운</button>
+							<div class="row">
+								<div class="col d-flex justify-content-start">
+								<button type="button" class="btn btn-outline-secondary m-1" 
+			                            onclick="location.href='/student/record'">목록</button>
+								</div>
+								<div class="col d-flex justify-content-end align-items-center">
+									<a th:onclick="studentDelete([[${dto.student_no}]])" class="btn waves-effect waves-light btn-light m-1">삭제</a>
+									<a th:href="@{/student/list/update/{student_no}(student_no=${dto.student_no})}" class="btn waves-effect waves-light btn-primary m-1">수정</a><br>
+								</div>
+							</div>
+							
 						</div>
 					</div>
+				</div>
+				</div>
 				</div>
 			</div>
 		</div>
