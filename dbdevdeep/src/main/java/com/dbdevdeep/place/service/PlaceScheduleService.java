@@ -48,7 +48,7 @@ public class PlaceScheduleService {
 	}
 	
 	
-	// 일정현황리스트
+	
 	// 일정현황리스트
 	public List<PlaceItemScheduleVo> scheduleList() {
 	    List<PlaceItemScheduleVo> totalSchedule = placeScheduleVoMapper.getTotalScheduleList();

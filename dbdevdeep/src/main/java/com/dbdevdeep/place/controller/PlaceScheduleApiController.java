@@ -66,7 +66,7 @@ public class PlaceScheduleApiController {
 		            resultMap.put("res_code", "200");
 		            resultMap.put("res_msg", "일정이 성공적으로 등록되었습니다.");
 		        } else {
-		            resultMap.put("res_msg", "일정이 겹쳐서 등록할 수 없습니다."); // 일정이 겹칠 때의 메시지
+		            resultMap.put("res_msg", "이미 존재하는 일정입니다."); // 일정이 겹칠 때의 메시지
 		        }
 		    } catch (Exception e) {
 		        e.printStackTrace();
