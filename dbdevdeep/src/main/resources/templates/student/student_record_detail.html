@@ -204,8 +204,7 @@ table {
 								<button type="button" class="btn btn-outline-secondary m-1" 
 			                            onclick="location.href='/student/record'">목록</button>
 								</div>
-								<div class="col d-flex justify-content-end align-items-center">
-									<a th:onclick="studentDelete([[${dto.student_no}]])" class="btn waves-effect waves-light btn-light m-1">삭제</a>
+								<div class="col d-flex justify-content-end align-items-center">	
 									<a th:href="@{/student/list/update/{student_no}(student_no=${dto.student_no})}" class="btn waves-effect waves-light btn-primary m-1">수정</a><br>
 								</div>
 							</div>
