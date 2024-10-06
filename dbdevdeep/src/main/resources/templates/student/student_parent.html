@@ -185,7 +185,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			                            </div>
 		                            </div>
 		                            <div class="modal-footer">
-		                                <a th:href="@{/student/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
+		                                <a th:href="@{/student/list/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
 		                                <button type="button" class="btn waves-effect waves-light btn-primary m-1" id="updateStudentBtn">수정</button>
 		                            </div>
 		                        </form>
@@ -231,7 +231,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 									</div>
 								</div>
 									<div class="modal-footer">
-										<a th:href="@{/student/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
+										<a th:href="@{/student/list/parent/{student_no}(student_no=${sdto.student_no})}" class="btn waves-effect waves-light btn-light">취소</a>
 										<input type="submit" class="btn waves-effect waves-light btn-primary m-1" value="등록"><br> 
 									</div>
 								</form>
@@ -323,7 +323,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 			                        confirmButton: 'swal-custom-button'
 			                    }
 							}).then((result)=>{
-								location.href = "/student/parent/" + studentNo;
+								location.href = "/student/list/parent/" + studentNo;
 							});
 						}else{
 							Swal.fire({
@@ -432,7 +432,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 		                        confirmButton: 'swal-custom-button'
 		                    }
 		                }).then((result) => {
-		                    location.href = `/student/parent/${studentNo}`; // 성공 시 상세 페이지로 이동
+		                    location.href = `/student/list/parent/${studentNo}`; // 성공 시 상세 페이지로 이동
 		                });
 		            } else {
 		                Swal.fire({

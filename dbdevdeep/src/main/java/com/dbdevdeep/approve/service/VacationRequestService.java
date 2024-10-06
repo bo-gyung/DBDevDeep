@@ -478,7 +478,7 @@ public class VacationRequestService {
 				Reference reference = refDto.toEntity(approve, refEmployee);
 				Reference r = referenceRepository.save(reference);
 
-				// 참조자 알람 구현 필요
+				// 참조자 알림 구현 필요
 			}
 
 			// 5. appro_file 테이블에 저장

@@ -26,7 +26,7 @@ public class AlertViewController {
 	public Map<String, Object> showAlert() {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		resultMap.put("res_code", "404");
-		resultMap.put("res_msg", "알람정보를 가져오던 중 오류가 발생하였습니다.");
+		resultMap.put("res_msg", "알림정보를 가져오던 중 오류가 발생하였습니다.");
 		
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String emp_id = authentication.getName();

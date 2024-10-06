@@ -80,7 +80,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 											</div>
 											
 											
-												<table class="table table-hover table-bordered no-wrap" style="width:100%; text-align: center;">
+												<table class="table table-bordered no-wrap" style="width:100%; text-align: center;">
 													<thead>
 														<tr>
 															<th style="width: 18%">학년</th>
@@ -326,7 +326,7 @@ div.dataTables_wrapper div.dataTables_paginate ul.pagination {
 								text : data.res_msg ,
 								confirmButtonText:"닫기"
 							}).then((result)=>{
-								location.href=`/student/class/${studentNo}`;
+								location.href=`/student/list/class/${studentNo}`;
 							});
 						} else{
 							Swal.fire({

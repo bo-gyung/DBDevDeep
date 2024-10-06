@@ -516,6 +516,7 @@ public class EmployeeApiController {
 		return resultMap;
 	}
 	
+	// 직원 정보 엑셀로 추출
 	@ResponseBody
 	@GetMapping("/employee/excel/{ids}")
 	public void employeeExcel(@PathVariable(name="ids") String ids, HttpServletResponse response) {
