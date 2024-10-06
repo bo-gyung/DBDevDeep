@@ -260,13 +260,12 @@ $(document).ready(function() {
                 text: '선택된 파일이 복사됩니다.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#5f76e8',
-                cancelButtonColor: '#e8eaec',
-                confirmButtonText: '복사',
-                cancelButtonText: '취소',
-                customClass: {
-                    cancelButton: 'custom-cancel-button'
-                }
+				showCancelButton: true,
+				confirmButtonText: '확인',
+				cancelButtonText: '취소',
+				customClass: {
+				    confirmButton: 'swal-custom-button'
+				}
 	        }).then((result) => {
 	            if (result.isConfirmed) {
 	                fetch('/file/copy', {
@@ -284,7 +283,7 @@ $(document).ready(function() {
 	                .then(response => response.json())
 	                .then(data => {
 	                    if (data.file_res_code === '200' || data.folder_res_code === '200') {
-	                        showAlert('success', '성공', '선택한 폴더나 파일이 성공적으로 이동되었습니다.', () => location.reload());
+	                        showAlert('success', '성공', '선택한 폴더나 파일이 성공적으로 복사되었습니다.', () => location.reload());
 	                    } else {
 	                        showAlert('error', '실패', '복사 중 오류가 발생했습니다.');
 	                    }
@@ -680,3 +679,5 @@ $(document).ready(function() {
 	}
 
 });
+
+
