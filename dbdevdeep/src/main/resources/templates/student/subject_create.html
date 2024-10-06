@@ -283,16 +283,25 @@
 	        // 수업 시간 데이터 가져오기
 	        const timeTable = [];
 	        document.querySelectorAll('.class-time-row').forEach((row, index) => {
-	            const day = row.querySelector(`select[name="timeTable[${index}].day"]`).value;
-	            const period = row.querySelector(`select[name="timeTable[${index}].period"]`).value;
-	            
-	            if ((day && !period) || (!day && period)) {
-	                vali_text += "요일과 교시는 모두 입력해야 합니다.";
+	        	const dayElement = row.querySelector(`select[name="timeTable[${index}].day"]`);
+	            const periodElement = row.querySelector(`select[name="timeTable[${index}].period"]`);
+
+	            if (dayElement && periodElement) {
+	                const day = dayElement.value;
+	                const period = periodElement.value;
+	               
+	                
+	                if ((day && !period) || (!day && period)) {
+	                    vali_text += "요일과 교시는 모두 입력해야 합니다.\n";
+	                    vali_check = false;
+	                }
+
+	                if (day && period) {
+	                    timeTable.push({ day, period });
+	                }
+	            } else {
+	                console.error("해당 row에서 day 또는 period 요소를 찾을 수 없습니다.");
 	                vali_check = false;
-	            }
-	            
-	            if (day && period) {
-	                timeTable.push({ day, period });
 	            }
 	        });
 	        
@@ -319,7 +328,6 @@
 	        });
 	        
 	        
-        
 	        // JSON 형식으로 데이터 구성
 	        const requestData = {
 	            sdto: {
