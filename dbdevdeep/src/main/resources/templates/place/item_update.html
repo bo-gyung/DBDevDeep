@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
 
+<head>
+    <link href="/dist/css/style.min.css" rel="stylesheet">
   <!-- 부트스트랩 CSS 추가 -->
   
   <style>
@@ -89,7 +90,8 @@ input, select, textarea {
 }
  
   </style>
-  
+  </head>
+  <th:block layout:fragment="content">
   <body>
 
 <!-- 수정폼 -->
@@ -108,7 +110,7 @@ input, select, textarea {
                 	<div class="col-sm-12">
                         <div class="card">
                             <div class="card-body" style="padding: 50px 80px;">
-                                <h3 class="card-title">기자재 수정</h3>
+                                <div style="font-size:30px; color:black">기자재 수정</div>
                                 <hr>
 					        <form id="item_updateForm"  th:action="@{/item/update/{item_no}(item_no=${dto.item_no})}" method="post" enctype="multipart/form-data">
 					         <!-- CSRF 토큰 추가 -->
@@ -170,15 +172,11 @@ input, select, textarea {
                             <!-- 사용 가능 여부 -->
                             <div class="row mb-3">
                                 <label for="item_status" class="col-sm-2 col-form-label">사용 가능 여부</label>
-                                <div class="col-sm-10">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="usable" name="item_status" value="Y" th:checked="${dto.item_status == 'Y'}" onchange="toggleUnusableFields()">
-                                        <label class="form-check-label" for="usable">사용 가능</label>
-                                    </div>
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="radio" id="unusable" name="item_status" value="N" th:checked="${dto.item_status == 'N'}" onchange="toggleUnusableFields()">
-                                        <label class="form-check-label" for="unusable">사용 불가능</label>
-                                    </div>
+                                <div class="col-sm-10 align-items-center d-flex" style="padding:5px 15px;">
+                                        <input type="radio" id="usable" name="item_status" value="Y" th:checked="${dto.item_status == 'Y'}" style="max-width:20px; margin-bottom:0 !important;" onchange="toggleUnusableFields()">
+                                        <label for="usable" style="margin-bottom:0 !important; margin-left: 5px;">사용 가능</label>
+                                        <input type="radio" id="unusable" name="item_status" value="N" th:checked="${dto.item_status == 'N'}" style="max-width:20px; margin-left:93px; margin-bottom:0 !important;" onchange="toggleUnusableFields()">
+                                        <label for="unusable" style="margin-bottom:0 !important; margin-left: 5px;">사용 불가능</label>
                                 </div>
                             </div>
 
@@ -228,10 +226,10 @@ input, select, textarea {
 							    <!-- 버튼들을 감싸는 Flex 컨테이너 -->
 							    <div class="col-sm-6 d-flex justify-content-center">
 							        <!-- 취소 버튼 -->
-							        <button type="button" class="btn btn-light mx-2" onclick="location.href='/items'">취소</button>
+							        <button type="button" class="btn btn-light m-1" onclick="location.href='/items'">취소</button>
 							        
 							        <!-- 수정 버튼 -->
-							        <button type="submit" class="btn btn-info mx-2">수정</button>
+							        <button type="submit" class="btn btn-info m-1">수정</button>
 							    </div>
 							</div>
         
@@ -379,35 +377,9 @@ form.addEventListener('submit', (e) => {
 });
 </script>
 
-
-				<!-- ============================================================== -->
-				<!-- End PAge Content -->
-				<!-- ============================================================== -->
-				<!-- ============================================================== -->
-				<!-- Right sidebar -->
-				<!-- ============================================================== -->
-				<!-- .right-sidebar -->
-				<!-- ============================================================== -->
-				<!-- End Right sidebar -->
-				<!-- ============================================================== -->
 			</div>
-			<!-- ============================================================== -->
-			<!-- End Container fluid  -->
-			<!-- ============================================================== -->
-			<!-- ============================================================== -->
-			<!-- footer -->
-			<!-- ============================================================== -->
-			<footer class="footer text-center text-muted">
-				All Rights Reserved by Adminmart. Designed and Developed by <a
-					href="https://wrappixel.com">WrapPixel</a>.
-			</footer>
-			<!-- ============================================================== -->
-			<!-- End footer -->
-			<!-- ============================================================== -->
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 		</div>
-		<!-- ============================================================== -->
-		<!-- End Page wrapper  -->
-		<!-- ============================================================== -->
 
 
 <!-- 부트스트랩 JS 및 의존성 추가 -->

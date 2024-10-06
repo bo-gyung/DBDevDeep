@@ -1,20 +1,14 @@
 <!DOCTYPE html>
-<<<<<<< HEAD
+
 <html xmlns:th="http://www.thymeleaf.org" 
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" 
      layout:decorate="~{include/student_layout}">
-=======
-<html xmlns:th="http://www.thymeleaf.org"
-	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	layout:decorate="~{include/student_layout}">
 <head>
     <!-- This page plugin CSS -->
     <link href="/assets/extra-libs/datatables.net-bs4/css/dataTables.bootstrap4.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="/dist/css/style.min.css" rel="stylesheet">
-</head>
->>>>>>> branch 'develop' of https://github.com/bo-gyung/DBDevDeep.git
-<th:block layout:fragment="content">
+
 <style>
 	.form-control{
 		margin-left:0px !important;
@@ -154,7 +148,8 @@
 	
 	
 </style>
-
+</head>
+<th:block layout:fragment="content">
 
 <body>
 		<!-- ============================================================== -->
@@ -222,8 +217,7 @@
                     </div>
                 </div>
             </div>
-	    	<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed and Developed by DBDevDeep.
-	        </footer>
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
         </div>
     <script src="/assets/libs/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap tether Core JavaScript -->

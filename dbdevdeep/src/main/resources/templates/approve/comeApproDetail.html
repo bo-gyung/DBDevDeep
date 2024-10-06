@@ -19,8 +19,8 @@
 			<div class="container-fluid">
 				<div class="col-sm-12 col-md-12">
 					<div class="card">
-						<div class="card-body">
-							<h3 class="card-title">결재 상세</h3>
+						<div class="card-body" style="padding: 50px 80px">
+							<div style="font-size: 30px; color:black;">결재 상세</div>
 							<hr>
 							
 							
@@ -297,16 +297,8 @@
 					</div>
 				</div>
 			</div>
-			
+			<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 		</div>
-		
-		<footer class="footer text-center text-muted">
-			All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-		</footer>
-		
-	</div>
-	
-	</div>
 	
 	
 	
@@ -345,8 +337,10 @@
                 icon: 'warning',
                 title: '경고',
                 text: '서명을 선택해주세요.',
-                confirmButtonColor: '#0031AE',
-                confirmButtonText: '확인'
+                confirmButtonText: '확인',
+                customClass: {
+                    confirmButton: 'swal-custom-button'
+                }
             });
             return;
         }

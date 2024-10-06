@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{include/place_layout}">
-<th:block layout:fragment="content">
-
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
     <style>
     
     	input[type="text"] {
@@ -77,7 +77,8 @@
 		}
 
     </style>
-
+</head>
+<th:block layout:fragment="content">
 <body>
 
 <!-- 장소 상세조회 -->
@@ -94,7 +95,7 @@
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-body" style="padding: 50px 80px;">
-                            <h3 class="card-title">장소 상세조회</h3>
+                            <div style="font-size:30px; color:black;">장소 상세조회</div>
                             <hr>
                             <input type="hidden" id="csrf_token" th:value="${_csrf.token}">
                             <form id="placeDetailForm" method="post" action="#">
@@ -137,17 +138,13 @@
 
                                 <div class="row mb-3">
                                     <label class="col-sm-2 col-form-label">사용 가능 여부</label>
-                                    <div class="col-sm-10">
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="place_status" id="usable"
-                                                   value="Y" th:checked="${dto.place_status == 'Y'}" disabled>
-                                            <label class="form-check-label" for="usable">사용 가능</label>
-                                        </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="place_status" id="unusable"
-                                                   value="N" th:checked="${dto.place_status == 'N'}" disabled>
-                                            <label class="form-check-label" for="unusable">사용 불가</label>
-                                        </div>
+                                    <div class="col-sm-10 align-items-center d-flex" style="padding:5px 15px;">
+                                            <input type="radio" name="place_status" id="usable"
+                                                   value="Y" th:checked="${dto.place_status == 'Y'}" disabled style="max-width:20px; margin-bottom:0 !important;">
+                                            <label for="usable" style="margin-bottom:0 !important; margin-left: 5px;">사용 가능</label>
+                                            <input type="radio" name="place_status" id="unusable"
+                                                   value="N" th:checked="${dto.place_status == 'N'}" disabled style="max-width:20px; margin-left:93px; margin-bottom:0 !important;">
+                                            <label for="unusable" style="margin-bottom:0 !important; margin-left: 5px;">사용 불가</label>
                                     </div>
                                 </div>
 
@@ -184,11 +181,11 @@
 
                                 <div class="row mb-3">
                                     <div class="col-sm-6 text-left">
-                                        <button type="button" class="btn btn-outline-secondary" style="padding: 6px 12px;" onclick="location.href='/places'">목록</button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="location.href='/places'">목록</button>
                                     </div>
                                     <div class="col-sm-6 text-right">
                                         <button type="button" class="btn btn-light" onclick="deletePlace()" sec:authorize="hasAnyAuthority('D3')">삭제</button>
-                                        <button type="button" class="btn btn-info" onclick="updatePlace()" sec:authorize="hasAnyAuthority('D3')">수정</button>
+                                        <button type="button" class="btn btn-info m-1" onclick="updatePlace()" sec:authorize="hasAnyAuthority('D3')">수정</button>
                                     </div>
                                 </div>
 
@@ -280,24 +277,10 @@
 				
             </script>
 
-            <!-- ============================================================== -->
-            <!-- End Page Content -->
-            <!-- ============================================================== -->
         </div>
-        <!-- ============================================================== -->
-        <!-- End Container fluid  -->
-        <!-- ============================================================== -->
 
-        <footer class="footer text-center text-muted">
-            All Rights Reserved by Adminmart. Designed and Developed by <a href="https://wrappixel.com">WrapPixel</a>.
-        </footer>
-        <!-- ============================================================== -->
-        <!-- End footer -->
-        <!-- ============================================================== -->
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
     </div>
-    <!-- ============================================================== -->
-    <!-- End Page wrapper  -->
-    <!-- ============================================================== -->
 
     <!-- 부트스트랩 JS 및 의존성 추가 -->
     <!-- ============================================================== -->

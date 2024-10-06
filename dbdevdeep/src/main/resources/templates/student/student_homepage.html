@@ -2,8 +2,26 @@
 <html xmlns:th="http://www.thymeleaf.org"
      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
      layout:decorate="~{include/student_layout}">
-<th:block layout:fragment="content">
+<head>
+	<link href="/dist/css/style.min.css" rel="stylesheet">
+
 <style>
+	.custom-cancel-button{
+		color: black !important;
+	}
+	
+	.swal-custom-button {
+	  background-color: #0031AE !important;
+	  color: white; /* 버튼 텍스트 색상 */
+	  border: none; /* 버튼 테두리 제거 */
+	  padding: 10px 20px; /* 버튼 패딩 */
+	  font-size: 16px; /* 버튼 폰트 크기 */
+	  cursor: pointer; /* 마우스 커서 포인터 */
+	}
+	
+	.swal-custom-button:hover {
+	  background-color: #002685 !important;
+	}
     /* 테이블 스타일 */
     table {
         width: 100%;
@@ -147,6 +165,8 @@
 	
 	
 </style>
+</head>
+<th:block layout:fragment="content">
 <body>
 		<div class="page-wrapper">
 			<div class="page-breadcrumb">
@@ -154,7 +174,7 @@
 				<div class="col-12">
 					<div id="content" class="card">
 					<div class="card-body" style="padding:50px 80px">
-					<h2 th:text="${empname} + ' 선생님, 오늘도 좋은 하루 되세요.'"></h2><br>
+					<div style="font-size:30px; text-align: center;" th:text="${empname} + ' 선생님, 오늘도 좋은 하루 되세요.'"></div><br>
   					<div style="display: flex; justify-content: center; width: 100%;">
 			            <table style="width:60%; justify-content: center;">
 						    <thead>
@@ -265,7 +285,8 @@
 			<div class="container-fluid">
 			</div>
 		</div>
-	</div>
+		</div>
+		<footer class="footer text-center text-muted"> All Rights Reserved by Adminmart. Designed by DBDevDeep and Developed by WrapPixel.</footer>
 	</div>
 	<script src="/assets/libs/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap tether Core JavaScript -->

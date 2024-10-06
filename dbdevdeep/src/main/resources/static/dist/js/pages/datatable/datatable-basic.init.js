@@ -1093,7 +1093,7 @@ $('#class_by_year').on('click', '.class_by_year', function() {
 	location.href = "/grade-class/" + th_no;
 });
 
-// 내 알람 페이지
+// 내 알림 페이지
 $('#my-alert').DataTable({
 	// 화면 크기에 따라 컬럼 width 자동 조절
 	"responsive": true,

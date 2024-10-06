@@ -38,7 +38,7 @@ dependencies {
 	
 	// Apache Poi (Excel)	
 	implementation 'org.apache.poi:poi-ooxml:5.3.0'
-	// MuBatis(마이바티스)
+	// jdbc
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	// Thymeleaf(타임리프)
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
@@ -54,7 +54,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	
-	// mybatis
+	// MuBatis(마이바티스)
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 }
 
