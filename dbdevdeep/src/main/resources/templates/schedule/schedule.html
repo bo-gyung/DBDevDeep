@@ -1804,8 +1804,14 @@ body {
                             }
                         });
                         
-                     	// 캘린더 전체 새로고침 (이벤트를 다시 불러옴)
-                        calendar.refetchEvents();
+                        if (currentCategoryType === 0) {
+                	    	loadCalendarData('/getTotalScheduleData');
+                	    } else if (currentCategoryType === 1) {
+                	    	loadCalendarData('/getPublicScheduleData');
+                	    } else {
+                	    	loadCalendarData('/getPrivateScheduleData');
+                	    }
+                        
                     } else {
                         Swal.fire({
                             icon: 'error',
