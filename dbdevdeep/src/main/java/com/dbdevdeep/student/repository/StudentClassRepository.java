@@ -1,6 +1,7 @@
 package com.dbdevdeep.student.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,12 +13,16 @@ import com.dbdevdeep.student.domain.StudentClass;
 public interface StudentClassRepository extends JpaRepository<StudentClass, Long>{
 	List<StudentClass> findByStudent_StudentNo(Long studentNo);
 	
-	@Query("SELECT sc " +
-		       "FROM StudentClass sc " +
-		       "JOIN sc.teacherHistory th " +
-		       "WHERE sc.student.studentNo = :studentNo " +
-		       "ORDER BY th.tYear DESC")
-		StudentClass findTopByStudentNoOrderByTYearDesc(@Param("studentNo") Long studentNo);
+	@Query(value = "SELECT ch.*, th.t_year as t_year_alias FROM class_history ch " +
+            "JOIN teacher_history th ON ch.teacher_no = th.teacher_no " +
+            "WHERE ch.student_no = :studentNo " +
+            "ORDER BY th.t_year DESC " +
+            "LIMIT 1", nativeQuery = true)
+StudentClass findTopByStudentNoOrderByTYearDesc(@Param("studentNo") Long studentNo);
+
+
+
+
 
 	
 	@Query("SELECT s, sc FROM Student s " +
