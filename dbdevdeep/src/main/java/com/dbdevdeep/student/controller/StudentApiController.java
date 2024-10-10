@@ -369,25 +369,25 @@ public class StudentApiController {
 		    // 새로 추가할 성적 저장
 		    if (!newScores.isEmpty() && studentService.registScore(newScores) != null) {
 		        resultMap.put("res_code", "200");
-		        resultMap.put("res_msg", "새로운 성적이 성공적으로 추가되었습니다.");
+		        resultMap.put("res_msg", "성적이 성공적으로 변경되었습니다.");
 		    }
 
 		    // 업데이트할 성적 처리
 		    if (!updatedScores.isEmpty() && studentService.updateScore(updatedScores) != null) {
 		        resultMap.put("res_code", "200");
-		        resultMap.put("res_msg", "기존 성적이 성공적으로 업데이트되었습니다.");
+		        resultMap.put("res_msg", "성적이 성공적으로 변경되었습니다.");
 		    }
 
 		    // 삭제할 성적 처리 및 결과 확인
 		    int deleteResult = studentService.deleteScores(deleteScores);
 		    if (deleteResult > 0) {
 		        resultMap.put("res_code", "200");
-		        resultMap.put("res_msg", "기존 성적이 성공적으로 삭제되었습니다.");
+		        resultMap.put("res_msg", "성적이 성공적으로 변경되었습니다.");
 		    }
 
 		    if (newScores.isEmpty() && updatedScores.isEmpty() && deleteScores.isEmpty()) {
 		        resultMap.put("res_code", "300");
-		        resultMap.put("res_msg", "변경사항이 없어 저장되지 않았습니다.");
+		        resultMap.put("res_msg", "변경사항이 없어 변경되지 않았습니다.");
 		    }
 
 		    return resultMap;

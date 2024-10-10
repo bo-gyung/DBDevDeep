@@ -208,6 +208,7 @@
 	    const formData = new FormData(form);
 	 	// scoreDtoList를 담을 배열 생성
 	    let scoreDtoList = [];
+	    var studentNo = document.getElementById("subject_no");
 	 	
 	 	// FormData에서 'score' 필드만 유효한 값만 필터링하여 처리
 	    const scoreInputs = document.querySelectorAll('input[name="score"]');
@@ -250,7 +251,7 @@
 	                        confirmButton: 'swal-custom-button'
 	                    }
 					}).then((result)=>{
-						location.href = "/student/score";
+						location.reload();
 					});
 				}else{
 					Swal.fire({
