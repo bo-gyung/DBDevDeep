@@ -39,7 +39,7 @@ public class StudentViewController {
 	}
 	
 	// 홈페이지
-	@GetMapping("/student")
+	@GetMapping("/student/home")
 	public String studentMainPage(Model model) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String empId = authentication.getName(); // 현재 로그인된 사용자의 emp_id 가져오기

@@ -1174,6 +1174,21 @@ body {
 	    // 입력 필드와 텍스트 영역 초기화
 	    modal.find('input[type="text"], input[type="number"], input[type="date"], input[type="time"], textarea').val('');
 	    modal.find('input[type="checkbox"]').prop('checked', false); // 모든 체크박스 초기화 (종일 체크박스 포함)
+	    
+	    const scheduleTitle = document.getElementById(`${modalId}_schedule_title`);
+	    if(scheduleTitle){
+	    	scheduleTitle.value = '';
+	    }
+	    
+	    const schedulePlace = document.getElementById(`${modalId}_schedule_place`);
+	    if(schedulePlace){
+	    	schedulePlace.value = '';
+	    }
+	    
+	    const scheduleContent = document.getElementById(`${modalId}_schedule_content`);
+	    if(scheduleContent){
+	    	scheduleContent.value = '';
+	    }
 
 	    // "종일" 일정 관련 설정
 	    const allDayCheckbox = document.getElementById(`${modalId}_is_all_day`);
@@ -1391,7 +1406,22 @@ body {
                     confirmButton: 'swal-custom-button'
                 }
             }).then(() => {
-                location.href = "/schedule";
+            	// 모달 창 닫기
+                if (action === '등록') {
+                    $('#scheduleCreateModal').modal('hide'); // 등록 모달 닫기
+                } else if (action === '수정') {
+                    $('#scheduleEditModal').modal('hide'); // 수정 모달 닫기
+                } else if (action === '삭제') {
+                    $('#scheduleDetailModal').modal('hide'); // 삭제 시 상세 모달 닫기
+                }
+            	
+        	    if (currentCategoryType === 0) {
+        	    	loadCalendarData('/getTotalScheduleData');
+        	    } else if (currentCategoryType === 1) {
+        	    	loadCalendarData('/getPublicScheduleData');
+        	    } else {
+        	    	loadCalendarData('/getPrivateScheduleData');
+        	    }
             });
         } else {
             Swal.fire({
@@ -1500,11 +1530,12 @@ body {
 
 <script>
 	let currentEventData = null;
+	let calendar;
 
     // FullCalendar 초기화 함수
     function initFullCalendar(eventsData) {
         var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'ko',
             timeZone: 'local', // 타임존을 'local'로 설정
@@ -1754,7 +1785,7 @@ body {
                             end_time: currentEventData.end_time,
                             is_all_day: currentEventData.is_all_day,
                             repeat_type: currentEventData.repeat_type,
-                            repeat_start_date: currentEventData.repeat_start_date,
+                            repeat_start_date: newStart.toISOString(),
                             repeat_end_date: currentEventData.repeat_end_date,
                             alert_type: currentEventData.alert_type
                         })
@@ -1772,6 +1803,15 @@ body {
                                 confirmButton: 'swal-custom-button'
                             }
                         });
+                        
+                        if (currentCategoryType === 0) {
+                	    	loadCalendarData('/getTotalScheduleData');
+                	    } else if (currentCategoryType === 1) {
+                	    	loadCalendarData('/getPublicScheduleData');
+                	    } else {
+                	    	loadCalendarData('/getPrivateScheduleData');
+                	    }
+                        
                     } else {
                         Swal.fire({
                             icon: 'error',

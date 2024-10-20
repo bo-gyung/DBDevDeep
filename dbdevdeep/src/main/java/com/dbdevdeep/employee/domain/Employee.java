@@ -161,7 +161,7 @@ public class Employee {
 	@OneToMany(mappedBy = "employee")
 	private List<ChatReadCheck> chatReadCheck;
 	
-	// 알람 관련
+	// 알림 관련
 	@JsonManagedReference
 	@OneToMany(mappedBy = "employee")
 	private List<Alert> alerts;

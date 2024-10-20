@@ -112,9 +112,9 @@ a {
 									<div class="tooltip">행정실에 문의 바랍니다.</div>
 								</div>
 
-								<div class="col-lg-5">
+								<!-- <div class="col-lg-5">
 									<input type="checkbox" id="remember-pw" name="remember-pw"> <label for="remember-pw">비밀번호 저장</label>
-								</div>
+								</div> -->
 								<div class="col-lg-12 text-center">
 									<button type="submit" class="btn btn-block btn-dark">로그인</button>
 								</div>
@@ -125,30 +125,12 @@ a {
 			</div>
 		</div>
 	</div>
-	<!-- 	<div id="info-header-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="info-header-modalLabel" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-header modal-colored-header bg-info">
-					<h4 class="modal-title" id="info-header-modalLabel">아이디/비밀번호 찾기</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-				</div>
-				<div class="modal-body">
-					<h5 class="mt-0"></h5>
-					<p>행정실에 문의바랍니다.</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-light" data-dismiss="modal">확인</button>
-				</div>
-			</div>
-		</div>
-	</div> -->
 
 	<script>
 		const alertFunc = () => {
 			Swal.fire({
           icon: 'info',
           title: '행정실에 문의 바랍니다.',
-/*           text: data.res_msg, */
           confirmButtonText: "닫기",
 			customClass: {
                 confirmButton: 'swal-custom-button'
@@ -163,18 +145,19 @@ a {
 						"DOMContentLoaded",
 						function() {
 							// localStorage에 저장
-							const savedUsername = localStorage
-									.getItem('savedUsername');
+							const savedUsername = localStorage.getItem('savedUsername');
+							
 							if (savedUsername) { // localStorage에 값이 저장되어 있는 경우
 								document.getElementById('uname').value = savedUsername;
 								document.getElementById('remember-id').checked = true;
 							}
 
-							const savedPwd = localStorage.getItem('savedPwd');
+							/* const savedPwd = localStorage.getItem('savedPwd');
+							
 							if (savedPwd) {
 								document.getElementById('pwd').value = savedPwd;
 								document.getElementById('remember-pw').checked = true;
-							}
+							} */
 
 							document
 									.querySelector('form[name="login_form"]')
@@ -185,26 +168,20 @@ a {
 														.getElementById('uname').value;
 												const rememberId = document
 														.getElementById('remember-id').checked;
-												const pwd = document
-														.getElementById('pwd').value;
-												const rememberPw = document
-														.getElementById('remember-pw').checked;
+												/* const pwd = document.getElementById('pwd').value;
+												const rememberPw = document.getElementById('remember-pw').checked; */
+												
 												if (rememberId) {
-													localStorage.setItem(
-															'savedUsername',
-															username); // remember-id 체크 시 localStorage에 저장
+													localStorage.setItem('savedUsername', username); // remember-id 체크 시 localStorage에 저장
 												} else {
-													localStorage
-															.removeItem('savedUsername'); // rememeber-id 체크 해제 시 localStorage 값 삭제
+													localStorage.removeItem('savedUsername'); // rememeber-id 체크 해제 시 localStorage 값 삭제
 												}
 
-												if (rememberPw) {
-													localStorage.setItem(
-															'savedPwd', pwd);
+												/* if (rememberPw) {
+													localStorage.setItem('savedPwd', pwd);
 												} else {
-													localStorage
-															.removeItem('savedPwd');
-												}
+													localStorage.removeItem('savedPwd');
+												} */
 											});
 						});
 	</script>
