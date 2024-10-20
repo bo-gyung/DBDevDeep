@@ -23,7 +23,9 @@ import com.dbdevdeep.approve.domain.TempEditDto;
 import com.dbdevdeep.approve.service.ApproveLineService;
 import com.dbdevdeep.approve.service.ApproveService;
 import com.dbdevdeep.approve.service.TempEditService;
+import com.dbdevdeep.employee.domain.Employee;
 import com.dbdevdeep.employee.domain.MySignDto;
+import com.dbdevdeep.employee.repository.EmployeeRepository;
 
 @Controller
 public class ApproveViewController {
@@ -31,13 +33,15 @@ public class ApproveViewController {
 	private final ApproveService approveService;
 	private final ApproveLineService approveLineService;
 	private final TempEditService tempEditService;
+	private final EmployeeRepository employeeRepository;
 	
 	@Autowired
 	public ApproveViewController(ApproveService approveService , ApproveLineService approveLineService,
-			TempEditService tempEditService) {
+			TempEditService tempEditService, EmployeeRepository employeeRepository) {
 		this.approveService = approveService;
 		this.approveLineService = approveLineService;
 		this.tempEditService = tempEditService;
+		this.employeeRepository = employeeRepository;
 	}
 	
 	//목록조회
@@ -48,6 +52,9 @@ public class ApproveViewController {
         String username = authentication.getName();
 		
 		List<ApproveDto> resultList = approveService.selectApproveList(username);
+		Employee emp = employeeRepository.findByempId(username);
+		
+		model.addAttribute("emp", emp);
 		model.addAttribute("resultList",resultList);
 		return "approve/approList";
 	}
@@ -98,7 +105,10 @@ public class ApproveViewController {
 	// 결재 작성
 	@GetMapping("/approves/create")
     public String showApproCreatePage() {
-        return "approve/approCreate";
+        
+		
+		
+		return "approve/approCreate";
 	}
 	
 	// 보고서 작성

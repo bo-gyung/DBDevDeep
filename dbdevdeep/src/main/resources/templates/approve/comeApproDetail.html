@@ -269,7 +269,7 @@
 									                </button>
 									            </div>
 									            <!-- sign 정보가 있는 경우 -->
-									            <div class="modal-body" style="padding-left: 20px; padding-right: 20px; padding-top: 20px;" th:if="${sDto != null and !sDto.isEmpty()}">
+									            <!-- <div class="modal-body" style="padding-left: 20px; padding-right: 20px; padding-top: 20px;" th:if="${sDto != null and !sDto.isEmpty()}">
 									                <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px;">
 									                    <div th:each="sign : ${sDto}" style="text-align: center;">
 									                        <input type="radio" name="signSelection" th:value="${sign.new_pic_name}">
@@ -278,7 +278,22 @@
 									                        </label>
 									                    </div>
 									                </div>
-									            </div>
+									            </div> -->
+									            <div class="modal-body" style="padding-left: 20px; padding-right: 20px; padding-top: 20px;" th:if="${sDto != null and !sDto.isEmpty()}">
+												    <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 20px;">
+												        <div th:each="sign : ${sDto}" style="text-align: center;">
+												            <input type="radio" name="signSelection" th:value="${sign.new_pic_name}">
+												            <label>
+												                <span th:if="${sign.rep_yn == 'Y'}">
+												                    <i class="fas fa-chess-queen" style="color: #5f76e8;"></i>
+												                </span>
+												            </label>
+												            <label>
+												                <img th:src="@{'/signatures/' + ${sign.new_pic_name}}" alt="서명 이미지" style="max-width: 100px; max-height: 50px;"/>
+												            </label>
+												        </div>
+												    </div>
+												</div>
 									            <!-- sign 정보가 없는 경우 -->
 									            <div class="modal-body" style="text-align: center;" th:if="${sDto == null or sDto.isEmpty()}">
 									                <p>사용 가능한 서명이 없습니다</p>

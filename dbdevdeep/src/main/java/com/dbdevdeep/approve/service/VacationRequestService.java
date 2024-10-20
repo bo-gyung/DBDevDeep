@@ -44,6 +44,8 @@ import com.dbdevdeep.employee.repository.DepartmentRepository;
 import com.dbdevdeep.employee.repository.EmployeeRepository;
 import com.dbdevdeep.employee.repository.JobRepository;
 import com.dbdevdeep.employee.repository.MySignRepository;
+import com.dbdevdeep.schedule.domain.Holiday;
+import com.dbdevdeep.schedule.repository.HolidayRepository;
 import com.dbdevdeep.websocket.config.WebSocketHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -68,6 +70,7 @@ public class VacationRequestService {
 	private final WebSocketHandler webSocketHandler;
 	private final AlertMessageHandler alertMessageHandler;
 	private final RestHolidayService restHolidayService;
+	private final HolidayRepository holidayRepository;
 	
 	@Autowired
 	public VacationRequestService(ApproveRepository approveRepository, VacationRequestRepository vacationRequestRepository,
@@ -77,7 +80,7 @@ public class VacationRequestService {
 			TempEditRepository tempEditRepository, FileService fileService, MySignRepository mySignRepository,
 			AlertRepository alertRepository, AlertMessageHandler alertMessageHandler, ObjectMapper objectMapper,
 			WebSocketHandler webSocketHandler, AlertMessageHandler alertMessageHandler1,
-			RestHolidayService restHolidayService) {
+			RestHolidayService restHolidayService, HolidayRepository holidayRepository) {
 		this.approveRepository = approveRepository;
 		this.vacationRequestRepository = vacationRequestRepository;
 		this.approveLineRepository = approveLineRepository;
@@ -94,6 +97,7 @@ public class VacationRequestService {
 		this.webSocketHandler = webSocketHandler;
 		this.alertMessageHandler = alertMessageHandler1;
 		this.restHolidayService = restHolidayService;
+		this.holidayRepository = holidayRepository;
 	}
 	
 	// 휴가 삭제
@@ -509,10 +513,22 @@ public class VacationRequestService {
 			return 1;
 		}
 	
-	private boolean isWeekendOrHoliday(LocalDate date, List<LocalDate> holidays) {
-        DayOfWeek day = date.getDayOfWeek();
-        return day == DayOfWeek.SATURDAY || day == DayOfWeek.SUNDAY || holidays.contains(date);
-    }
+		public boolean isWeekendOrHoliday(LocalDate date, List<Holiday> holidayList) {
+		    // 주말(토요일 또는 일요일) 체크
+		    DayOfWeek dayOfWeek = date.getDayOfWeek();
+		    if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+		        return true; // 주말이면 true 반환
+		    }
+
+		    // 공휴일 체크
+		    for (Holiday holiday : holidayList) {
+		        if (date.equals(holiday.getStartDate())) { // 공휴일의 시작일과 비교
+		            return true; // 공휴일이면 true 반환
+		        }
+		    }
+
+		    return false; // 주말도 아니고 공휴일도 아니면 false 반환
+		}
 	
 	// 휴가 시간 계산 메서드
 	public int minusVac(VacationRequestDto vacationRequestDto) {
@@ -532,13 +548,16 @@ public class VacationRequestService {
 	        }
 	    }
 
-	    // 시작일과 종료일이 동일한 경우
+	    List<Holiday> holidayList = holidayRepository.findAll(); 
+
 	    if (startDate.toLocalDate().equals(endDate.toLocalDate())) {
-	        if (!isWeekendOrHoliday(startDate.toLocalDate(), new ArrayList<>(holidays))) {
-	            // 같은 날이면 시간 계산
-	            hoursToDeduct = endDate.getHour() - startDate.getHour();
+	        // 시작일과 종료일이 같은 경우
+	        if (!isWeekendOrHoliday(startDate.toLocalDate(), holidayList)) {
+	            // 주말 또는 공휴일이 아닌 경우 시간 계산
 	            if (startDate.toLocalTime().equals(endDate.toLocalTime())) {
 	                hoursToDeduct = 8; // 동일한 시간이면 하루(8시간)
+	            } else {
+	                hoursToDeduct = endDate.getHour() - startDate.getHour();
 	            }
 	        }
 	    } else {
@@ -548,7 +567,7 @@ public class VacationRequestService {
 
 	        for (int i = 0; i < daysBetween; i++) {
 	            LocalDate currentDate = startDate.toLocalDate().plusDays(i);
-	            if (!isWeekendOrHoliday(currentDate, new ArrayList<>(holidays))) {
+	            if (!isWeekendOrHoliday(currentDate, holidayList)) {
 	                hoursToDeduct += 8; // 주말과 공휴일이 아니면 8시간 차감
 	            }
 	        }

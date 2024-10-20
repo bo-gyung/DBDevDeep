@@ -202,14 +202,16 @@
 
                                         		</td>
                                         		<td th:text="${#temporals.format(approve.appro_time, 'yyyy.MM.dd HH:mm:ss')}"></td>
-                                        		<td th:text="${approve.appro_type == 0 ? '연차' :
-                                        						approve.appro_type == 1 ? '공가' : 
-                                        						approve.appro_type == 2 ? '병가' : 
-                                        						approve.appro_type == 3 ? '조퇴' :
-                                        						approve.appro_type == 4 ? '경조사' :
-                                        						approve.appro_type == 5 ? '출산휴가' :
-                                        						approve.appro_type == 6 ? '오전반차' :
-                                        						approve.appro_type == 7 ? '오후반차' : ''}"></td>
+                                        		<td th:switch="${approve.appro_type}">
+                                        						<span th:case="0">연차</span>
+                                        						<span th:case="1">공가</span>
+                                        						<span th:case="2">병가</span>
+                                        						<span th:case="3">조퇴</span>
+                                        						<span th:case="4">경조사</span>
+                                        						<span th:case="5">출산휴가</span>
+                                        						<span th:case="6">오전반차</span>
+                                        						<span th:case="7">오후반차</span>
+                                        		</td>
                                         		<td th:switch="${approve.appro_status}">
 												    <span th:case="0">대기중</span>
 												    <span th:case="1">완료</span>
